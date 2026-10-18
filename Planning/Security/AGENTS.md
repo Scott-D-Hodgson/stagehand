@@ -1,0 +1,10 @@
+# Security documentation guidance
+
+These files are an initial engineering planning assessment for Stagehand, not an authorization, certification, or claim of compliance. The runner, CLI, and editor are not implemented; describe Stagehand mappings as planned and unverified unless implementation evidence is provided.
+
+- The folder uses the ITSG-33 Annex 3A control-family taxonomy because that is the requested structure. Its README notes that Annex 3A has been superseded by ITSP.10.033; preserve that currency warning and do not imply the catalogues are interchangeable.
+- Use official Cyber Centre sources for control statements and supplemental guidance. Link to the source and clearly separate control requirements from supplemental guidance, plain-language explanation, and Stagehand mapping. Paraphrase; do not fabricate text or present a paraphrase as a quotation.
+- Keep one Markdown file per control identifier, with enhancements identified under the relevant base control. Preserve identifiers, including withdrawn or unallocated entries, only as the official catalogue describes them.
+- Mark organisation-defined parameter suggestions conspicuously as suggestions for review, with rationale. Do not present suggested values as official requirements or organisational decisions.
+- Explain applicability by component and deployment boundary. Distinguish product responsibilities from operator/environment responsibilities (CI, identity, network, endpoint, hosting, retention, and physical safeguards).
+- Never mark a control satisfied, implemented, or verified without evidence for the actual version and deployment. Reassess applicability and source currency before supporting a real authorization or compliance decision.
