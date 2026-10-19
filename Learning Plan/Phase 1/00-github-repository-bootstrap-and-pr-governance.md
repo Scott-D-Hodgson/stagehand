@@ -7,7 +7,7 @@ Check each statement you can confidently explain without looking it up. If any r
 - [ ] I can explain the difference between a local Git repository, its GitHub remote, and the default branch.
 - [ ] I know why I should start with an empty GitHub repository when I already have local commits.
 - [ ] I can explain how a PR requirement, a branch ruleset, and a required status check differ.
-- [ ] I can explain why Stagehand selected squash merging and what history trade-off it makes.
+- [ ] I can explain when Stagehand intends to use merge commits versus squash merges and what history trade-off each makes.
 - [ ] I understand why my own PR approval does not count as independent approval and what the solo self-review can and cannot prove.
 - [ ] I know how I would verify the effective rules on `main` rather than trusting that a planned setting is active.
 
@@ -30,7 +30,7 @@ A **pull request (PR)** is a proposed change from one branch into another. It gi
 
 A **required status check** is a named result GitHub waits for before allowing a PR to merge. The check can report whether automation passed; it cannot prove that a human paid attention. Think of it as the venue checking the ticket scanner is green, not checking whether the stage manager read the whole script.
 
-GitHub supports three common PR merge methods. A **merge commit** preserves the branch commits and adds a merge point; **squash merge** combines the PR into one commit on `main`; **rebase merge** adds the PR's commits individually without a merge commit. Stagehand selected squash merging as the default: each PR becomes one cohesive commit on `main`, while the discussion and intermediate commits remain on the PR. The trade-off is that intermediate branch commits are not separate commits on `main`.
+GitHub supports three common PR merge methods. A **merge commit** preserves the branch commits and adds a merge point; **squash merge** combines the PR into one commit on `main`; **rebase merge** adds the PR's commits individually without a merge commit. Stagehand's intended practice is a mix: use merge commits for the owner's PRs to keep the owner's individual efforts visible in `main`'s history, and generally squash PRs from other contributors so their incremental commits are grouped into one cohesive change. GitHub settings enable merge methods for the repository as a whole; they do not automatically choose a method based on PR authorship, so this distinction is a team convention. Squashing preserves the PR discussion and incremental commits on the PR itself, but not as separate commits on `main`.
 
 ## The solo-review wrinkle
 
@@ -68,7 +68,7 @@ Then work through the following sequence:
 2. Create the public GitHub repository with the intended name and description. Leave initialization options unchecked when preserving existing local history.
 3. Add or correct `origin` only after checking its URL, then push the intended branch once to seed the remote.
 4. Set `main` as the default branch and configure a ruleset or branch protection rule. Check the rule's target, enforcement status, required PR setting, force-push/deletion behaviour, approval count, and bypass actors.
-5. Enable squash merging as the default and document the history trade-off.
+5. Enable merge commits and squash merging. Document the convention: merge commits for owner-authored PRs, squash merges for outside contributions. GitHub does not enforce that author-specific choice automatically.
 6. Add the contribution guide and PR template. Document that the owner manually self-reviews their own PRs and reviews outside contributions before merging.
 7. Keep any ordinary CI checks required by the repository policy. Do not configure a required author-sensitive review-policy check during the solo phase; that automation is deferred to TE-021.
 8. Test PR requirements, direct-push blocking, and bypass behaviour. Record evidence and any untested cases in M0's completion notes.
@@ -81,7 +81,7 @@ Before changing repository settings, make a one-page setup worksheet with:
 
 - The repository owner/name, public visibility, description, and local remote URL.
 - The default branch and the branch pattern the ruleset will target.
-- Squash merging as the selected default and why it fits the desired `main` history.
+- Both enabled merge methods and the intended per-PR choice: merge commits for owner-authored work, squash merges for outside contributions.
 - The rules required during the solo phase and who can bypass them.
 - What the owner self-review checklist checks, and what it cannot establish.
 - What is handled manually during the solo phase and what author-sensitive review automation is deferred to TE-021.
@@ -96,7 +96,7 @@ After setup, fill the worksheet with observed values and links to evidence. Mark
 - You can explain why the initial push precedes protection of `main` when the remote starts empty.
 - You understand that the solo self-review is useful but does not provide independent approval.
 - You can find and inspect the effective branch rules and identify bypass behaviour.
-- You can explain the selected PR merge method and the history trade-off it makes.
+- You can explain the intended merge-method choice for owner and contributor PRs, including the history trade-offs and the fact that GitHub does not enforce the distinction by author.
 - You can describe the solo manual review process, the future independent-review rule, and the deferred automation without treating a checkbox as GitHub-enforced approval.
 - You record observed configuration separately from intended configuration.
 
@@ -117,7 +117,7 @@ Try these without looking back, then open the answer key to check your reasoning
 2. You already have local commits and files. Why is creating an empty remote usually the clean bootstrap choice?
 3. Why can't your approval satisfy GitHub's required-review rule on your own PR?
 4. What does a required status check prove, and what does a self-review checkbox prove?
-5. What does squash merging do to the PR's commits on `main`, and what is one trade-off?
+5. When should Stagehand use a merge commit, and when should it use a squash merge? What history trade-off does each make?
 6. Which parts of the solo review process are manual, and what does TE-021 add later?
 7. Name two pieces of evidence you would record after testing the merge policy.
 
@@ -128,7 +128,7 @@ Try these without looking back, then open the answer key to check your reasoning
 2. Initializing README/licence files on GitHub can create a separate history from the existing local one. An empty remote lets you push the existing history cleanly.
 3. GitHub does not count the PR author's approval as approval of their own PR. The solo policy uses zero native required approvals, requires PRs, and follows the manual self-review checklist.
 4. A passing status check proves that the automation reported success under its logic. A checkbox records the author's self-attestation. Neither proves the author carefully understood every line.
-5. It combines all commits from the PR into one commit on the target branch. Intermediate commits are not preserved separately on `main`.
+5. The intended practice is merge commits for the owner's PRs, preserving individual commits in `main`'s history, and squash merges for outside contributions, combining their PR into one commit. GitHub does not enforce this choice based on author. A squash keeps the branch's incremental commits on the PR, but not as separate commits on `main`.
 6. The owner self-reviews their own PR by completing the checklist and manually reviews other contributors' PRs. TE-021 may later automate these checks and make them required in the branch ruleset.
 7. Examples include the effective ruleset settings/link and test PR links/results for owner PRs, outside-author PRs, direct pushes, or bypass behaviour. Mark untested cases as open.
 

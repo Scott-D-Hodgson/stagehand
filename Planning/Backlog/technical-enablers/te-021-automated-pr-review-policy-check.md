@@ -17,7 +17,7 @@ When additional developers are regularly contributing, consider automating the a
 ## Constraints
 
 - This automation is deferred to avoid setup and maintenance overhead while the project has one developer.
-- The current solo-phase procedure is manual; the PR requirement and squash-merge default remain in M0.
+- The current solo-phase procedure is manual; the PR requirement and mixed merge-method convention (merge commits for owner-authored PRs, squash merges for outside contributions) remain in M0.
 - The check must not claim that a self-attestation is an independent review.
 
 ## Dependencies

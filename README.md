@@ -41,7 +41,7 @@ Planning is a living set of AI-generated documents guided by the developer. The 
 
 ## Contributing
 
-Changes should be proposed through a pull request so the author and reviewer can inspect the diff before it reaches `main`. The intended solo procedure is for the owner to self-review with a checklist and review contributions from others. When other reviewers join, the intended policy is to require an independent review. Squash merging is the selected default. GitHub settings are still being reviewed, so this describes the project expectation rather than claiming that the rules are already active.
+Changes should be proposed through a pull request so the author and reviewer can inspect the diff before it reaches `main`. The intended solo procedure is for the owner to self-review with a checklist and review contributions from others. When other reviewers join, the intended policy is to require an independent review. The planned merge convention is to use merge commits for the owner's PRs, preserving individual commits in `main`, and squash merges for outside contributions, grouping their incremental commits. GitHub does not enforce this choice based on authorship; both methods need to be enabled and selected per PR. Settings are still being reviewed, so this describes the project expectation rather than claiming that the rules are already active.
 
 See the [M0 repository bootstrap guide](Learning%20Plan/Phase%201/00-github-repository-bootstrap-and-pr-governance.md) for the setup and review approach. Keep plans and examples synthetic, and never commit credentials or real secrets.
 

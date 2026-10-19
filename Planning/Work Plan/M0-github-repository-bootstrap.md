@@ -16,7 +16,7 @@
 - [ ] During the solo phase, use a manual review procedure: complete the self-review checklist on owner-authored PRs, and have the repository owner review PRs from other contributors before merging. Required status-check automation for this policy is deferred to [TE-021](../Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md).
 - [ ] Add a root README "Contributing" section that briefly explains the PR workflow and links to `CONTRIBUTING.md`; put detailed contribution and review instructions in `CONTRIBUTING.md`.
 - [ ] Document the future transition: when trusted collaborators have write access, change the ruleset to require at least one approving review from someone other than the PR author, and dismiss stale approvals or require approval of the latest reviewable push.
-- [ ] Document the review expectations (what the author checks, what reviewers check once added, and how requested changes are resolved); use squash merging as the default merge method.
+- [ ] Document the review expectations (what the author checks, what reviewers check once added, and how requested changes are resolved); use merge commits for owner-authored PRs and squash merges for PRs from other contributors.
 - [ ] Validate the repository rules using a test pull request: PRs are required for changes to `main`, direct pushes are blocked, and the manual review procedure is documented. Checklist enforcement by automation is not part of the initial configuration.
 
 ## Solo-phase review policy and future transition
@@ -25,7 +25,7 @@ GitHub does not count an author's approval on their own PR toward the required a
 
 ## Merge-method decision
 
-**Decision: enable squash merging as the default.** It keeps `main` readable with one cohesive commit per reviewed PR while leaving the full discussion, review, and intermediate commits on the PR. Individual branch commits are collapsed on `main`.
+**Decision: enable merge commits and squash merging, and choose the method per PR.** The intended practice is to merge the owner's own PRs with merge commits so their individual commits remain visible in `main`'s history. PRs from other contributors will generally be squash-merged, keeping `main` focused on one cohesive commit per reviewed contribution while the PR retains its discussion and incremental commits. This is a documented human convention; GitHub's merge-method settings enable methods repository-wide and do not automatically select a method based on who authored a PR. Rebase merging is not part of the planned workflow.
 
 The author-sensitive required status check is deferred to TE-021 to avoid extra setup during the solo phase. A PR template is a checklist for the human author; GitHub does not treat checked Markdown boxes as an approval. A future automated GitHub Actions workflow, GitHub App, or external CI check could report pass/fail based on the PR author and required evidence (the self-review checklist for owner PRs, or a submitted owner review for other PRs). Branch protection/rulesets could then require that check to pass.
 
@@ -35,6 +35,7 @@ The author-sensitive required status check is deferred to TE-021 to avoid extra 
 - A PR is required for every update to `main`; direct pushes and bypasses are blocked.
 - During the solo phase, the documented manual policy requires the owner to complete the self-review checklist on their own PRs and to review other contributors' PRs; native approving-review count is zero and policy automation is deferred.
 - The root README points contributors to `CONTRIBUTING.md`, and the PR template records the author's self-review.
+- GitHub allows merge commits and squash merges; the per-PR convention is documented and understood.
 - A test PR confirms the solo-phase merge gates behave as documented.
 - The future independent-review policy is documented, including the setting change to require one non-author approval when reviewers are added.
 
