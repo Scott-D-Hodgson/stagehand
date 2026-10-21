@@ -31,7 +31,7 @@ The plan assumes one contributor familiar with Git and basic TypeScript/Node.js,
 
 The combined M0 plus Phase 1 effort is **20–35 person-days**.
 
-M0 is repository setup required before starting the Phase 1 implementation work. The repo creation step is complete for the current project, but M0 remains open until GitHub settings and PR behaviour are reviewed and verified. Its instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. Re-estimate after M1 and M3, when package boundaries and the data contract are clearer.
+M0 is the repository setup prerequisite for Phase 1 implementation, and it is complete for the current project: the repository and ruleset are configured, contribution guidance is in place, PR behaviour was tested, and merge commits and squash merging are enabled while rebase merging is disabled. Its instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. Re-estimate after M1 and M3, when package boundaries and the data contract are clearer.
 
 ## Completion criteria
 
