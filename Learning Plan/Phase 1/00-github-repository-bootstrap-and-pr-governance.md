@@ -30,6 +30,8 @@ A **pull request (PR)** is a proposed change from one branch into another. It gi
 
 A **required status check** is a named result GitHub waits for before allowing a PR to merge. The check can report whether automation passed; it cannot prove that a human paid attention. Think of it as the venue checking the ticket scanner is green, not checking whether the stage manager read the whole script.
 
+GitHub has both classic branch protection rules and repository rulesets. “Classic” identifies the older branch-protection model; it remains supported, while rulesets are the newer and more visible way to manage protections. For this repository, use a ruleset as the primary path. A ruleset has a name, a target (here, the branch named `main`), an enforcement status, and a set of rules. Set its enforcement to **Active**; a disabled or evaluate-only configuration does not enforce the intended protections. Leave the bypass list empty so no person or app has an explicit bypass grant.
+
 GitHub supports three common PR merge methods. A **merge commit** preserves the branch commits and adds a merge point; **squash merge** combines the PR into one commit on `main`; **rebase merge** adds the PR's commits individually without a merge commit. Stagehand's intended practice is a mix: use merge commits for the owner's PRs to keep the owner's individual efforts visible in `main`'s history, and generally squash PRs from other contributors so their incremental commits are grouped into one cohesive change. GitHub settings enable merge methods for the repository as a whole; they do not automatically choose a method based on PR authorship, so this distinction is a team convention. Squashing preserves the PR discussion and incremental commits on the PR itself, but not as separate commits on `main`.
 
 ## The solo-review wrinkle
@@ -47,7 +49,7 @@ The checklist is a self-attestation. It is a speed bump that encourages a carefu
 
 When a local repository already has commits, create the GitHub repository empty: do not ask GitHub to generate another README, `.gitignore`, or licence commit. Push the existing branch to seed the remote, then set `main` as the default branch and configure the rules that apply to it. Otherwise, the two histories can start unrelated and Git will quite reasonably complain about the mess.
 
-The first push is a bootstrap step because the remote does not yet have a `main` branch to protect. After that, configure the PR requirement, force-push/deletion rules, and bypass behaviour. An ordinary CI check may need to run once before GitHub can offer it by name in the ruleset. The author-sensitive review-policy check is deferred to TE-021, so it is not a prerequisite for the solo-phase setup.
+The first push is a bootstrap step because the remote does not yet have a `main` branch to protect. After that, configure the ruleset's PR requirement, force-push/deletion rules, conversation resolution, and empty bypass list. An ordinary CI check may need to run once before GitHub can offer it by name in the ruleset. The author-sensitive review-policy check is deferred to TE-021, so it is not a prerequisite for the solo-phase setup.
 
 Because this repository is intended to be public, review the exact files being published. The root `LICENSE` is MIT; public visibility and a licence are separate things. Keep secrets, private data, and machine-specific files out of the first push.
 
@@ -67,13 +69,27 @@ Then work through the following sequence:
 1. Confirm the local branch, working tree, repository URL, README, `.gitignore`, and MIT licence. Review staged and untracked files for anything private.
 2. Create the public GitHub repository with the intended name and description. Leave initialization options unchecked when preserving existing local history.
 3. Add or correct `origin` only after checking its URL, then push the intended branch once to seed the remote.
-4. Set `main` as the default branch and configure a ruleset or branch protection rule. Check the rule's target, enforcement status, required PR setting, force-push/deletion behaviour, approval count, and bypass actors.
-5. Enable merge commits and squash merging. Document the convention: merge commits for owner-authored PRs, squash merges for outside contributions. GitHub does not enforce that author-specific choice automatically.
-6. Add the contribution guide and PR template. Document that the owner manually self-reviews their own PRs and reviews outside contributions before merging.
+4. Set `main` as the default branch and create an Active ruleset named `Protect main`, targeting the branch pattern `main`, with an empty bypass list. Apply the recommended settings below and verify the effective configuration.
+5. In the repository-level pull request settings, allow merge commits and squash merging, and disable rebase merging. This is separate from the ruleset. Document the convention: merge commits for owner-authored PRs, squash merges for outside contributions. GitHub does not enforce that author-specific choice automatically.
+6. Add the contribution guide and PR template. Stagehand's procedure is recorded in [`CONTRIBUTING.md`](../../CONTRIBUTING.md): the owner self-reviews their own PRs and reviews outside contributions before merging.
 7. Keep any ordinary CI checks required by the repository policy. Do not configure a required author-sensitive review-policy check during the solo phase; that automation is deferred to TE-021.
 8. Test PR requirements, direct-push blocking, and bypass behaviour. Record evidence and any untested cases in M0's completion notes.
 
 Do not write that a rule is active just because it appears in a plan or a settings screenshot. Verify the effective rule on `main` and the behaviour of a real PR. Repository settings may also be affected by other rules, permissions, or account-plan limitations, so inspect the result GitHub actually enforces.
+
+### What the PR template is and where it goes
+
+Stagehand's template is the repository file [`.github/pull_request_template.md`](../../.github/pull_request_template.md). It is committed once. After that file is merged into the repository's default branch, GitHub copies its Markdown into the description when someone opens a PR. The author fills out and edits that description as part of the PR discussion; they do not upload the template file with each change.
+
+The template gives each PR a familiar shape: a short summary, a self-review checklist, and a place to record checks and results. The author ticks the checklist boxes in the PR description and writes enough context for a reviewer to understand the change. For the PR that introduces the template itself, GitHub will not have it available yet; it becomes the default for later PRs after it reaches the default branch.
+
+The checklist is a prompt and a record of the author's self-attestation. It does not force boxes to be checked and does not prove that the author carefully reviewed the change. During the solo phase, use it as a deliberate pause to read the diff before merging. Automated enforcement remains deferred to TE-021.
+
+### The manual review procedure
+
+The project keeps the detailed steps in [`CONTRIBUTING.md`](../../CONTRIBUTING.md), so contributors have one place to find them. In short, the author checks the complete diff, relevant documentation, checks, secrets, and open comments. The repository owner reviews contributor PRs, requests changes when needed, reviews the updated diff, and approves when satisfied. Owner-authored PRs get a deliberate self-review but no independent approval; the current ruleset uses zero required approvals while the owner works alone.
+
+At merge time, the owner uses a merge commit for their own PR to preserve individual commits, and generally squash-merges outside contributions. This is a human convention: GitHub enables the merge methods repository-wide and does not choose based on PR author. When independent reviewers join, the planned ruleset change is to require at least one non-author approval.
 
 ## Exercise
 
@@ -81,14 +97,36 @@ Before changing repository settings, make a one-page setup worksheet with:
 
 - The repository owner/name, public visibility, description, and local remote URL.
 - The default branch and the branch pattern the ruleset will target.
+- The ruleset name, enforcement status, target branch, and bypass list.
+- Which protections will be enabled now and which are intentionally deferred.
 - Both enabled merge methods and the intended per-PR choice: merge commits for owner-authored work, squash merges for outside contributions.
-- The rules required during the solo phase and who can bypass them.
 - What the owner self-review checklist checks, and what it cannot establish.
 - What is handled manually during the solo phase and what author-sensitive review automation is deferred to TE-021.
 - The test PRs that will demonstrate each expected pass or block.
 - The setting change required when an independent reviewer is added.
 
 After setup, fill the worksheet with observed values and links to evidence. Mark anything you could not test as open rather than giving it a hopeful green check.
+
+### Recommended initial ruleset choices
+
+Use these as the starting configuration for Stagehand. GitHub may change the settings page labels; check the linked official documentation if the UI differs.
+
+| Setting | Choice | Why |
+|---|---|---|
+| Name | `Protect main` | A plain name that says what the ruleset does. |
+| Enforcement | **Active** | The rules must actually apply. |
+| Target | Branch name pattern `main` | Protects the current default branch explicitly. |
+| Bypass list | Empty | Avoids granting an explicit bypass to a role, team, or app. |
+| Require a pull request before merging | On | Direct updates should not be the normal path to `main`. |
+| Required approvals | 0 during the solo phase | Your own approval cannot count as independent review; use the self-review checklist. Revisit when another trusted reviewer is available. |
+| Require conversation resolution | On | PR comments must be resolved or acknowledged before merge. |
+| Restrict deletions | On | Protects `main` from accidental deletion. |
+| Block force pushes | On | Prevents rewriting the shared branch history. |
+| Require linear history | Off | Stagehand intends to preserve owner-authored commits with merge commits. Linear-history enforcement would prevent that merge method. |
+| Require status checks | Off until checks exist | Require only checks that have been configured and have reported results. |
+| Require signed commits | Off initially | This can add signing setup for contributors; revisit if project policy calls for it. |
+
+The empty bypass list prevents explicitly designated bypass actors, but it cannot stop the repository owner from changing or disabling the ruleset. Keep that distinction in mind: the ruleset is a guardrail on the normal path, not a padlock against its administrator. Avoid configuring both a ruleset and a classic branch-protection rule for the same branch unless you intend their combined effect.
 
 ## You are ready when
 
@@ -104,7 +142,11 @@ After setup, fill the worksheet with observed values and links to evidence. Mark
 
 - [Work Plan M0 — GitHub repository bootstrap and PR governance](../../Planning/Work%20Plan/M0-github-repository-bootstrap.md)
 - [GitHub rulesets: available rules](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/available-rules-for-rulesets)
+- [About GitHub rulesets](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/about-rulesets)
+- [About protected branches](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-protected-branches/about-protected-branches)
 - [Create a repository ruleset](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-rulesets/creating-rulesets-for-a-repository)
+- [Configuring commit merging for pull requests](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-merging-for-pull-requests)
+- [Configuring commit squashing for pull requests](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/configuring-pull-request-merges/configuring-commit-squashing-for-pull-requests)
 - [Approving a pull request with required reviews](https://docs.github.com/en/pull-requests/how-tos/review-pull-requests/approving-a-pull-request-with-required-reviews)
 - [Pull request merge methods](https://docs.github.com/en/pull-requests/reference/pull-request-merges)
 - [Add local code to GitHub](https://docs.github.com/en/migrations/importing-source-code/using-the-command-line-to-import-source-code/adding-locally-hosted-code-to-github)

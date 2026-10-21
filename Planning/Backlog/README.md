@@ -44,4 +44,4 @@ This is an initial draft generated from Stagehand planning discussions. Review p
 2. Review epics and acceptance criteria, especially schema, editor-first scope, execution, soft assertions, accessibility, localization, and variable/loop semantics.
 3. Resolve remaining implementation choices in the stories, including dataset duplicate/unknown-name behaviour, accessibility scan-error policy, and report outcome mapping to Azure DevOps.
 4. Review the current decisions in `product-vision.md` and `release-plan.md`. If JUnit conversion is prioritized later, verify its result fields/outcomes against the Azure DevOps publishing task.
-5. Complete M0's GitHub setup and settings review, then commit this backlog as the reviewed baseline through the configured PR workflow. M0 remains documented as a greenfield bootstrap process for reuse.
+5. Commit this backlog as the reviewed baseline through the configured PR workflow. M0 is complete and remains documented as a greenfield bootstrap process for reuse.

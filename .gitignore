@@ -151,3 +151,6 @@ vite.config.ts.timestamp-*
 # Local Obsidian vault and Syncthing metadata
 /.obsidian/
 /.stfolder/
+
+# Local Obsidian review index; keep out of version control
+/Obsidian-review.md
