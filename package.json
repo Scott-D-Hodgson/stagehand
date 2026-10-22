@@ -1,0 +1,10 @@
+{
+  "name": "stagehand",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "apps/cli",
+    "apps/web",
+    "packages/*"
+  ]
+}

@@ -9,7 +9,7 @@ Check each statement you can confidently explain without looking it up. If any r
 - [ ] I can explain how a PR requirement, a branch ruleset, and a required status check differ.
 - [ ] I can explain when Stagehand intends to use merge commits versus squash merges and what history trade-off each makes.
 - [ ] I understand why my own PR approval does not count as independent approval and what the solo self-review can and cannot prove.
-- [ ] I know how I would verify the effective rules on `main` rather than trusting that a planned setting is active.
+- [ ] I know how to test the PR and branch rules during repository bootstrap.
 
 ## What you will learn
 
@@ -20,7 +20,7 @@ Check each statement you can confidently explain without looking it up. If any r
 - How to use a manual self-review checklist while working alone without pretending it is an independent approval.
 - How to test the merge policy and record what is actually configured.
 
-This lesson prepares you for [Work Plan M0](../../Planning/Work%20Plan/M0-github-repository-bootstrap.md), which happens before the Phase 1 implementation milestones. GitHub's settings can change, so use the current documentation linked below when you do the setup.
+This lesson explains the completed [Work Plan M0](../../Planning/Work%20Plan/M0-github-repository-bootstrap.md) bootstrap and remains a guide to the concepts and sequence. The M0 completion record includes a test PR confirming the solo-phase merge gates. GitHub's settings can change, so use the current documentation linked below if you repeat the setup.
 
 ## Core ideas
 
@@ -49,7 +49,7 @@ The checklist is a self-attestation. It is a speed bump that encourages a carefu
 
 When a local repository already has commits, create the GitHub repository empty: do not ask GitHub to generate another README, `.gitignore`, or licence commit. Push the existing branch to seed the remote, then set `main` as the default branch and configure the rules that apply to it. Otherwise, the two histories can start unrelated and Git will quite reasonably complain about the mess.
 
-The first push is a bootstrap step because the remote does not yet have a `main` branch to protect. After that, configure the ruleset's PR requirement, force-push/deletion rules, conversation resolution, and empty bypass list. An ordinary CI check may need to run once before GitHub can offer it by name in the ruleset. The author-sensitive review-policy check is deferred to TE-021, so it is not a prerequisite for the solo-phase setup.
+The first push is a bootstrap step because the remote does not yet have a `main` branch to protect. After that, configure the ruleset's PR requirement, force-push/deletion rules, conversation resolution, and empty bypass list. An ordinary CI check may need to run once before GitHub can offer it by name in the ruleset. The author-sensitive review-policy check is deferred to [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md), so it is not a prerequisite for the solo-phase setup.
 
 Because this repository is intended to be public, review the exact files being published. The root `LICENSE` is MIT; public visibility and a licence are separate things. Keep secrets, private data, and machine-specific files out of the first push.
 
@@ -72,10 +72,10 @@ Then work through the following sequence:
 4. Set `main` as the default branch and create an Active ruleset named `Protect main`, targeting the branch pattern `main`, with an empty bypass list. Apply the recommended settings below and verify the effective configuration.
 5. In the repository-level pull request settings, allow merge commits and squash merging, and disable rebase merging. This is separate from the ruleset. Document the convention: merge commits for owner-authored PRs, squash merges for outside contributions. GitHub does not enforce that author-specific choice automatically.
 6. Add the contribution guide and PR template. Stagehand's procedure is recorded in [`CONTRIBUTING.md`](../../CONTRIBUTING.md): the owner self-reviews their own PRs and reviews outside contributions before merging.
-7. Keep any ordinary CI checks required by the repository policy. Do not configure a required author-sensitive review-policy check during the solo phase; that automation is deferred to TE-021.
-8. Test PR requirements, direct-push blocking, and bypass behaviour. Record evidence and any untested cases in M0's completion notes.
+7. Keep any ordinary CI checks required by the repository policy. Do not configure a required author-sensitive review-policy check during the solo phase; that automation is deferred to [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md).
+8. Test PR requirements, direct-push blocking, and bypass behaviour. Summarize the result in M0's completion evidence; a separate link to a test PR is not required.
 
-Do not write that a rule is active just because it appears in a plan or a settings screenshot. Verify the effective rule on `main` and the behaviour of a real PR. Repository settings may also be affected by other rules, permissions, or account-plan limitations, so inspect the result GitHub actually enforces.
+For a fresh setup, check the effective rule on `main` and the behaviour of a real PR. Repository settings may also be affected by other rules, permissions, or account-plan limitations, so inspect the result GitHub actually enforces.
 
 ### What the PR template is and where it goes
 
@@ -83,7 +83,7 @@ Stagehand's template is the repository file [`.github/pull_request_template.md`]
 
 The template gives each PR a familiar shape: a short summary, a self-review checklist, and a place to record checks and results. The author ticks the checklist boxes in the PR description and writes enough context for a reviewer to understand the change. For the PR that introduces the template itself, GitHub will not have it available yet; it becomes the default for later PRs after it reaches the default branch.
 
-The checklist is a prompt and a record of the author's self-attestation. It does not force boxes to be checked and does not prove that the author carefully reviewed the change. During the solo phase, use it as a deliberate pause to read the diff before merging. Automated enforcement remains deferred to TE-021.
+The checklist is a prompt and a record of the author's self-attestation. It does not force boxes to be checked and does not prove that the author carefully reviewed the change. During the solo phase, use it as a deliberate pause to read the diff before merging. Automated enforcement remains deferred to [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md).
 
 ### The manual review procedure
 
@@ -101,11 +101,11 @@ Before changing repository settings, make a one-page setup worksheet with:
 - Which protections will be enabled now and which are intentionally deferred.
 - Both enabled merge methods and the intended per-PR choice: merge commits for owner-authored work, squash merges for outside contributions.
 - What the owner self-review checklist checks, and what it cannot establish.
-- What is handled manually during the solo phase and what author-sensitive review automation is deferred to TE-021.
+- What is handled manually during the solo phase and what author-sensitive review automation is deferred to [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md).
 - The test PRs that will demonstrate each expected pass or block.
 - The setting change required when an independent reviewer is added.
 
-After setup, fill the worksheet with observed values and links to evidence. Mark anything you could not test as open rather than giving it a hopeful green check.
+After setup, fill the worksheet with the observed results. Links to supporting evidence can be useful, but individual test PR links are optional. Mark anything you could not test as open rather than giving it a hopeful green check.
 
 ### Recommended initial ruleset choices
 
@@ -133,10 +133,10 @@ The empty bypass list prevents explicitly designated bypass actors, but it canno
 - You can explain the difference between a local Git history, its GitHub remote, the default branch, a PR, a ruleset, and a required status check.
 - You can explain why the initial push precedes protection of `main` when the remote starts empty.
 - You understand that the solo self-review is useful but does not provide independent approval.
-- You can find and inspect the effective branch rules and identify bypass behaviour.
+- You can test the branch rules and identify bypass behaviour during setup.
 - You can explain the intended merge-method choice for owner and contributor PRs, including the history trade-offs and the fact that GitHub does not enforce the distinction by author.
 - You can describe the solo manual review process, the future independent-review rule, and the deferred automation without treating a checkbox as GitHub-enforced approval.
-- You record observed configuration separately from intended configuration.
+- You can explain the difference between a documented policy and a setting GitHub enforces.
 
 ## Read next
 
@@ -160,7 +160,7 @@ Try these without looking back, then open the answer key to check your reasoning
 3. Why can't your approval satisfy GitHub's required-review rule on your own PR?
 4. What does a required status check prove, and what does a self-review checkbox prove?
 5. When should Stagehand use a merge commit, and when should it use a squash merge? What history trade-off does each make?
-6. Which parts of the solo review process are manual, and what does TE-021 add later?
+6. Which parts of the solo review process are manual, and what does [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md) add later?
 7. Name two pieces of evidence you would record after testing the merge policy.
 
 <details>
@@ -171,7 +171,7 @@ Try these without looking back, then open the answer key to check your reasoning
 3. GitHub does not count the PR author's approval as approval of their own PR. The solo policy uses zero native required approvals, requires PRs, and follows the manual self-review checklist.
 4. A passing status check proves that the automation reported success under its logic. A checkbox records the author's self-attestation. Neither proves the author carefully understood every line.
 5. The intended practice is merge commits for the owner's PRs, preserving individual commits in `main`'s history, and squash merges for outside contributions, combining their PR into one commit. GitHub does not enforce this choice based on author. A squash keeps the branch's incremental commits on the PR, but not as separate commits on `main`.
-6. The owner self-reviews their own PR by completing the checklist and manually reviews other contributors' PRs. TE-021 may later automate these checks and make them required in the branch ruleset.
-7. Examples include the effective ruleset settings/link and test PR links/results for owner PRs, outside-author PRs, direct pushes, or bypass behaviour. Mark untested cases as open.
+6. The owner self-reviews their own PR by completing the checklist and manually reviews other contributors' PRs. [TE-021](../../Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md) may later automate these checks and make them required in the branch ruleset.
+7. Examples include the configured ruleset choices and test outcomes for PR requirements, direct pushes, or bypass behaviour. A separate link to a test PR is not necessary.
 
 </details>

@@ -2,13 +2,13 @@
 
 ## Project context
 
-Stagehand is a planned, local-first browser end-to-end testing toolkit. The intended product includes versioned JSON test plans, a Node.js/Playwright runner and CLI, and a Vue web editor. The editor is intended to work locally without a Stagehand account or central plan service. These are proposed capabilities: the repository currently contains planning and learning material, not the implemented runner or editor. Never describe planned behaviour as shipped or verified.
+Stagehand is a planned, local-first browser end-to-end testing toolkit. The intended product includes versioned JSON test plans, a Node.js/Playwright runner and CLI, and a Vue web editor. The editor is intended to work locally without a Stagehand account or central plan service. The repository contains planning and learning material plus initial npm workspace scaffolds; the runner, CLI, and editor behaviour is not implemented. Never describe planned behaviour as shipped or verified.
 
-The current root folders include `Planning/` and `Learning Plan/`. The application folders in `Planning/Repository/structure.md` are a proposed future layout. Keep actual structure and proposed structure clearly distinguished.
+The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/`. `apps/cli/`, `apps/web/`, and the selected package folders currently contain only npm workspace manifests and planning notes. Other folders shown in `Planning/Repository/structure.md` remain proposed. Keep actual scaffolds and proposed structure clearly distinguished.
 
 ## Project history and working assumptions
 
-- The repository is public, and the intended workflow is that changes reach `main` through pull requests. The owner currently works alone and wants a deliberate self-review. GitHub does not count the author's own approval as independent review. During the solo phase, use a manual self-review checklist and configure no native required approvals so the owner can merge their PRs. The owner manually reviews contributor PRs; require independent approval when other reviewers join. Automated review-policy enforcement is deferred to TE-021. GitHub settings have not been verified as active.
+- The repository is public, and the intended workflow is that changes reach `main` through pull requests. The owner currently works alone and wants a deliberate self-review. GitHub does not count the author's own approval as independent review. During the solo phase, use a manual self-review checklist and configure no native required approvals so the owner can merge their PRs. The owner manually reviews contributor PRs; require independent approval when other reviewers join. Automated review-policy enforcement is deferred to [TE-021](Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md). GitHub settings have not been verified as active.
 - The intended merge-method convention is merge commits for owner-authored PRs, preserving the owner's individual commits in `main`, and squash merges for PRs from other contributors, grouping their incremental commits. M0 should enable both methods. GitHub does not automatically select a method by author, so describe this as a human convention, not an enforced setting. Keep PRs and review as the intended merge path, but distinguish documented policy from settings that have actually been checked on GitHub.
 - The root `LICENSE` is MIT. Do not change the licence or its copyright attribution casually.
 - Markdown is the canonical format for current planning and learning material.
@@ -23,6 +23,7 @@ The current root folders include `Planning/` and `Learning Plan/`. The applicati
 - Treat unresolved product choices as unresolved. Make a recommendation only when asked or when needed to make a useful draft, and label it as a suggestion for review.
 - Separate completed actions, current facts, proposed design, assumptions, and recommendations. Do not invent repository configuration, test results, implementation behaviour, or user decisions.
 - Prefer clear Markdown, descriptive links, and concise language. Keep links valid relative to their containing file after moving or renaming content.
+- Whenever a planning or learning document refers to an ADR or technical enabler by identifier, make the identifier a clickable Markdown link to that document. Apply this in prose, lists, tables, and repeated mentions; leave an identifier unlinked only when no corresponding document exists, and flag that case for review.
 - In repository-level documentation, maps, and indexes, refer only to paths explicitly designated as publishable project materials.
 - Do not add cross-references from publishable project documentation to material outside the designated project documentation set.
 - Do not add credentials, real secrets, private customer data, or sensitive test data. Use synthetic examples.

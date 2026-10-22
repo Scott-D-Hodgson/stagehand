@@ -23,7 +23,7 @@ A **monorepo** stores multiple related applications and libraries in one version
 
 Think of the repository as a workshop with several specialized workbenches. The runner, CLI, editor, and shared libraries can work near one another, but each bench should have clearly marked tools and handoff rules. Without boundaries, every bench starts borrowing loose parts from every other bench and changes become hard to predict.
 
-Stagehand's proposed components include a Node.js/TypeScript runner, a Playwright adapter, a CLI, a Vue editor, schemas, result/reporting code, and documentation. Shared contracts may change alongside the tools that consume them, which is the main reason the proposed architecture starts in one repository. The monorepo decision is proposed and can be revisited if ownership or release needs change.
+Stagehand's accepted starting architecture uses an npm monorepo. Its initial workspaces are `apps/cli`, `apps/web`, and separate packages for the plan schema, plan engine, runner core, result model, and provisionally reporters. The Vue editor is the application in `apps/web`; there is no separate editor-components package. The runner core uses Playwright directly, keeping the initial design lean while Playwright is the only supported browser automation library. See [ADR-004](../../Planning/Backlog/decisions/ADR-004-initial-workspace-and-package-boundaries.md) and [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
 
 ## Concepts to understand
 
@@ -33,10 +33,11 @@ Stagehand's proposed components include a Node.js/TypeScript runner, a Playwrigh
 - **Workspace dependency:** a local package dependency managed as part of the same repository.
 - **Change ownership:** a change crossing package boundaries should update callers, docs, and relevant fixtures in the same review.
 - **Build and test scope:** CI can verify affected packages, but must still verify shared contracts and cross-package integration.
+- **Lockstep versioning:** the reusable packages, CLI, and web editor share one Stagehand version. Before the first release candidate, breaking changes may increment the minor version while the major remains `0`; the usual major/minor/patch meanings apply from the first release candidate onward.
 
 ## Apply this to Stagehand
 
-Start by drawing the dependency graph before choosing directories. Candidate components are described in [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md); the repo-level rationale is in [ADR-001](../../Planning/Backlog/decisions/ADR-001-monorepo.md). For each proposed package, identify:
+The initial workspace manifests and root lockfile now provide the repository scaffold. Source entry files, package `exports`, and checks of each public entry point are deliberately left for incremental package implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
 
 1. Its single primary responsibility.
 2. The callers that need it.
@@ -44,22 +45,38 @@ Start by drawing the dependency graph before choosing directories. Candidate com
 4. Dependencies it is allowed to use.
 5. What checks should run when it changes.
 
-Do not create a package merely because a folder exists. Split a component when independent reuse, ownership, or a stable interface justifies the extra build, versioning, and maintenance work.
+The agreed responsibilities and dependency directions are:
+
+| Workspace | Responsibility and allowed dependencies |
+|---|---|
+| Plan schema | Owns plan structure and validation; works in Node.js and the browser; remains independent of applications, runner core, and Playwright. |
+| Plan engine | Interprets valid plans and may depend on the plan schema; contains no execution logic. |
+| Runner core | Owns execution; may depend on the plan engine and result model and uses Playwright directly. |
+| Result model | Owns the common result contract; remains independent of applications, runner core, and Playwright. |
+| Reporters | Provisionally separate; formats the common result model. |
+| CLI | Owns command-line input/output, calls runner core, chooses and writes output, and composes a reporter. |
+| Vue editor (`apps/web`) | Edits plans and may depend on the browser-compatible plan schema; it does not pull execution logic into the browser. |
+
+JSON is the first supported output. The common result model is the input to formatting; later optional converters may generate formats such as JUnit XML or HTML. Keep shared contracts independent and avoid circular dependencies. Do not add structure just in case: refine these boundaries when implementation provides a concrete reason.
 
 ## Exercise
 
-Sketch a dependency diagram for the plan schema, plan engine, runner core, Playwright adapter, CLI, Vue editor, result model, reporters, and documentation. Draw arrows from consumers to dependencies. Mark any proposed dependency that would make a low-level contract depend on an application. Write one sentence describing each package's responsibility and one example of a file that should remain private.
+Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md). Draw the same dependencies from memory, then explain why the runner core can use Playwright directly, why the editor uses the schema without execution logic, and how the CLI routes the common result model to JSON. Write one sentence describing each workspace's responsibility and one example of a file that should remain private.
 
 ## You are ready when
 
 - You can explain why Stagehand initially benefits from a monorepo and what evidence might justify splitting it later.
-- Each candidate package has a distinct responsibility and a clear direction of dependency.
+- Each initial workspace has a distinct responsibility and follows the allowed dependency directions in TE-002.
+- You can explain lockstep versioning and the pre-release-candidate rule for breaking changes.
+- You can distinguish the existing workspace scaffolds from source entry files and public-entry checks that will be added with incremental implementation.
 - You can explain how a schema change should be reviewed across editor, runner, examples, and CI.
 
 ## Read next
 
 - [ADR-001 — Use a monorepo](../../Planning/Backlog/decisions/ADR-001-monorepo.md)
 - [TE-002 — Reusable Node.js/TypeScript package structure](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md)
+- [ADR-004 — Initial workspace and package boundaries](../../Planning/Backlog/decisions/ADR-004-initial-workspace-and-package-boundaries.md)
+- [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md)
 
 ## Reinforcement quiz
 
@@ -69,7 +86,8 @@ Try to answer from memory, then open the answer key.
 2. What job does a package boundary do?
 3. Should the plan-schema package depend on the Vue editor? Explain the dependency direction.
 4. When should a caller rely on a public API rather than an internal file path?
-5. Name one reason to share code in a package and one cost that another package adds.
+5. What does the common result model provide, and what output does Stagehand support first?
+6. Name one reason to share code in a package and one cost that another package adds.
 
 <details>
 <summary>Answer key</summary>
@@ -78,6 +96,7 @@ Try to answer from memory, then open the answer key.
 2. It defines an interface and ownership boundary so callers depend on supported behaviour instead of internal details.
 3. No. The schema is a lower-level contract consumed by the editor; making it depend on the editor reverses the useful dependency direction and couples the contract to a UI.
 4. When consuming another package's supported behaviour. Private implementation files may change without preserving compatibility.
-5. Sharing may avoid duplication and keep related changes coordinated. Another package adds build, dependency, API, testing, and maintenance overhead.
+5. It provides the shared structure for run results; JSON is the first output, with optional format converters left for later.
+6. Sharing may avoid duplication and keep related changes coordinated. Another package adds build, dependency, API, testing, and maintenance overhead.
 
 </details>

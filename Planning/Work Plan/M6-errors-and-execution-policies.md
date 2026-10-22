@@ -14,7 +14,7 @@
 - [ ] Define CLI/result signaling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
 - [ ] Define default 10-minute active-case timeout behaviour and plan/case overrides, operator cancellation and cleanup semantics, case-level parallelism (isolated Playwright context per case, sharing a browser instance; five concurrent contexts by default, configurable at plan level), configurable run/case duration thresholds, and recorded elapsed durations. Exclude queue wait, browser/context startup, and cleanup from active-case timeout accounting.
 - [ ] Define the non-failing default accessibility outcome and how plan/case configuration can make violations fail a case.
-- [ ] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to TE-019.
+- [ ] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 - [ ] Add a decision table and examples that cover each error category and continuation policy.
 
 ## Completion evidence

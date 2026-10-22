@@ -1,4 +1,4 @@
-# TE-003 — Playwright adapter and browser factory
+# TE-003 — Playwright browser lifecycle and factory
 
 **Status:** Proposed  
 **Priority:** Must  
@@ -6,7 +6,7 @@
 
 ## Objective
 
-Implement browser selection, context settings, action handlers, lifecycle, and cleanup.
+Implement Playwright browser selection, context settings, action handlers, lifecycle, and cleanup within the runner architecture. No separate adapter package is required while Playwright is the only supported browser automation library.
 
 ## Acceptance criteria
 

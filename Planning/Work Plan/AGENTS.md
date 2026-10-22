@@ -7,3 +7,4 @@ This folder records M0 as a separately estimated repository-bootstrap prerequisi
 - Make completion evidence concrete (for example, a merged PR, documented decision, valid example, or demonstrated workflow). Do not mark a milestone complete without evidence.
 - The owner is currently the only developer and wants PR-based changes with a self-review step. Do not claim GitHub rulesets or checks are configured unless verified against the actual remote.
 - Keep the roadmap high-level and avoid duplicating its phase narrative here.
+- Make every ADR and technical-enabler identifier in tasks, evidence, and explanatory text a clickable relative Markdown link to its source document.

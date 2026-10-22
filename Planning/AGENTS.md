@@ -7,9 +7,10 @@ This folder contains four different planning artifacts and a repository map. Kee
 - `Work Plan/` records M0 as a pre-Phase 1 prerequisite and turns Phase 1 into milestones, deliverables, dependencies, estimates, and evidence.
 - `Security/` contains an initial, planned ITSG-33 control mapping; it is not a compliance assertion.
 - `Repository/` documents the current and proposed repository layout.
+- `Diagrams/` contains planning diagrams, preferably as editable Mermaid in Markdown.
 - `acronyms.md` defines abbreviations used throughout Planning.
 
-Planning material is provisional unless explicitly marked otherwise. Preserve IDs, status labels, cross-references, and estimates when editing. Record changes to scope or assumptions in the relevant item instead of silently making the plan look more certain. Keep estimates framed as human effort, not delivery dates.
+Planning material is provisional unless explicitly marked otherwise. Preserve IDs, status labels, cross-references, and estimates when editing. Make every ADR and technical-enabler identifier reference a clickable relative Markdown link to its source document, including references in prose, tables, and repeated mentions. If the expected source document is missing, leave the identifier unchanged and flag the missing target for review. Record changes to scope or assumptions in the relevant item instead of silently making the plan look more certain. Keep estimates framed as human effort, not delivery dates.
 
 Use Canadian English spelling. When an official control title or defined source term uses a different spelling, preserve it only where exact source terminology matters and keep surrounding prose Canadian. Update `acronyms.md` when introducing an acronym or project identifier prefix; do not invent an expansion when none is established.
 
