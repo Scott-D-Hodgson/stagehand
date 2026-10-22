@@ -7,7 +7,7 @@
 ## Tasks
 
 - [ ] Identify required tools and supported versions for the current repository baseline.
-- [ ] Pin Node.js 26.12.1 and npm 12.2.0, and document how the pinned versions will be updated. [Node.js release guidance](https://nodejs.org/en/about/previous-releases/) recommends Active or Maintenance LTS for production applications.
+- [x] Pin Node.js 26.12.1 and npm 11.20.0, and document how the pinned versions will be updated. [Node.js release guidance](https://nodejs.org/en/about/previous-releases/) recommends Active or Maintenance LTS for production applications.
 - [x] Document runner OS/browser support separately from the development-container OS: focus initial CLI validation on Windows with Playwright-managed Chromium, schedule Linux runner support after the MVP, and keep Edge as a later browser expansion. During development, prefer designs that work on both Windows and Linux when practical.
 - [ ] Add a Linux-based development container definition and pin the critical tools; treat its OS separately from the runner support matrix.
 - [ ] Document required Playwright/browser system dependencies and setup steps, even if browser execution is implemented later.
@@ -20,7 +20,8 @@
 ## Completion evidence
 
 - A fresh setup can follow the documented path and reach the baseline verification commands.
-- Node.js 26.12.1, npm 12.2.0, and browser prerequisites are discoverable and appropriately pinned.
+- Node.js 26.12.1, npm 11.20.0, and browser prerequisites are discoverable and appropriately pinned.
+- `npm ci` succeeds with Node.js 26.12.1 and npm 11.20.0, and `npm ls --workspaces --depth=0` resolves all seven workspace packages.
 - Agent guidance recommends project-directory scope and distinguishes written expectations from controls the runtime actually enforces.
 - GitHub Actions verifies the container definition or its critical setup checks; later checks are added with their implementation milestones.
 

@@ -78,6 +78,5 @@ The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visua
 - Exact JUnit XML dialect/task compatibility and the mapping from Stagehand outcomes/fields to Azure DevOps results.
 - Whether to add Firefox or Safari editor support after the MVP baseline.
 - How accessibility scan errors should affect case/run outcomes.
-- How the current Node.js LTS version is updated and supported over time.
 - Production-target identification and production-specific warning/acknowledgement are tracked for later in [TE-019](technical-enablers/te-019-production-target-identification-and-warning.md); the MVP has a general execution warning.
 - Which additional user workflows should be used to test Stagehand beyond the initial [example journeys](example-journeys.md).
