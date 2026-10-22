@@ -21,7 +21,7 @@ Before asking for review or merging your own PR:
 - Confirm that the change contains no credentials, real secrets, or private data.
 - Resolve open PR conversations.
 
-The repository owner currently works alone. GitHub does not count an author's approval as an independent review of their own PR, so the ruleset has zero required approvals during this phase. The owner uses the PR checklist as a manual self-review. It is a useful pause, not a second reviewer or an automated gate.
+The repository owner currently works alone. GitHub does not count an author's approval as an independent review of their own PR, so the documented solo-phase policy is zero required approvals. The owner uses the PR checklist as a manual self-review. It is a useful pause, not a second reviewer or an automated gate. M0 records this setting, but the current effective ruleset configuration has not been verified as active.
 
 ## Review a contributor PR
 
@@ -34,7 +34,7 @@ While the owner is the only maintainer, the owner reviews PRs from other contrib
 
 ## Merge methods
 
-The repository allows merge commits and squash merging; rebase merging is disabled. The project convention is to use merge commits for the owner's PRs so the owner's individual commits remain visible in `main`'s history. PRs from other contributors are generally squash-merged so their incremental commits are grouped into one commit on `main`. GitHub does not select or enforce the method based on who authored a PR; choose the appropriate method when merging.
+The documented merge convention is to use merge commits for the owner's PRs so the owner's individual commits remain visible in `main`'s history. PRs from other contributors are generally squash-merged so their incremental commits are grouped into one commit on `main`. M0 records that merge commits and squash merging were enabled and rebase merging disabled; the current effective settings have not been verified as active. GitHub does not select or enforce the method based on who authored a PR; choose the appropriate method when merging.
 
 ## When independent reviewers join
 

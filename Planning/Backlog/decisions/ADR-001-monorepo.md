@@ -1,6 +1,6 @@
 # ADR-001 — Use a monorepo
 
-**Status:** Proposed
+**Status:** Accepted
 
 ## Context
 

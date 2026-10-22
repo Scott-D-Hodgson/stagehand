@@ -4,7 +4,7 @@
 
 Build the core browser execution path and its command-line interface:
 
-- Playwright adapter and browser lifecycle.
+- Playwright browser lifecycle, integrated directly with the runner core.
 - The initial browser action set: URL navigation with optional DOM-ready/network-idle waits; selector-based click, typing, direct value setting, and dropdown selection; and applicable bounded selector waits, delays, navigation-state waits, and scroll-into-viewport options.
 - The initial assertion set: selector-based inner-text/inner-HTML comparisons and input-value comparisons, with an optional soft check of associated label text/HTML.
 - Sequential step execution and failure handling.

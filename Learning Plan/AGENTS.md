@@ -9,4 +9,5 @@ These lessons prepare the owner for M0 and Roadmap Phases 1–4. Keep milestone 
 - Keep lessons self-contained enough to be useful, while linking related lessons and planning decisions rather than duplicating them.
 - Use Canadian English spelling, including in headings and quizzes. Update the root `acronyms.md` when lessons introduce abbreviations; do not invent an expansion for identifiers whose prefix has no defined phrase.
 - Keep the M0/Phase 1 to Phase 4 structure and links aligned with the root index and the phase README files. Each lesson should retain a self-assessment, practical exercise, readiness criteria, references for new concepts, and a reinforcement quiz with an answer key.
+- Make every ADR and technical-enabler identifier mentioned in a lesson or quiz a clickable relative Markdown link to its Planning source document, including repeated mentions.
 - The Learning Plan is generated from the AI-guided Planning materials. Treat the planning documents as the current source for Stagehand decisions and keep open questions labelled as open.

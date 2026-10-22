@@ -8,7 +8,7 @@ This work plan contains M0, a separately estimated repository-bootstrap prerequi
 
 Estimates are **person-days of focused work** (roughly 6–7 productive hours), including drafting, implementation/configuration, and a basic self-review. They exclude waiting for reviews, learning time beyond the [Learning Plan](../../Learning%20Plan/README.md), meetings, and substantial rework from changed product decisions. One person-day is effort, not one calendar day. Ranges reflect uncertainty while architecture and contracts are still proposed.
 
-The plan assumes one contributor familiar with Git and basic TypeScript/Node.js, working from the current backlog in a repository where the Phase 1 application infrastructure is not yet implemented. It covers Phase 1 foundations and contracts; it does not estimate implementing the full browser runner, CLI, editor, reporting integrations, or later roadmap phases.
+The plan assumes one contributor familiar with Git and basic TypeScript/Node.js, working from the current backlog in a repository where the Phase 1 application behaviour is not yet implemented. The root npm workspace and CLI, web, and package manifest scaffolds exist; the work plan does not estimate implementing the full browser runner, CLI, editor, reporting integrations, or later roadmap phases.
 
 ## Bootstrap prerequisite (estimated separately)
 
@@ -18,20 +18,20 @@ The plan assumes one contributor familiar with Git and basic TypeScript/Node.js,
 
 ## Phase 1 milestones
 
-| ID | Milestone | Depends on | Estimate |
-|---|---|---|---:|
-| [M1](M1-repository-architecture.md) | Repository architecture and package boundaries | M0 | 2–4 person-days |
-| [M2](M2-development-environment-and-guidance.md) | Development environment and contributor/agent guidance | M0, M1 | 3–5 person-days |
-| [M3](M3-versioned-plan-and-result-contracts.md) | Versioned plan and result contracts | M1 | 4–6 person-days |
-| [M4](M4-browser-actions-and-assertions.md) | Browser configuration, actions, and assertions | M2, M3 | 3–5 person-days |
-| [M5](M5-data-and-reuse-semantics.md) | Variables, data sets, shared steps, and bounded loops | M3, M4 | 3–5 person-days |
-| [M6](M6-errors-and-execution-policies.md) | Error model and execution policies | M3–M5 | 2–4 person-days |
-| [M7](M7-integration-and-phase-1-review.md) | Integration, verification, and Phase 1 review | M1–M6 | 2–3 person-days |
-| **Phase 1 subtotal (M1–M7)** | **Estimated focused effort** | | **19–32 person-days** |
+| ID                                               | Milestone                                              | Depends on |              Estimate |
+| ------------------------------------------------ | ------------------------------------------------------ | ---------- | --------------------: |
+| [M1](M1-repository-architecture.md)              | Repository architecture and package boundaries         | M0         |       2–4 person-days |
+| [M2](M2-development-environment-and-guidance.md) | Development environment and contributor/agent guidance | M0, M1     |       3–5 person-days |
+| [M3](M3-versioned-plan-and-result-contracts.md)  | Versioned plan and result contracts                    | M1         |       4–6 person-days |
+| [M4](M4-browser-actions-and-assertions.md)       | Browser configuration, actions, and assertions         | M2, M3     |       3–5 person-days |
+| [M5](M5-data-and-reuse-semantics.md)             | Variables, data sets, shared steps, and bounded loops  | M3, M4     |       3–5 person-days |
+| [M6](M6-errors-and-execution-policies.md)        | Error model and execution policies                     | M3–M5      |       2–4 person-days |
+| [M7](M7-integration-and-phase-1-review.md)       | Integration, verification, and Phase 1 review          | M1–M6      |       2–3 person-days |
+| **Phase 1 subtotal (M1–M7)**                     | **Estimated focused effort**                           |            | **19–32 person-days** |
 
 The combined M0 plus Phase 1 effort is **20–35 person-days**.
 
-M0 is the repository setup prerequisite for Phase 1 implementation, and it is complete for the current project: the repository and ruleset are configured, contribution guidance is in place, PR behaviour was tested, and merge commits and squash merging are enabled while rebase merging is disabled. Its instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. Re-estimate after M1 and M3, when package boundaries and the data contract are clearer.
+M0 is the repository setup prerequisite for Phase 1 implementation and is complete: contribution guidance is in place, repository settings were configured, and PR behaviour was tested. M0's instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. Re-estimate after M1 and M3, when package boundaries and the data contract are clearer.
 
 ## Completion criteria
 

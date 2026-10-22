@@ -7,3 +7,4 @@ Keep `README.md` as a readable guide to important current and proposed folders, 
 - Keep the map descriptive, not a commitment that every proposed component will be built. Mark optional/later candidates as such.
 - In repository documentation, refer only to paths explicitly designated as publishable project materials.
 - Verify Markdown relative links from the file that contains them.
+- Make every ADR and technical-enabler identifier mentioned in the repository map a clickable relative Markdown link to its source document.

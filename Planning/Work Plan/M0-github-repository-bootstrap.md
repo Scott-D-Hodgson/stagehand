@@ -4,7 +4,7 @@
 **Depends on:** none  
 **Purpose:** establish the repository and merge controls before Phase 1 implementation begins.
 
-> **Current execution status:** M0 is complete. The public GitHub repository has been created, `main` is its default branch, the ruleset is configured, the contribution guide and PR template are in place, repository rules have been tested with a PR, and the repository owner confirmed that merge commits and squash merging are enabled while rebase merging is disabled. Keep this as a greenfield bootstrap guide for reuse, rather than rewriting the procedure around the existing remote.
+> **Recorded execution status:** M0 is complete. The public GitHub repository was created, `main` set as its default branch, a ruleset configured, the contribution guide and PR template added, and repository rules tested with a PR. The owner confirmed that merge commits and squash merging were enabled while rebase merging was disabled. Keep this as a greenfield bootstrap guide for reuse, rather than rewriting the procedure around the existing remote.
 >
 ## Tasks
 
@@ -17,13 +17,13 @@
 
 ## Solo-phase review policy and future transition
 
-GitHub does not count an author's approval on their own PR toward the required approval rule. While you are the sole maintainer, require a PR for every change and configure zero native required approvals so you can merge your own PRs. Manually complete the self-review checklist on your PRs; review and submit an approval for PRs from other contributors. This procedure is not automatically enforced beyond the required-PR rule. When trusted collaborators are added, update the ruleset to require at least one independent approval; authors still complete the self-review checklist. Automating the author-sensitive policy is deferred to TE-021.
+GitHub does not count an author's approval on their own PR toward the required approval rule. While you are the sole maintainer, require a PR for every change and configure zero native required approvals so you can merge your own PRs. Manually complete the self-review checklist on your PRs; review and submit an approval for PRs from other contributors. This procedure is not automatically enforced beyond the required-PR rule. When trusted collaborators are added, update the ruleset to require at least one independent approval; authors still complete the self-review checklist. Automating the author-sensitive policy is deferred to [TE-021](../Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md).
 
 ## Merge-method decision
 
 **Decision: enable merge commits and squash merging, and choose the method per PR.** The intended practice is to merge the owner's own PRs with merge commits so their individual commits remain visible in `main`'s history. PRs from other contributors will generally be squash-merged, keeping `main` focused on one cohesive commit per reviewed contribution while the PR retains its discussion and incremental commits. This is a documented human convention; GitHub's merge-method settings enable methods repository-wide and do not automatically select a method based on who authored a PR. Rebase merging is disabled and is not part of the planned workflow.
 
-The author-sensitive required status check is deferred to TE-021 to avoid extra setup during the solo phase. A PR template is a checklist for the human author; GitHub does not treat checked Markdown boxes as an approval. A future automated GitHub Actions workflow, GitHub App, or external CI check could report pass/fail based on the PR author and required evidence (the self-review checklist for owner PRs, or a submitted owner review for other PRs). Branch protection/rulesets could then require that check to pass.
+The author-sensitive required status check is deferred to [TE-021](../Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md) to avoid extra setup during the solo phase. A PR template is a checklist for the human author; GitHub does not treat checked Markdown boxes as an approval. A future automated GitHub Actions workflow, GitHub App, or external CI check could report pass/fail based on the PR author and required evidence (the self-review checklist for owner PRs, or a submitted owner review for other PRs). Branch protection/rulesets could then require that check to pass.
 
 ## Initial ruleset settings recommendation
 
@@ -49,12 +49,12 @@ When trusted independent reviewers are available, update the ruleset to require 
 ## Completion evidence
 
 - The repository is public, `main` is the default branch, and its protection/ruleset settings are documented.
-- A PR is required for every update to `main`; the ruleset is active and has no explicitly configured bypass actors.
-- An active `Protect main` ruleset targets `main`, has an empty bypass list, and uses the initial settings documented above.
+- A PR was required for updates to `main`; the active `Protect main` ruleset targeted `main` and had no explicitly configured bypass actors.
+- `Protect main` had an empty bypass list and used the initial settings documented above.
 - During the solo phase, the documented manual policy requires the owner to complete the self-review checklist on their own PRs and to review other contributors' PRs; native approving-review count is zero and policy automation is deferred.
 - The root README points contributors to `CONTRIBUTING.md`, and the PR template records the author's self-review.
-- Repository settings allow merge commits and squash merges, with rebase merging disabled; the per-PR convention is documented and understood.
-- A test PR confirms the solo-phase merge gates behave as documented.
+- Repository settings allowed merge commits and squash merges, with rebase merging disabled.
+- A test PR confirmed that the solo-phase merge gates behaved as documented.
 - The future independent-review policy is documented, including the setting change to require one non-author approval when reviewers are added.
 
 ## GitHub references

@@ -6,18 +6,25 @@
 
 ## Tasks
 
-- [ ] Review [ADR-001](../Backlog/decisions/ADR-001-monorepo.md) and [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md); confirm the monorepo choice remains suitable.
-- [ ] Draw the dependency graph for the schema, plan engine, runner core, Playwright adapter, CLI, editor, result model, reporters, and docs.
-- [ ] Define the initial workspace layout, package responsibilities, public entry points, and allowed dependency directions.
-- [ ] Decide workspace/package manager and baseline versioning conventions; document the reasons and any unresolved decisions.
-- [ ] Add minimal workspace configuration and package skeletons only where needed to validate the boundaries.
-- [ ] Record the architecture decision and update the proposed repository footprint.
+- [x] Review [ADR-002](../Backlog/decisions/ADR-002-local-first-editor.md) and [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md); confirm the recorded decisions and package-structure direction.
+- [x] Review the [component dependency graph](../Diagrams/M1-component-dependency-graph.md) and confirm it as the current design to work towards, including the agreed result-model-to-JSON flow with optional later format converters.
+- [x] Finalize and document the initial workspace layout, package responsibilities, public entry-point convention, and allowed dependency directions in [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md) and the proposed repository footprint.
+- [x] Select npm as the workspace/package manager.
+- [x] Define lockstep versioning and baseline version conventions in [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md), including the pre-release rule for breaking changes.
+- [x] Add the initial npm workspace configuration and package manifests; note the future source entry files and public-entry checks in each workspace without implementing them.
+- [x] Record the architecture decision in [ADR-004](../Backlog/decisions/ADR-004-initial-workspace-and-package-boundaries.md) and update the proposed repository footprint.
 
 ## Completion evidence
 
+- The developer reviewed and confirmed [ADR-002](../Backlog/decisions/ADR-002-local-first-editor.md), [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md), and the component dependency graph as the current direction on 2026-10-22.
+- npm is selected; the separate-package direction, shared-contract independence, browser-compatible schema package, one documented public entry point per package, and lean-design principle are recorded in [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md) and the proposed repository footprint. Reporters are included provisionally. The Vue editor is an app workspace package under `apps/web`, not a separate editor-components library.
+- The initial package responsibilities, dependency rules, and public entry-point convention are documented in [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md); package-specific `exports` declarations remain for the implementation stage.
+- Lockstep versioning for reusable packages, CLI, and web editor, the `MAJOR.MINOR.PATCH` meanings, pre-1.0 status until the first release candidate, and the rule that pre-RC breaking changes increment the minor number are recorded in [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
+- The root npm workspace manifest and lockfile plus per-workspace manifests and implementation notes are present. Source entry files and public-entry checks are documented for later incremental implementation changes and have not been created.
+- The initial workspace and package-boundary decision is recorded in [ADR-004](../Backlog/decisions/ADR-004-initial-workspace-and-package-boundaries.md), and the proposed repository footprint distinguishes the created scaffolds from unimplemented paths.
 - A reviewed architecture diagram and package responsibility list.
 - Workspace/package skeleton can be resolved by the chosen package manager.
-- No low-level shared contract depends on an application package.
+- No source-level contract dependencies exist to inspect at scaffold stage; [TE-002](../Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md) records the rule that shared contracts remain independent of applications, runner core, and Playwright.
 - Architecture choice and known tradeoffs are recorded.
 
 ## Learning reference
