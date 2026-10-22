@@ -7,7 +7,7 @@
 ## Tasks
 
 - [ ] Review [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md) and the execution-related stories before fixing the contract.
-- [ ] Define the initial support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux and Edge as the next support expansion after the baseline is proven.
+- [ ] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
 - [ ] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
 - [ ] Specify browser mode, timezone format, locale format, viewport units/ranges, defaults, and validation rules.
 - [ ] Define URL navigation and optional bounded post-navigation waits, including the supported DOM-ready and network-idle states.

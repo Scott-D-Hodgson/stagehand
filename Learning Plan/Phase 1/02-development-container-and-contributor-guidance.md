@@ -39,9 +39,13 @@ That distinction matters for AI coding agents too. `AGENTS.md`-style guidance ca
 
 [TE-013](../../Planning/Backlog/technical-enablers/te-013-development-container.md) and [ATR-036](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-036.md) call for a pinned toolchain, Playwright prerequisites, common commands, and a fresh setup path. Make sure the setup covers the actual required workflows (tests, lint/type checks, builds, CLI, SPA, and docs) as they become implemented.
 
-For Stagehand's initial supported runner, select and pin a version from the current Node.js LTS line. The initial browser-runner baseline is Windows with Playwright-managed Chromium; Linux and Edge runner support follow after the MVP baseline.
+The selected baseline is Node.js 26.12.1 and npm 12.2.0. M2 uses a Linux-based development container and GitHub Actions to validate the container or its critical setup steps. Add more CI workflows as implementation milestones introduce the commands and outputs those workflows can check; do not create placeholder checks for features that do not exist yet.
+
+Stagehand's MVP runner baseline is Windows with Playwright-managed Chromium; Linux runner and Edge support follow after the MVP. Prefer designs that work on both Windows and Linux when practical, even though initial CLI validation focuses on Windows. The development container may use Linux independently of the runner's MVP support matrix.
 
 [TE-014](../../Planning/Backlog/technical-enablers/te-014-agent-sandbox-and-guidance.md), [ATR-037](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-037.md), and [ATR-038](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-038.md) distinguish vendor-neutral instructions from enforced containment. Avoid mounting production secrets or host credentials by default. Document the actual limits of each supported runtime rather than claiming the container guarantees safety on its own.
+
+For Stagehand, agent guidance should say to keep work within the project directory and avoid system-wide access, broad host mounts, and credentials unless a task requires them and the user authorizes them. These are working expectations, not controls: only the agent host or operating system can enforce filesystem and process boundaries. State clearly when no such enforcement is configured.
 
 ## Exercise
 
