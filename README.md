@@ -15,7 +15,7 @@ Stagehand's MVP is the full sequence of Phases 1–4:
 3. **Execution and CLI:** run plans with Playwright, bounded concurrency, predictable failure handling, and JSON output.
 4. **Reporting and adoption:** retain results as Azure DevOps pipeline artifacts and provide examples, tutorials, and published documentation.
 
-The initial runner baseline is Windows, the current Node.js LTS line, and Playwright-managed Chromium. Linux and Edge runner support follow later. The editor is intended for current desktop Chrome and Edge on Windows.
+The MVP runner baseline is Windows, the pinned Node.js version, and Playwright-managed Chromium. Linux runner and Edge support follow after the MVP; during development, prefer designs that work on both Windows and Linux when practical. The editor is intended for current desktop Chrome and Edge on Windows.
 
 Plans cover navigation, common browser actions, text and input assertions, variables, named data sets, shared steps, bounded loops, and localized expected values. Optional axe scans run after each step; findings are non-failing by default unless the plan or case says otherwise.
 

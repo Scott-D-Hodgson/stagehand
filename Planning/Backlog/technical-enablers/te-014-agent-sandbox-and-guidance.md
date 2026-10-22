@@ -6,7 +6,7 @@
 
 ## Objective
 
-Document vendor-neutral agent instructions and enforce restrictions through the supported runtime/sandbox.
+Document vendor-neutral, least-privilege guidance for contributors and AI agents. Explain that repository instructions cannot enforce runtime restrictions, and describe only controls actually provided by a user's agent runtime or operating system.
 
 ## Acceptance criteria
 

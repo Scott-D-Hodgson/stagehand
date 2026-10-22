@@ -11,6 +11,7 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 - The repository is public, and the intended workflow is that changes reach `main` through pull requests. The owner currently works alone and wants a deliberate self-review. GitHub does not count the author's own approval as independent review. During the solo phase, use a manual self-review checklist and configure no native required approvals so the owner can merge their PRs. The owner manually reviews contributor PRs; require independent approval when other reviewers join. Automated review-policy enforcement is deferred to [TE-021](Planning/Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md). GitHub settings have not been verified as active.
 - The intended merge-method convention is merge commits for owner-authored PRs, preserving the owner's individual commits in `main`, and squash merges for PRs from other contributors, grouping their incremental commits. M0 should enable both methods. GitHub does not automatically select a method by author, so describe this as a human convention, not an enforced setting. Keep PRs and review as the intended merge path, but distinguish documented policy from settings that have actually been checked on GitHub.
 - The root `LICENSE` is MIT. Do not change the licence or its copyright attribution casually.
+- Linux runner support follows the MVP; Windows is the initial runner focus. During development, prefer designs that work on both Windows and Linux when practical, so the later Linux expansion does not require avoidable rewrites.
 - Markdown is the canonical format for current planning and learning material.
 - Use Canadian English spelling in repository documentation (for example, `colour`, `behaviour`, `licence`, and `analyse`). Preserve exact spellings in code, file paths, product names, and official titles where changing them would alter the identifier or source name.
 - Keep `Planning/acronyms.md` and `Learning Plan/acronyms.md` aligned with the acronyms used in their respective document sets. Group stable identifier families rather than listing every numbered ID separately; do not invent expansions for project prefixes that have none.
@@ -27,6 +28,7 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 - In repository-level documentation, maps, and indexes, refer only to paths explicitly designated as publishable project materials.
 - Do not add cross-references from publishable project documentation to material outside the designated project documentation set.
 - Do not add credentials, real secrets, private customer data, or sensitive test data. Use synthetic examples.
+- When working in this repository, keep agent activity within the project directory. Access other directories or system files only when the task requires it and the user authorizes it; repository guidance cannot technically enforce this boundary.
 
 ## Verification
 

@@ -20,4 +20,6 @@
 - Do not commit secrets or real user data.
 - Do not attempt to bypass sandbox or container restrictions.
 - Do not mount or read host credentials unless explicitly approved and required.
+- Keep agent work within the project directory. Do not access system files or other directories unless the task requires it and the user authorizes it.
+- Avoid broad filesystem mounts and credential exposure. Repository instructions express expectations but cannot enforce filesystem, process, credential, or network boundaries.
 - Repository instructions do not replace enforcement by the agent runtime.

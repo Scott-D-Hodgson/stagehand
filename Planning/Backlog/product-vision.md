@@ -34,14 +34,14 @@ Teams need repeatable browser-based functional checks that can be run manually, 
 
 The MVP is the complete set of Roadmap Phases 1–4. The first user-facing capability should be the Vue plan editor, delivered before the CLI runner so the developer can dogfood plan authoring and the intended non-technical tester can work visually.
 
-The initial runner support baseline is Windows, the current Node.js LTS line pinned during the development-foundation work, and a Playwright-managed Chromium browser. Linux and Microsoft Edge are planned after the MVP. Branded Google Chrome is not a separate initial runner target; future need can be reviewed after the managed Chromium baseline.
+The initial runner support baseline is Windows, the current Node.js LTS line pinned during the development-foundation work, and a Playwright-managed Chromium browser. Linux runner and Microsoft Edge support are planned after the MVP. During MVP development, prefer designs that work on both Windows and Linux when practical, so Linux support does not require avoidable rewrites. Branded Google Chrome is not a separate initial runner target; future need can be reviewed after the managed Chromium baseline.
 
 The MVP-supported editor browsers are current stable desktop Chrome and Edge on Windows. User-owned plan files are handled through upload/import and download/export in both browsers. Direct filesystem access is deferred to [TE-020](technical-enablers/te-020-direct-filesystem-access-for-editor.md). The File System Access picker API is marked as limited availability and requires a secure context ([MDN: `showOpenFilePicker`](https://developer.mozilla.org/en-US/docs/Web/API/Window/showOpenFilePicker), [MDN: File System API](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API)). Firefox and Safari support are not in the MVP browser matrix and can be considered later.
 
 ## Initial scope
 
 - Node.js/TypeScript reusable execution library.
-- Playwright browser-based end-to-end tests, initially targeting Windows and Playwright-managed Chromium; Linux and Edge follow after the baseline.
+- Playwright browser-based end-to-end tests, initially targeting Windows and Playwright-managed Chromium; Linux runner and Edge support follow after the MVP.
 - Versioned JSON test plans and validation.
 - Plans may reference separate case JSON files so users can organise plans at a size and structure that suits their needs.
 - CLI execution and configuration overrides.
@@ -56,7 +56,7 @@ The MVP-supported editor browsers are current stable desktop Chrome and Edge on 
 - Markdown documentation rendered by Hugo.
 - Monorepo, development container, CI validation, and AI-agent guidance.
 
-The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visual plan authoring, including shared steps, variables, loops, and localization; Phase 3 execution engine and CLI; Phase 4 reports, integrations, and adoption. Linux and Edge are follow-on support after MVP.
+The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visual plan authoring, including shared steps, variables, loops, and localization; Phase 3 execution engine and CLI; Phase 4 reports, integrations, and adoption. Linux runner and Edge support are follow-on work after MVP; cross-platform design during MVP is preferred when practical.
 
 ## Non-goals for the initial release
 

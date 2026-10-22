@@ -27,7 +27,7 @@ Documentation can drift. Every example should be checked against the current sch
 
 Organise pages around user tasks and concepts, with navigation that works for someone new to the product. Reuse canonical Markdown where sensible; avoid hand-maintaining a second copy of the same reference material in the generated site. Add a short authoring walkthrough and example journeys that lead to a concrete exported plan and understandable result.
 
-Treat a fresh-user journey as an integration review: can a tester locate the editor, create a plan, validate and export it, run it on Windows with the supported Node.js LTS line and Playwright-managed Chromium, and inspect JSON output? Then can an operator adapt the Azure pipeline example without accidentally committing secrets? Gaps found here should feed back into stories and docs.
+Treat a fresh-user journey as an integration review: can a tester locate the editor, create a plan, validate and export it, run it on Windows with the pinned Node.js 26.12.1 and Playwright-managed Chromium, and inspect JSON output? Then can an operator adapt the Azure pipeline example without accidentally committing secrets? Gaps found here should feed back into stories and docs.
 
 ## Exercise
 
