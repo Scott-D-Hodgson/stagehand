@@ -10,6 +10,12 @@ Thanks for considering a contribution. Stagehand is still taking shape, so a cle
 4. List the checks you ran and their results. If a check was not applicable or could not be run, say so.
 5. Address PR comments and resolve conversations before merging.
 
+## Development toolchain
+
+Use Node.js 26.12.1 and npm 11.20.0 for repository work. The Node.js version is recorded in `.nvmrc`; the root `package.json` declares the expected Node.js and npm versions and the package manager. With `nvm`, select the version using `nvm install 26.12.1` and `nvm use 26.12.1`. Confirm the versions with `node --version` and `npm --version`, then install the workspace dependencies with `npm ci`.
+
+Keep Node.js on a supported LTS release. Update the Node.js and npm pins together in a PR when adopting a newer supported patch release or LTS line. Update `.nvmrc`, the root `package.json`, and the lockfile together, then verify a clean install with the new versions. When the development container and CI are added, update their pins in the same change so the environments stay aligned.
+
 ## Self-review your PR
 
 Before asking for review or merging your own PR:

@@ -39,7 +39,7 @@ That distinction matters for AI coding agents too. `AGENTS.md`-style guidance ca
 
 [TE-013](../../Planning/Backlog/technical-enablers/te-013-development-container.md) and [ATR-036](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-036.md) call for a pinned toolchain, Playwright prerequisites, common commands, and a fresh setup path. Make sure the setup covers the actual required workflows (tests, lint/type checks, builds, CLI, SPA, and docs) as they become implemented.
 
-The selected baseline is Node.js 26.12.1 and npm 12.2.0. M2 uses a Linux-based development container and GitHub Actions to validate the container or its critical setup steps. Add more CI workflows as implementation milestones introduce the commands and outputs those workflows can check; do not create placeholder checks for features that do not exist yet.
+The selected baseline is Node.js 26.12.1 and npm 11.20.0. M2 uses a Linux-based development container and GitHub Actions to validate the container or its critical setup steps. Add more CI workflows as implementation milestones introduce the commands and outputs those workflows can check; do not create placeholder checks for features that do not exist yet.
 
 Stagehand's MVP runner baseline is Windows with Playwright-managed Chromium; Linux runner and Edge support follow after the MVP. Prefer designs that work on both Windows and Linux when practical, even though initial CLI validation focuses on Windows. The development container may use Linux independently of the runner's MVP support matrix.
 
