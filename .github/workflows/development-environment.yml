@@ -1,0 +1,45 @@
+name: Development environment
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify workspaces and development container
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Verify Node.js and npm versions
+        run: |
+          test "$(node --version)" = "v26.12.1"
+          test "$(npm --version)" = "11.20.0"
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Verify workspace packages
+        run: npm ls --workspaces --depth=0
+
+      - name: Validate Dev Container configuration
+        run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
+
+      - name: Build development container image
+        run: docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:ci .devcontainer
