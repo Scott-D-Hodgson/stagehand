@@ -9,6 +9,7 @@ Check each statement you can confidently explain without looking it up. If any r
 - [ ] I can distinguish written agent instructions from controls that enforce access.
 - [ ] I know why host mounts, credentials, and network access need deliberate limits.
 - [ ] I can identify which mechanism enforces a particular development-environment restriction.
+- [ ] I can explain why `.gitignore` is not secure credential storage.
 
 ## What you will learn
 
@@ -21,6 +22,10 @@ Check each statement you can confidently explain without looking it up. If any r
 
 A **development container** describes a development environment, commonly through a container image and configuration. It can pin a Node.js version, install project tools, and document browser prerequisites so contributors start from a similar baseline. Reproducibility means fewer “works on my machine” differences; it does not guarantee every machine or build is identical.
 
+In VS Code, reopening a folder in a development container changes where terminal commands and remote extensions run. The project folder is mounted into the container, so edits remain in the same checkout; however, the container needs its own tools such as Git, and extensions may need to be installed in the container environment. A host VS Code window and a container-connected VS Code window can therefore show different installed extensions and available commands even while displaying the same project files.
+
+In Stagehand's current configuration, the checkout is mounted at `/workspaces/stagehand` and the container runs as `node`, whose home directory is separate from the checkout. Codex may cache authentication in `~/.codex/auth.json` or an operating-system credential store; treat file-based authentication as a secret. Git credentials also belong in an appropriate user-level credential helper or credential store, not in project files. The repository's `.gitignore` filters matching files under the checkout (including `.env` files), but does not protect credentials stored elsewhere, prevent programs from reading them, or untrack a file that Git already tracks. Never paste tokens into source files or commit them. See [OpenAI's Codex authentication guidance](https://learn.chatgpt.com/docs/auth) for the current Codex credential-storage options.
+
 Imagine a shared stage crew kit: the labelled tools make it easier for different people to prepare the set the same way. The kit's inventory sheet tells people how to use the tools, but it does not stop someone from opening a door to the rest of the building.
 
 That distinction matters for AI coding agents too. `AGENTS.md`-style guidance can explain architecture, conventions, security expectations, and verification steps. It is an instruction document, not an enforcement mechanism. A sandbox or runtime policy controls actual access to files, credentials, processes, and network resources. A dev container alone is not a security boundary if the agent retains unrestricted host access.
@@ -30,6 +35,7 @@ That distinction matters for AI coding agents too. `AGENTS.md`-style guidance ca
 - **Pinned toolchain:** explicitly selected versions of Node.js, package manager, and critical dependencies/tools.
 - **Reproducible setup:** documented steps that reliably produce an environment capable of the expected development tasks.
 - **Host mounts:** host paths exposed inside a container; mounted credentials or broad home-directory access can defeat isolation.
+- **Git ignore rules:** patterns that exclude untracked paths under a repository from normal Git status and commits; they are not access controls or secure storage.
 - **Least privilege:** provide only the access needed for the task.
 - **Network policy:** explicitly consider which external connections are required and which can be restricted.
 - **Contributor guidance:** durable repository instructions about architecture, coding style, tests, secrets, and review workflow.
@@ -40,6 +46,10 @@ That distinction matters for AI coding agents too. `AGENTS.md`-style guidance ca
 [TE-013](../../Planning/Backlog/technical-enablers/te-013-development-container.md) and [ATR-036](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-036.md) call for a pinned toolchain, Playwright prerequisites, common commands, and a fresh setup path. Make sure the setup covers the actual required workflows (tests, lint/type checks, builds, CLI, SPA, and docs) as they become implemented.
 
 The selected baseline is Node.js 26.12.1 and npm 11.20.0. M2 uses a Linux-based development container and GitHub Actions to validate the container or its critical setup steps. Add more CI workflows as implementation milestones introduce the commands and outputs those workflows can check; do not create placeholder checks for features that do not exist yet.
+
+The initial VS Code container setup includes Git with `core.autocrlf=true` so Git handles the CRLF working files mounted from Windows consistently with the LF content in its index. This Git setting is baked into the container image, so it remains in effect when the container is recreated. The container definition does not prescribe editor extensions; contributors can install personal tools in the environment where they want to use them.
+
+On Windows, the planned container workflow uses Docker Desktop with WSL 2. Docker Desktop has licensing terms that contributors should consider when contributing on behalf of an employer. Docker currently requires a paid subscription for commercial use in organisations with more than 250 employees or more than US$10 million in annual revenue; check the [current Windows installation and licensing information](https://docs.docker.com/desktop/setup/install/windows-install/) because terms may change.
 
 Stagehand's MVP runner baseline is Windows with Playwright-managed Chromium; Linux runner and Edge support follow after the MVP. Prefer designs that work on both Windows and Linux when practical, even though initial CLI validation focuses on Windows. The development container may use Linux independently of the runner's MVP support matrix.
 
@@ -73,6 +83,7 @@ Answer these from memory, then check the answer key.
 3. How can a broad host mount weaken the intended isolation of a container?
 4. What does least privilege mean for an agent environment?
 5. For a rule that says “the agent cannot read my home-directory credentials,” what should you identify before trusting the claim?
+6. What does `.gitignore` protect, and what should you do with a credential stored in a user's home directory?
 
 <details>
 <summary>Answer key</summary>
@@ -82,5 +93,6 @@ Answer these from memory, then check the answer key.
 3. It can expose host files and credentials to processes inside the container, giving them access beyond the project workspace.
 4. Give the environment only the file, process, credential, and network access needed for its task.
 5. Identify the enforcing mechanism (such as the runtime, OS, or host policy), its configuration, and how to verify it. Documentation alone is not enforcement.
+6. `.gitignore` affects matching untracked paths under the repository. Store credentials outside the project tree in a suitable user-level credential store, and restrict which processes can access them.
 
 </details>
