@@ -16,6 +16,12 @@ Use Node.js 26.12.1 and npm 11.20.0 for repository work. The Node.js version is 
 
 Keep Node.js on a supported LTS release. Update the Node.js and npm pins together in a PR when adopting a newer supported patch release or LTS line. Update `.nvmrc`, the root `package.json`, and the lockfile together, then verify a clean install with the new versions. When the development container and CI are added, update their pins in the same change so the environments stay aligned.
 
+The planned development environment uses Docker Desktop with WSL 2 on Windows. Contributors using Docker Desktop for commercial work on behalf of an organisation should check Docker's current [Docker Desktop licensing terms](https://docs.docker.com/desktop/setup/install/windows-install/): commercial use in an organisation with more than 250 employees or more than US$10 million in annual revenue requires a paid subscription. Docker's terms can change; contributors are responsible for confirming that their use is covered.
+
+To use the Linux development container, install the VS Code Dev Containers extension, start Docker Desktop with its WSL 2 backend, open the repository in VS Code, and run **Dev Containers: Reopen in Container** from the Command Palette. The first container creation runs `npm ci`. The container includes Git with `core.autocrlf=true` to match the Windows checkout's line endings. Check the toolchain with `node --version`, `npm --version`, `git status`, and `npm ls --workspaces --depth=0` inside the container.
+
+The repository folder is mounted into the container, so files and uncommitted changes remain in the same checkout. VS Code runs on the host while terminal commands run in the container. The project does not prescribe personal editor extensions; install them in the environment where you want them to run. Use the Source Control view or `git status` to see the mounted checkout's changes.
+
 ## Self-review your PR
 
 Before asking for review or merging your own PR:
@@ -48,4 +54,4 @@ When trusted reviewers are available, update the `Protect main` ruleset to requi
 
 ## Keep the repository safe
 
-Do not commit credentials, real secrets, private customer data, or sensitive test data. Use synthetic examples. Keep sensitive security details out of public issues and PRs.
+Do not commit credentials, real secrets, private customer data, or sensitive test data. Use synthetic examples. Keep sensitive security details out of public issues and PRs. Store sign-in data in a user-level credential store or the container user's home directory, outside the project checkout. Codex may cache authentication in `~/.codex/auth.json` or an operating-system credential store; treat file-based authentication as a secret. `.gitignore` only filters matching untracked paths inside the repository: it does not secure credentials stored elsewhere or remove files already tracked by Git.
