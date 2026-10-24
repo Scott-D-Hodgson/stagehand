@@ -19,6 +19,7 @@
 - [x] Add least-privilege agent guidance: keep work within the project directory, avoid system-wide access, and do not expose host credentials or broad filesystem mounts by default.
 - [x] Explain that repository guidance states expectations but cannot enforce isolation; describe runtime-enforced limits accurately and do not claim a boundary that the agent host does not provide.
 - [ ] Use GitHub Actions to verify the container build or critical setup steps. Add further workflow checks incrementally as implementation milestones introduce the commands and artifacts they can verify.
+  - The initial workflow runs on pull requests targeting `main` and pushes to `main`. It checks the Node.js/npm pins, installs and lists workspaces, validates the Dev Container JSON, and builds the container image. Keep this item open until a GitHub Actions run succeeds on a PR.
 
 ## Completion evidence
 
@@ -29,7 +30,7 @@
 - `npm ci` succeeds with Node.js 26.12.1 and npm 11.20.0, and `npm ls --workspaces --depth=0` resolves all seven workspace packages.
 - Agent guidance recommends project-directory scope and distinguishes written expectations from controls the runtime actually enforces.
 - Contributor guidance explains where credentials may be cached, keeps host credential directories out of the workspace mounts, and does not rely on `.gitignore` to protect credentials outside the repository.
-- A GitHub Actions workflow to verify the container definition or its critical setup checks remains planned; later checks are added with their implementation milestones.
+- The initial GitHub Actions workflow is defined to verify the container definition and critical setup checks. Its first successful run on a PR remains pending; later checks are added with their implementation milestones.
 
 ## Learning reference
 
