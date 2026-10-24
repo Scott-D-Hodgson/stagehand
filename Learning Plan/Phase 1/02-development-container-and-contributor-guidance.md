@@ -45,7 +45,7 @@ That distinction matters for AI coding agents too. `AGENTS.md`-style guidance ca
 
 [TE-013](../../Planning/Backlog/technical-enablers/te-013-development-container.md) and [ATR-036](../../Planning/Backlog/epics/E08-developer-experience/stories/ATR-036.md) call for a pinned toolchain, Playwright prerequisites, common commands, and a fresh setup path. Make sure the setup covers the actual required workflows (tests, lint/type checks, builds, CLI, SPA, and docs) as they become implemented.
 
-The selected baseline is Node.js 26.12.1 and npm 11.20.0. The Linux-based development container is implemented and locally verified. The initial GitHub Actions check is now defined but awaits its first PR run; add further workflows as implementation milestones introduce commands and outputs those workflows can check. Do not create placeholder checks for features that do not exist yet.
+The selected baseline is Node.js 26.12.1 and npm 11.20.0. The Linux-based development container is implemented and locally verified. The initial GitHub Actions check passed on a PR; add further workflows as implementation milestones introduce commands and outputs those workflows can check. Do not create placeholder checks for features that do not exist yet.
 
 The initial VS Code container setup includes Git with `core.autocrlf=true` so Git handles the CRLF working files mounted from Windows consistently with the LF content in its index. This Git setting is baked into the container image, so it remains in effect when the container is recreated. The container definition does not prescribe editor extensions; contributors can install personal tools in the environment where they want to use them.
 
