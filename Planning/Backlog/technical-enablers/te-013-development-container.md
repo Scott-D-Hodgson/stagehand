@@ -1,6 +1,6 @@
 # TE-013 — Development container
 
-**Status:** Proposed  
+**Status:** In Progress\
 **Priority:** Must  
 **Related stories:** ATR-036
 
