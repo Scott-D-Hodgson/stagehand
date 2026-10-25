@@ -10,4 +10,4 @@ These lessons prepare the developer for M0 and [Roadmap Phase 1](../../Planning/
 5. [Variable scopes, data sets, shared steps, and loop semantics](05-variables-data-sets-shared-steps-and-loops.md)
 6. [Error model and execution policies](06-error-model-and-execution-policies.md)
 
-The lessons are AI-generated from the evolving Planning materials. Treat them as a learning guide; confirm current Stagehand decisions against the backlog, roadmap, and work plan. Each lesson includes a self-assessment, practical exercise, success criteria, references, and a reinforcement quiz.
+The lessons are AI-generated from the evolving Planning materials. Treat them as a learning guide; confirm current Stagehand decisions against the backlog, roadmap, and work plan. TypeScript is the default for new implementation code; the initial plan-schema package is the first code footprint covered by these lessons. Each lesson includes a self-assessment, practical exercise, success criteria, references, and a reinforcement quiz.

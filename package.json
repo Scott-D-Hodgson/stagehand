@@ -11,5 +11,8 @@
     "apps/cli",
     "apps/web",
     "packages/*"
-  ]
+  ],
+  "devDependencies": {
+    "typescript": "7.0.2"
+  }
 }
