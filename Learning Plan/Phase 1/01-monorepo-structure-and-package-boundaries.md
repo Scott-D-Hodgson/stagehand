@@ -33,11 +33,12 @@ Stagehand's accepted starting architecture uses an npm monorepo. Its initial wor
 - **Workspace dependency:** a local package dependency managed as part of the same repository.
 - **Change ownership:** a change crossing package boundaries should update callers, docs, and relevant fixtures in the same review.
 - **Build and test scope:** CI can verify affected packages, but must still verify shared contracts and cross-package integration.
+- **TypeScript baseline:** TypeScript is the default for new implementation code. Shared strict compiler settings live at the repository root; package builds emit JavaScript and declarations into ignored `dist/` folders.
 - **Lockstep versioning:** the reusable packages, CLI, and web editor share one Stagehand version. Before the first release candidate, breaking changes may increment the minor version while the major remains `0`; the usual major/minor/patch meanings apply from the first release candidate onward.
 
 ## Apply this to Stagehand
 
-The initial workspace manifests and root lockfile now provide the repository scaffold. Source entry files, package `exports`, and checks of each public entry point are deliberately left for incremental package implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
+The initial workspace manifests and root lockfile provide the repository scaffold. The first implementation is in `packages/plan-schema`: it stores the plan and case schemas as JSON, exports them from a TypeScript entry point, and has a package build target. Other workspace source entries and public exports remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
 
 1. Its single primary responsibility.
 2. The callers that need it.
@@ -49,7 +50,7 @@ The agreed responsibilities and dependency directions are:
 
 | Workspace | Responsibility and allowed dependencies |
 |---|---|
-| Plan schema | Owns plan structure and validation; works in Node.js and the browser; remains independent of applications, runner core, and Playwright. |
+| Plan schema | Owns plan structure and planned validation; currently publishes initial plan/case JSON Schemas through a TypeScript entry point. It is designed for Node.js and browser consumers and remains independent of applications, runner core, and Playwright. Runtime validation is not implemented yet. |
 | Plan engine | Interprets valid plans and may depend on the plan schema; contains no execution logic. |
 | Runner core | Owns execution; may depend on the plan engine and result model and uses Playwright directly. |
 | Result model | Owns the common result contract; remains independent of applications, runner core, and Playwright. |
@@ -59,16 +60,25 @@ The agreed responsibilities and dependency directions are:
 
 JSON is the first supported output. The common result model is the input to formatting; later optional converters may generate formats such as JUnit XML or HTML. Keep shared contracts independent and avoid circular dependencies. Do not add structure just in case: refine these boundaries when implementation provides a concrete reason.
 
+## Current implementation footing
+
+- `tsconfig.base.json` provides the shared strict TypeScript compiler settings. TypeScript is pinned as a root development dependency.
+- `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports `planSchemaV1` and `caseSchemaV1`.
+- `src/plan-v1.schema.json` and `src/case-v1.schema.json` contain the Draft 2020-12 schemas. The plan and case each use their own integer `schemaVersion`, initially `1`.
+- `examples/checkout-plan.json` and `examples/cases/sign-in.json` show the initial envelope and settings.
+- Build this package with `npm run build --workspace @stagehand/plan-schema`. The command emits files to the ignored `packages/plan-schema/dist/` folder.
+- The package currently exports schemas only. It does not provide validation functions, resolve case paths, check duplicate IDs/references, or define step contents.
+
 ## Exercise
 
-Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md). Draw the same dependencies from memory, then explain why the runner core can use Playwright directly, why the editor uses the schema without execution logic, and how the CLI routes the common result model to JSON. Write one sentence describing each workspace's responsibility and one example of a file that should remain private.
+Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md). Build the plan-schema package and inspect its `exports`, TypeScript entry point, JSON schemas, and example files. Draw the dependencies from memory, then explain why the runner core can use Playwright directly, why the editor uses the schema without execution logic, and how the CLI routes the common result model to JSON. Write one sentence describing each workspace's responsibility and one example of a file that should remain private.
 
 ## You are ready when
 
 - You can explain why Stagehand initially benefits from a monorepo and what evidence might justify splitting it later.
 - Each initial workspace has a distinct responsibility and follows the allowed dependency directions in [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
 - You can explain lockstep versioning and the pre-release-candidate rule for breaking changes.
-- You can distinguish the existing workspace scaffolds from source entry files and public-entry checks that will be added with incremental implementation.
+- You can distinguish the plan-schema package's initial source/build from the remaining workspace scaffolds and explain that its runtime validation API is future work.
 - You can explain how a schema change should be reviewed across editor, runner, examples, and CI.
 
 ## Read next

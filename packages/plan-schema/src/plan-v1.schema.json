@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stagehand plan, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "cases"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "type": "string", "minLength": 1 },
+    "defaults": { "$ref": "#/$defs/planDefaults" },
+    "variables": { "$ref": "#/$defs/variables" },
+    "cases": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1,
+            "description": "A portable relative path using forward slashes; canonical containment is checked by the loader.",
+            "pattern": "^(?!/)(?![A-Za-z][A-Za-z0-9+.-]*:)[^\\\\]+$"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "variables": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "planDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locale": { "type": "string", "minLength": 1 },
+        "browser": { "$ref": "#/$defs/browserSettings" },
+        "accessibility": { "$ref": "#/$defs/accessibilitySettings" }
+      }
+    },
+    "browserSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "headless": { "type": "boolean" },
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "timeZone": { "type": "string", "minLength": 1 }
+      }
+    },
+    "accessibilitySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    }
+  }
+}

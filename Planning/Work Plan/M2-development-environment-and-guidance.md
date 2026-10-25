@@ -34,6 +34,7 @@
 - The contributor guide provides a first-day setup path, observable baseline commands, architecture/change guidance, security and PR practices, and troubleshooting for the known container setup issues.
 - Contributor guidance explains where credentials may be cached, keeps host credential directories out of the workspace mounts, and does not rely on `.gitignore` to protect credentials outside the repository.
 - The initial GitHub Actions workflow passed on the PR, verifying the Node.js/npm pins, workspace installation and listing, Dev Container JSON, and container image build. Later checks are added with their implementation milestones.
+- The workflow has since been extended with the first implementation check: it builds `@stagehand/plan-schema` after installing workspaces. This adds a real package build introduced by M3, not a placeholder build step.
 
 ## Learning reference
 

@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "id": "checkout-plan",
+  "defaults": {
+    "locale": "en-CA",
+    "browser": {
+      "type": "chromium",
+      "headless": true,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "timeZone": "America/Toronto"
+    },
+    "accessibility": {
+      "enabled": true
+    }
+  },
+  "variables": {
+    "baseUrl": "http://localhost:3000"
+  },
+  "cases": [
+    {
+      "path": "cases/sign-in.json"
+    }
+  ]
+}

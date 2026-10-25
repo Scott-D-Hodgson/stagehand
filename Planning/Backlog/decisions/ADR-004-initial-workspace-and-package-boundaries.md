@@ -38,5 +38,5 @@ Independent versions would add release coordination overhead while Stagehand is 
 
 - The initial workspace layout is testable by npm without implementing the runner, editor, or reporters.
 - Package responsibilities and allowed dependencies are documented in [TE-002](../technical-enablers/te-002-reusable-node.js-typescript-package-structure.md) and can be refined when implementation provides evidence for a change.
-- Source entry files, package `exports`, and public-entry checks will be added in incremental package changes.
+- Add source entry files, package `exports`, and public-entry checks incrementally with each package implementation. The plan-schema package now has its TypeScript entry point, `exports` declaration, and build target; runtime validation and its public-entry check remain future work.
 - Reporters remain a provisional separate workspace.

@@ -23,7 +23,7 @@ The MVP result format is JSON. JUnit and HTML reports, screenshots, production-s
 
 ## Project status
 
-The repository contains planning and learning documents plus initial npm workspace scaffolds; the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The current effective GitHub ruleset and merge-method settings have not been verified as active. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
+The repository contains planning and learning documents, npm workspace scaffolds, and initial plan/case schema definitions in `packages/plan-schema`. Schema validation, the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
 
 Planning is a living set of AI-generated documents guided by the developer. The Learning Plan is generated from those materials to help developers understand and carry out the work. Neither should be treated as a substitute for reviewing the latest decisions and requirements.
 
@@ -41,7 +41,7 @@ Planning is a living set of AI-generated documents guided by the developer. The 
 
 ## Contributing
 
-Changes should be proposed through a pull request so the author and reviewer can inspect the diff before it reaches `main`. The solo procedure is for the owner to self-review with a checklist and review contributions from others. When other reviewers join, the intended policy is to require an independent review. The planned merge convention is to use merge commits for the owner's PRs, preserving individual commits in `main`, and squash merges for outside contributions, grouping their incremental commits. GitHub does not enforce this choice based on authorship; both methods need to be enabled and selected per PR. M0 records that the `Protect main` ruleset was configured and tested with a PR, but its current effective state has not been verified as active.
+Changes should be proposed through a pull request so the author and reviewer can inspect the diff before it reaches `main`. The solo procedure is for the owner to self-review with a checklist and review contributions from others. When other reviewers join, the intended policy is to require an independent review. The planned merge convention is to use merge commits for the owner's PRs, preserving individual commits in `main`, and squash merges for outside contributions, grouping their incremental commits. GitHub does not enforce this choice based on authorship; select the appropriate method when merging. M0 records that the `Protect main` ruleset was configured and tested with a PR.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the review steps and merge conventions, and the [M0 repository bootstrap guide](Learning%20Plan/Phase%201/00-github-repository-bootstrap-and-pr-governance.md) for the repository setup approach. Keep plans and examples synthetic, and never commit credentials or real secrets.
 

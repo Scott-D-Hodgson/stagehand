@@ -1,5 +1,16 @@
 {
   "name": "@stagehand/plan-schema",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  }
 }

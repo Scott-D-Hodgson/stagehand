@@ -22,22 +22,22 @@ To use the Linux development container, install the VS Code Dev Containers exten
 
 The initial container does not install Chromium. When `@stagehand/runner-core` adds and pins Playwright, use that same project-pinned Playwright CLI to install Chromium and its Linux system dependencies (for example, `npx playwright install --with-deps chromium`). Do not add a separately versioned Playwright CLI to the container. The system-dependency installation needs the privileges required to install OS packages. This development setup does not change the MVP's Windows runner focus; Linux runner support remains post-MVP.
 
-The initial GitHub Actions workflow runs on pull requests targeting `main` and pushes to `main`. It checks the pinned Node.js/npm versions, installs and lists the workspaces, validates the Dev Container JSON, and builds the container image. Reproduce these checks locally from the repository root with the pinned toolchain and Docker available: `npm ci`, `npm ls --workspaces --depth=0`, `node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"`, and `docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:local .devcontainer`.
+The GitHub Actions workflow runs on pull requests targeting `main` and pushes to `main`. It checks the pinned Node.js/npm versions, installs and lists the workspaces, builds the plan-schema package, validates the Dev Container JSON, and builds the container image. Reproduce these checks locally from the repository root with the pinned toolchain and Docker available: `npm ci`, `npm ls --workspaces --depth=0`, `npm run build --workspace @stagehand/plan-schema`, `node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"`, and `docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:local .devcontainer`.
 
 The repository folder is mounted into the container, so files and uncommitted changes remain in the same checkout. VS Code runs on the host while terminal commands run in the container. The project does not prescribe personal editor extensions; install them in the environment where you want them to run. Use the Source Control view or `git status` to see the mounted checkout's changes.
 
 ## Architecture and code changes
 
-The implementation is being built incrementally. The current application and package folders are npm workspace scaffolds; do not assume planned runner, CLI, or editor behaviour exists. Before changing package boundaries or shared contracts, read the [repository map](Planning/Repository/structure.md) and the relevant decisions and milestones linked from [Planning](Planning/README.md). Keep package responsibilities and dependency direction consistent with those decisions.
+The implementation is being built incrementally. `packages/plan-schema` contains the initial plan and case JSON Schemas, a TypeScript entry point, and a package build; it does not yet validate inputs at runtime. `apps/cli/`, `apps/web/`, and the other packages remain workspace scaffolds. Use TypeScript for new implementation code and keep schemas and synthetic plan/case documents as JSON data. Before changing package boundaries or shared contracts, read the [repository map](Planning/Repository/structure.md) and the relevant decisions and milestones linked from [Planning](Planning/README.md). Keep package responsibilities and dependency direction consistent with those decisions.
 
-No general code-style or lint configuration has been established yet. Follow the conventions of the files you are changing, keep changes focused, and avoid adding abstractions or tooling without a concrete need. Add or update checks when the relevant implementation milestone introduces runnable behaviour; do not report planned checks as available commands.
+No general code-style or lint configuration has been established yet. Follow the conventions of the files you are changing, keep changes focused, and avoid adding abstractions or tooling without a concrete need. Build the schema package with `npm run build --workspace @stagehand/plan-schema`. Other package builds, runtime validation, application checks, and lint are not available yet; add checks as their implementation milestones introduce runnable behaviour.
 
 ## Troubleshooting the development container
 
 - **Container start reports `distro mount service` or a missing `ubuntu.sock`:** make sure Docker Desktop is running with WSL 2 enabled and that WSL integration is enabled for the Ubuntu distribution in Docker Desktop settings. Apply the setting, restart Docker Desktop if prompted, then run **Dev Containers: Reopen in Container** again.
 - **`git status` shows many or all files as modified inside the container:** check `git config --show-origin --get core.autocrlf`; the container should report `true`. If the Dockerfile setting has changed or the current container predates it, run **Dev Containers: Rebuild Container** and check again.
 - **Node.js or npm versions do not match the pins:** run `node --version` and `npm --version` in the same terminal where you are working. Host and container terminals use different installations; inside the container, rebuild it after changing the Dockerfile pins.
-- **Workspace installation or listing fails:** from the repository root, confirm the pinned versions and run `npm ci`, then `npm ls --workspaces --depth=0`. The current workspace listing is the available package check; application tests, lint, and builds are not yet implemented.
+- **Workspace installation or listing fails:** from the repository root, confirm the pinned versions and run `npm ci`, then `npm ls --workspaces --depth=0`. To compile the current schema package, run `npm run build --workspace @stagehand/plan-schema`; application tests and lint are not available yet.
 
 ## Self-review your PR
 
@@ -50,7 +50,7 @@ Before asking for review or merging your own PR:
 - Confirm that the change contains no credentials, real secrets, or private data.
 - Resolve open PR conversations.
 
-The repository owner currently works alone. GitHub does not count an author's approval as an independent review of their own PR, so the documented solo-phase policy is zero required approvals. The owner uses the PR checklist as a manual self-review. It is a useful pause, not a second reviewer or an automated gate. M0 records this setting, but the current effective ruleset configuration has not been verified as active.
+The repository owner currently works alone. GitHub does not count an author's approval as an independent review of their own PR, so the documented solo-phase policy is zero required approvals. The owner uses the PR checklist as a manual self-review. It is a useful pause, not a second reviewer or an automated gate.
 
 ## Review a contributor PR
 
@@ -63,7 +63,7 @@ While the owner is the only maintainer, the owner reviews PRs from other contrib
 
 ## Merge methods
 
-The documented merge convention is to use merge commits for the owner's PRs so the owner's individual commits remain visible in `main`'s history. PRs from other contributors are generally squash-merged so their incremental commits are grouped into one commit on `main`. M0 records that merge commits and squash merging were enabled and rebase merging disabled; the current effective settings have not been verified as active. GitHub does not select or enforce the method based on who authored a PR; choose the appropriate method when merging.
+The documented merge convention is to use merge commits for the owner's PRs so the owner's individual commits remain visible in `main`'s history. PRs from other contributors are generally squash-merged so their incremental commits are grouped into one commit on `main`. M0 records that merge commits and squash merging were enabled and rebase merging disabled. GitHub does not select or enforce the method based on who authored a PR; choose the appropriate method when merging.
 
 ## When independent reviewers join
 
