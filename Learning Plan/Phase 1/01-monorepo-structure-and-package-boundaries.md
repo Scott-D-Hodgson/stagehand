@@ -66,7 +66,7 @@ Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-
 ## You are ready when
 
 - You can explain why Stagehand initially benefits from a monorepo and what evidence might justify splitting it later.
-- Each initial workspace has a distinct responsibility and follows the allowed dependency directions in TE-002.
+- Each initial workspace has a distinct responsibility and follows the allowed dependency directions in [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
 - You can explain lockstep versioning and the pre-release-candidate rule for breaking changes.
 - You can distinguish the existing workspace scaffolds from source entry files and public-entry checks that will be added with incremental implementation.
 - You can explain how a schema change should be reviewed across editor, runner, examples, and CI.

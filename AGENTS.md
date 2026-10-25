@@ -33,3 +33,16 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 ## Verification
 
 For documentation changes, inspect the diff and check affected relative links and references. For code changes, use the repository's documented checks once they exist; do not imply a check ran unless it did. Update status and evidence when work moves from proposed to implemented or verified.
+
+## Closing review
+
+When the owner asks to **"Perform closing review"**, treat that phrase as a request to complete this documentation close-out:
+
+1. Identify the current PR/base branch when available and review every changed Markdown file in the working tree and branch. Check decisions, statuses, scope, Canadian spelling, cross-references, and whether the Learning Plan reflects accepted planning changes without presenting proposed behaviour as implemented.
+2. Make clear, supported corrections directly. Keep unresolved decisions open and report them as questions; do not block independent review work while waiting for answers.
+3. Update the ignored personal `Obsidian-todo.md` only when completed or newly agreed work changes its guidance. Keep it out of the PR.
+4. Refresh the ignored `Obsidian-review.md` to include links to only the Markdown files changed for this PR. Under each file link, include the changed section or exact diff hunk so the owner can find and review the edits in Obsidian.
+5. Check Markdown relative links and ADR/technical-enabler links, inspect the final diff, and run `git diff --check`. Do not run tests unless the owner asks for them.
+6. Summarize corrections, unresolved decisions, and verification performed. Do not commit or publish unless explicitly requested.
+
+If the PR base cannot be identified locally, use the changed Markdown files relative to `HEAD` and say that the review scope was limited to the current diff.

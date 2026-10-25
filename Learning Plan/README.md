@@ -22,7 +22,7 @@ Read the concepts and Stagehand examples, complete the exercise, and check the s
 
 ## Suggested checkpoints
 
-- **After Phase 1 lesson 0:** explain the path from an existing local repository to a PR-protected GitHub `main` branch, the manual solo self-review process, and why automated author-sensitive enforcement is deferred. M0 is recorded complete, including a test PR of the solo-phase merge gates.
+- **After Phase 1 lesson 0:** explain the path from an existing local repository to a PR-protected GitHub `main` branch, the manual solo self-review process, and why automated author-sensitive enforcement is deferred. M0 is recorded complete, including a tested PR-based workflow.
 - **After Phase 1 lesson 1:** explain the accepted initial npm workspace design, package responsibilities, dependency directions, lockstep versioning, and which source entry files/checks remain for incremental implementation.
 - **After Phase 1 lesson 2:** explain how a contributor gets a repeatable, appropriately restricted development environment.
 - **After Phase 1 lessons 3–5:** walk through a small plan from JSON input to validated, unambiguous execution instructions.

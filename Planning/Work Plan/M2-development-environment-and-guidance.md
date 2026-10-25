@@ -14,8 +14,10 @@
   - The repository is mounted at `/workspaces/stagehand`; the container's `/home/node` is not mounted from the host. Document that tools may keep credentials in a user-level credential store or user home, and that `.gitignore` only filters files within the repository—it is not a credential store or a way to secure files outside the repository.
 - [x] Document the Playwright/Chromium dependency and setup approach for the development container, even though browser execution is implemented later.
   - The initial container does not install Chromium. When runner-core pins Playwright, use that same version's CLI to install Chromium and its Linux system dependencies (for example, `npx playwright install --with-deps chromium`); do not introduce a second Playwright version in the container. The OS dependency step needs privileges to install system packages. This does not add Linux runner support to the MVP.
-- [ ] Write or update the first-contributor guide with setup, currently available commands, expected outcomes, and troubleshooting pointers.
-- [ ] Review and update the existing root/scoped `AGENTS.md` guidance and contributor guide for architecture, coding conventions, security, verification, and change workflow; add scoped guidance only where it materially differs.
+- [x] Write or update the first-contributor guide with setup, currently available commands, expected outcomes, and troubleshooting pointers.
+  - `CONTRIBUTING.md` documents the pinned setup, commands that are currently available and their expected results, Windows-first runner scope with Linux support after MVP, and troubleshooting for Docker/WSL startup, Git line endings, version mismatches, and workspace installation.
+- [x] Review the existing root/scoped `AGENTS.md` guidance and contributor guide for architecture, coding conventions, security, verification, and change workflow; add scoped guidance only where it materially differs.
+  - The root and planning/learning scoped instructions were reviewed. Existing scoped guidance covers the distinct needs of those folders; no additional scope-specific guidance was needed. The contributor guide points contributors to the current planning decisions and distinguishes existing scaffolds from planned behaviour.
 - [x] Add least-privilege agent guidance: keep work within the project directory, avoid system-wide access, and do not expose host credentials or broad filesystem mounts by default.
 - [x] Explain that repository guidance states expectations but cannot enforce isolation; describe runtime-enforced limits accurately and do not claim a boundary that the agent host does not provide.
 - [x] Use GitHub Actions to verify the container build or critical setup steps. Add further workflow checks incrementally as implementation milestones introduce the commands and artifacts they can verify.
@@ -29,6 +31,7 @@
 - Inside the development container, the owner verified Node.js `v26.12.1`, npm `11.20.0`, and all seven workspace packages with `npm ls --workspaces --depth=0`.
 - `npm ci` succeeds with Node.js 26.12.1 and npm 11.20.0, and `npm ls --workspaces --depth=0` resolves all seven workspace packages.
 - Agent guidance recommends project-directory scope and distinguishes written expectations from controls the runtime actually enforces.
+- The contributor guide provides a first-day setup path, observable baseline commands, architecture/change guidance, security and PR practices, and troubleshooting for the known container setup issues.
 - Contributor guidance explains where credentials may be cached, keeps host credential directories out of the workspace mounts, and does not rely on `.gitignore` to protect credentials outside the repository.
 - The initial GitHub Actions workflow passed on the PR, verifying the Node.js/npm pins, workspace installation and listing, Dev Container JSON, and container image build. Later checks are added with their implementation milestones.
 
