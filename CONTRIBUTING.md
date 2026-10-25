@@ -26,6 +26,19 @@ The initial GitHub Actions workflow runs on pull requests targeting `main` and p
 
 The repository folder is mounted into the container, so files and uncommitted changes remain in the same checkout. VS Code runs on the host while terminal commands run in the container. The project does not prescribe personal editor extensions; install them in the environment where you want them to run. Use the Source Control view or `git status` to see the mounted checkout's changes.
 
+## Architecture and code changes
+
+The implementation is being built incrementally. The current application and package folders are npm workspace scaffolds; do not assume planned runner, CLI, or editor behaviour exists. Before changing package boundaries or shared contracts, read the [repository map](Planning/Repository/structure.md) and the relevant decisions and milestones linked from [Planning](Planning/README.md). Keep package responsibilities and dependency direction consistent with those decisions.
+
+No general code-style or lint configuration has been established yet. Follow the conventions of the files you are changing, keep changes focused, and avoid adding abstractions or tooling without a concrete need. Add or update checks when the relevant implementation milestone introduces runnable behaviour; do not report planned checks as available commands.
+
+## Troubleshooting the development container
+
+- **Container start reports `distro mount service` or a missing `ubuntu.sock`:** make sure Docker Desktop is running with WSL 2 enabled and that WSL integration is enabled for the Ubuntu distribution in Docker Desktop settings. Apply the setting, restart Docker Desktop if prompted, then run **Dev Containers: Reopen in Container** again.
+- **`git status` shows many or all files as modified inside the container:** check `git config --show-origin --get core.autocrlf`; the container should report `true`. If the Dockerfile setting has changed or the current container predates it, run **Dev Containers: Rebuild Container** and check again.
+- **Node.js or npm versions do not match the pins:** run `node --version` and `npm --version` in the same terminal where you are working. Host and container terminals use different installations; inside the container, rebuild it after changing the Dockerfile pins.
+- **Workspace installation or listing fails:** from the repository root, confirm the pinned versions and run `npm ci`, then `npm ls --workspaces --depth=0`. The current workspace listing is the available package check; application tests, lint, and builds are not yet implemented.
+
 ## Self-review your PR
 
 Before asking for review or merging your own PR:

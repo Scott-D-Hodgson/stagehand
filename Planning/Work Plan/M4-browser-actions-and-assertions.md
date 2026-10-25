@@ -19,7 +19,7 @@
 - [ ] Define expected values, timeout behaviour, diagnostics, and hard/soft control-flow effects for each selected assertion.
 - [ ] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Define the precise argument and variable-injection model.
 - [ ] Update plan schema, examples, and invalid fixtures to represent the decisions.
-- [ ] Ensure the accepted accessibility behaviour is represented consistently in the schema and examples: optional scans after each step, new findings only, non-failing by default, with plan/case failure overrides.
+- [ ] Represent accessibility configuration and scan behaviour consistently in the schema and examples: optional scans after each completed step, deduplicated finding collection, and plan defaults with case overrides. M6 defines how configured failure policies affect case/run outcomes and continuation.
 
 ## Completion evidence
 
@@ -27,7 +27,7 @@
 - The initial action set covers URL navigation, the requested selector-based interactions, bounded optional waits/delays, and viewport handling; each option's applicability and ordering are explicit.
 - The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
 - Invalid settings and unknown actions fail clearly before execution where possible.
-- Hard and soft assertion behaviour is stated unambiguously, including test status and continuation behaviour.
+- Hard and soft assertion control flow is stated unambiguously. M6 defines how those outcomes map to test/run status and affect later execution.
 - Examples and fixtures reflect the documented rules.
 
 ## Learning reference

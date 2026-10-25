@@ -27,7 +27,7 @@ Cancellation is a request to stop work, not a magic eraser. The runner must stop
 
 Design the scheduler around a bounded queue and explicit case states. Record start time only when case execution becomes active. Ensure cancellation and timeout signals reach waits, browser operations, and loops. Keep each result tied to its stable case identity even if parallel cases finish in a different order than they started.
 
-Separate test failures from infrastructure errors: an assertion mismatch is `failed`; cancellation is `cancelled`; a runner/browser/report infrastructure failure is `error`. JSON result status and CLI exit behaviour must follow a documented mapping. Whether a particular failure stops later cases is a policy choice and should be explicit.
+Separate test failures from infrastructure errors: a functional assertion mismatch or a configured accessibility failure is `failed`; cancellation is `cancelled`; a runner/browser/report infrastructure failure is `error`. Diagnostics should preserve which condition failed. JSON result status and CLI exit behaviour must follow a documented mapping. Whether a particular failure stops later cases is a policy choice and should be explicit.
 
 ## Exercise
 

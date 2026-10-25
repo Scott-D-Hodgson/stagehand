@@ -6,7 +6,7 @@
 
 ## Objective
 
-Create a shared, versioned plan JSON Schema consumed by the Vue editor and CLI runner; define the result contract, validation fixtures, compatibility policy, and migration approach.
+Create a shared, versioned plan JSON Schema consumed by the Vue editor and CLI runner, and a versioned result JSON Schema as the normative validation contract for emitted JSON. Record the selected JSON Schema draft separately from Stagehand contract versions, define source fingerprints for result provenance, and provide validation fixtures, compatibility policy, and migration approach.
 
 ## Acceptance criteria
 
