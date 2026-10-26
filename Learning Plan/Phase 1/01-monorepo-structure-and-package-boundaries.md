@@ -38,7 +38,7 @@ Stagehand's accepted starting architecture uses an npm monorepo. Its initial wor
 
 ## Apply this to Stagehand
 
-The initial workspace manifests and root lockfile provide the repository scaffold. The first implementation is in `packages/plan-schema`: it stores the plan and case schemas as JSON, exports them from a TypeScript entry point, and has a package build target. Other workspace source entries and public exports remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
+The initial workspace manifests and root lockfile provide the repository scaffold. The first implementation is in `packages/plan-schema`: it stores the plan and case schemas as JSON, exports schemas and synchronous validation helpers from a TypeScript entry point, and has package tests that build and exercise that public entry point. Other workspace source entries and public exports remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
 
 1. Its single primary responsibility.
 2. The callers that need it.
@@ -63,11 +63,11 @@ JSON is the first supported output. The common result model is the input to form
 ## Current implementation footing
 
 - `tsconfig.base.json` provides the shared strict TypeScript compiler settings. TypeScript is pinned as a root development dependency.
-- `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports `planSchemaV1` and `caseSchemaV1`.
+- `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports `planSchemaV1`, `caseSchemaV1`, `validatePlan`, and `validateCase`.
 - `src/plan-v1.schema.json` and `src/case-v1.schema.json` contain the Draft 2020-12 schemas. The plan and case each use their own integer `schemaVersion`, initially `1`.
 - `examples/checkout-plan.json` and `examples/cases/sign-in.json` show the initial envelope and settings.
 - Build this package with `npm run build --workspace @stagehand/plan-schema`. The command emits files to the ignored `packages/plan-schema/dist/` folder.
-- The package currently exports schemas only. It does not provide validation functions, resolve case paths, check duplicate IDs/references, or define step contents.
+- The package provides JSON Schema validation functions, but does not resolve case paths, check duplicate IDs/references, or define step contents.
 
 ## Exercise
 
@@ -78,7 +78,7 @@ Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-
 - You can explain why Stagehand initially benefits from a monorepo and what evidence might justify splitting it later.
 - Each initial workspace has a distinct responsibility and follows the allowed dependency directions in [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
 - You can explain lockstep versioning and the pre-release-candidate rule for breaking changes.
-- You can distinguish the plan-schema package's initial source/build from the remaining workspace scaffolds and explain that its runtime validation API is future work.
+- You can distinguish the plan-schema package's initial schemas and synchronous validation helpers from semantic checks and the remaining workspace scaffolds.
 - You can explain how a schema change should be reviewed across editor, runner, examples, and CI.
 
 ## Read next

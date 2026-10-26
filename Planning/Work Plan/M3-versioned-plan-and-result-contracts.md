@@ -11,6 +11,7 @@
   - [x] Select JSON Schema Draft 2020-12 and distinguish its `$schema` dialect URI from Stagehand contract versions.
   - [x] Use independent integer `schemaVersion` fields for plan and case documents, each initially `1`.
   - [x] Keep JSON Schema documents as JSON data and use TypeScript for package implementation code.
+  - [x] Add initial synchronous `validatePlan` and `validateCase` helpers to `@stagehand/plan-schema`, using Ajv's Draft 2020-12 validator and returning structured issues for invalid input. Node's built-in tests verify valid examples, invalid inputs, non-throwing results, and imports through the public package entry point; the broader semantic fixture matrix remains outstanding.
   - [x] Use a versioned JSON Schema as the normative validation contract for emitted result JSON.
   - [ ] Define compatibility and migration policy beyond the initial plan-v1/case-v1 pairing.
   - [ ] Ensure the Vue editor and Node runner consume the same plan schema and produce useful errors.

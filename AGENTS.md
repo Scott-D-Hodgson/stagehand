@@ -2,9 +2,9 @@
 
 ## Project context
 
-Stagehand is a planned, local-first browser end-to-end testing toolkit. The intended product includes versioned JSON test plans, a Node.js/Playwright runner and CLI, and a Vue web editor. The editor is intended to work locally without a Stagehand account or central plan service. The repository contains planning and learning material, npm workspace scaffolds, and initial plan/case schema definitions; the runner, CLI, editor, and schema-validation behaviour are not implemented. Never describe planned behaviour as shipped or verified.
+Stagehand is a planned, local-first browser end-to-end testing toolkit. The intended product includes versioned JSON test plans, a Node.js/Playwright runner and CLI, and a Vue web editor. The editor is intended to work locally without a Stagehand account or central plan service. The repository contains planning and learning material, npm workspace scaffolds, and initial plan/case schemas with runtime schema validation; semantic validation, runner, CLI, and editor behaviour are not implemented. Never describe planned behaviour as shipped or verified.
 
-The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/`. New implementation code should use TypeScript by default. Keep JSON Schema documents and synthetic plan/case examples as JSON data. The `plan-schema` package now contains initial plan and case schemas; `apps/cli/`, `apps/web/`, and the other package folders remain scaffolds. Other folders shown in `Planning/Repository/structure.md` remain proposed. Keep actual scaffolds and proposed structure clearly distinguished.
+The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/`. New implementation code should use TypeScript by default. Keep JSON Schema documents and synthetic plan/case examples as JSON data. The `plan-schema` package contains initial plan and case schemas and synchronous JSON Schema validation helpers; semantic plan checks are not implemented. `apps/cli/`, `apps/web/`, and the other package folders remain scaffolds. Other folders shown in `Planning/Repository/structure.md` remain proposed. Keep actual scaffolds and proposed structure clearly distinguished.
 
 ## Project history and working assumptions
 
@@ -24,6 +24,7 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 - Treat unresolved product choices as unresolved. Make a recommendation only when asked or when needed to make a useful draft, and label it as a suggestion for review.
 - Separate completed actions, current facts, proposed design, assumptions, and recommendations. Do not invent repository configuration, test results, implementation behaviour, or user decisions.
 - Prefer clear Markdown, descriptive links, and concise language. Keep links valid relative to their containing file after moving or renaming content.
+- Do not put blank lines inside function bodies. Blank lines between functions and other top-level declarations are fine.
 - Whenever a planning or learning document refers to an ADR or technical enabler by identifier, make the identifier a clickable Markdown link to that document. Apply this in prose, lists, tables, and repeated mentions; leave an identifier unlinked only when no corresponding document exists, and flag that case for review.
 - In repository-level documentation, maps, and indexes, refer only to paths explicitly designated as publishable project materials.
 - Do not add cross-references from publishable project documentation to material outside the designated project documentation set.
