@@ -38,8 +38,8 @@ jobs:
       - name: Verify workspace packages
         run: npm ls --workspaces --depth=0
 
-      - name: Build plan-schema package
-        run: npm run build --workspace @stagehand/plan-schema
+      - name: Test plan-schema package
+        run: npm test --workspace @stagehand/plan-schema
 
       - name: Validate Dev Container configuration
         run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"

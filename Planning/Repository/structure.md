@@ -1,6 +1,6 @@
 ﻿# Proposed monorepo footprint
 
-This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace now contains initial plan and case schema definitions; the other future paths shown here remain proposals.
+This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains initial plan and case schema definitions plus synchronous JSON Schema validation helpers; semantic checks and the other future paths shown here remain proposals.
 
 ```text
 stagehand/
@@ -36,7 +36,7 @@ stagehand/
 │   └── desktop/             # Electron, later
 ├── packages/
 │   ├── runner-core/          # npm workspace scaffold
-│   ├── plan-schema/          # initial plan/case schemas; validation remains future work
+│   ├── plan-schema/          # initial plan/case schemas and synchronous schema validators
 │   │   ├── src/
 │   │   │   ├── index.ts      # single public entry point
 │   │   │   ├── plan-v1.schema.json
@@ -44,6 +44,8 @@ stagehand/
 │   │   ├── examples/
 │   │   │   ├── checkout-plan.json
 │   │   │   └── cases/sign-in.json
+│   │   ├── test/
+│   │   │   └── validation.test.js
 │   │   └── tsconfig.json
 │   ├── plan-engine/          # npm workspace scaffold
 │   ├── result-model/         # npm workspace scaffold

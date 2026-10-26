@@ -23,7 +23,7 @@ The MVP result format is JSON. JUnit and HTML reports, screenshots, production-s
 
 ## Project status
 
-The repository contains planning and learning documents, npm workspace scaffolds, and initial plan/case schema definitions in `packages/plan-schema`. Schema validation, the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
+The repository contains planning and learning documents, npm workspace scaffolds, and initial plan/case schemas with runtime schema validation in `packages/plan-schema`. Semantic plan checks, the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
 
 Planning is a living set of AI-generated documents guided by the developer. The Learning Plan is generated from those materials to help developers understand and carry out the work. Neither should be treated as a substitute for reviewing the latest decisions and requirements.
 
@@ -48,3 +48,5 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the review steps and merge convention
 ## Licence
 
 Stagehand is distributed under the [MIT Licence](LICENSE).
+
+Third-party package notices and licence texts are provided in [THIRD-PARTY-NOTICES.md](THIRD-PARTY-NOTICES.md).

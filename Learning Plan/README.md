@@ -14,6 +14,7 @@ The learning materials are grouped by the milestone they support:
 - [Phase 2 learning plan](Phase%202/README.md): controlled Vue authoring, plan editing and validation, and local-first file workflows.
 - [Phase 3 learning plan](Phase%203/README.md): Playwright execution, parallel case lifecycle, and CLI configuration and behaviour.
 - [Phase 4 learning plan](Phase%204/README.md): result contracts and accessibility, Azure DevOps automation, and documentation and adoption.
+- [Package learning plans](Packages/README.md): focused guides for understanding the implementation and checks inside each reusable package; currently includes [`plan-schema`](Packages/plan-schema/README.md).
 - [Acronyms](acronyms.md) - abbreviations used across the Learning Plan.
 
 ## How to use each lesson
@@ -23,7 +24,7 @@ Read the concepts and Stagehand examples, complete the exercise, and check the s
 ## Suggested checkpoints
 
 - **After Phase 1 lesson 0:** explain the path from an existing local repository to a PR-protected GitHub `main` branch, the manual solo self-review process, and why automated author-sensitive enforcement is deferred. M0 is recorded complete, including a tested PR-based workflow.
-- **After Phase 1 lesson 1:** explain the accepted npm workspace design, TypeScript default and shared compiler setup, initial plan-schema package source/build, package responsibilities, dependency directions, lockstep versioning, and which implementation work remains.
+- **After Phase 1 lesson 1:** explain the accepted npm workspace design, TypeScript default and shared compiler setup, plan-schema schemas, validation API and tests, package responsibilities, dependency directions, lockstep versioning, and which implementation work remains.
 - **After Phase 1 lesson 2:** explain how a contributor gets a repeatable, appropriately restricted development environment.
 - **After Phase 1 lessons 3–5:** walk through a small plan from JSON input to validated, unambiguous execution instructions.
 - **After Phase 1 lesson 6:** explain how validation errors, test failures, and runner failures differ, and what execution does after each.
