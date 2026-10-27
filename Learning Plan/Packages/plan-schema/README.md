@@ -9,6 +9,7 @@ Before reading, check which statements you can explain:
 - [ ] A JSON Schema checks document shape and constraints; it does not execute a plan.
 - [ ] The package accepts JavaScript values, not JSON text to parse.
 - [ ] I can describe the difference between `validatePlan` and semantic plan validation.
+- [ ] I can explain what `matchCaseReferences` checks and what it leaves to a filesystem loader.
 - [ ] I can run the package tests and explain what the public-entry import proves.
 
 ## What you will learn
@@ -16,6 +17,7 @@ Before reading, check which statements you can explain:
 - How plan and case schema files define the initial document contracts.
 - How the package selects Ajv's JSON Schema Draft 2020-12 implementation.
 - How the public validator API returns useful issues for invalid data.
+- How shared path matching connects plan references to imported relative file names.
 - How Node's built-in test runner checks behaviour through the package's public entry point.
 
 ## Package purpose and boundaries
@@ -24,13 +26,13 @@ The package owns shared plan and case JSON Schemas and synchronous functions tha
 
 The functions accept values of type `unknown`. A caller that starts with a JSON file must parse its text before calling a validator. The result says whether the value matches the selected schema. It does not say that the plan is ready to execute.
 
-The current case schema accepts `steps` as an array of objects, but does not validate step fields or action names. The package does not resolve referenced case files, enforce canonical path containment, check duplicate identifiers or plan/case compatibility, or resolve variables and secrets. Those are semantic and loading rules for later work.
+The current case schema accepts `steps` as an array of objects, but does not validate step fields or action names. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. Cross-file case-ID checks, plan/case compatibility, variable resolution, and secrets remain future work.
 
 ## How validation works
 
 The schema documents declare JSON Schema Draft 2020-12 with `$schema`. Stagehand's own `schemaVersion` fields are separate: the initial plan and case documents each use integer version `1`. Ajv uses a distinct class for Draft 2020-12 schemas; this package creates that validator and compiles both schemas once when the module loads. The two compiled validators are then reused for calls.
 
-The public API returns a discriminated result:
+The schema validators return a discriminated result:
 
 ```ts
 { valid: true }
@@ -47,14 +49,16 @@ or:
 
 `path` is the JSON Pointer location reported by Ajv; an empty path refers to the root value. A schema mismatch is returned as data instead of thrown as an exception. The implementation copies Ajv's current error details into the result immediately so callers receive a stable issue list.
 
+`matchCaseReferences(plan, availablePaths)` checks references against relative file names before file contents are read. It returns matched paths in the same order as the plan's cases and issues for missing, ambiguous, duplicate, or escaping references. It matches case-sensitively and normalizes `.` segments and repeated `/`. When a match fails, any other references that matched are still returned so an editor can show partial results. The caller remains responsible for reading and parsing matched files; Node-side code must also check canonical filesystem containment and links.
+
 ## Source map
 
 | File | What to learn from it |
 | --- | --- |
 | [`src/plan-v1.schema.json`](../../../packages/plan-schema/src/plan-v1.schema.json) | Required plan fields, defaults, case references, and constraints. |
 | [`src/case-v1.schema.json`](../../../packages/plan-schema/src/case-v1.schema.json) | Case envelope, settings, variables, and the current intentionally broad step shape. |
-| [`src/index.ts`](../../../packages/plan-schema/src/index.ts) | Public exports, Ajv setup, compiled validators, and error-to-result mapping. |
-| [`test/validation.test.js`](../../../packages/plan-schema/test/validation.test.js) | Valid examples, invalid inputs, and imports through `@stagehand/plan-schema`. |
+| [`src/index.ts`](../../../packages/plan-schema/src/index.ts) | Public exports, Ajv setup, compiled validators, relative path matching, and issue mapping. |
+| [`test/validation.test.js`](../../../packages/plan-schema/test/validation.test.js) | Valid examples, invalid inputs, reference matching, and imports through `@stagehand/plan-schema`. |
 | [`package.json`](../../../packages/plan-schema/package.json) | Package entry point, build/test commands, and the Ajv dependency. |
 | [`THIRD-PARTY-NOTICES.md`](../../../THIRD-PARTY-NOTICES.md) | Dependency attributions and licence texts, including the reviewed BSD-3-Clause notice for `fast-uri`. |
 
@@ -73,12 +77,14 @@ Then work through these steps:
 3. Change the case's `steps` value from an array to a string. Explain which schema rule rejects it.
 4. Trace a failing value from the test through `validatePlan` or `validateCase` in `src/index.ts` and identify where the issues are copied.
 5. Add a test for one other schema failure without changing the committed example files.
+6. Add a missing reference beside a matched reference and inspect both the issue and the partial matches returned.
 
 ## You are ready when
 
 - You can locate the plan and case rules in their JSON Schema files.
 - You can explain why schema validity does not prove that a plan will execute successfully.
 - You can explain the fields in a `ValidationIssue` and why an invalid value returns a result rather than throwing.
+- You can explain why path matching does not prove filesystem containment and why a failed match can still contain useful successful matches.
 - You can run the package tests and describe how importing by package name exercises the configured public entry point.
 - You can identify which checks are still semantic or execution-related and therefore outside this package's current validator.
 
