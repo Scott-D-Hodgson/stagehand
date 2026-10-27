@@ -1,0 +1,244 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Stagehand result, version 1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "sourcePlan", "run", "cases"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "sourcePlan": { "$ref": "#/$defs/sourcePlan" },
+    "run": { "$ref": "#/$defs/run" },
+    "cases": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/caseResult" }
+    }
+  },
+  "$defs": {
+    "outcome": {
+      "type": "string",
+      "enum": ["passed", "failed", "cancelled", "error"]
+    },
+    "durationMs": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z$"
+    },
+    "sourcePlan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "schemaVersion", "fingerprint"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "schemaVersion": { "type": "integer", "minimum": 1 },
+        "fingerprint": { "$ref": "#/$defs/fingerprint" }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["algorithm", "digest"],
+      "properties": {
+        "algorithm": { "const": "sha256-v1" },
+        "digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "run": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "outcome",
+        "startedAt",
+        "endedAt",
+        "durationMs",
+        "caseCounts",
+        "diagnostics"
+      ],
+      "properties": {
+        "outcome": { "$ref": "#/$defs/outcome" },
+        "startedAt": { "$ref": "#/$defs/timestamp" },
+        "endedAt": { "$ref": "#/$defs/timestamp" },
+        "durationMs": { "$ref": "#/$defs/durationMs" },
+        "caseCounts": { "$ref": "#/$defs/caseCounts" },
+        "diagnostics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/diagnostic" }
+        }
+      }
+    },
+    "caseCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "cancelled", "error"],
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "passed": { "type": "integer", "minimum": 0 },
+        "failed": { "type": "integer", "minimum": 0 },
+        "cancelled": { "type": "integer", "minimum": 0 },
+        "error": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "caseResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "outcome",
+        "durationMs",
+        "effectiveSettings",
+        "steps",
+        "diagnostics",
+        "accessibilityFindings"
+      ],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "outcome": { "$ref": "#/$defs/outcome" },
+        "durationMs": { "$ref": "#/$defs/durationMs" },
+        "effectiveSettings": { "$ref": "#/$defs/effectiveSettings" },
+        "steps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/stepResult" }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/diagnostic" }
+        },
+        "accessibilityFindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/accessibilityFinding" }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifact" }
+        }
+      }
+    },
+    "effectiveSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "locale": { "type": "string", "minLength": 1 },
+        "browser": { "$ref": "#/$defs/browserSettings" },
+        "accessibility": { "$ref": "#/$defs/accessibilitySettings" }
+      }
+    },
+    "browserSettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "type": { "type": "string", "minLength": 1 },
+        "headless": { "type": "boolean" },
+        "viewport": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["width", "height"],
+          "properties": {
+            "width": { "type": "integer", "minimum": 1 },
+            "height": { "type": "integer", "minimum": 1 }
+          }
+        },
+        "timeZone": { "type": "string", "minLength": 1 }
+      }
+    },
+    "accessibilitySettings": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["enabled"],
+      "properties": {
+        "enabled": { "type": "boolean" }
+      }
+    },
+    "stepResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "index",
+        "outcome",
+        "durationMs",
+        "assertions",
+        "diagnostics"
+      ],
+      "properties": {
+        "index": { "type": "integer", "minimum": 0 },
+        "id": { "type": "string", "minLength": 1 },
+        "outcome": { "$ref": "#/$defs/outcome" },
+        "durationMs": { "$ref": "#/$defs/durationMs" },
+        "assertions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/assertionResult" }
+        },
+        "diagnostics": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/diagnostic" }
+        },
+        "artifacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/artifact" }
+        }
+      }
+    },
+    "assertionResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "outcome", "message"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "enum": ["hard", "soft"] },
+        "outcome": { "type": "string", "enum": ["passed", "failed"] },
+        "message": { "type": "string", "minLength": 1 }
+      }
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "severity", "code", "message"],
+      "properties": {
+        "source": { "type": "string", "minLength": 1 },
+        "severity": { "type": "string", "enum": ["info", "warning", "error"] },
+        "code": { "type": "string", "minLength": 1 },
+        "message": { "type": "string", "minLength": 1 },
+        "stepIndex": { "type": "integer", "minimum": 0 },
+        "assertionId": { "type": "string", "minLength": 1 }
+      }
+    },
+    "accessibilityFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ruleId",
+        "impact",
+        "description",
+        "help",
+        "helpUrl",
+        "affectedNodeCount"
+      ],
+      "properties": {
+        "ruleId": { "type": "string", "minLength": 1 },
+        "impact": {
+          "type": "string",
+          "enum": ["minor", "moderate", "serious", "critical"]
+        },
+        "description": { "type": "string", "minLength": 1 },
+        "help": { "type": "string", "minLength": 1 },
+        "helpUrl": { "type": "string", "format": "uri" },
+        "affectedNodeCount": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "uri"],
+      "properties": {
+        "kind": { "type": "string", "minLength": 1 },
+        "uri": { "type": "string", "format": "uri-reference", "minLength": 1 }
+      }
+    }
+  }
+}
