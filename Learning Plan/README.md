@@ -14,7 +14,7 @@ The learning materials are grouped by the milestone they support:
 - [Phase 2 learning plan](Phase%202/README.md): controlled Vue authoring, plan editing and validation, and local-first file workflows.
 - [Phase 3 learning plan](Phase%203/README.md): Playwright execution, parallel case lifecycle, and CLI configuration and behaviour.
 - [Phase 4 learning plan](Phase%204/README.md): result contracts and accessibility, Azure DevOps automation, and documentation and adoption.
-- [Package learning plans](Packages/README.md): focused guides for understanding the implementation and checks inside each reusable package; currently includes [`plan-schema`](Packages/plan-schema/README.md) and [`plan-engine`](Packages/plan-engine/README.md).
+- [Package learning plans](Packages/README.md): focused guides for understanding the implementation and checks inside each reusable package; currently includes [`plan-schema`](Packages/plan-schema/README.md), [`plan-engine`](Packages/plan-engine/README.md), and [`result-model`](Packages/result-model/README.md).
 - [Acronyms](acronyms.md) - abbreviations used across the Learning Plan.
 
 ## How to use each lesson

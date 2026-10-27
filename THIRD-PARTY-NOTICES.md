@@ -1,14 +1,15 @@
 # Third-party notices
 
-Stagehand uses the following third-party packages in `@stagehand/plan-schema`
-and `@stagehand/plan-engine`. Dependency versions and licences below reflect
-the resolved dependency tree in `package-lock.json`.
+Stagehand uses the following third-party packages in `@stagehand/plan-schema`,
+`@stagehand/plan-engine`, and `@stagehand/result-model`. Dependency versions
+and licences below reflect the resolved dependency tree in `package-lock.json`.
 
 ## Ajv and dependencies
 
 | Package | Version | Licence | Copyright / attribution |
 | --- | --- | --- | --- |
 | `ajv` | 8.20.0 | MIT | Copyright (c) 2015-2021 Evgeny Poberezkin |
+| `ajv-formats` | 3.0.1 | MIT | Copyright (c) 2020 Evgeny Poberezkin |
 | `fast-deep-equal` | 3.1.3 | MIT | Copyright (c) 2017 Evgeny Poberezkin |
 | `fast-uri` | 3.1.9 | BSD-3-Clause | Copyright (c) 2011-2021 Gary Court; Copyright (c) 2021-present The Fastify team |
 | `json-schema-traverse` | 1.0.0 | MIT | Copyright (c) 2017 Evgeny Poberezkin |

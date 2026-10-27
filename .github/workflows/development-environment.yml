@@ -44,6 +44,9 @@ jobs:
       - name: Test plan-engine package
         run: npm test --workspace @stagehand/plan-engine
 
+      - name: Test result-model package
+        run: npm test --workspace @stagehand/result-model
+
       - name: Validate Dev Container configuration
         run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
 
