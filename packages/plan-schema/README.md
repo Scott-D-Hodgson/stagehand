@@ -23,8 +23,7 @@ if (!result.valid) {
 ```
 
 Validation reports whether the input matches the corresponding JSON Schema. It
-does not check duplicate identifiers across case files or whether steps can
-run.
+does not determine whether steps can run.
 
 Match case references to relative file names before reading their contents:
 
@@ -44,7 +43,30 @@ repeated `/`, and reports duplicate references after normalization. A failed
 match can still include the references that did match. It only compares the
 plan's references with supplied relative file names: it does not read or parse
 case files, check canonical filesystem containment or follow links. The
-Node-side loader must perform those checks before reading the matched files.
+Node-side loader must resolve the original plan reference for its containment
+check and read the target it checked; it must not rely on the normalized match
+key for filesystem safety.
+
+After matching and parsing the referenced files in plan order, validate the
+complete bundle:
+
+```ts
+import { validatePlanBundle } from "@stagehand/plan-schema";
+
+const result = validatePlanBundle(plan, parsedCases);
+if (!result.valid) {
+  for (const issue of result.issues) {
+    console.error(issue.path, issue.keyword, issue.message);
+  }
+}
+```
+
+`validatePlanBundle` checks the plan, requires one parsed case per plan
+reference, validates each case schema, and checks case IDs are unique within
+the plan. Supply parsed cases in the same order as `plan.cases`. Case-file
+schema issue paths use `/caseFiles/{index}/...`, where the index maps back to
+the corresponding plan reference. This function does not perform path
+matching, file loading, JSON parsing, or canonical filesystem containment.
 
 Run the package checks with `npm test --workspace @stagehand/plan-schema`. This builds the package and runs Node's built-in test runner against the public package entry point. The build emits JavaScript and TypeScript declarations under the ignored `dist/` folder.
 
@@ -52,6 +74,6 @@ See the [plan example](examples/checkout-plan.json) and its [referenced case](ex
 
 Plan defaults are inherited by cases. A case may override supported browser and accessibility settings, and explicit CLI settings will take precedence when execution is implemented. Locale is run-scoped: a case cannot change it within a run. Browser time zone is a separate setting. Variables are represented as JSON objects, with value interpretation and external secret references to be defined with data handling.
 
-The current schemas cover the document envelopes and the agreed initial settings. A case's `steps` must currently be an array of objects, but the schema does not validate their fields or action names; even a schema-conforming case is not necessarily ready to execute. The matcher does not read or parse case files, enforce canonical filesystem containment, validate duplicate case IDs across files, or interpret variable values. Those checks belong to later implementation milestones.
+The current schemas cover the document envelopes and the agreed initial settings. A case's `steps` must currently be an array of objects, but the schema does not validate their fields or action names; even a schema-conforming case is not necessarily ready to execute. The matcher does not read or parse case files or enforce canonical filesystem containment. `validatePlanBundle` checks parsed case schemas and duplicate case IDs, but not variable values or execution readiness. Filesystem loading and the remaining semantic checks belong to later implementation milestones.
 
 Third-party licence information for Ajv and its dependencies is recorded in the repository's [third-party notices](../../THIRD-PARTY-NOTICES.md). The transitive dependency `fast-uri` uses BSD-3-Clause; its licence has been reviewed and accepted for use in Stagehand.

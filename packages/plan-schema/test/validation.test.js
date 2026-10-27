@@ -5,6 +5,7 @@ import {
   matchCaseReferences,
   validateCase,
   validatePlan,
+  validatePlanBundle,
 } from "@stagehand/plan-schema";
 
 function readFixture(path) {
@@ -158,4 +159,49 @@ test("returns plan schema issues before attempting reference matching", () => {
   assert.equal(result.valid, false);
   assert.equal(result.matches.length, 0);
   assert.ok(result.issues.some((issue) => issue.keyword === "required"));
+});
+
+test("validates parsed case files for a plan bundle", () => {
+  const plan = planWithReferences("cases/sign-in.json");
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  assert.deepEqual(validatePlanBundle(plan, [exampleCase]), { valid: true });
+});
+
+test("reports case schema issues under the matching parsed case index", () => {
+  const plan = planWithReferences("cases/sign-in.json");
+  const invalidCase = readFixture("../examples/cases/sign-in.json");
+  invalidCase.steps = "not-an-array";
+  const result = validatePlanBundle(plan, [invalidCase]);
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.path === "/caseFiles/0/steps" && issue.keyword === "type",
+    ),
+  );
+});
+
+test("rejects duplicate case IDs within a plan bundle", () => {
+  const plan = planWithReferences("cases/first.json", "cases/second.json");
+  const firstCase = readFixture("../examples/cases/sign-in.json");
+  const secondCase = { ...firstCase, steps: [{ action: "placeholder" }] };
+  const result = validatePlanBundle(plan, [firstCase, secondCase]);
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) =>
+        issue.path === "/caseFiles/1/id" && issue.keyword === "uniqueCaseId",
+    ),
+  );
+});
+
+test("requires one parsed case for each plan reference", () => {
+  const plan = planWithReferences("cases/first.json", "cases/second.json");
+  const firstCase = readFixture("../examples/cases/sign-in.json");
+  const result = validatePlanBundle(plan, [firstCase]);
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.path === "/caseFiles" && issue.keyword === "caseCount",
+    ),
+  );
 });
