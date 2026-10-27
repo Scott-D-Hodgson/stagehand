@@ -23,7 +23,7 @@ The MVP result format is JSON. JUnit and HTML reports, screenshots, production-s
 
 ## Project status
 
-The repository contains planning and learning documents, npm workspace scaffolds, and initial plan/case schemas with runtime schema validation and relative case-reference matching in `packages/plan-schema`. Filesystem loading, semantic plan checks, the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
+The repository contains planning and learning documents, npm workspace scaffolds, and initial plan/case schemas with runtime schema validation, relative case-reference matching, and parsed-bundle case validation in `packages/plan-schema`. Filesystem loading, execution-related plan checks, the Stagehand editor, runner, and CLI have not yet been implemented. M0 is recorded as complete, including a test PR. The intended workflow is to send changes through pull requests and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
 
 Planning is a living set of AI-generated documents guided by the developer. The Learning Plan is generated from those materials to help developers understand and carry out the work. Neither should be treated as a substitute for reviewing the latest decisions and requirements.
 
