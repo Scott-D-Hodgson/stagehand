@@ -41,8 +41,37 @@ jobs:
       - name: Test plan-schema package
         run: npm test --workspace @stagehand/plan-schema
 
+      - name: Test plan-engine package
+        run: npm test --workspace @stagehand/plan-engine
+
       - name: Validate Dev Container configuration
         run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
 
       - name: Build development container image
         run: docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:ci .devcontainer
+
+  test-plan-engine-windows:
+    name: Test plan-engine on Windows
+    runs-on: windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Verify Node.js and npm versions
+        run: |
+          if ((node --version) -ne 'v26.12.1') { throw 'Unexpected Node.js version' }
+          if ((npm --version) -ne '11.20.0') { throw 'Unexpected npm version' }
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Test plan-engine package
+        run: npm test --workspace @stagehand/plan-engine

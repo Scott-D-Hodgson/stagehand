@@ -38,7 +38,7 @@ Stagehand's accepted starting architecture uses an npm monorepo. Its initial wor
 
 ## Apply this to Stagehand
 
-The initial workspace manifests and root lockfile provide the repository scaffold. The first implementation is in `packages/plan-schema`: it stores the plan and case schemas as JSON, exports schemas and synchronous validation helpers from a TypeScript entry point, and has package tests that build and exercise that public entry point. Other workspace source entries and public exports remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
+The workspace manifests and root lockfile provide the repository scaffold. The `plan-schema` package stores the plan and case schemas as JSON, exports synchronous schema validation, relative reference matching, and parsed-bundle validation from its TypeScript entry point. The `plan-engine` package depends on that shared contract and now loads plan and referenced case files on Node.js, checking links and validating the parsed bundle. It does not execute steps. The other workspace source entries remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
 
 1. Its single primary responsibility.
 2. The callers that need it.
@@ -50,8 +50,8 @@ The agreed responsibilities and dependency directions are:
 
 | Workspace | Responsibility and allowed dependencies |
 |---|---|
-| Plan schema | Owns plan structure and planned validation; currently publishes initial plan/case JSON Schemas through a TypeScript entry point. It is designed for Node.js and browser consumers and remains independent of applications, runner core, and Playwright. Runtime validation is not implemented yet. |
-| Plan engine | Interprets valid plans and may depend on the plan schema; contains no execution logic. |
+| Plan schema | Owns plan structure, schema validation, relative case-reference matching, and parsed-bundle validation. It is designed for Node.js and browser consumers and remains independent of applications, runner core, and Playwright. |
+| Plan engine | Loads and validates plan/case files on Node.js, then will interpret valid plans. It may depend on plan schema and contains no execution logic. |
 | Runner core | Owns execution; may depend on the plan engine and result model and uses Playwright directly. |
 | Result model | Owns the common result contract; remains independent of applications, runner core, and Playwright. |
 | Reporters | Provisionally separate; formats the common result model. |
@@ -63,22 +63,25 @@ JSON is the first supported output. The common result model is the input to form
 ## Current implementation footing
 
 - `tsconfig.base.json` provides the shared strict TypeScript compiler settings. TypeScript is pinned as a root development dependency.
-- `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports `planSchemaV1`, `caseSchemaV1`, `validatePlan`, and `validateCase`.
+- `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports the schemas, validators, reference matcher, and parsed-bundle validator.
+- `packages/plan-engine/src/index.ts` is the Node loader's single public entry point. `loadPlanFile` returns the validated plan and each parsed case paired with its reference index and path.
+- The plan-engine loader reads only referenced files, resolves original references before checking whether links stay inside the plan folder, and returns actionable issues for file, JSON, and validation errors. It does not run steps or launch a browser.
 - `src/plan-v1.schema.json` and `src/case-v1.schema.json` contain the Draft 2020-12 schemas. The plan and case each use their own integer `schemaVersion`, initially `1`.
 - `examples/checkout-plan.json` and `examples/cases/sign-in.json` show the initial envelope and settings.
 - Build this package with `npm run build --workspace @stagehand/plan-schema`. The command emits files to the ignored `packages/plan-schema/dist/` folder.
-- The package provides JSON Schema validation functions, but does not resolve case paths, check duplicate IDs/references, or define step contents.
+- Build and test plan-engine with `npm test --workspace @stagehand/plan-engine`. Its tests cover malformed and missing files, invalid cases, duplicate case IDs, ignored unreferenced files, internal and external links, and paths with links followed by `..`.
+- Neither package defines executable step contents or runs a browser.
 
 ## Exercise
 
-Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md). Build the plan-schema package and inspect its `exports`, TypeScript entry point, JSON schemas, and example files. Draw the dependencies from memory, then explain why the runner core can use Playwright directly, why the editor uses the schema without execution logic, and how the CLI routes the common result model to JSON. Write one sentence describing each workspace's responsibility and one example of a file that should remain private.
+Review the [M1 component dependency graph](../../Planning/Diagrams/M1-component-dependency-graph.md). Inspect both package exports and entry points. Build and test plan-engine, then trace how `loadPlanFile` reads a referenced case and passes it to shared bundle validation. Explain why the editor uses plan-schema without importing Node file access or execution logic, and how the CLI will eventually call the runner core. Write one sentence describing each workspace's responsibility and one example of a file that should remain private.
 
 ## You are ready when
 
 - You can explain why Stagehand initially benefits from a monorepo and what evidence might justify splitting it later.
 - Each initial workspace has a distinct responsibility and follows the allowed dependency directions in [TE-002](../../Planning/Backlog/technical-enablers/te-002-reusable-node.js-typescript-package-structure.md).
 - You can explain lockstep versioning and the pre-release-candidate rule for breaking changes.
-- You can distinguish the plan-schema package's initial schemas and synchronous validation helpers from semantic checks and the remaining workspace scaffolds.
+- You can distinguish shared schema validation and matching from Node-side file loading and from later plan execution.
 - You can explain how a schema change should be reviewed across editor, runner, examples, and CI.
 
 ## Read next
