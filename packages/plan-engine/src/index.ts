@@ -58,6 +58,13 @@ function isInsideDirectory(directoryPath: string, targetPath: string): boolean {
   );
 }
 
+function isSameOrInsideDirectory(directoryPath: string, targetPath: string): boolean {
+  return (
+    directoryPath === targetPath ||
+    isInsideDirectory(directoryPath, targetPath)
+  );
+}
+
 function joinOriginalReference(
   directoryPath: string,
   reference: string,
@@ -121,6 +128,63 @@ async function findCaseMismatch(
     currentDirectory = joinOriginalReference(canonicalDirectory, actualSegment);
   }
   return undefined;
+}
+
+type CasePathResolution =
+  | { valid: true; path: string }
+  | { valid: false; keyword: "caseFileError" | "pathEscapesPlan"; message: string };
+
+async function resolveOriginalReference(
+  planDirectory: string,
+  reference: string,
+): Promise<CasePathResolution> {
+  let currentPath = planDirectory;
+  for (const segment of reference.split("/")) {
+    if (segment === "") {
+      continue;
+    }
+    if (segment === "." || segment === "..") {
+      try {
+        const currentStats = await stat(currentPath);
+        if (!currentStats.isDirectory()) {
+          return {
+            valid: false,
+            keyword: "caseFileError",
+            message: `Case reference "${reference}" passes through a file where a folder is required.`,
+          };
+        }
+      } catch (error) {
+        return {
+          valid: false,
+          keyword: "caseFileError",
+          message: `Could not resolve case file "${reference}": ${getErrorMessage(error)}`,
+        };
+      }
+      if (segment === "..") {
+        currentPath = dirname(currentPath);
+      }
+    } else {
+      try {
+        currentPath = await realpath(
+          joinOriginalReference(currentPath, segment),
+        );
+      } catch (error) {
+        return {
+          valid: false,
+          keyword: "caseFileError",
+          message: `Could not resolve case file "${reference}": ${getErrorMessage(error)}`,
+        };
+      }
+    }
+    if (!isSameOrInsideDirectory(planDirectory, currentPath)) {
+      return {
+        valid: false,
+        keyword: "pathEscapesPlan",
+        message: `Case file "${reference}" resolves outside the plan folder.`,
+      };
+    }
+  }
+  return { valid: true, path: currentPath };
 }
 
 function addReferenceToIssue(
@@ -237,36 +301,24 @@ export async function loadPlanFile(
         ],
       };
     }
-    const candidatePath = joinOriginalReference(planDirectory, match.reference);
-    let canonicalCasePath: string;
-    try {
-      canonicalCasePath = await realpath(candidatePath);
-    } catch (error) {
+    const resolution = await resolveOriginalReference(
+      planDirectory,
+      match.reference,
+    );
+    if (!resolution.valid) {
       return {
         valid: false,
         issues: [
           makeIssue(
             `/cases/${match.caseIndex}/path`,
-            "caseFileError",
-            `Could not resolve case file "${match.reference}": ${getErrorMessage(error)}`,
+            resolution.keyword,
+            resolution.message,
             match.reference,
           ),
         ],
       };
     }
-    if (!isInsideDirectory(planDirectory, canonicalCasePath)) {
-      return {
-        valid: false,
-        issues: [
-          makeIssue(
-            `/cases/${match.caseIndex}/path`,
-            "pathEscapesPlan",
-            `Case file "${match.reference}" resolves outside the plan folder.`,
-            match.reference,
-          ),
-        ],
-      };
-    }
+    const canonicalCasePath = resolution.path;
     let caseText: string;
     try {
       const caseStats = await stat(canonicalCasePath);
