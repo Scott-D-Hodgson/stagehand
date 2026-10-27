@@ -29,6 +29,7 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | SPA | Single-page application. |
 | TE-### | Technical-enabler identifier. |
 | UI | User interface. |
+| URI | Uniform Resource Identifier. |
 | URL | Uniform Resource Locator. |
 | US | United States. |
 | XML | Extensible Markup Language. |
