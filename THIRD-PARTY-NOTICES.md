@@ -1,8 +1,8 @@
 # Third-party notices
 
-Stagehand uses the following third-party packages in `@stagehand/plan-schema`.
-The dependency versions and licences below reflect the resolved dependency tree
-in `package-lock.json`.
+Stagehand uses the following third-party packages in `@stagehand/plan-schema`
+and `@stagehand/plan-engine`. Dependency versions and licences below reflect
+the resolved dependency tree in `package-lock.json`.
 
 ## Ajv and dependencies
 
@@ -13,6 +13,17 @@ in `package-lock.json`.
 | `fast-uri` | 3.1.9 | BSD-3-Clause | Copyright (c) 2011-2021 Gary Court; Copyright (c) 2021-present The Fastify team |
 | `json-schema-traverse` | 1.0.0 | MIT | Copyright (c) 2017 Evgeny Poberezkin |
 | `require-from-string` | 2.0.2 | MIT | Copyright (c) Vsevolod Strukchinsky <floatdrop@gmail.com> (github.com/floatdrop) |
+
+## Plan-engine development-only types
+
+These packages provide TypeScript declarations for the Node.js APIs used by
+`@stagehand/plan-engine`; they are development dependencies and are not bundled
+into the Stagehand application.
+
+| Package | Version | Licence | Copyright / attribution |
+| --- | --- | --- | --- |
+| `@types/node` | 26.6.5 | MIT | Copyright (c) Microsoft Corporation |
+| `undici-types` | 8.9.0 | MIT | Copyright (c) Matteo Collina and Undici contributors |
 
 ### Licence review
 

@@ -1,5 +1,23 @@
 {
   "name": "@stagehand/plan-engine",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "type": "module",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "npm run build --workspace @stagehand/plan-schema && tsc -p tsconfig.json",
+    "test": "npm run build && node --test test/load-plan.test.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "dependencies": {
+    "@stagehand/plan-schema": "0.1.0"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5"
+  }
 }
