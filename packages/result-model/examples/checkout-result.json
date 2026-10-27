@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "sourcePlan": {
+    "id": "checkout-plan",
+    "schemaVersion": 1,
+    "fingerprint": {
+      "algorithm": "sha256-v1",
+      "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+    }
+  },
+  "run": {
+    "outcome": "passed",
+    "startedAt": "2026-10-27T15:00:00Z",
+    "endedAt": "2026-10-27T15:00:02Z",
+    "durationMs": 2000,
+    "caseCounts": {
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "cancelled": 0,
+      "error": 0
+    },
+    "diagnostics": []
+  },
+  "cases": [
+    {
+      "id": "sign-in",
+      "name": "Sign in",
+      "outcome": "passed",
+      "durationMs": 684,
+      "effectiveSettings": {
+        "locale": "en-CA",
+        "browser": {
+          "type": "chromium",
+          "headless": true,
+          "viewport": {
+            "width": 1280,
+            "height": 720
+          },
+          "timeZone": "America/Toronto"
+        },
+        "accessibility": {
+          "enabled": true
+        }
+      },
+      "steps": [
+        {
+          "index": 0,
+          "id": "open-sign-in-page",
+          "outcome": "passed",
+          "durationMs": 214,
+          "assertions": [],
+          "diagnostics": []
+        },
+        {
+          "index": 1,
+          "id": "check-welcome-heading",
+          "outcome": "passed",
+          "durationMs": 33,
+          "assertions": [
+            {
+              "id": "welcome-heading-text",
+              "mode": "hard",
+              "outcome": "passed",
+              "message": "The welcome heading matched the expected text."
+            }
+          ],
+          "diagnostics": []
+        }
+      ],
+      "diagnostics": [],
+      "accessibilityFindings": []
+    }
+  ]
+}
