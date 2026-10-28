@@ -6,6 +6,6 @@ The schema describes the source plan identity and fingerprint, run outcome and t
 
 The public entry point exports `resultSchemaV1`, the v1 result types, and `validateResult(input)`. The validator returns `{ valid: true }` for schema-conforming documents or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. It does not throw for invalid JSON values. Registered format checks validate date-time and URI fields, including the schema's UTC timestamp requirement.
 
-The synthetic [checkout result](examples/checkout-result.json) demonstrates one passing case. Its fingerprint is an example value, not a digest calculated from the plan files; fingerprint generation belongs to the future source-loading/execution flow. Validation checks the result's structure and field formats. It does not check whether case counts agree with case outcomes or decide run aggregation; M6 owns those policies.
+The synthetic [checkout result](examples/checkout-result.json) demonstrates one passing case. Its fingerprint is an example value, not a digest calculated from the plan files. The Node-side `plan-engine` loader now calculates the source fingerprint during loading; a future runner will carry it into the emitted result. Validation checks the result's structure and field formats. It does not check whether case counts agree with case outcomes or decide run aggregation; M6 owns those policies.
 
 Run `npm test --workspace @stagehand/result-model` to build the package and exercise its public entry point against the example and invalid inputs.

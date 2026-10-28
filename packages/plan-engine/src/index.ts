@@ -1,4 +1,5 @@
 import { readFile, readdir, realpath, stat } from "node:fs/promises";
+import { createHash, type Hash } from "node:crypto";
 import { dirname, isAbsolute, posix, relative, sep } from "node:path";
 import {
   matchCaseReferences,
@@ -14,6 +15,11 @@ export interface LoadedCaseFile {
   value: unknown;
 }
 
+export interface PlanSourceFingerprint {
+  algorithm: "sha256-v1";
+  digest: string;
+}
+
 export interface PlanLoadIssue extends ValidationIssue {
   reference?: string;
 }
@@ -23,6 +29,7 @@ export type PlanFileLoadResult =
       valid: true;
       plan: unknown;
       cases: LoadedCaseFile[];
+      fingerprint: PlanSourceFingerprint;
     }
   | {
       valid: false;
@@ -134,6 +141,34 @@ type CasePathResolution =
   | { valid: true; path: string }
   | { valid: false; keyword: "caseFileError" | "pathEscapesPlan"; message: string };
 
+function updateLengthPrefixed(hash: Hash, value: Uint8Array): void {
+  const prefix = Buffer.alloc(8);
+  prefix.writeBigUInt64BE(BigInt(value.byteLength));
+  hash.update(prefix);
+  hash.update(value);
+}
+
+function updateFingerprintRecord(
+  hash: Hash,
+  label: string,
+  contents: Uint8Array,
+): void {
+  updateLengthPrefixed(hash, Buffer.from(label, "utf8"));
+  updateLengthPrefixed(hash, contents);
+}
+
+function createSourceFingerprint(
+  planContents: Uint8Array,
+  caseFiles: readonly { normalizedPath: string; contents: Uint8Array }[],
+): PlanSourceFingerprint {
+  const hash = createHash("sha256");
+  updateFingerprintRecord(hash, "plan", planContents);
+  for (const caseFile of caseFiles) {
+    updateFingerprintRecord(hash, caseFile.normalizedPath, caseFile.contents);
+  }
+  return { algorithm: "sha256-v1", digest: hash.digest("hex") };
+}
+
 async function resolveOriginalReference(
   planDirectory: string,
   reference: string,
@@ -235,9 +270,9 @@ export async function loadPlanFile(
       ],
     };
   }
-  let planText: string;
+  let planContents: Buffer;
   try {
-    planText = await readFile(canonicalPlanPath, "utf8");
+    planContents = await readFile(canonicalPlanPath);
   } catch (error) {
     return {
       valid: false,
@@ -252,7 +287,7 @@ export async function loadPlanFile(
   }
   let parsedPlan: unknown;
   try {
-    parsedPlan = JSON.parse(planText);
+    parsedPlan = JSON.parse(planContents.toString("utf8"));
   } catch (error) {
     return {
       valid: false,
@@ -283,6 +318,7 @@ export async function loadPlanFile(
   }
   const planDirectory = dirname(canonicalPlanPath);
   const loadedCases: LoadedCaseFile[] = [];
+  const caseSourceFiles: { normalizedPath: string; contents: Buffer }[] = [];
   for (const match of matchResult.matches) {
     const caseMismatch = await findCaseMismatch(
       planDirectory,
@@ -319,7 +355,7 @@ export async function loadPlanFile(
       };
     }
     const canonicalCasePath = resolution.path;
-    let caseText: string;
+    let caseContents: Buffer;
     try {
       const caseStats = await stat(canonicalCasePath);
       if (!caseStats.isFile()) {
@@ -335,7 +371,7 @@ export async function loadPlanFile(
           ],
         };
       }
-      caseText = await readFile(canonicalCasePath, "utf8");
+      caseContents = await readFile(canonicalCasePath);
     } catch (error) {
       return {
         valid: false,
@@ -351,7 +387,7 @@ export async function loadPlanFile(
     }
     let parsedCase: unknown;
     try {
-      parsedCase = JSON.parse(caseText);
+      parsedCase = JSON.parse(caseContents.toString("utf8"));
     } catch (error) {
       return {
         valid: false,
@@ -371,6 +407,10 @@ export async function loadPlanFile(
       normalizedPath: match.normalizedPath,
       value: parsedCase,
     });
+    caseSourceFiles.push({
+      normalizedPath: match.normalizedPath,
+      contents: caseContents,
+    });
   }
   const bundleResult = validatePlanBundle(
     plan,
@@ -384,5 +424,10 @@ export async function loadPlanFile(
       ),
     };
   }
-  return { valid: true, plan, cases: loadedCases };
+  return {
+    valid: true,
+    plan,
+    cases: loadedCases,
+    fingerprint: createSourceFingerprint(planContents, caseSourceFiles),
+  };
 }

@@ -38,7 +38,7 @@ Stagehand's accepted starting architecture uses an npm monorepo. Its initial wor
 
 ## Apply this to Stagehand
 
-The workspace manifests and root lockfile provide the repository scaffold. The `plan-schema` package stores the plan and case schemas as JSON, exports synchronous schema validation, relative reference matching, and parsed-bundle validation from its TypeScript entry point. The `plan-engine` package depends on that shared contract and loads plan and referenced case files on Node.js, checking links and validating the parsed bundle. It does not execute steps. The `result-model` package exports the normative result v1 JSON Schema, matching TypeScript types, and runtime validation through one public TypeScript entry point. It validates shape and field formats; it does not calculate fingerprints or enforce execution aggregation rules. The other workspace source entries remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
+The workspace manifests and root lockfile provide the repository scaffold. The `plan-schema` package stores the plan and case schemas as JSON, exports synchronous schema validation, relative reference matching, and parsed-bundle validation from its TypeScript entry point. The `plan-engine` package depends on that shared contract, loads plan and referenced case files on Node.js, checks links, validates the parsed bundle, and calculates a source fingerprint from the exact raw file contents. It does not execute steps. The `result-model` package exports the normative result v1 JSON Schema, matching TypeScript types, and runtime validation through one public TypeScript entry point. It validates shape and field formats; it does not calculate fingerprints or enforce execution aggregation rules. The other workspace source entries remain for incremental implementation. The design uses one documented public entry point per package at first; add named subpaths only when a concrete need appears. For each package, identify:
 
 1. Its single primary responsibility.
 2. The callers that need it.
@@ -64,13 +64,13 @@ JSON is the first supported output. The common result model is the input to form
 
 - `tsconfig.base.json` provides the shared strict TypeScript compiler settings. TypeScript is pinned as a root development dependency.
 - `packages/plan-schema/src/index.ts` is the package's single public entry point. Its package `exports` points to the build output, and it exports the schemas, validators, reference matcher, and parsed-bundle validator.
-- `packages/plan-engine/src/index.ts` is the Node loader's single public entry point. `loadPlanFile` returns the validated plan and each parsed case paired with its reference index and path.
-- `packages/result-model/src/result-v1.schema.json` is the normative Draft 2020-12 schema for result documents with `schemaVersion: 1`; `examples/checkout-result.json` is synthetic. TypeScript result types and runtime validation remain future work.
-- The plan-engine loader reads only referenced files, resolves original references before checking whether links stay inside the plan folder, and returns actionable issues for file, JSON, and validation errors. It does not run steps or launch a browser.
+- `packages/plan-engine/src/index.ts` is the Node loader's single public entry point. `loadPlanFile` returns the validated plan, each parsed case paired with its reference index and path, and a `sha256-v1` source fingerprint.
+- `packages/result-model/src/result-v1.schema.json` is the normative Draft 2020-12 schema for result documents with `schemaVersion: 1`; `examples/checkout-result.json` is synthetic. The public TypeScript API exports matching result types and runtime validation.
+- The plan-engine loader reads only referenced files, resolves original references before checking whether links stay inside the plan folder, and returns actionable issues for file, JSON, and validation errors. Its fingerprint uses raw file bytes, plan order, normalized relative case paths, and length-prefixed records; it does not include machine-specific paths. The loader does not run steps or launch a browser.
 - `src/plan-v1.schema.json` and `src/case-v1.schema.json` contain the Draft 2020-12 schemas. The plan and case each use their own integer `schemaVersion`, initially `1`.
 - `examples/checkout-plan.json` and `examples/cases/sign-in.json` show the initial envelope and settings.
 - Build this package with `npm run build --workspace @stagehand/plan-schema`. The command emits files to the ignored `packages/plan-schema/dist/` folder.
-- Build and test plan-engine with `npm test --workspace @stagehand/plan-engine`. Its tests cover malformed and missing files, invalid cases, duplicate case IDs, ignored unreferenced files, internal and external links, and paths with links followed by `..`.
+- Build and test plan-engine with `npm test --workspace @stagehand/plan-engine`. Its suite covers malformed and missing files, invalid cases, duplicate case IDs, ignored unreferenced files, internal and external links, paths with links followed by `..`, and source fingerprint rules.
 - Neither package defines executable step contents or runs a browser.
 
 ## Exercise

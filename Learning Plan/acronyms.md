@@ -26,6 +26,7 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | MVP | Minimum viable product. |
 | OS | Operating system. |
 | PR | Pull request. |
+| SHA-256 | Secure Hash Algorithm 256; produces a 256-bit digest. |
 | SPA | Single-page application. |
 | TE-### | Technical-enabler identifier. |
 | UI | User interface. |
