@@ -22,7 +22,7 @@ Before reading, check which statements you can explain:
 
 The package owns the shared result document contract. Its public entry point exports the result v1 JSON Schema, TypeScript types, and `validateResult`. The schema is the normative contract for emitted result JSON; the TypeScript types help implementation code describe values that conform to it.
 
-The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. Fingerprint generation belongs to the future source-loading/execution flow; execution policy belongs to M6.
+The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. The `plan-engine` loader now calculates the fingerprint while loading; a future runner will include it in the emitted result. Execution aggregation policy belongs to M6.
 
 ## What the API teaches
 
@@ -67,12 +67,13 @@ Add a synthetic invalid result that violates one schema constraint. Test that `v
 1. The result v1 JSON Schema.
 2. `{ valid: false, issues }`, with each issue giving a JSON Pointer path, schema keyword, and message.
 3. No. Cross-field count consistency and outcome aggregation belong to execution policy, which M6 defines.
-4. No. Fingerprint calculation belongs to the future source-loading or execution flow.
+4. No. `plan-engine` calculates the fingerprint while loading source files; the future runner will include it in the result document.
 
 </details>
 
 ## Read next
 
 - [Phase 1 lesson: versioned test-plan and result schemas](../../Phase%201/03-versioned-test-plan-and-result-schemas.md)
+- [plan-engine package guide](../plan-engine/README.md)
 - [M3 work plan](../../../Planning/Work%20Plan/M3-versioned-plan-and-result-contracts.md)
 - [Package README](../../../packages/result-model/README.md)

@@ -78,6 +78,90 @@ test("loads and validates a plan with its referenced cases", async (t) => {
   ]);
 });
 
+test("returns the sha256-v1 fingerprint for the exact plan and case bytes", async (t) => {
+  const plan = planWithReferences("cases/a.json");
+  const exampleCase = caseWithId("a");
+  const { planFilePath } = await createPlanDirectory(t, plan, {
+    "cases/a.json": exampleCase,
+  });
+  const first = await loadPlanFile(planFilePath);
+  const repeated = await loadPlanFile(planFilePath);
+  assert.equal(first.valid, true);
+  assert.equal(repeated.valid, true);
+  if (!first.valid || !repeated.valid) {
+    return;
+  }
+  assert.deepEqual(first.fingerprint, {
+    algorithm: "sha256-v1",
+    digest: "d54d1ad81a2f6e785e82b002d6be53227b12765df95ce5cd3f5a03730b30ad1c",
+  });
+  assert.deepEqual(repeated.fingerprint, first.fingerprint);
+});
+
+test("fingerprints raw plan and case bytes rather than parsed JSON values", async (t) => {
+  const plan = planWithReferences("cases/a.json");
+  const exampleCase = caseWithId("a");
+  const { directory, planFilePath } = await createPlanDirectory(t, plan, {
+    "cases/a.json": exampleCase,
+  });
+  const compact = await loadPlanFile(planFilePath);
+  assert.equal(compact.valid, true);
+  if (!compact.valid) {
+    return;
+  }
+  await writeFile(planFilePath, JSON.stringify(plan, null, 2), "utf8");
+  const formattedPlan = await loadPlanFile(planFilePath);
+  assert.equal(formattedPlan.valid, true);
+  if (!formattedPlan.valid) {
+    return;
+  }
+  assert.deepEqual(formattedPlan.plan, compact.plan);
+  assert.notEqual(formattedPlan.fingerprint.digest, compact.fingerprint.digest);
+  await writeFile(
+    join(directory, "cases/a.json"),
+    JSON.stringify(exampleCase, null, 2),
+    "utf8",
+  );
+  const formattedCase = await loadPlanFile(planFilePath);
+  assert.equal(formattedCase.valid, true);
+  if (!formattedCase.valid) {
+    return;
+  }
+  assert.deepEqual(formattedCase.cases[0]?.value, compact.cases[0]?.value);
+  assert.notEqual(formattedCase.fingerprint.digest, formattedPlan.fingerprint.digest);
+});
+
+test("fingerprint case contents in plan-reference order", async (t) => {
+  const plan = planWithReferences("cases/a.json", "cases/b.json");
+  const { planFilePath } = await createPlanDirectory(t, plan, {
+    "cases/a.json": caseWithId("a"),
+    "cases/b.json": caseWithId("b"),
+  });
+  const forward = await loadPlanFile(planFilePath);
+  assert.equal(forward.valid, true);
+  if (!forward.valid) {
+    return;
+  }
+  await writeJson(
+    planFilePath,
+    planWithReferences("cases/b.json", "cases/a.json"),
+  );
+  const reverse = await loadPlanFile(planFilePath);
+  assert.equal(reverse.valid, true);
+  if (!reverse.valid) {
+    return;
+  }
+  assert.deepEqual(
+    reverse.cases.map(({ value }) => value.id),
+    ["b", "a"],
+  );
+  assert.equal(
+    reverse.fingerprint.digest,
+    "c15da818e5e15bdaa47452f33325592a921ed02140328f1e997dd94899dd69d8",
+  );
+  assert.notEqual(reverse.fingerprint.digest, forward.fingerprint.digest);
+});
+
 test("does not parse unreferenced files", async (t) => {
   const plan = planWithReferences("cases/sign-in.json");
   const exampleCase = caseWithId("sign-in");
