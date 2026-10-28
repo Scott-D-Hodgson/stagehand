@@ -9,6 +9,7 @@ This glossary collects acronyms used in the Planning materials. Meanings are giv
 | ADR | Architecture Decision Record; a document recording a significant technical decision and its rationale. |
 | AI | Artificial intelligence. |
 | API | Application programming interface. |
+| BCP 47 | Best Current Practice 47, the IETF language-tag format. |
 | BYOA | Bring Your Own Agent; in this backlog, guidance for using different AI coding agents. |
 | CD/DVD | Compact disc / digital versatile disc. |
 | CI | Continuous integration. |
@@ -47,6 +48,7 @@ This glossary collects acronyms used in the Planning materials. Meanings are giv
 | MDM | Mobile device management. |
 | PDF | Portable Document Format. |
 | PR | Pull request. |
+| RFC | Request for Comments; a series of Internet standards and guidance documents. |
 | SDK | Software development kit. |
 | SIEM | Security information and event management. |
 | SLA | Service-level agreement. |
@@ -56,6 +58,7 @@ This glossary collects acronyms used in the Planning materials. Meanings are giv
 | UI | User interface. |
 | UPS | Uninterruptible power supply. |
 | URL | Uniform Resource Locator. |
+| XPath | XML Path Language. |
 | US | United States. |
 | USB | Universal Serial Bus. |
 | UTC | Coordinated Universal Time. |

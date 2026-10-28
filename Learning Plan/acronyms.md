@@ -7,6 +7,7 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | ADR | Architecture Decision Record. |
 | AI | Artificial intelligence. |
 | API | Application programming interface. |
+| BCP 47 | Best Current Practice 47, the IETF language-tag format. |
 | ATR-### | Stagehand backlog story identifier. The project materials do not define an expansion for the `ATR` prefix. |
 | CI | Continuous integration. |
 | CI/CD | Continuous integration and continuous delivery or deployment. |
@@ -26,12 +27,15 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | MVP | Minimum viable product. |
 | OS | Operating system. |
 | PR | Pull request. |
+| RFC | Request for Comments; a series of Internet standards and guidance documents. |
 | SHA-256 | Secure Hash Algorithm 256; produces a 256-bit digest. |
 | SPA | Single-page application. |
 | TE-### | Technical-enabler identifier. |
 | UI | User interface. |
 | URI | Uniform Resource Identifier. |
 | URL | Uniform Resource Locator. |
+| XPath | XML Path Language. |
+| UTC | Coordinated Universal Time. |
 | US | United States. |
 | XML | Extensible Markup Language. |
 | YAML | A human-readable data-serialization language; commonly expanded as “YAML Ain't Markup Language.” |

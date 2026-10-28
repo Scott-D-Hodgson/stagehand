@@ -35,7 +35,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "locale": { "type": "string", "minLength": 1 },
+        "locale": { "type": "string", "minLength": 1, "default": "en-CA" },
         "browser": { "$ref": "#/$defs/browserSettings" },
         "accessibility": { "$ref": "#/$defs/accessibilitySettings" }
       }
@@ -44,18 +44,18 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "headless": { "type": "boolean" },
+        "type": { "const": "chromium", "default": "chromium" },
+        "headless": { "type": "boolean", "default": true },
         "viewport": {
           "type": "object",
           "additionalProperties": false,
           "required": ["width", "height"],
           "properties": {
-            "width": { "type": "integer", "minimum": 1 },
-            "height": { "type": "integer", "minimum": 1 }
+            "width": { "type": "integer", "minimum": 1, "default": 1280 },
+            "height": { "type": "integer", "minimum": 1, "default": 720 }
           }
         },
-        "timeZone": { "type": "string", "minLength": 1 }
+        "timeZone": { "type": "string", "minLength": 1, "default": "UTC" }
       }
     },
     "accessibilitySettings": {

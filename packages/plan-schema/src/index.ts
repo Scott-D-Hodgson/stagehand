@@ -68,6 +68,82 @@ function toValidationResult(
   };
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function validateLocale(value: unknown, path: string): ValidationIssue[] {
+  if (typeof value !== "string") {
+    return [];
+  }
+  try {
+    Intl.getCanonicalLocales(value);
+    return [];
+  } catch {
+    return [
+      {
+        path,
+        keyword: "invalidLocale",
+        message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
+      },
+    ];
+  }
+}
+
+function validateTimeZone(value: unknown, path: string): ValidationIssue[] {
+  if (typeof value !== "string") {
+    return [];
+  }
+  try {
+    new Intl.DateTimeFormat("en", { timeZone: value }).format(0);
+    return [];
+  } catch {
+    return [
+      {
+        path,
+        keyword: "invalidTimeZone",
+        message: "Time zone must be a valid IANA identifier supported by this runtime.",
+      },
+    ];
+  }
+}
+
+function validatePlanSettings(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !isRecord(input.defaults)) {
+    return [];
+  }
+  const issues = validateLocale(input.defaults.locale, "/defaults/locale");
+  if (isRecord(input.defaults.browser)) {
+    issues.push(
+      ...validateTimeZone(
+        input.defaults.browser.timeZone,
+        "/defaults/browser/timeZone",
+      ),
+    );
+  }
+  return issues;
+}
+
+function validateCaseSettings(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !isRecord(input.settings) || !isRecord(input.settings.browser)) {
+    return [];
+  }
+  return validateTimeZone(
+    input.settings.browser.timeZone,
+    "/settings/browser/timeZone",
+  );
+}
+
+function includeSemanticIssues(
+  result: ValidationResult,
+  semanticIssues: ValidationIssue[],
+): ValidationResult {
+  if (!result.valid || semanticIssues.length === 0) {
+    return result;
+  }
+  return { valid: false, issues: semanticIssues };
+}
+
 function normalizeRelativePath(path: string): RelativePathResult {
   if (
     path.length === 0 ||
@@ -193,12 +269,14 @@ export function matchCaseReferences(
 
 export function validatePlan(input: unknown): ValidationResult {
   const valid = validatePlanSchemaV1(input);
-  return toValidationResult(valid, validatePlanSchemaV1.errors);
+  const schemaResult = toValidationResult(valid, validatePlanSchemaV1.errors);
+  return includeSemanticIssues(schemaResult, validatePlanSettings(input));
 }
 
 export function validateCase(input: unknown): ValidationResult {
   const valid = validateCaseSchemaV1(input);
-  return toValidationResult(valid, validateCaseSchemaV1.errors);
+  const schemaResult = toValidationResult(valid, validateCaseSchemaV1.errors);
+  return includeSemanticIssues(schemaResult, validateCaseSettings(input));
 }
 
 export function validatePlanBundle(
