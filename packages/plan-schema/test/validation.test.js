@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
+  caseSchemaV1,
   matchCaseReferences,
+  planSchemaV1,
   validateCase,
   validatePlan,
   validatePlanBundle,
@@ -30,11 +32,134 @@ test("accepts the example case through the public package entry point", () => {
   assert.deepEqual(validateCase(exampleCase), { valid: true });
 });
 
-test("returns a schema issue for an invalid plan without throwing", () => {
+test("publishes browser defaults without inserting them into validated input", () => {
+  const plan = { schemaVersion: 1, id: "defaults-test", cases: [] };
+  const originalPlan = structuredClone(plan);
+  assert.equal(planSchemaV1.$defs.planDefaults.properties.locale.default, "en-CA");
+  assert.equal(planSchemaV1.$defs.browserSettings.properties.type.default, "chromium");
+  assert.equal(planSchemaV1.$defs.browserSettings.properties.headless.default, true);
+  assert.equal(planSchemaV1.$defs.browserSettings.properties.timeZone.default, "UTC");
+  assert.equal(planSchemaV1.$defs.browserSettings.properties.viewport.properties.width.default, 1280);
+  assert.equal(planSchemaV1.$defs.browserSettings.properties.viewport.properties.height.default, 720);
+  assert.deepEqual(validatePlan(plan), { valid: true });
+  assert.deepEqual(plan, originalPlan);
+  assert.equal(caseSchemaV1.$defs.browserSettings.properties.headless.default, true);
+});
+
+test("rejects malformed BCP 47 plan locales and case-level locale overrides", () => {
   const plan = readFixture("../examples/checkout-plan.json");
-  plan.schemaVersion = "1";
+  plan.defaults.locale = "en__CA";
+  const result = validatePlan(plan);
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.path === "/defaults/locale" && issue.keyword === "invalidLocale",
+    ),
+  );
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  exampleCase.settings = { locale: "fr-CA" };
+  const caseResult = validateCase(exampleCase);
+  assert.equal(caseResult.valid, false);
+  assert.ok(
+    caseResult.issues.some(
+      (issue) =>
+        issue.path === "/settings" && issue.keyword === "additionalProperties",
+    ),
+  );
+});
+
+test("rejects invalid IANA time zones in plan defaults and case overrides", () => {
+  const plan = readFixture("../examples/checkout-plan.json");
+  plan.defaults.browser.timeZone = "Mars/Olympus";
+  const planResult = validatePlan(plan);
+  assert.equal(planResult.valid, false);
+  assert.ok(
+    planResult.issues.some(
+      (issue) =>
+        issue.path === "/defaults/browser/timeZone" &&
+        issue.keyword === "invalidTimeZone",
+    ),
+  );
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  exampleCase.settings = { browser: { timeZone: "Mars/Olympus" } };
+  const caseResult = validateCase(exampleCase);
+  assert.equal(caseResult.valid, false);
+  assert.ok(
+    caseResult.issues.some(
+      (issue) =>
+        issue.path === "/settings/browser/timeZone" &&
+        issue.keyword === "invalidTimeZone",
+    ),
+  );
+});
+
+test("accepts each supported locator strategy in case steps", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const locators = [
+    { role: "button", name: "Sign in" },
+    { label: "Email" },
+    { css: "#submit" },
+    { xpath: "//button" },
+  ];
+  for (const locator of locators) {
+    assert.deepEqual(validateCase({ ...exampleCase, steps: [{ locator }] }), {
+      valid: true,
+    });
+  }
+});
+
+test("rejects a locator object that combines strategies", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const result = validateCase({
+    ...exampleCase,
+    steps: [{ locator: { role: "button", css: "#submit" } }],
+  });
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.path === "/steps/0/locator" && issue.keyword === "oneOf",
+    ),
+  );
+});
+
+test("rejects unsupported browser types in plan and case settings", () => {
+  const plan = readFixture("../examples/checkout-plan.json");
+  plan.defaults.browser.type = "firefox";
+  const planResult = validatePlan(plan);
+  assert.equal(planResult.valid, false);
+  assert.ok(
+    planResult.issues.some(
+      (issue) => issue.path === "/defaults/browser/type" && issue.keyword === "const",
+    ),
+  );
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  exampleCase.settings = { browser: { type: "webkit" } };
+  const caseResult = validateCase(exampleCase);
+  assert.equal(caseResult.valid, false);
+  assert.ok(
+    caseResult.issues.some(
+      (issue) => issue.path === "/settings/browser/type" && issue.keyword === "const",
+    ),
+  );
+});
+
+test("rejects an unsupported plan version", () => {
+  const plan = readFixture("../examples/checkout-plan.json");
+  plan.schemaVersion = 2;
   assert.doesNotThrow(() => validatePlan(plan));
   const result = validatePlan(plan);
+  assert.equal(result.valid, false);
+  assert.ok(
+    result.issues.some(
+      (issue) => issue.path === "/schemaVersion" && issue.keyword === "const",
+    ),
+  );
+});
+
+test("rejects an unsupported case version", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  exampleCase.schemaVersion = 2;
+  const result = validateCase(exampleCase);
   assert.equal(result.valid, false);
   assert.ok(
     result.issues.some(

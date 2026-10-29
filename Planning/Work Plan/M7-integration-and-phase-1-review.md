@@ -6,6 +6,7 @@
 ## Tasks
 
 - [ ] Walk through at least one complete synthetic plan from JSON file to validated execution instructions and representative result data.
+- [ ] Confirm plan and referenced-case validation completes before browser launch and reports actionable source locations.
 - [ ] Check that schema, examples, action/configuration rules, data/reuse semantics, and error policies agree.
 - [ ] Validate the plan/result fixtures and documentation using the repository's available checks.
 - [ ] Review package boundaries and confirm contracts are owned in suitable packages with no circular dependency.

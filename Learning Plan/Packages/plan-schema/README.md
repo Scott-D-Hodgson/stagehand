@@ -26,7 +26,11 @@ The package owns shared plan and case JSON Schemas and synchronous functions tha
 
 The functions accept values of type `unknown`. A caller that starts with a JSON file must parse its text before calling a validator. The result says whether the value matches the selected schema. It does not say that the plan is ready to execute.
 
-The current case schema accepts `steps` as an array of objects, but does not validate step fields or action names. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. File loading, canonical containment, plan/case compatibility, variable resolution, and secrets remain future work.
+The current case schema accepts `steps` as an array of objects and validates the shape of a `locator` property when present, but does not validate action names or required action fields. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. File loading, canonical containment, variable resolution, and secrets remain future work.
+
+Browser settings in both plan defaults and case overrides accept only the type identifier `chromium`, representing Playwright-managed Chromium. Other browser types are rejected; later browser support will require an intentional schema update.
+
+The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Locale is run-wide, so a case cannot override it. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation; the runner still needs to resolve effective settings and confirm browser launch succeeds.
 
 ## How validation works
 

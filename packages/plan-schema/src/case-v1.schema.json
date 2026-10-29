@@ -11,13 +11,55 @@
     "variables": { "$ref": "#/$defs/variables" },
     "steps": {
       "type": "array",
-      "items": { "type": "object" }
+      "items": {
+        "type": "object",
+        "properties": {
+          "locator": { "$ref": "#/$defs/locator" }
+        }
+      }
     }
   },
   "$defs": {
     "variables": {
       "type": "object",
       "additionalProperties": true
+    },
+    "locator": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["role"],
+          "properties": {
+            "role": { "type": "string", "minLength": 1 },
+            "name": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label"],
+          "properties": {
+            "label": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["css"],
+          "properties": {
+            "css": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["xpath"],
+          "properties": {
+            "xpath": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
     },
     "caseSettings": {
       "type": "object",
@@ -31,18 +73,18 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": { "type": "string", "minLength": 1 },
-        "headless": { "type": "boolean" },
+        "type": { "const": "chromium", "default": "chromium" },
+        "headless": { "type": "boolean", "default": true },
         "viewport": {
           "type": "object",
           "additionalProperties": false,
           "required": ["width", "height"],
           "properties": {
-            "width": { "type": "integer", "minimum": 1 },
-            "height": { "type": "integer", "minimum": 1 }
+            "width": { "type": "integer", "minimum": 1, "default": 1280 },
+            "height": { "type": "integer", "minimum": 1, "default": 720 }
           }
         },
-        "timeZone": { "type": "string", "minLength": 1 }
+        "timeZone": { "type": "string", "minLength": 1, "default": "UTC" }
       }
     },
     "accessibilitySettings": {

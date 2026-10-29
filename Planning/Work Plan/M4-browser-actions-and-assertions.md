@@ -9,8 +9,13 @@
 - [ ] Review [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md) and the execution-related stories before fixing the contract.
 - [ ] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
 - [ ] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
-- [ ] Specify browser mode, timezone format, locale format, viewport units/ranges, defaults, and validation rules.
-- [ ] Define URL navigation and optional bounded post-navigation waits, including the supported DOM-ready and network-idle states.
+- [x] Select `chromium` as the initial browser type identifier; plan and case schemas reject other browser types.
+- [x] Specify default headless mode `true`; default viewport 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum; default IANA time zone `UTC`; and default run-wide BCP 47 locale `en-CA`, which cases cannot override.
+- [x] Set the default navigation wait to `domcontentloaded`, the default action/navigation timeout to 30 seconds, and the maximum explicit fixed delay to 30 seconds; allow explicit bounded `networkidle` waits.
+- [x] Agree that locators use one strategy per object: role (optionally with accessible name), label, CSS, or XPath.
+- [x] Agree that an optional associated-label check is soft and fails softly when no label is associated; accessibility scans run after completed steps, including failed assertions when the browser remains usable.
+- [x] Add browser-default annotations, locale and time-zone checks, and locator-shape validation to `@stagehand/plan-schema`; the package build and all 24 tests passed in the dev container.
+- [ ] Define URL navigation and optional bounded post-navigation waits, including action-specific combinations and execution order.
 - [ ] Define selector-based item selection and click, character-by-character typing, direct field-value setting (Playwright `fill`-style), and dropdown option selection.
 - [ ] Define optional pre/post action waits for selector existence, fixed delays, navigation states, and bringing an offscreen target into the viewport. Specify valid action combinations, execution order, timeout behaviour, and errors.
 - [ ] Define markup assertions comparing selector-matched inner text or inner HTML with an expected value.
