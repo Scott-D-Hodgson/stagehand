@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "id": "invalid-action-example",
+  "steps": [
+    {
+      "action": "click",
+      "locator": { "role": "button" },
+      "unexpected": true
+    }
+  ]
+}

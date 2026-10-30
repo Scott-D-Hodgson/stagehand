@@ -33,7 +33,10 @@
 - [x] Use one timeout budget for each `waitFor` locator; check once per second until exactly one match appears or the timeout expires. Fail immediately on multiple matches. The three-attempt rule applies to action locator lookups, not `waitFor` items.
 - [x] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Defer CLI flag names to CLI implementation and variable references to M5.
 - [x] Define accessibility settings and scan behaviour: scans are disabled by default, findings are non-failing by default, plan settings can be overridden by cases, and enabled scans run after completed steps with deduplicated findings. M6 defines how configured failure policies affect case/run outcomes and continuation.
-- [ ] Represent the agreed action, assertion, browser-setting, and accessibility contracts in the schemas, examples, and invalid fixtures.
+- [x] Represent the agreed action, assertion, browser-setting, and accessibility contracts in the schemas, examples, and invalid fixtures. `plan-schema` validates step shapes and locale-key semantics; it does not execute actions or apply retry policy.
+- [x] Add public-entry tests for the supported actions, assertions, waits, locale overrides, timeout/delay constraints, and accessibility settings.
+- [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 31 tests passed in the dev container.
+- [x] Update the Phase 1 and package learning guides to reflect the implemented schema boundary.
 
 ## Completion evidence
 
@@ -42,7 +45,7 @@
 - The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
-- Examples and fixtures reflect the documented rules.
+- Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
 
 ## Learning reference
 

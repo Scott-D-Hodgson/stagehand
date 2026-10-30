@@ -15,8 +15,10 @@ Before reading, check which statements you can explain:
 ## What you will learn
 
 - How plan and case schema files define the initial document contracts.
+- How action-discriminated case steps constrain supported actions, assertions, and wait items.
 - How the package selects Ajv's JSON Schema Draft 2020-12 implementation.
 - How the public validator API returns useful issues for invalid data.
+- How runtime locale-key checks supplement the JSON Schema constraints.
 - How shared path matching connects plan references to imported relative file names.
 - How Node's built-in test runner checks behaviour through the package's public entry point.
 
@@ -26,11 +28,21 @@ The package owns shared plan and case JSON Schemas and synchronous functions tha
 
 The functions accept values of type `unknown`. A caller that starts with a JSON file must parse its text before calling a validator. The result says whether the value matches the selected schema. It does not say that the plan is ready to execute.
 
-The current case schema accepts `steps` as an array of objects and validates the shape of a `locator` property when present, but does not validate action names or required action fields. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. File loading, canonical containment, variable resolution, and secrets remain future work.
+The current case schema validates the initial action and assertion formats, including action-specific required fields, one locator strategy, ordered `before`/`after` wait lists, positive timeout values, and bounded delay values. Runtime validation also canonicalizes expected-value locale keys and rejects invalid or duplicate-equivalent keys. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. Action execution, browser-level locator checks and waits, variable resolution, and secrets remain future work.
 
 Browser settings in both plan defaults and case overrides accept only the type identifier `chromium`, representing Playwright-managed Chromium. Other browser types are rejected; later browser support will require an intentional schema update.
 
 The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Locale is run-wide, so a case cannot override it. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation; the runner still needs to resolve effective settings and confirm browser launch succeeds.
+
+Accessibility configuration is optional and can be set in plan defaults or case settings. When present, omitted `enabled` and `failOnViolation` values default to `false`; a case can override the plan's values. These schema defaults also remain annotations until a consumer calculates effective settings.
+
+## Case-step formats
+
+The case schema selects a step format by its `action` value. It accepts `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`. Each format requires its own fields and rejects unrecognised fields. Interactions require one valid locator; `type` also requires `text`, `fill` requires `value`, and `selectOption` requires exactly one of `value` or `label`. Assertions require an `expected` object with a string `default` and optional string locale values. `assertValue` may include an `associatedLabel` expected-value object.
+
+Interactions may include ordered `before` and `after` lists, whose items are a locator wait, a `domcontentloaded`/`networkidle` state wait, or a bounded delay. The schema constrains timeout and delay values, but the runner will perform the waits and apply the agreed retry policy. The schema's defaults (including `soft: false`, `scrollIntoView: true`, and 30-second timeouts) are annotations; validation does not insert them into the caller's object.
+
+After the case matches its JSON Schema, `validateCase` checks expected-value locale keys with `Intl.getCanonicalLocales`. It rejects malformed BCP 47 tags and keys that canonicalize to the same locale. These semantic checks return normal `ValidationIssue` entries and leave the input unchanged.
 
 ## How validation works
 
@@ -55,16 +67,18 @@ or:
 
 `matchCaseReferences(plan, availablePaths)` checks references against relative file names before file contents are read. It returns matched paths in the same order as the plan's cases and issues for missing, ambiguous, duplicate, or escaping references. It matches case-sensitively and normalizes `.` segments and repeated `/`. When a match fails, any other references that matched are still returned so an editor can show partial results. The caller remains responsible for reading and parsing matched files; Node-side code must resolve the original plan reference for canonical containment checks and read the target it checked. The normalized match key alone is not enough for filesystem safety because links can change how a path resolves.
 
-After a caller has matched and parsed all referenced files in plan order, `validatePlanBundle(plan, parsedCases)` checks that one case was supplied per reference, validates every case against the case schema, and checks that case IDs are unique within the plan. Case-file schema issues use `/caseFiles/{index}/...` paths, with the index pointing to the corresponding entry in `plan.cases`. This shared function does not match paths or read files.
+After matching and parsing the referenced files in plan order, `validatePlanBundle(plan, parsedCases)` checks that one case was supplied per reference, validates every case against the case schema, and checks that case IDs are unique within the plan. Case-file schema issues use `/caseFiles/{index}/...` paths, with the index pointing to the corresponding entry in `plan.cases`. This shared function does not match paths or read files; the Node-side `plan-engine` package currently owns filesystem loading and containment checks.
 
 ## Source map
 
 | File | What to learn from it |
 | --- | --- |
 | [`src/plan-v1.schema.json`](../../../packages/plan-schema/src/plan-v1.schema.json) | Required plan fields, defaults, case references, and constraints. |
-| [`src/case-v1.schema.json`](../../../packages/plan-schema/src/case-v1.schema.json) | Case envelope, settings, variables, and the current intentionally broad step shape. |
+| [`src/case-v1.schema.json`](../../../packages/plan-schema/src/case-v1.schema.json) | Case envelope, settings, variables, and the supported initial action/assertion formats. |
 | [`src/index.ts`](../../../packages/plan-schema/src/index.ts) | Public exports, Ajv setup, compiled validators, relative path matching, parsed-bundle validation, and issue mapping. |
 | [`test/validation.test.js`](../../../packages/plan-schema/test/validation.test.js) | Valid examples, invalid inputs, reference matching, parsed-bundle checks, and imports through `@stagehand/plan-schema`. |
+| [`examples/cases/action-contract.json`](../../../packages/plan-schema/examples/cases/action-contract.json) | One valid example covering every initial action/assertion and supported wait-list item. |
+| [`test/fixtures/invalid-action-case.json`](../../../packages/plan-schema/test/fixtures/invalid-action-case.json) | An invalid case demonstrating rejection of an unknown step property. |
 | [`package.json`](../../../packages/plan-schema/package.json) | Package entry point, build/test commands, and the Ajv dependency. |
 | [`THIRD-PARTY-NOTICES.md`](../../../THIRD-PARTY-NOTICES.md) | Dependency attributions and licence texts, including the reviewed BSD-3-Clause notice for `fast-uri`. |
 
@@ -85,6 +99,7 @@ Then work through these steps:
 5. Add a test for one other schema failure without changing the committed example files.
 6. Add a missing reference beside a matched reference and inspect both the issue and the partial matches returned.
 7. Validate a bundle with two cases that share an ID and inspect the duplicate-ID issue path.
+8. Compare the action-contract example with each action definition, then alter a locale key to observe a semantic validation issue.
 
 ## You are ready when
 
