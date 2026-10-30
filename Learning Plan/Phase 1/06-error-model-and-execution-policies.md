@@ -30,7 +30,7 @@ For Stagehand, useful distinctions include invalid plan/schema errors before bro
 - **Failure source:** validation, test expectation, browser interaction, report writing, or runtime/infrastructure.
 - **Recoverability:** whether the runner can safely continue after the failure.
 - **Scope of stopping:** current action, current test, remaining tests, or whole run.
-- **Diagnostic context:** stable test/step identifiers, failure category, useful message, and safe supporting details.
+- **Diagnostic context:** stable case ID, zero-based step index, failure category, useful message, and safe supporting details.
 - **Exit code:** a compact signal for shells and CI; it should consistently reflect documented outcomes.
 - **Failure vs. finding:** an accessibility finding or soft assertion may be recorded separately from a runner failure; status mapping needs to be deliberate.
 - **Error masking:** a later failure should not overwrite the original cause, though cleanup errors may need to be attached as secondary information.

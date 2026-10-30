@@ -6,7 +6,7 @@
 
 ## Objective
 
-Implement current test/step tracking, hard/soft assertions, loop context, recoverable failures, and runner-level error classification.
+Implement current case and step tracking, using the case ID and zero-based step index, alongside hard/soft assertions, loop context, recoverable failures, and runner-level error classification.
 
 ## Acceptance criteria
 

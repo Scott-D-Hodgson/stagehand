@@ -24,6 +24,8 @@ The package owns the shared result document contract. Its public entry point exp
 
 The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. The `plan-engine` loader now calculates the fingerprint while loading; a future runner will include it in the emitted result. Execution aggregation policy belongs to M6.
 
+Each result step has a required zero-based `index` within its case. Traceability uses the case ID together with this index. The result contract has no separate step `id` field; plan authors do not assign step IDs.
+
 ## What the API teaches
 
 - JSON Schema and TypeScript serve related but distinct roles: the JSON Schema validates runtime data, while TypeScript types support compile-time checking.

@@ -167,7 +167,6 @@
       ],
       "properties": {
         "index": { "type": "integer", "minimum": 0 },
-        "id": { "type": "string", "minLength": 1 },
         "outcome": { "$ref": "#/$defs/outcome" },
         "durationMs": { "$ref": "#/$defs/durationMs" },
         "assertions": {
