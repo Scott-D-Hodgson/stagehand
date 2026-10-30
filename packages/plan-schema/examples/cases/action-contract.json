@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "id": "action-contract-example",
+  "settings": {
+    "accessibility": {
+      "enabled": false,
+      "failOnViolation": false
+    }
+  },
+  "steps": [
+    {
+      "action": "navigate",
+      "url": "http://localhost:3000/sign-in",
+      "waitUntil": "domcontentloaded"
+    },
+    {
+      "action": "click",
+      "locator": { "role": "button", "name": "Sign in" },
+      "before": [
+        { "waitFor": { "label": "Email" }, "timeout": 5000 },
+        { "waitForState": "domcontentloaded" },
+        { "delay": 250 }
+      ],
+      "after": [{ "waitForState": "networkidle", "timeout": 10000 }],
+      "scrollIntoView": false
+    },
+    {
+      "action": "type",
+      "locator": { "label": "Email" },
+      "text": "sample text"
+    },
+    {
+      "action": "fill",
+      "locator": { "css": "#email" },
+      "value": "tester@example.invalid"
+    },
+    {
+      "action": "selectOption",
+      "locator": { "label": "Region" },
+      "value": "CA"
+    },
+    {
+      "action": "assertText",
+      "locator": { "role": "heading", "name": "Welcome" },
+      "expected": {
+        "default": "Welcome",
+        "locales": { "fr-CA": "Bienvenue" }
+      }
+    },
+    {
+      "action": "assertHtml",
+      "locator": { "css": "#message" },
+      "expected": { "default": "<strong>Ready</strong>" },
+      "soft": true
+    },
+    {
+      "action": "assertValue",
+      "locator": { "label": "Email" },
+      "expected": { "default": "tester@example.invalid" },
+      "associatedLabel": {
+        "default": "Email address",
+        "locales": { "fr-CA": "Adresse courriel" }
+      }
+    }
+  ]
+}

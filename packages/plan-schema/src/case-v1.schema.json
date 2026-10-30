@@ -12,10 +12,16 @@
     "steps": {
       "type": "array",
       "items": {
-        "type": "object",
-        "properties": {
-          "locator": { "$ref": "#/$defs/locator" }
-        }
+        "oneOf": [
+          { "$ref": "#/$defs/navigateStep" },
+          { "$ref": "#/$defs/clickStep" },
+          { "$ref": "#/$defs/typeStep" },
+          { "$ref": "#/$defs/fillStep" },
+          { "$ref": "#/$defs/selectOptionStep" },
+          { "$ref": "#/$defs/assertTextStep" },
+          { "$ref": "#/$defs/assertHtmlStep" },
+          { "$ref": "#/$defs/assertValueStep" }
+        ]
       }
     }
   },
@@ -23,6 +29,219 @@
     "variables": {
       "type": "object",
       "additionalProperties": true
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 30000
+    },
+    "stepTimeout": {
+      "type": "object",
+      "properties": {
+        "timeout": { "$ref": "#/$defs/timeout" }
+      }
+    },
+    "interactionStep": {
+      "allOf": [
+        { "$ref": "#/$defs/stepTimeout" },
+        {
+          "type": "object",
+          "properties": {
+            "before": { "$ref": "#/$defs/waitList" },
+            "after": { "$ref": "#/$defs/waitList" },
+            "scrollIntoView": { "type": "boolean", "default": true }
+          }
+        }
+      ]
+    },
+    "locatorWait": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["waitFor"],
+      "properties": {
+        "waitFor": { "$ref": "#/$defs/locator" },
+        "timeout": { "$ref": "#/$defs/timeout" }
+      }
+    },
+    "stateWait": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["waitForState"],
+      "properties": {
+        "waitForState": { "enum": ["domcontentloaded", "networkidle"] },
+        "timeout": { "$ref": "#/$defs/timeout" }
+      }
+    },
+    "delayWait": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["delay"],
+      "properties": {
+        "delay": { "type": "integer", "minimum": 1, "maximum": 30000 },
+        "timeout": { "$ref": "#/$defs/timeout" }
+      }
+    },
+    "waitList": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/locatorWait" },
+          { "$ref": "#/$defs/stateWait" },
+          { "$ref": "#/$defs/delayWait" }
+        ]
+      }
+    },
+    "expectedValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "string" },
+        "locales": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "navigateStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/stepTimeout" },
+        {
+          "type": "object",
+          "required": ["action", "url"],
+          "properties": {
+            "action": { "const": "navigate" },
+            "url": { "type": "string", "minLength": 1 },
+            "waitUntil": {
+              "enum": ["domcontentloaded", "networkidle"],
+              "default": "domcontentloaded"
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "clickStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/interactionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator"],
+          "properties": {
+            "action": { "const": "click" },
+            "locator": { "$ref": "#/$defs/locator" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "typeStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/interactionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator", "text"],
+          "properties": {
+            "action": { "const": "type" },
+            "locator": { "$ref": "#/$defs/locator" },
+            "text": { "type": "string" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "fillStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/interactionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator", "value"],
+          "properties": {
+            "action": { "const": "fill" },
+            "locator": { "$ref": "#/$defs/locator" },
+            "value": { "type": "string" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "selectOptionStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/interactionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator"],
+          "properties": {
+            "action": { "const": "selectOption" },
+            "locator": { "$ref": "#/$defs/locator" },
+            "value": { "type": "string" },
+            "label": { "type": "string" }
+          },
+          "oneOf": [
+            { "required": ["value"], "not": { "required": ["label"] } },
+            { "required": ["label"], "not": { "required": ["value"] } }
+          ]
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "assertionStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/stepTimeout" },
+        {
+          "type": "object",
+          "properties": {
+            "locator": { "$ref": "#/$defs/locator" },
+            "expected": { "$ref": "#/$defs/expectedValue" },
+            "soft": { "type": "boolean", "default": false }
+          }
+        }
+      ]
+    },
+    "assertTextStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/assertionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator", "expected"],
+          "properties": { "action": { "const": "assertText" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "assertHtmlStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/assertionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator", "expected"],
+          "properties": { "action": { "const": "assertHtml" } }
+        }
+      ],
+      "unevaluatedProperties": false
+    },
+    "assertValueStep": {
+      "type": "object",
+      "allOf": [
+        { "$ref": "#/$defs/assertionStep" },
+        {
+          "type": "object",
+          "required": ["action", "locator", "expected"],
+          "properties": {
+            "action": { "const": "assertValue" },
+            "associatedLabel": { "$ref": "#/$defs/expectedValue" }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
     },
     "locator": {
       "oneOf": [
@@ -90,9 +309,9 @@
     "accessibilitySettings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["enabled"],
       "properties": {
-        "enabled": { "type": "boolean" }
+        "enabled": { "type": "boolean", "default": false },
+        "failOnViolation": { "type": "boolean", "default": false }
       }
     }
   }

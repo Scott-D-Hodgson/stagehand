@@ -61,9 +61,9 @@
     "accessibilitySettings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["enabled"],
       "properties": {
-        "enabled": { "type": "boolean" }
+        "enabled": { "type": "boolean", "default": false },
+        "failOnViolation": { "type": "boolean", "default": false }
       }
     }
   }

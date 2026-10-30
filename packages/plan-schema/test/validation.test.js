@@ -32,6 +32,11 @@ test("accepts the example case through the public package entry point", () => {
   assert.deepEqual(validateCase(exampleCase), { valid: true });
 });
 
+test("accepts the full action and assertion example through the public entry point", () => {
+  const actionCase = readFixture("../examples/cases/action-contract.json");
+  assert.deepEqual(validateCase(actionCase), { valid: true });
+});
+
 test("publishes browser defaults without inserting them into validated input", () => {
   const plan = { schemaVersion: 1, id: "defaults-test", cases: [] };
   const originalPlan = structuredClone(plan);
@@ -41,9 +46,13 @@ test("publishes browser defaults without inserting them into validated input", (
   assert.equal(planSchemaV1.$defs.browserSettings.properties.timeZone.default, "UTC");
   assert.equal(planSchemaV1.$defs.browserSettings.properties.viewport.properties.width.default, 1280);
   assert.equal(planSchemaV1.$defs.browserSettings.properties.viewport.properties.height.default, 720);
+  assert.equal(planSchemaV1.$defs.accessibilitySettings.properties.enabled.default, false);
+  assert.equal(planSchemaV1.$defs.accessibilitySettings.properties.failOnViolation.default, false);
   assert.deepEqual(validatePlan(plan), { valid: true });
   assert.deepEqual(plan, originalPlan);
   assert.equal(caseSchemaV1.$defs.browserSettings.properties.headless.default, true);
+  assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.enabled.default, false);
+  assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.failOnViolation.default, false);
 });
 
 test("rejects malformed BCP 47 plan locales and case-level locale overrides", () => {
@@ -93,7 +102,7 @@ test("rejects invalid IANA time zones in plan defaults and case overrides", () =
   );
 });
 
-test("accepts each supported locator strategy in case steps", () => {
+test("accepts each supported locator strategy in click steps", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const locators = [
     { role: "button", name: "Sign in" },
@@ -102,10 +111,92 @@ test("accepts each supported locator strategy in case steps", () => {
     { xpath: "//button" },
   ];
   for (const locator of locators) {
-    assert.deepEqual(validateCase({ ...exampleCase, steps: [{ locator }] }), {
+    assert.deepEqual(validateCase({ ...exampleCase, steps: [{ action: "click", locator }] }), {
       valid: true,
     });
   }
+});
+
+test("rejects an action fixture with an unknown step property", () => {
+  const invalidCase = readFixture("./fixtures/invalid-action-case.json");
+  const result = validateCase(invalidCase);
+  assert.equal(result.valid, false);
+  assert.ok(result.issues.some((issue) => issue.keyword === "unevaluatedProperties"));
+});
+
+test("rejects unsupported actions and missing action-specific fields", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const invalidSteps = [
+    { action: "hover", locator: { role: "button" } },
+    { action: "click" },
+    { action: "type", locator: { label: "Email" } },
+    { action: "fill", locator: { label: "Email" } },
+    { action: "navigate" },
+    { action: "assertText", locator: { role: "heading" } },
+  ];
+  for (const step of invalidSteps) {
+    assert.equal(validateCase({ ...exampleCase, steps: [step] }).valid, false);
+  }
+});
+
+test("requires selectOption to use exactly one of value or label", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const locator = { label: "Region" };
+  for (const selection of [{}, { value: "CA", label: "Canada" }]) {
+    const result = validateCase({
+      ...exampleCase,
+      steps: [{ action: "selectOption", locator, ...selection }],
+    });
+    assert.equal(result.valid, false);
+  }
+  for (const selection of [{ value: "CA" }, { label: "Canada" }]) {
+    assert.deepEqual(validateCase({
+      ...exampleCase,
+      steps: [{ action: "selectOption", locator, ...selection }],
+    }), { valid: true });
+  }
+});
+
+test("validates wait-list shapes and timeout/delay bounds", () => {
+  const actionCase = readFixture("../examples/cases/action-contract.json");
+  const click = actionCase.steps[1];
+  const invalidCases = [
+    { ...click, before: [{ waitForState: "load" }] },
+    { ...click, before: [{ delay: 0 }] },
+    { ...click, before: [{ delay: 30001 }] },
+    { ...click, before: [{ waitFor: { label: "Email" }, timeout: 0 }] },
+    { ...click, timeout: 1.5 },
+  ];
+  for (const step of invalidCases) {
+    assert.equal(validateCase({ ...actionCase, steps: [step] }).valid, false);
+  }
+});
+
+test("rejects invalid and duplicate canonical locale keys in expected values", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const makeCase = (locales) => ({
+    ...exampleCase,
+    steps: [{
+      action: "assertText",
+      locator: { role: "heading" },
+      expected: { default: "Welcome", locales },
+    }],
+  });
+  const invalidLocale = validateCase(makeCase({ "en__CA": "Welcome" }));
+  assert.equal(invalidLocale.valid, false);
+  assert.ok(invalidLocale.issues.some((issue) => issue.keyword === "invalidLocale"));
+  const duplicateLocale = validateCase(makeCase({ "en-us": "Hello", "en-US": "Hello" }));
+  assert.equal(duplicateLocale.valid, false);
+  assert.ok(duplicateLocale.issues.some((issue) => issue.keyword === "duplicateLocale"));
+});
+
+test("accepts accessibility failure policy on plan and case settings", () => {
+  const plan = readFixture("../examples/checkout-plan.json");
+  plan.defaults.accessibility = { failOnViolation: true };
+  assert.deepEqual(validatePlan(plan), { valid: true });
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  exampleCase.settings = { accessibility: { failOnViolation: true } };
+  assert.deepEqual(validateCase(exampleCase), { valid: true });
 });
 
 test("rejects a locator object that combines strategies", () => {
@@ -308,7 +399,10 @@ test("reports case schema issues under the matching parsed case index", () => {
 test("rejects duplicate case IDs within a plan bundle", () => {
   const plan = planWithReferences("cases/first.json", "cases/second.json");
   const firstCase = readFixture("../examples/cases/sign-in.json");
-  const secondCase = { ...firstCase, steps: [{ action: "placeholder" }] };
+  const secondCase = {
+    ...firstCase,
+    steps: [{ action: "click", locator: { role: "button" } }],
+  };
   const result = validatePlanBundle(plan, [firstCase, secondCase]);
   assert.equal(result.valid, false);
   assert.ok(

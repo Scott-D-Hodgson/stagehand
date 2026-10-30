@@ -134,6 +134,66 @@ function validateCaseSettings(input: unknown): ValidationIssue[] {
   );
 }
 
+function escapeJsonPointerSegment(value: string): string {
+  return value.replace(/~/g, "~0").replace(/\//g, "~1");
+}
+
+function validateExpectedValueLocales(
+  input: unknown,
+  path: string,
+): ValidationIssue[] {
+  if (!isRecord(input) || !isRecord(input.locales)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  const canonicalKeys = new Map<string, string>();
+  for (const locale of Object.keys(input.locales)) {
+    const localePath = `${path}/locales/${escapeJsonPointerSegment(locale)}`;
+    let canonicalLocale: string;
+    try {
+      canonicalLocale = Intl.getCanonicalLocales(locale)[0] ?? locale;
+    } catch {
+      issues.push({
+        path: localePath,
+        keyword: "invalidLocale",
+        message: "Locale must be a well-formed BCP 47 language tag, such as fr-CA.",
+      });
+      continue;
+    }
+    const earlierLocale = canonicalKeys.get(canonicalLocale);
+    if (earlierLocale !== undefined) {
+      issues.push({
+        path: localePath,
+        keyword: "duplicateLocale",
+        message: `Locale duplicates the canonical locale key at ${path}/locales/${escapeJsonPointerSegment(earlierLocale)}.`,
+      });
+      continue;
+    }
+    canonicalKeys.set(canonicalLocale, locale);
+  }
+  return issues;
+}
+
+function validateCaseExpectedLocales(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !Array.isArray(input.steps)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  for (const [stepIndex, step] of input.steps.entries()) {
+    if (!isRecord(step) || typeof step.action !== "string") {
+      continue;
+    }
+    const stepPath = `/steps/${stepIndex}`;
+    if (step.action === "assertText" || step.action === "assertHtml" || step.action === "assertValue") {
+      issues.push(...validateExpectedValueLocales(step.expected, `${stepPath}/expected`));
+    }
+    if (step.action === "assertValue") {
+      issues.push(...validateExpectedValueLocales(step.associatedLabel, `${stepPath}/associatedLabel`));
+    }
+  }
+  return issues;
+}
+
 function includeSemanticIssues(
   result: ValidationResult,
   semanticIssues: ValidationIssue[],
@@ -276,7 +336,10 @@ export function validatePlan(input: unknown): ValidationResult {
 export function validateCase(input: unknown): ValidationResult {
   const valid = validateCaseSchemaV1(input);
   const schemaResult = toValidationResult(valid, validateCaseSchemaV1.errors);
-  return includeSemanticIssues(schemaResult, validateCaseSettings(input));
+  return includeSemanticIssues(schemaResult, [
+    ...validateCaseSettings(input),
+    ...validateCaseExpectedLocales(input),
+  ]);
 }
 
 export function validatePlanBundle(
