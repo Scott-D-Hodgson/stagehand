@@ -38,7 +38,6 @@ export interface ResultAssertion {
 
 export interface ResultStep {
   index: number;
-  id?: string;
   outcome: ResultOutcome;
   durationMs: number;
   assertions: ResultAssertion[];

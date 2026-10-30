@@ -46,7 +46,6 @@
       "steps": [
         {
           "index": 0,
-          "id": "open-sign-in-page",
           "outcome": "passed",
           "durationMs": 214,
           "assertions": [],
@@ -54,7 +53,6 @@
         },
         {
           "index": 1,
-          "id": "check-welcome-heading",
           "outcome": "passed",
           "durationMs": 33,
           "assertions": [

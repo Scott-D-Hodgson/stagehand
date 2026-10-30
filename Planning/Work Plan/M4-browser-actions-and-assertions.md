@@ -6,25 +6,34 @@
 
 ## Tasks
 
-- [ ] Review [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md) and the execution-related stories before fixing the contract.
-- [ ] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
-- [ ] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
+- [x] Review [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md) and the execution-related stories before fixing the contract.
+- [x] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
+- [x] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
 - [x] Select `chromium` as the initial browser type identifier; plan and case schemas reject other browser types.
 - [x] Specify default headless mode `true`; default viewport 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum; default IANA time zone `UTC`; and default run-wide BCP 47 locale `en-CA`, which cases cannot override.
 - [x] Set the default navigation wait to `domcontentloaded`, the default action/navigation timeout to 30 seconds, and the maximum explicit fixed delay to 30 seconds; allow explicit bounded `networkidle` waits.
 - [x] Agree that locators use one strategy per object: role (optionally with accessible name), label, CSS, or XPath.
-- [x] Agree that an optional associated-label check is soft and fails softly when no label is associated; accessibility scans run after completed steps, including failed assertions when the browser remains usable.
+- [x] Require exact role/label names; fail immediately on multiple matches and retry zero matches up to three total attempts by default. Reserve one-second gaps between attempts, then divide the remaining action timeout as evenly as possible among the locator waits; a 30-second timeout gives about 9.3 seconds per wait.
+- [x] Choose action names `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`; distinguish character typing from direct field setting and allow dropdown selection by value or visible label.
+- [x] Use ordered `before` and `after` lists; default `scrollIntoView` to true for interactions, with a per-step option to turn it off.
+- [x] Use exact, case-sensitive assertion comparisons and make assertions hard by default; soft assertions use `soft: true`. Defer contains comparisons beyond MVP.
+- [x] Identify steps by case ID and sequence position; represent the result position as a zero-based index and do not require author-assigned step IDs.
+- [x] Keep action inputs literal for M4; define variable references in M5. Preserve CLI-over-plan precedence while deferring exact CLI flags to CLI implementation.
+- [x] Use standard HTML label associations for optional soft label checks; fail softly when none is associated or multiple labels make the match ambiguous. Accessibility scans run after completed steps, including failed assertions when the browser remains usable.
+- [x] Default axe scanning to disabled and `failOnViolation` to false; plan settings can be overridden by case settings. M6 defines outcome and continuation policy.
 - [x] Add browser-default annotations, locale and time-zone checks, and locator-shape validation to `@stagehand/plan-schema`; the package build and all 24 tests passed in the dev container.
-- [ ] Define URL navigation and optional bounded post-navigation waits, including action-specific combinations and execution order.
-- [ ] Define selector-based item selection and click, character-by-character typing, direct field-value setting (Playwright `fill`-style), and dropdown option selection.
-- [ ] Define optional pre/post action waits for selector existence, fixed delays, navigation states, and bringing an offscreen target into the viewport. Specify valid action combinations, execution order, timeout behaviour, and errors.
-- [ ] Define markup assertions comparing selector-matched inner text or inner HTML with an expected value.
-- [ ] Define input value assertions and optional soft checks for associated label inner text or inner HTML, including how label association is resolved and handled when absent.
-- [ ] Keep reload/back/forward, standalone URL waits, distinct click variants, and additional assertion types (visibility, enabled/disabled, checked state, attributes, URL, and page title) out of MVP; track them in [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
-- [ ] Define expected values, timeout behaviour, diagnostics, and hard/soft control-flow effects for each selected assertion.
-- [ ] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Define the precise argument and variable-injection model.
-- [ ] Update plan schema, examples, and invalid fixtures to represent the decisions.
-- [ ] Represent accessibility configuration and scan behaviour consistently in the schema and examples: optional scans after each completed step, deduplicated finding collection, and plan defaults with case overrides. M6 defines how configured failure policies affect case/run outcomes and continuation.
+- [x] Set the delay between locator retries to one second, with up to three total attempts by default. The action timeout includes those gaps and is divided across the waits; an expired budget prevents another attempt.
+- [x] Give each assertion an `expected` object with a required `default` and optional BCP 47 keyed `locales` overrides; use the default when no override exists for the run locale.
+- [x] Make an optional associated-label check fail softly when multiple labels make the association ambiguous.
+- [x] Use `timeout` for per-action and per-wait timeout overrides, measured in milliseconds.
+- [x] Define before/after wait-list items as a `waitFor` locator, `waitForState` of `domcontentloaded` or `networkidle`, or a `delay` in milliseconds, with optional `timeout` in milliseconds for waits.
+- [x] Keep reload/back/forward, standalone URL waits, distinct click variants, and additional assertion types (visibility, enabled/disabled, checked state, attributes, URL, and page title) out of MVP; track them in [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
+- [x] Define timeout and assertion diagnostic details: case ID, step position, action, relevant locator, timeout value, and expected/actual values where available. M5 defines redaction if expected values later support secrets; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 own hard/soft continuation and status policy.
+- [x] Require positive integer timeout values in milliseconds and integer delays from 1 to 30,000 milliseconds. Canonicalize BCP 47 locale-override keys for matching and reject keys that canonicalize to duplicates.
+- [x] Use one timeout budget for each `waitFor` locator; check once per second until exactly one match appears or the timeout expires. Fail immediately on multiple matches. The three-attempt rule applies to action locator lookups, not `waitFor` items.
+- [x] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Defer CLI flag names to CLI implementation and variable references to M5.
+- [x] Define accessibility settings and scan behaviour: scans are disabled by default, findings are non-failing by default, plan settings can be overridden by cases, and enabled scans run after completed steps with deduplicated findings. M6 defines how configured failure policies affect case/run outcomes and continuation.
+- [ ] Represent the agreed action, assertion, browser-setting, and accessibility contracts in the schemas, examples, and invalid fixtures.
 
 ## Completion evidence
 
@@ -32,7 +41,7 @@
 - The initial action set covers URL navigation, the requested selector-based interactions, bounded optional waits/delays, and viewport handling; each option's applicability and ordering are explicit.
 - The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
 - Invalid settings and unknown actions fail clearly before execution where possible.
-- Hard and soft assertion control flow is stated unambiguously. M6 defines how those outcomes map to test/run status and affect later execution.
+- The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and fixtures reflect the documented rules.
 
 ## Learning reference

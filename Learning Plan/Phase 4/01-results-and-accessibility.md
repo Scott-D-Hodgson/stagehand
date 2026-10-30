@@ -27,7 +27,7 @@ Automated accessibility checks catch only issues that their rules can detect. Th
 
 ## Apply this to Stagehand
 
-Use stable IDs for run/case/step relationships, while keeping localized names and descriptions as display data. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and markup evidence so deduplication and later review are possible.
+Use stable run and case IDs while keeping localized names and descriptions as display data. A step is identified by its case ID and zero-based position in the case's step array; authors do not assign step IDs. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and markup evidence so deduplication and later review are possible.
 
 Define the relationship between case statuses and overall run status consistently. A non-failing accessibility finding should still be visible in JSON. If configuration makes findings fail the case, retain the finding and identify the configured policy that changed status.
 
