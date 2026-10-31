@@ -19,9 +19,11 @@
 
 A result is a durable record of what a run did and observed. A human needs clear context; a pipeline needs stable fields. Keep those needs in one structured contract rather than scraping console text. A result should identify the run, plan, cases, outcomes, durations, failure details, diagnostics, and effective non-secret configuration. The result version can evolve separately from the plan version because producers and consumers change at different times.
 
-Stagehand's MVP emits JSON only. Azure DevOps retains it as a pipeline artifact; it does not publish individual tests into the Azure DevOps Test Results view. JUnit-compatible XML, HTML reports, and screenshots are deferred. Do not add those formats to the MVP just because they are familiar.
+The planned Stagehand MVP will emit JSON only and retain it as an Azure DevOps pipeline artifact; publishing individual tests into the Azure DevOps Test Results view is outside that MVP integration. Result validation exists, but full result production and pipeline integration remain future work. JUnit-compatible XML, HTML reports, and screenshots are deferred. Do not add those formats to the MVP just because they are familiar.
 
-The optional axe scan runs after each completed step. Findings stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. Results include the page URL, available affected-node details, and the case's effective `enabled` and `failOnViolation` settings. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
+In the planned runner, an enabled axe scan will run after each completed step. Findings will stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. The planned result extension will include the page URL, selected affected-node details, and the case's effective `enabled`, `failOnViolation`, and scan-tag scope. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
+
+The accepted scan configuration includes an optional companion run-level rule-tag list. Selected tags narrow the assessment; omitted or empty tags use axe's default rule selection without a tag restriction. The input filter and the rule `tags` retained on findings have different roles. Preserve the effective filter in the planned results so readers know what was assessed. The adapter dependency is installed, but the configuration option, result-schema extension, and scanner remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
 
 Automated accessibility checks catch only issues that their rules can detect. They do not establish full conformance and do not replace manual review with assistive technology or keyboard use. Keep this limitation visible in the result and documentation.
 
@@ -33,13 +35,14 @@ Define the relationship between case statuses and overall run status consistentl
 
 ## Exercise
 
-Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Show which observations deduplicate and what the accumulated JSON finding should contain. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure.
+Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Show which observations deduplicate and what the accumulated JSON finding should contain. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure. Contrast a tag-restricted assessment with the default assessment and show how their effective scope should be identifiable in the planned result.
 
 ## You are ready when
 
 - Consumers can read results without parsing console prose.
 - Findings are deduplicated within each case by URL, violation description, and affected markup; observations in separate cases remain separate.
 - Scan errors, accessibility findings, assertion failures, and infrastructure errors remain distinguishable.
+- You can distinguish the effective scan-tag input scope from finding-level rule tags, and explain the omitted/empty-list default.
 
 ## Read next
 
@@ -55,6 +58,7 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 3. What happens if the same URL and violation description include newly seen problematic markup?
 4. Do axe findings fail the case by default?
 5. What is outside the MVP result formats?
+6. How does a configured scan-tag list differ from the tags on a finding, and what happens when the configured list is empty?
 
 <details>
 <summary>Answer key</summary>
@@ -64,5 +68,6 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 3. The new markup is added to the existing URL and violation finding.
 4. No. They are recorded but non-failing by default; plan/case configuration may make them fail.
 5. JUnit conversion, HTML reports, and screenshots.
+6. The input list controls which rules are assessed; finding tags describe a reported rule. An empty or omitted input list applies no tag restriction and preserves axe's default rule selection.
 
 </details>

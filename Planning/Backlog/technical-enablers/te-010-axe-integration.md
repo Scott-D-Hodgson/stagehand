@@ -65,9 +65,33 @@ These are bundled components, not additional resolved runtime npm dependencies. 
 - [x] Run the runner-core build and existing mocked-browser suite after installation; all 81 tests passed locally on Windows.
 - [ ] Verify real-browser scanning, including frames and cleanup.
 - [ ] Verify notices and covered-source instructions in future release artifacts.
-- [ ] Settle the minimal retained affected-node fields before the M4 result-model extension. Candidate fields for discussion are problematic markup, the structured target selector, and an available failure summary; they are not an accepted result shape.
+- [x] Settle the retained accessibility fields before the M4 result-model extension: the owner selected `html`, `target`, `failureSummary`, `impact`, `xpath` when available, `relatedNodes`, and `tags`.
 
-Keep violations separate from functional assertions. A rejected scan is an execution error, not an accessibility finding; handling incomplete results also needs deliberate treatment. M6 continues to own outcome and continuation policy. This review does not implement scanning, select a rule subset, or establish accessibility conformance.
+### Accepted retained fields
+
+The owner selected these fields on 31 October 2026. This is an accepted retention decision; the result schema and scanner have not implemented it yet.
+
+| Scope | Fields | Mapping notes |
+| --- | --- | --- |
+| Finding | `tags` | Retain axe's rule tags alongside the existing rule ID, impact, description, help text/link, and the planned finding URL. |
+| Affected node | `html`, `target`, `failureSummary`, `impact`, `xpath`, `relatedNodes` | Retain problematic markup, structured selectors, available failure summaries and node severity, optional XPath, and related elements. Preserve frame/shadow-DOM selector structure. |
+| Related node | `html`, `target`, optional `xpath` | Axe supplies related elements inside individual checks in `any`, `all`, and `none`; retain the related-node information from those checks. |
+
+Retain optional upstream information when available; do not invent failure summaries, XPath, or severity when absent. Tags belong to the finding, not each affected node. Full check records/messages, arbitrary check `data`, ancestry paths, and live DOM element references are outside this selected field set. The result-model slice will define the exact JSON layout and related-node duplicate handling; this decision does not change the agreed case-level grouping by URL/description and problematic-markup deduplication.
+
+Keep violations separate from functional assertions. A rejected scan is an execution error, not an accessibility finding; handling incomplete results also needs deliberate treatment. M6 continues to own outcome and continuation policy. This review does not implement scanning or establish accessibility conformance. The accepted companion tag option below allows authors to choose scan scope without Stagehand imposing a fixed rule subset.
+
+### Accepted scan-scope option
+
+A run requesting axe assessment must also offer an optional rule-tag list. A non-empty list limits the scan to rules matching any selected tag. Omitted or empty tags mean no tag restriction: use axe's native defaults and report the resulting findings. Do not interpret this as enabling every experimental/disabled rule or adding passed/inapplicable results to Stagehand's violation findings.
+
+The scanner should apply a non-empty list through `AxeBuilder.withTags(...)`; for an omitted or empty list, leave tag filtering unset. This is scan configuration, distinct from retaining each finding's rule `tags`. The JSON option spelling, validation of unknown tags, and any case-level tag override remain M4 configuration follow-through. Exact CLI flag names remain deferred to CLI implementation. Record the effective filter in results so reviewers can interpret assessment scope; its exact result shape belongs to the result-model extension.
+
+- [x] Agree to an optional companion run-level tag filter, defaulting to axe's unrestricted default rule selection when no tags are specified.
+- [ ] Extend configuration schemas/examples/validation for the tag option and define effective filter representation.
+- [ ] Test scanner behaviour for a selected tag, multiple tags, omitted tags, and an empty list; verify filtering controls the scan, not just its output.
+
+See [axe tag filtering](https://github.com/dequelabs/axe-core-npm/blob/v4.14.0/packages/playwright/README.md#axebuilderwithtagstags-stringarray) and [axe default rule selection](https://github.com/dequelabs/axe-core/blob/v4.14.0/doc/API.md#options-parameter).
 
 ### Sources
 
