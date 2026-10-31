@@ -22,6 +22,8 @@ Before reading, check which statements you can explain:
 
 The package owns the shared result document contract. Its public entry point exports the result v1 JSON Schema, TypeScript types, and `validateResult`. The schema is the normative contract for emitted result JSON; the TypeScript types help implementation code describe values that conform to it.
 
+M4's accessibility work will extend the v1 result shape with finding URLs, available affected-node details, and effective `enabled` and `failOnViolation` settings. Findings stay attached to their case and are deduplicated within that case, as specified in [ATR-019](../../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md). These result-shape updates are planned work, not yet present in the package schema.
+
 The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. The `plan-engine` loader now calculates the fingerprint while loading; a future runner will include it in the emitted result. Execution aggregation policy belongs to M6.
 
 Each result step has a required zero-based `index` within its case. Traceability uses the case ID together with this index. The result contract has no separate step `id` field; plan authors do not assign step IDs.

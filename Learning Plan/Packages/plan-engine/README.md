@@ -72,7 +72,7 @@ Then work through these steps:
 ## Known limits
 
 - The package does not run steps or start a browser.
-- Unsupported plan versions currently produce the schema validator's version issue; a dedicated unsupported-version diagnostic remains future M3 work.
+- Unsupported plan versions are rejected by the v1 schema validator. A dedicated unsupported-version diagnostic is a possible future refinement, not an outstanding M3 task.
 - GitHub Actions runs the loader tests on both Linux and Windows. Symlink-specific tests may skip on Windows environments that do not permit creating links.
 
 ## Reinforcement quiz

@@ -6,7 +6,11 @@ Complete the MVP by making results useful to people and pipelines, then package 
 
 - A versioned JSON result with a run summary, case identity/outcome/duration/failure detail, diagnostics, and effective non-secret configuration.
 - Retain JSON results as pipeline artifacts in the Azure DevOps pipeline example. The MVP does not publish individual tests to the Azure DevOps Test Results view; JUnit-compatible XML conversion is later work. HTML reports and screenshots are also later candidates.
-- axe accessibility integration: optionally scan after every step, retain only newly observed violations within a run, and let plan/case configuration determine whether findings fail functional status.
+- axe accessibility integration: optionally scan after every completed step, retain newly observed affected markup within each case, and let plan/case configuration determine whether findings fail functional status.
 - External scheduling and CI/CD examples.
 - Hugo site generated from canonical Markdown.
 - Example plans, authoring tutorials, and end-to-end setup guidance.
+
+## Candidate for refinement
+
+Consider adding synthetic browser-test pages to the generated site. The same static pages could be served from the repository for reliable dev-container and CI integration tests, then hosted as a practice playground for contributors and users. Treat the hosted copy as a learning target; automated tests should exercise the local build rather than depend on network access to the public site. This is a proposed adoption feature, not yet a scheduled commitment.

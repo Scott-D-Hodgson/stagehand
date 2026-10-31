@@ -22,16 +22,16 @@ The plan assumes one contributor familiar with Git and basic TypeScript/Node.js,
 | ------------------------------------------------ | ------------------------------------------------------ | ---------- | --------------------: |
 | [M1](M1-repository-architecture.md)              | Repository architecture and package boundaries         | M0         |       2–4 person-days |
 | [M2](M2-development-environment-and-guidance.md) | Development environment and contributor/agent guidance | M0, M1     |       3–5 person-days |
-| [M3](M3-versioned-plan-and-result-contracts.md)  | Versioned plan and result contracts                    | M1         |       4–6 person-days |
+| [M3](M3-versioned-plan-and-result-contracts.md)  | Versioned plan and result contracts                    | M1         |                     — |
 | [M4](M4-browser-actions-and-assertions.md)       | Browser configuration, actions, and assertions         | M2, M3     |       3–5 person-days |
 | [M5](M5-data-and-reuse-semantics.md)             | Variables, data sets, shared steps, and bounded loops  | M3, M4     |       3–5 person-days |
 | [M6](M6-errors-and-execution-policies.md)        | Error model and execution policies                     | M3–M5      |       2–4 person-days |
 | [M7](M7-integration-and-phase-1-review.md)       | Integration, verification, and Phase 1 review          | M1–M6      |       2–3 person-days |
-| **Phase 1 subtotal (M1–M7)**                     | **Estimated focused effort**                           |            | **19–32 person-days** |
+| **Phase 1 subtotal (M1–M7; excluding M3)**        | **Estimated focused effort**                           |            | **15–26 person-days** |
 
-The combined M0 plus Phase 1 effort is **20–35 person-days**.
+The combined M0 plus Phase 1 estimate, excluding M3, is **16–29 person-days**.
 
-M0 is the repository setup prerequisite for Phase 1 implementation and is complete: contribution guidance is in place, repository settings were configured, and PR behaviour was tested. M0's instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. Re-estimate after M1 and M3, when package boundaries and the data contract are clearer.
+M0 is the repository setup prerequisite for Phase 1 implementation and is complete: contribution guidance is in place, repository settings were configured, and PR behaviour was tested. M0's instructions remain written as a greenfield bootstrap guide. Milestones can overlap in calendar time when different people work independently, but the contract work benefits from one coordinated owner and review. M3's effort estimate was removed; its later editor and runner integration follow-through remains assigned to those milestones.
 
 ## Completion criteria
 

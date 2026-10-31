@@ -1,5 +1,7 @@
 # M3 — Versioned plan and result contracts
 
+**Status: Complete.** All M3 tasks and completion evidence are satisfied. Follow-through listed below is assigned to later milestones and does not block M3.
+
 **Depends on:** M1  
 **Roadmap item:** Versioned test-plan and result schemas
 
@@ -37,7 +39,7 @@
 ## Deferred follow-through outside M3
 
 - Connect Vue editor folder-import entries to the shared matcher in the editor implementation work; the decision to preserve relative paths and use shared matching is already recorded above.
-- Verify that the runner validates the plan and all referenced cases before browser launch, with actionable diagnostics, during [M7 integration and Phase 1 review](M7-integration-and-phase-1-review.md). `runner-core` can launch Chromium, create case sessions, resolve case-session locators, run ordered waits, and dispatch validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps when supplied by a caller. The expanded runner-core suite passed all 54 tests before `assertHtml` was added; the HTML assertion tests have been authored; a new suite run remains pending. No plan-driven orchestration yet connects `loadPlanFile` to `startBrowserRun`, so callers can still start a browser without loading or validating a plan.
+- Verify that the runner validates the plan and all referenced cases before browser launch, with actionable diagnostics, during [M7 integration and Phase 1 review](M7-integration-and-phase-1-review.md). `runner-core` can launch Chromium, create case sessions, resolve case-session locators, run ordered waits, and dispatch validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps when supplied by a caller. The expanded runner-core suite passed all 62 tests in the dev container, including the HTML assertion tests. No plan-driven orchestration yet connects `loadPlanFile` to `startBrowserRun`, so callers can still start a browser without loading or validating a plan.
 
 ## Contract and policy ownership across M3–M6
 
