@@ -10,7 +10,7 @@
 - [x] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
 - [x] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
 - [x] Select `chromium` as the initial browser type identifier; plan and case schemas reject other browser types.
-- [x] Specify default headless mode `true`; default viewport 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum; default IANA time zone `UTC`; and default run-wide BCP 47 locale `en-CA`, which cases cannot override.
+- [x] Specify default headless mode `true` as run-wide because it is selected at Chromium launch; cases cannot override it. Set the default viewport to 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum, default IANA time zone to `UTC`, and default run-wide BCP 47 locale to `en-CA`; cases cannot override locale.
 - [x] Set the default navigation wait to `domcontentloaded`, the default action/navigation timeout to 30 seconds, and the maximum explicit fixed delay to 30 seconds; allow explicit bounded `networkidle` waits.
 - [x] Agree that locators use one strategy per object: role (optionally with accessible name), label, CSS, or XPath.
 - [x] Require exact role/label names; fail immediately on multiple matches and retry zero matches up to three total attempts by default. Reserve one-second gaps between attempts, then divide the remaining action timeout as evenly as possible among the locator waits; a 30-second timeout gives about 9.3 seconds per wait.
@@ -21,7 +21,7 @@
 - [x] Keep action inputs literal for M4; define variable references in M5. Preserve CLI-over-plan precedence while deferring exact CLI flags to CLI implementation.
 - [x] Use standard HTML label associations for optional soft label checks; fail softly when none is associated or multiple labels make the match ambiguous. Accessibility scans run after completed steps, including failed assertions when the browser remains usable.
 - [x] Default axe scanning to disabled and `failOnViolation` to false; plan settings can be overridden by case settings. M6 defines outcome and continuation policy.
-- [x] Add browser-default annotations, locale and time-zone checks, and locator-shape validation to `@stagehand/plan-schema`; the package build and all 24 tests passed in the dev container.
+- [x] Add browser-default annotations, locale and time-zone checks, and locator-shape validation to `@stagehand/plan-schema`; public-entry tests cover these rules.
 - [x] Set the delay between locator retries to one second, with up to three total attempts by default. The action timeout includes those gaps and is divided across the waits; an expired budget prevents another attempt.
 - [x] Give each assertion an `expected` object with a required `default` and optional BCP 47 keyed `locales` overrides; use the default when no override exists for the run locale.
 - [x] Make an optional associated-label check fail softly when multiple labels make the association ambiguous.
@@ -37,6 +37,11 @@
 - [x] Add public-entry tests for the supported actions, assertions, waits, locale overrides, timeout/delay constraints, and accessibility settings.
 - [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 31 tests passed in the dev container.
 - [x] Update the Phase 1 and package learning guides to reflect the implemented schema boundary.
+- [x] Implement the initial browser lifecycle in [`@stagehand/runner-core` under TE-003](../Backlog/technical-enablers/te-003-playwright-browser-lifecycle-and-factory.md): one Playwright-managed Chromium process per run and one isolated browser context/page per case. Apply run-wide locale/headless defaults and case-overridable viewport/time-zone settings; wait for in-flight case setup before browser shutdown, reject sessions whose setup finishes after shutdown starts, and make concurrent run cleanup calls await the same promise.
+- [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
+- [x] Build and run the runner-core public-entry tests and plan-schema tests in the dev container; all 7 runner-core tests and all 31 plan-schema tests passed.
+- [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
+- [ ] Confirm the GitHub Actions Linux and Windows jobs pass.
 
 ## Completion evidence
 
@@ -46,6 +51,8 @@
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, and coordinates in-flight setup with idempotent run cleanup. Its seven public-entry tests pass in the dev container.
+- The plan-schema suite passes all 31 tests in the dev container after headless mode was restricted to plan/run scope. GitHub Actions checks are configured and awaiting the PR run.
 
 ## Learning reference
 

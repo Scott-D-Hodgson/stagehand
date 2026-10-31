@@ -32,7 +32,7 @@ The current case schema validates the initial action and assertion formats, incl
 
 Browser settings in both plan defaults and case overrides accept only the type identifier `chromium`, representing Playwright-managed Chromium. Other browser types are rejected; later browser support will require an intentional schema update.
 
-The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Locale is run-wide, so a case cannot override it. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation; the runner still needs to resolve effective settings and confirm browser launch succeeds.
+The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Headless mode and locale are run-wide, so a case cannot override them; case settings may override the viewport and time zone. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation. `runner-core` applies these browser defaults when creating the run and case sessions; accessibility settings are not yet applied by the browser lifecycle.
 
 Accessibility configuration is optional and can be set in plan defaults or case settings. When present, omitted `enabled` and `failOnViolation` values default to `false`; a case can override the plan's values. These schema defaults also remain annotations until a consumer calculates effective settings.
 

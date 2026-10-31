@@ -293,7 +293,6 @@
       "additionalProperties": false,
       "properties": {
         "type": { "const": "chromium", "default": "chromium" },
-        "headless": { "type": "boolean", "default": true },
         "viewport": {
           "type": "object",
           "additionalProperties": false,

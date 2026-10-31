@@ -1,6 +1,6 @@
 # Security documentation guidance
 
-These files are an initial engineering planning assessment for Stagehand, not an authorization, certification, or claim of compliance. The runner, CLI, and editor are not implemented; describe Stagehand mappings as planned and unverified unless implementation evidence is provided.
+These files are an initial engineering planning assessment for Stagehand, not an authorization, certification, or claim of compliance. `runner-core` has an initial browser lifecycle, but that implementation has not been assessed here; plan-step execution, CLI, and editor behaviour are not implemented. Describe each control mapping as planned or unverified unless evidence for that specific control and deployment has been reviewed.
 
 - The folder uses the ITSG-33 Annex 3A control-family taxonomy because that is the requested structure. Its README notes that Annex 3A has been superseded by ITSP.10.033; preserve that currency warning and do not imply the catalogues are interchangeable.
 - Use official Cyber Centre sources for control statements and supplemental guidance. Link to the source and clearly separate control requirements from supplemental guidance, plain-language explanation, and Stagehand mapping. Paraphrase; do not fabricate text or present a paraphrase as a quotation.

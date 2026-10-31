@@ -47,6 +47,9 @@ jobs:
       - name: Test result-model package
         run: npm test --workspace @stagehand/result-model
 
+      - name: Test runner-core package
+        run: npm test --workspace @stagehand/runner-core
+
       - name: Validate Dev Container configuration
         run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
 
@@ -78,3 +81,6 @@ jobs:
 
       - name: Test plan-engine package
         run: npm test --workspace @stagehand/plan-engine
+
+      - name: Test runner-core package
+        run: npm test --workspace @stagehand/runner-core
