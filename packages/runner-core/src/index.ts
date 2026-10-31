@@ -4,6 +4,7 @@ import {
   type BrowserContext,
   type Locator,
   type Page,
+  type Response,
 } from "playwright";
 
 export interface Viewport {
@@ -33,6 +34,7 @@ export interface CaseBrowserSession {
     options?: LocatorResolutionOptions,
   ): Promise<Locator>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
+  navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
   close(): Promise<void>;
 }
 
@@ -51,6 +53,13 @@ export type WaitDefinition =
   | { waitForState: "domcontentloaded" | "networkidle"; timeout?: number }
   | { delay: number; timeout?: number };
 
+export type NavigationWaitUntil = "domcontentloaded" | "networkidle";
+
+export interface NavigationOptions {
+  timeout?: number;
+  waitUntil?: NavigationWaitUntil;
+}
+
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
   close(): Promise<void>;
@@ -59,6 +68,7 @@ export interface BrowserRun {
 const DEFAULT_VIEWPORT: Viewport = { width: 1280, height: 720 };
 const DEFAULT_LOCATOR_TIMEOUT = 30_000;
 const DEFAULT_WAIT_TIMEOUT = 30_000;
+const DEFAULT_NAVIGATION_TIMEOUT = 30_000;
 const LOCATOR_RETRY_DELAY = 1_000;
 const MAX_LOCATOR_ATTEMPTS = 3;
 
@@ -233,6 +243,40 @@ async function executeWaitList(
   }
 }
 
+function validateNavigationUrl(url: string): void {
+  if (typeof url !== "string" || !/^https?:\/\//i.test(url)) {
+    throw new TypeError("Navigation URL must be an absolute HTTP or HTTPS URL with a host.");
+  }
+  try {
+    const parsedUrl = new URL(url);
+    if (
+      (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") ||
+      parsedUrl.hostname.length === 0
+    ) {
+      throw new TypeError("Navigation URL must be an absolute HTTP or HTTPS URL with a host.");
+    }
+  } catch {
+    throw new TypeError("Navigation URL must be an absolute HTTP or HTTPS URL with a host.");
+  }
+}
+
+async function executeNavigation(
+  page: Page,
+  url: string,
+  options: NavigationOptions,
+): Promise<Response | null> {
+  validateNavigationUrl(url);
+  const timeout = options.timeout ?? DEFAULT_NAVIGATION_TIMEOUT;
+  if (!Number.isInteger(timeout) || timeout < 1) {
+    throw new RangeError("Navigation timeout must be a positive integer in milliseconds.");
+  }
+  const waitUntil = options.waitUntil ?? "domcontentloaded";
+  if (waitUntil !== "domcontentloaded" && waitUntil !== "networkidle") {
+    throw new RangeError("Navigation waitUntil must be domcontentloaded or networkidle.");
+  }
+  return page.goto(url, { timeout, waitUntil });
+}
+
 export async function startBrowserRun(
   settings: BrowserRunSettings = {},
 ): Promise<BrowserRun> {
@@ -272,6 +316,9 @@ export async function startBrowserRun(
         },
         async runWaitList(waits) {
           await executeWaitList(page, waits);
+        },
+        async navigate(url, options = {}) {
+          return executeNavigation(page, url, options);
         },
         close() {
           if (sessionClosePromise) {
