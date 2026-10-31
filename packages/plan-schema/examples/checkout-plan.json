@@ -13,7 +13,8 @@
       "timeZone": "America/Toronto"
     },
     "accessibility": {
-      "enabled": true
+      "enabled": true,
+      "tags": ["wcag2a", "wcag2aa"]
     }
   },
   "variables": {

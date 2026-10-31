@@ -83,13 +83,16 @@ Keep violations separate from functional assertions. A rejected scan is an execu
 
 ### Accepted scan-scope option
 
-A run requesting axe assessment must also offer an optional rule-tag list. A non-empty list limits the scan to rules matching any selected tag. Omitted or empty tags mean no tag restriction: use axe's native defaults and report the resulting findings. Do not interpret this as enabling every experimental/disabled rule or adding passed/inapplicable results to Stagehand's violation findings.
+A run requesting axe assessment must also offer an optional rule-tag list. A non-empty list limits the scan to rules matching any selected tag. At plan scope, omitted or empty tags mean no tag restriction: use axe's native defaults and report the resulting findings. Cases inherit the plan list when tags are omitted; an explicit empty case list clears the filter, and a non-empty case list replaces the plan list. Do not interpret this as enabling every experimental/disabled rule or adding passed/inapplicable results to Stagehand's violation findings.
 
-The scanner should apply a non-empty list through `AxeBuilder.withTags(...)`; for an omitted or empty list, leave tag filtering unset. This is scan configuration, distinct from retaining each finding's rule `tags`. The JSON option spelling, validation of unknown tags, and any case-level tag override remain M4 configuration follow-through. Exact CLI flag names remain deferred to CLI implementation. Record the effective filter in results so reviewers can interpret assessment scope; its exact result shape belongs to the result-model extension.
+The scanner should apply a non-empty list through `AxeBuilder.withTags(...)`; for an omitted or empty list, leave tag filtering unset. This is scan configuration, distinct from retaining each finding's rule `tags`. The owner accepted `accessibility.tags`, case list replacement/inheritance, explicit-empty clearing, and rejection of unknown tags. The plan and case schemas now validate unique, exact tag strings against the axe-core 4.14.0 inventory; malformed values and unknown tags fail before scanning. Validation preserves input and does not apply inheritance. Exact CLI flag names remain deferred to CLI implementation. Record the effective filter in results so reviewers can interpret assessment scope; its exact result shape belongs to the result-model extension.
 
 - [x] Agree to an optional companion run-level tag filter, defaulting to axe's unrestricted default rule selection when no tags are specified.
-- [ ] Extend configuration schemas/examples/validation for the tag option and define effective filter representation.
+- [x] Extend configuration schemas/examples/validation for `accessibility.tags`; plan-schema builds and all 39 tests pass locally on Windows. The dependent plan-engine build/check passes with 14 tests passing and 3 Windows symlink tests skipped. Dev-container and CI results are not yet established for this slice.
+- [ ] Define the effective filter representation in the result-model extension.
 - [ ] Test scanner behaviour for a selected tag, multiple tags, omitted tags, and an empty list; verify filtering controls the scan, not just its output.
+
+Future upstream release/tag discovery, deterministic catalogue refresh, and checks for drift against the pinned engine are tracked separately under [TE-022](te-022-axe-tag-catalogue-update-detection.md). That maintenance mechanism is proposed and does not block this schema slice.
 
 See [axe tag filtering](https://github.com/dequelabs/axe-core-npm/blob/v4.14.0/packages/playwright/README.md#axebuilderwithtagstags-stringarray) and [axe default rule selection](https://github.com/dequelabs/axe-core/blob/v4.14.0/doc/API.md#options-parameter).
 

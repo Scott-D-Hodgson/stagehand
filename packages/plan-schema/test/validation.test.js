@@ -477,3 +477,73 @@ test("requires one parsed case for each plan reference", () => {
     ),
   );
 });
+
+test("accepts known axe tags, empty lists, and omitted lists at plan and case scope", () => {
+  for (const tags of [undefined, [], ["wcag2a"], ["wcag2a", "wcag2aa"], ["ACT", "cat.forms", "experimental"]]) {
+    const accessibility = tags === undefined ? { enabled: true } : { enabled: true, tags };
+    const plan = { ...planWithReferences("case.json"), defaults: { accessibility } };
+    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility }, steps: [] };
+    assert.deepEqual(validatePlan(plan), { valid: true });
+    assert.deepEqual(validateCase(exampleCase), { valid: true });
+  }
+});
+
+test("rejects unknown and incorrectly cased axe tags at the offending array item", () => {
+  for (const tag of ["wcag2aaa-typo", "WCAG2A", "wcag2a ", "", "not-a-real-tag"]) {
+    const plan = { ...planWithReferences(), defaults: { accessibility: { tags: ["wcag2a", tag] } } };
+    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { tags: ["wcag2a", tag] } }, steps: [] };
+    const planResult = validatePlan(plan);
+    const caseResult = validateCase(exampleCase);
+    assert.equal(planResult.valid, false);
+    assert.equal(caseResult.valid, false);
+    assert.ok(planResult.issues.some((issue) => issue.path === "/defaults/accessibility/tags/1" && issue.keyword === "enum"));
+    assert.ok(caseResult.issues.some((issue) => issue.path === "/settings/accessibility/tags/1" && issue.keyword === "enum"));
+  }
+});
+
+test("rejects non-array tag configuration and non-string tag entries", () => {
+  for (const tags of [null, "wcag2a", {}, 3, [null], [3], [{}]]) {
+    const plan = { ...planWithReferences(), defaults: { accessibility: { tags } } };
+    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { tags } }, steps: [] };
+    assert.equal(validatePlan(plan).valid, false);
+    assert.equal(validateCase(exampleCase).valid, false);
+  }
+});
+
+test("rejects repeated tags in either configuration scope", () => {
+  const accessibility = { tags: ["wcag2a", "wcag2a"] };
+  const planResult = validatePlan({ ...planWithReferences(), defaults: { accessibility } });
+  const caseResult = validateCase({ schemaVersion: 1, id: "tag-test", settings: { accessibility }, steps: [] });
+  assert.equal(planResult.valid, false);
+  assert.equal(caseResult.valid, false);
+  assert.ok(planResult.issues.some((issue) => issue.keyword === "uniqueItems"));
+  assert.ok(caseResult.issues.some((issue) => issue.keyword === "uniqueItems"));
+});
+
+test("preserves omitted, replacement, and clearing case tag lists without applying inheritance", () => {
+  for (const settings of [undefined, { accessibility: {} }, { accessibility: { tags: ["cat.forms"] } }, { accessibility: { tags: [] } }]) {
+    const plan = { ...planWithReferences("case.json"), defaults: { accessibility: { enabled: true, tags: ["wcag2a", "wcag2aa"] } } };
+    const exampleCase = { schemaVersion: 1, id: "tag-test", steps: [], ...(settings === undefined ? {} : { settings }) };
+    const original = structuredClone({ plan, exampleCase });
+    assert.deepEqual(validatePlanBundle(plan, [exampleCase]), { valid: true });
+    assert.deepEqual({ plan, exampleCase }, original);
+  }
+  assert.equal("default" in planSchemaV1.$defs.accessibilitySettings.properties.tags, false);
+  assert.equal("default" in caseSchemaV1.$defs.accessibilitySettings.properties.tags, false);
+});
+
+test("reports unknown case tags through bundle validation with the case-file path", () => {
+  const plan = { ...planWithReferences("case.json"), defaults: { accessibility: { tags: ["wcag2a"] } } };
+  const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { enabled: false, tags: ["misspelled-tag"] } }, steps: [] };
+  const result = validatePlanBundle(plan, [exampleCase]);
+  assert.equal(result.valid, false);
+  assert.ok(result.issues.some((issue) => issue.path === "/caseFiles/0/settings/accessibility/tags/0" && issue.keyword === "enum"));
+});
+
+test("publishes matching standalone axe 4.14.0 tag inventories", () => {
+  assert.deepEqual(planSchemaV1.$defs.axeTag, caseSchemaV1.$defs.axeTag);
+  assert.ok(planSchemaV1.$defs.axeTag.enum.includes("wcag2a"));
+  assert.ok(planSchemaV1.$defs.axeTag.enum.includes("experimental"));
+  assert.ok(planSchemaV1.$defs.axeTag.enum.includes("ACT"));
+  assert.equal(new Set(planSchemaV1.$defs.axeTag.enum).size, planSchemaV1.$defs.axeTag.enum.length);
+});

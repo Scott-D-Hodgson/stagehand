@@ -76,7 +76,29 @@ Plan defaults are inherited by cases. A case may override its viewport, time zon
 
 The initial browser type is `chromium`, representing Playwright-managed Chromium. Other browser types are rejected by the plan and case schemas until support is added. The agreed defaults are headless mode, a 1280 by 720 CSS-pixel viewport, the `UTC` time zone, and the run-wide `en-CA` locale. Headless mode and locale cannot be overridden by a case. Accessibility scanning and failing on violations are both disabled by default; plan settings can be overridden by case settings. The schemas publish these defaults as annotations but do not insert them into validated input. Applying effective defaults belongs to runner/editor consumers.
 
-A companion optional run-level axe rule-tag filter is an accepted requirement but is not yet supported by these schemas. Non-empty tags will scope the assessment; omitted or empty tags will use axe's default rule selection without a tag restriction. Exact option spelling and override rules remain follow-through under [TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option). Existing schema validation rejects unknown fields; do not add a tag property to a current plan and assume it is supported.
+The schemas accept optional `defaults.accessibility.tags` on plans and `settings.accessibility.tags` on cases. Values are arrays of unique, case-sensitive tag strings from the pinned axe-core 4.14.0 catalogue; unknown tags, duplicates, wrong types, whitespace changes, and incorrectly cased tags are rejected. Validation leaves the input unchanged and does not enable scanning or apply settings inheritance.
+
+| Case tag value | Agreed effective scope for future execution |
+| --- | --- |
+| Omitted, including an omitted accessibility/settings object | Inherit the plan list. If the plan also omits tags, use axe defaults without tag restriction. |
+| `[]` | Replace the plan list with no tag restriction, using axe defaults. |
+| Non-empty list | Replace the whole plan list; assess rules matching any selected tag. |
+
+At plan scope, omitted tags or `[]` mean axe defaults without a tag filter. This does not force-enable experimental/disabled rules. Tag configuration is independent of `enabled` and `failOnViolation`, and different from the rule `tags` on findings. Exact CLI flags and scanner application remain future work under [TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
+
+The [checkout plan](examples/checkout-plan.json) selects `wcag2a` and `wcag2aa`. Its sign-in case omits tags (inheritance), while the [action example](examples/cases/action-contract.json) explicitly supplies `[]` (clearing). Both cases still disable scanning. The two standalone schemas each contain the same `$defs.axeTag` inventory, collected from axe-core 4.14.0 `getRules()`, including tags on disabled rules. When upgrading the pinned engine, refresh both inventories and review the accepted tag set. Plan-schema does not load axe or Playwright at runtime.
+
+The build and all 39 plan-schema tests passed locally on Windows after this addition. Plan-engine's dependent build/check passed with 14 tests passing and 3 symlink tests skipped because this Windows environment cannot create their links. Dev-container and CI verification of this slice remain outstanding.
+
+For manual inspection after installing the workspace dependencies, run this from the repository root using the installed engine:
+
+```sh
+node --input-type=module -e "import axe from 'axe-core'; console.log(axe.version); console.log(JSON.stringify([...new Set(axe.getRules().flatMap(rule => rule.tags))].sort(), null, 2));"
+```
+
+Review that version and sorted inventory against both schemas' `$defs.axeTag.enum` and their version comments. This command inspects the installed engine; it does not discover newer releases or regenerate files. Existing tests check that the two schema inventories agree, while their agreement with all 147 installed-engine tags was checked separately for this slice. That one-off comparison is not a persistent drift-monitoring check.
+
+An upstream tag-update notification and catalogue-synchronisation mechanism is proposed under [TE-022](../../Planning/Backlog/technical-enablers/te-022-axe-tag-catalogue-update-detection.md). Until implemented, engine upgrades still require the manual inventory review/refresh described above.
 
 The case schema validates the initial actions (`navigate`, `click`, `type`, `fill`, `selectOption`) and assertions (`assertText`, `assertHtml`, `assertValue`), their required fields, locator shape, bounded wait-list item shape, timeout/delay values, and absolute HTTP/HTTPS navigation URLs. Relative navigation URLs are not supported because there is no `baseURL` setting; adding relative URL support is deferred for future consideration. Runtime checks parse navigation URLs and require a host, and canonicalize expected-value locale keys while rejecting invalid or duplicate-equivalent keys. Validation does not execute actions, determine whether a locator matches a page, apply retries, or guarantee that the plan is ready to run. The matcher does not read or parse case files or enforce canonical filesystem containment. `validatePlanBundle` checks parsed case schemas and duplicate case IDs, but not variable values or execution readiness. The Node-side `plan-engine` package handles loading and filesystem containment; remaining execution checks belong to later implementation milestones.
 

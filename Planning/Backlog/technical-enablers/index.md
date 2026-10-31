@@ -23,3 +23,4 @@
 | [TE-019](te-019-production-target-identification-and-warning.md) | Define production-target identification and warnings | ATR-025 |
 | [TE-020](te-020-direct-filesystem-access-for-editor.md) | Add direct filesystem access to the editor | ATR-029 |
 | [TE-021](te-021-automated-pr-review-policy-check.md) | Automate the PR review policy check | M0 |
+| [TE-022](te-022-axe-tag-catalogue-update-detection.md) | Detect axe tag-catalogue updates and schema drift | ATR-004, ATR-019 |

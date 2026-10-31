@@ -23,7 +23,7 @@ The planned Stagehand MVP will emit JSON only and retain it as an Azure DevOps p
 
 In the planned runner, an enabled axe scan will run after each completed step. Findings will stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. The planned result extension will include the page URL, selected affected-node details, and the case's effective `enabled`, `failOnViolation`, and scan-tag scope. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
 
-The accepted scan configuration includes an optional companion run-level rule-tag list. Selected tags narrow the assessment; omitted or empty tags use axe's default rule selection without a tag restriction. The input filter and the rule `tags` retained on findings have different roles. Preserve the effective filter in the planned results so readers know what was assessed. The adapter dependency is installed, but the configuration option, result-schema extension, and scanner remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
+The accepted scan configuration includes an optional companion run-level rule-tag list. Selected plan tags narrow the assessment; omitted or empty plan tags use axe's default rule selection without a tag restriction. Cases inherit omitted tags; explicit case lists replace the plan list, with `[]` clearing the filter. The input filter and the rule `tags` retained on findings have different roles. Preserve the effective filter in the planned results so readers know what was assessed. The adapter dependency is installed, and the `accessibility.tags` configuration shape and unknown-tag validation are now implemented in plan-schema. Effective settings resolution, the result-schema extension, and scanning remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
 
 Automated accessibility checks catch only issues that their rules can detect. They do not establish full conformance and do not replace manual review with assistive technology or keyboard use. Keep this limitation visible in the result and documentation.
 
@@ -68,6 +68,6 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 3. The new markup is added to the existing URL and violation finding.
 4. No. They are recorded but non-failing by default; plan/case configuration may make them fail.
 5. JUnit conversion, HTML reports, and screenshots.
-6. The input list controls which rules are assessed; finding tags describe a reported rule. An empty or omitted input list applies no tag restriction and preserves axe's default rule selection.
+6. The input list controls which rules are assessed; finding tags describe a reported rule. An empty input list applies no tag restriction and preserves axe's default rule selection; an omitted case list first inherits from the plan.
 
 </details>
