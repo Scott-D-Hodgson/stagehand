@@ -21,21 +21,21 @@ A result is a durable record of what a run did and observed. A human needs clear
 
 The planned Stagehand MVP will emit JSON only and retain it as an Azure DevOps pipeline artifact; publishing individual tests into the Azure DevOps Test Results view is outside that MVP integration. Result validation exists, but full result production and pipeline integration remain future work. JUnit-compatible XML, HTML reports, and screenshots are deferred. Do not add those formats to the MVP just because they are familiar.
 
-In the planned runner, an enabled axe scan will run after each completed step. Findings will stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. The planned result extension will include the page URL, selected affected-node details, and the case's effective `enabled`, `failOnViolation`, and scan-tag scope. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
+In the planned runner, an enabled axe scan will run after each completed step. Findings will stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. The implemented result-schema extension represents the page URL, selected affected-node details, and each case's required effective `enabled`, `failOnViolation`, and resolved `tags`. It validates this evidence without running scans or collecting findings. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
 
-The accepted scan configuration includes an optional companion run-level rule-tag list. Selected plan tags narrow the assessment; omitted or empty plan tags use axe's default rule selection without a tag restriction. Cases inherit omitted tags; explicit case lists replace the plan list, with `[]` clearing the filter. The input filter and the rule `tags` retained on findings have different roles. Preserve the effective filter in the planned results so readers know what was assessed. The adapter dependency is installed, and the `accessibility.tags` configuration shape and unknown-tag validation are now implemented in plan-schema. Effective settings resolution, the result-schema extension, and scanning remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
+The accepted scan configuration includes an optional companion run-level rule-tag list. Selected plan tags narrow the assessment; omitted or empty plan tags use axe's default rule selection without a tag restriction. Cases inherit omitted tags; explicit case lists replace the plan list, with `[]` clearing the filter. The input filter and the rule `tags` retained on findings have different roles. The result schema requires the effective filter even when a case has no findings, so future producers must record scope separately from observations. The adapter dependency is installed, and the `accessibility.tags` configuration shape and unknown-tag validation are now implemented in plan-schema. The result-schema extension is implemented; effective settings resolution, scanning, and result production remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
 
 Automated accessibility checks catch only issues that their rules can detect. They do not establish full conformance and do not replace manual review with assistive technology or keyboard use. Keep this limitation visible in the result and documentation.
 
 ## Apply this to Stagehand
 
-Use stable run and case IDs while keeping localized names and descriptions as display data. A step is identified by its case ID and zero-based position in the case's step array; authors do not assign step IDs. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and affected-node evidence so per-case deduplication and later review are possible.
+Use the source plan identity and case IDs while keeping localized names and descriptions as display data. The current result schema has a run object with timing/outcome data, but no separate run-ID field. A step is identified by its case ID and zero-based position in the case's step array; authors do not assign step IDs. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and affected-node evidence so per-case deduplication and later review are possible.
 
 Define the relationship between case statuses and overall run status consistently. A non-failing accessibility finding should still be visible in JSON. If configuration makes findings fail the case, retain the finding and identify the configured policy that changed status.
 
 ## Exercise
 
-Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Show which observations deduplicate and what the accumulated JSON finding should contain. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure. Contrast a tag-restricted assessment with the default assessment and show how their effective scope should be identifiable in the planned result.
+Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Sketch which observations a future collector should deduplicate and what the accumulated JSON finding should contain; validate the hand-authored result shape without treating that as executed collection. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure. Contrast a tag-restricted assessment with the default assessment and show how their effective scope is represented by the required case accessibility settings. Keep the hand-authored example distinct from a generated execution result.
 
 ## You are ready when
 
@@ -59,6 +59,7 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 4. Do axe findings fail the case by default?
 5. What is outside the MVP result formats?
 6. How does a configured scan-tag list differ from the tags on a finding, and what happens when the configured list is empty?
+7. Can a structurally valid result prove that a producer applied failOnViolation or calculated the affected-node count correctly?
 
 <details>
 <summary>Answer key</summary>
@@ -69,5 +70,6 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 4. No. They are recorded but non-failing by default; plan/case configuration may make them fail.
 5. JUnit conversion, HTML reports, and screenshots.
 6. The input list controls which rules are assessed; finding tags describe a reported rule. An empty input list applies no tag restriction and preserves axe's default rule selection; an omitted case list first inherits from the plan.
+7. No. The result validator checks structure and formats. Node count consistency is a producer responsibility; applying failure policy and case/run outcomes remains execution/M6 work.
 
 </details>

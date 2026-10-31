@@ -45,13 +45,38 @@ export interface ResultStep {
   artifacts?: ResultArtifact[];
 }
 
+export type ResultAccessibilityImpact = "minor" | "moderate" | "serious" | "critical" | null;
+
+export type ResultAccessibilityTarget = Array<string | [string, string, ...string[]]>;
+
+export interface ResultAccessibilityRelatedNode {
+  html: string;
+  target: ResultAccessibilityTarget;
+  xpath?: string[];
+}
+
+export interface ResultAccessibilityNode extends ResultAccessibilityRelatedNode {
+  failureSummary?: string;
+  impact?: ResultAccessibilityImpact;
+  relatedNodes: ResultAccessibilityRelatedNode[];
+}
+
 export interface ResultAccessibilityFinding {
+  url: string;
   ruleId: string;
-  impact: "minor" | "moderate" | "serious" | "critical";
+  impact: ResultAccessibilityImpact;
   description: string;
   help: string;
   helpUrl: string;
   affectedNodeCount: number;
+  tags: string[];
+  affectedNodes: ResultAccessibilityNode[];
+}
+
+export interface ResultAccessibilitySettings {
+  enabled: boolean;
+  failOnViolation: boolean;
+  tags: string[];
 }
 
 export interface ResultEffectiveSettings {
@@ -62,7 +87,7 @@ export interface ResultEffectiveSettings {
     viewport?: { width: number; height: number };
     timeZone?: string;
   };
-  accessibility?: { enabled: boolean };
+  accessibility: ResultAccessibilitySettings;
 }
 
 export interface ResultCase {

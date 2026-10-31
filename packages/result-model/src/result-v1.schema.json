@@ -123,6 +123,7 @@
     "effectiveSettings": {
       "type": "object",
       "additionalProperties": false,
+      "required": ["accessibility"],
       "properties": {
         "locale": { "type": "string", "minLength": 1 },
         "browser": { "$ref": "#/$defs/browserSettings" },
@@ -150,9 +151,14 @@
     "accessibilitySettings": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["enabled"],
+      "required": ["enabled", "failOnViolation", "tags"],
       "properties": {
-        "enabled": { "type": "boolean" }
+        "enabled": { "type": "boolean" },
+        "failOnViolation": { "type": "boolean" },
+        "tags": {
+          "$ref": "#/$defs/accessibilityTags",
+          "description": "Effective scan-tag filter after inheritance and overrides. An empty list means axe defaults without a tag restriction, not scanning disabled."
+        }
       }
     },
     "stepResult": {
@@ -216,18 +222,126 @@
         "description",
         "help",
         "helpUrl",
-        "affectedNodeCount"
+        "affectedNodeCount",
+        "url",
+        "tags",
+        "affectedNodes"
       ],
       "properties": {
         "ruleId": { "type": "string", "minLength": 1 },
-        "impact": {
-          "type": "string",
-          "enum": ["minor", "moderate", "serious", "critical"]
-        },
+        "impact": { "$ref": "#/$defs/accessibilityImpact" },
         "description": { "type": "string", "minLength": 1 },
         "help": { "type": "string", "minLength": 1 },
         "helpUrl": { "type": "string", "format": "uri" },
-        "affectedNodeCount": { "type": "integer", "minimum": 0 }
+        "affectedNodeCount": { "type": "integer", "minimum": 0 },
+        "url": { "type": "string", "format": "uri" },
+        "tags": { "$ref": "#/$defs/accessibilityTags" },
+        "affectedNodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/accessibilityNode" }
+        }
+      }
+    },
+    "accessibilityImpact": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "enum": [
+        "minor",
+        "moderate",
+        "serious",
+        "critical",
+        null
+      ]
+    },
+    "accessibilityTags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "Recorded tags are not restricted to the current engine catalogue so results from different engine versions remain readable."
+    },
+    "accessibilityTarget": {
+      "type": "array",
+      "description": "Axe target segments across frames; a nested array of at least two strings preserves a shadow-DOM path. An empty target preserves unavailable upstream selector information.",
+      "items": {
+        "oneOf": [
+          {
+            "type": "string",
+            "minLength": 1
+          },
+          {
+            "type": "array",
+            "minItems": 2,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        ]
+      }
+    },
+    "accessibilityXPath": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "accessibilityRelatedNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "html",
+        "target"
+      ],
+      "properties": {
+        "html": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/accessibilityTarget"
+        },
+        "xpath": {
+          "$ref": "#/$defs/accessibilityXPath"
+        }
+      }
+    },
+    "accessibilityNode": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "html",
+        "target",
+        "relatedNodes"
+      ],
+      "properties": {
+        "html": {
+          "type": "string"
+        },
+        "target": {
+          "$ref": "#/$defs/accessibilityTarget"
+        },
+        "failureSummary": {
+          "type": "string"
+        },
+        "impact": {
+          "$ref": "#/$defs/accessibilityImpact"
+        },
+        "xpath": {
+          "$ref": "#/$defs/accessibilityXPath"
+        },
+        "relatedNodes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/accessibilityRelatedNode"
+          },
+          "description": "Flattened related elements from axe any/all/none checks. Exact html/target/optional-xpath duplicates are retained once; different targets or XPath values remain distinct."
+        }
       }
     },
     "artifact": {

@@ -40,7 +40,12 @@
           "timeZone": "America/Toronto"
         },
         "accessibility": {
-          "enabled": true
+          "enabled": true,
+          "failOnViolation": false,
+          "tags": [
+            "wcag2a",
+            "wcag2aa"
+          ]
         }
       },
       "steps": [
@@ -67,7 +72,56 @@
         }
       ],
       "diagnostics": [],
-      "accessibilityFindings": []
+      "accessibilityFindings": [
+        {
+          "url": "https://example.test/sign-in",
+          "ruleId": "label",
+          "impact": "critical",
+          "description": "Synthetic finding: a form control has no associated label.",
+          "help": "Associate the label with its control.",
+          "helpUrl": "https://example.test/accessibility/label",
+          "tags": [
+            "wcag2a",
+            "wcag412",
+            "cat.forms"
+          ],
+          "affectedNodeCount": 1,
+          "affectedNodes": [
+            {
+              "html": "<input id=\"email\">",
+              "target": [
+                "iframe#sign-in",
+                [
+                  "profile-form",
+                  "#email"
+                ]
+              ],
+              "failureSummary": "Synthetic evidence: the visible label references another control.",
+              "impact": "critical",
+              "xpath": [
+                "/html/body/iframe",
+                "/html/body/profile-form/input"
+              ],
+              "relatedNodes": [
+                {
+                  "html": "<label for=\"other\">Email</label>",
+                  "target": [
+                    "iframe#sign-in",
+                    [
+                      "profile-form",
+                      "label"
+                    ]
+                  ],
+                  "xpath": [
+                    "/html/body/iframe",
+                    "/html/body/profile-form/label"
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
     }
   ]
 }
