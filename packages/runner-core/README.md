@@ -10,6 +10,6 @@ Build and test from the repository root:
 npm test --workspace @stagehand/runner-core
 ```
 
-The tests import the public package name and replace the Playwright launch method with small test doubles, so they do not require a downloaded browser. Current dispatcher tests cover ordered `navigate`/`click` execution, their wait lists, scrolling, and failure context. Public-entry tests for `type` are still outstanding.
+The tests import the public package name and replace the Playwright launch method with small test doubles, so they do not require a downloaded browser. Dispatcher tests cover ordered `navigate`/`click`/`type` execution, interaction wait lists, scrolling, timeout handling, failure context, and the no-scroll viewport rule. All 37 runner-core tests passed in the dev container.
 
 Playwright and its `playwright-core` dependency use Apache-2.0, not MIT. Their licence text and notices are recorded in the repository's [third-party notices](../../THIRD-PARTY-NOTICES.md), where this non-MIT dependency remains flagged for maintainer review.

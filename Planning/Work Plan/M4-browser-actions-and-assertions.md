@@ -49,7 +49,8 @@
 - [x] Add a public-entry test confirming `scrollIntoView: false` is passed through to the click operation.
 - [x] Rerun the runner-core suite with the step-level scrolling test; all 33 tests passed in the dev container.
 - [x] Add the initial `type` step handler using Playwright's sequential character input, shared locator/action timeout, ordered waits, and scroll option.
-- [ ] Add public-entry tests for typing, timeout handling, and the no-scroll viewport check; then build and run the runner-core suite.
+- [x] Add public-entry tests for typing, timeout handling, and the no-scroll viewport check.
+- [x] Build and run the expanded runner-core suite in the dev container; all 37 tests passed.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
 - [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
@@ -63,7 +64,7 @@
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, and sequential typing, and initially dispatches validated `navigate`, `click`, and `type` steps. The 33 public-entry tests passed before the type handler was added; type-specific tests and a new suite run are outstanding.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, and sequential typing, and initially dispatches validated `navigate`, `click`, and `type` steps. All 37 public-entry tests passed in the dev container, including typing, timeout handling, and the no-scroll viewport rule.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference

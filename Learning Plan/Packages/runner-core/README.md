@@ -24,7 +24,7 @@ Each call to `createCaseSession` creates a fresh browser context and page. The c
 
 Use `async`/`await` to make the order of browser setup and cleanup clear. A `finally` block still runs if case work or setup fails, so it is the right place to close a case session and the run. Shutdown also has to wait for setup that started before it, otherwise Chromium could close while a context or page is still being created.
 
-This package does not load plan files, validate plans, execute the full schema-defined action set, collect results, or apply M6 error/status policy. Its initial dispatcher handles only `navigate`, `click`, and `type` steps supplied by the caller. The caller owns using `loadPlanFile` before browser launch and closing each case session when its case completes. Public-entry tests for `type` are still outstanding.
+This package does not load plan files, validate plans, execute the full schema-defined action set, collect results, or apply M6 error/status policy. Its initial dispatcher handles only `navigate`, `click`, and `type` steps supplied by the caller. The caller owns using `loadPlanFile` before browser launch and closing each case session when its case completes. Public-entry tests cover typing, timeout handling, and the no-scroll viewport rule; all 37 runner-core tests passed in the dev container.
 
 ## Lifecycle example
 
@@ -61,7 +61,7 @@ try {
 | [`test/browser-run.test.js`](../../../packages/runner-core/test/browser-run.test.js) | Public-package tests for launch options, effective context settings, and cleanup paths. |
 | [`test/navigate.test.js`](../../../packages/runner-core/test/navigate.test.js) | Public-package tests for navigation defaults, supported overrides, URL validation, and error handling. |
 | [`test/click.test.js`](../../../packages/runner-core/test/click.test.js) | Public-package tests for unique clicks, timeout sharing, scrolling options, retry behaviour, and error handling. |
-| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, click wait lists, step-level scrolling, and failure context. Public type-step tests remain to be added. |
+| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, interaction wait lists, scrolling, typing, timeout handling, and failure context. All 37 runner-core tests passed in the dev container. |
 | [`test/locator-resolution.test.js`](../../../packages/runner-core/test/locator-resolution.test.js) | Public-package tests for supported locator forms, exact matching, retries, timeout limits, and ambiguous matches. |
 | [`test/wait-list.test.js`](../../../packages/runner-core/test/wait-list.test.js) | Public-package tests for wait ordering, locator polling, page-state timeouts, and bounded delays. |
 | [`package.json`](../../../packages/runner-core/package.json) | Public package entry point, scripts, and pinned Playwright dependency. |
@@ -76,9 +76,9 @@ From the repository root, run:
 npm test --workspace @stagehand/runner-core
 ```
 
-Before the `type` handler was added, the runner-core build and all 33 public-entry tests passed in the dev container after adding the step-level `scrollIntoView` forwarding test. The new handler still needs public-entry tests and a fresh build/test run.
+Before the type tests were added, the runner-core build and all 33 public-entry tests passed in the dev container. The expanded suite now includes typing, timeout, and viewport-check tests; the build succeeded and all 37 tests passed.
 
-Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the click tests to see how target retries, timeout sharing, scrolling, and click errors work. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Trace the dispatcher tests to see how navigation, clicks, and typing are ordered, when interaction wait lists run, whether `scrollIntoView: false` reaches the click operation, and how the first step failure is reported. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
+Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the click tests to see how target retries, timeout sharing, scrolling, and click errors work. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Trace the dispatcher tests to see how navigation, clicks, and typing are ordered, when interaction wait lists run, how the type timeout is shared, how the no-scroll viewport check works for typing, whether `scrollIntoView: false` reaches the click operation, and how the first step failure is reported. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
 
 ## You are ready when
 
