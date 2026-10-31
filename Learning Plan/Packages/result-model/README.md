@@ -9,6 +9,7 @@ Before reading, check which statements you can explain:
 - [ ] I can explain the difference between JSON Schema runtime validation and TypeScript compile-time types.
 - [ ] I can describe the `validateResult` success and failure results.
 - [ ] I can identify what this validator checks and what remains execution policy.
+- [ ] I can distinguish accepted accessibility fields from the current schema and explain scan-tag input scope versus finding tags.
 - [ ] I can run the package tests through its public entry point.
 
 ## What you will learn
@@ -22,7 +23,9 @@ Before reading, check which statements you can explain:
 
 The package owns the shared result document contract. Its public entry point exports the result v1 JSON Schema, TypeScript types, and `validateResult`. The schema is the normative contract for emitted result JSON; the TypeScript types help implementation code describe values that conform to it.
 
-M4's accessibility work will extend the v1 result shape with finding URLs, available affected-node details, and effective `enabled` and `failOnViolation` settings. Findings stay attached to their case and are deduplicated within that case, as specified in [ATR-019](../../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md). These result-shape updates are planned work, not yet present in the package schema.
+M4's accessibility work will extend the v1 result shape with finding URLs, available affected-node details, and effective `enabled` and `failOnViolation` settings plus the effective scan-tag scope. The accepted companion run-level tag filter narrows the assessment when tags are selected; omitted or empty tags leave axe's default rule selection unrestricted. This input filter is separate from the rule `tags` retained on findings. Findings stay attached to their case and are deduplicated within that case, as specified in [ATR-019](../../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md). These result-shape updates are planned work, not yet present in the package schema.
+
+The owner selected finding-level `tags` and affected-node `html`, `target`, `failureSummary`, `impact`, `xpath` when available, and `relatedNodes`. Tags describe the rule; node details describe the affected elements. Axe provides related elements inside individual checks, so retaining them requires mapping that information into Stagehand's result shape. Preserve structured selectors for frames/shadow DOM and optional related-node XPath; do not replace missing upstream details with invented values. See the [accepted field selection under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields). As an exercise, separate rule-level tags from node-level details in a synthetic finding and identify which fields may be absent. The schema, types, examples, and validation tests still need the corresponding implementation slice.
 
 The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. The `plan-engine` loader now calculates the fingerprint while loading; a future runner will include it in the emitted result. Execution aggregation policy belongs to M6.
 
@@ -44,6 +47,8 @@ Run `npm test --workspace @stagehand/result-model`. The command builds the TypeS
 
 Add a synthetic invalid result that violates one schema constraint. Test that `validateResult` returns an issue with the expected JSON Pointer path and keyword. Do not add cross-field rules such as count aggregation to this validator unless the result schema itself is deliberately changed; those rules require an M6 policy decision.
 
+For the upcoming accessibility extension, sketch a synthetic finding with rule tags, one affected node, optional XPath, and a related element. Keep the run's selected scan-tag list separate from the finding's rule tags. Explain how a node without a failure summary or severity should avoid inventing evidence. This is a design exercise: the new fields are not yet valid input to the current result schema. Map the proposed fields to schema/type/example/test changes before implementation, and leave related-node duplicate handling explicit until defined.
+
 ## You are ready when
 
 - You can explain why the JSON Schema is the runtime contract while TypeScript types support implementation code.
@@ -64,6 +69,8 @@ Add a synthetic invalid result that violates one schema constraint. Test that `v
 2. What does `validateResult` return when the input is invalid?
 3. Does a passing result-schema check prove that `caseCounts` agree with case outcomes?
 4. Does the result-model package calculate the `sha256-v1` fingerprint?
+5. Does a finding's `tags` array tell you the complete configured scope of an assessment?
+6. Are the selected affected-node fields already accepted by the current result schema?
 
 <details>
 <summary>Answer key</summary>
@@ -72,6 +79,8 @@ Add a synthetic invalid result that violates one schema constraint. Test that `v
 2. `{ valid: false, issues }`, with each issue giving a JSON Pointer path, schema keyword, and message.
 3. No. Cross-field count consistency and outcome aggregation belong to execution policy, which M6 defines.
 4. No. `plan-engine` calculates the fingerprint while loading source files; the future runner will include it in the result document.
+5. No. Finding tags describe one reported rule; the effective input filter must be recorded separately to identify assessment scope, including a run with no findings.
+6. No. Their selection is agreed, but the schema, TypeScript types, example, and tests still need the M4 extension.
 
 </details>
 
