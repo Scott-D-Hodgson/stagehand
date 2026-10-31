@@ -37,7 +37,7 @@
 ## Deferred follow-through outside M3
 
 - Connect Vue editor folder-import entries to the shared matcher in the editor implementation work; the decision to preserve relative paths and use shared matching is already recorded above.
-- Verify that the runner validates the plan and all referenced cases before browser launch, with actionable diagnostics, during [M7 integration and Phase 1 review](M7-integration-and-phase-1-review.md). `runner-core` can launch Chromium, create case sessions, and resolve case-session locators, but no plan-driven orchestration connects `loadPlanFile` to `startBrowserRun`; callers can currently start a browser without loading or validating a plan.
+- Verify that the runner validates the plan and all referenced cases before browser launch, with actionable diagnostics, during [M7 integration and Phase 1 review](M7-integration-and-phase-1-review.md). `runner-core` can launch Chromium, create case sessions, resolve case-session locators, run ordered waits, and navigate directly, but no plan-driven orchestration connects `loadPlanFile` to `startBrowserRun`; callers can currently start a browser without loading or validating a plan.
 
 ## Contract and policy ownership across M3–M6
 
