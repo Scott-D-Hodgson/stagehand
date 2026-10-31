@@ -70,10 +70,11 @@
 - [x] Implement direct and step-dispatched `assertHtml` using exact, case-sensitive inner-HTML comparison, run-locale expected-value selection, a shared timeout, and the established soft-failure behaviour.
 - [x] Add public-entry tests for `assertHtml` locale selection, exact comparison, locator failures, HTML-read timeout, hard-failure context, unsafe-error handling, and soft-failure continuation.
 - [x] Build and run the expanded runner-core suite with the `assertHtml` tests in the dev container; the build succeeded and all 62 tests passed.
-- [ ] Implement direct and step-dispatched `assertValue` with exact input-value comparison, run-locale expected-value selection, and the shared assertion timeout/failure behaviour.
-- [ ] Implement the optional associated-label check for `assertValue`; compare the label's visible text exactly and always report this check as soft.
-- [ ] Add public-entry tests for `assertValue` success, locale overrides, mismatch, timeout, associated-label success/missing/ambiguous outcomes, and hard/soft continuation.
-- [ ] Build and run the expanded runner-core suite with `assertValue` tests in the dev container.
+- [x] Implement direct and step-dispatched `assertValue` with exact input-value comparison, run-locale expected-value selection, and the shared assertion timeout/failure behaviour.
+- [x] Implement the optional associated-label check for `assertValue`; compare the label's visible text exactly and always report this check as soft.
+- [x] Add public-entry tests for `assertValue` success, locale overrides, mismatch, timeout, associated-label success/missing/ambiguous outcomes, and hard/soft continuation.
+- [x] Build and run the expanded runner-core suite with `assertValue` tests locally on Windows using the pinned Node.js/npm versions; the build succeeded and all 81 mocked-browser tests passed.
+- [ ] Verify the `assertValue` slice in the dev container; the earlier 62-test dev-container result predates this slice.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
 - [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
@@ -81,13 +82,14 @@
 
 ## Completion evidence
 
+- The `assertValue` slice builds and passes all 81 runner-core tests locally on Windows. Coverage includes exact input values, locale selection, shared timeout budgets, hard/soft failures, and optional associated-label checks. These tests mock Playwright; dev-container, real-browser, and current CI verification are not established by this run.
 - A plan author can determine valid settings and actions from the contract alone.
 - The initial action set covers URL navigation, the requested selector-based interactions, bounded optional waits/delays, and viewport handling; each option's applicability and ordering are explicit.
-- The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
+- The initial assertions cover inner text/HTML and input value comparisons, with optional associated-label checks implemented as always soft. A hard value failure stops before the label check; a soft value failure allows the label check to run within the remaining timeout.
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
-- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. The runner-core suite passed all 62 tests in the dev container, including focused tests for both `assertText` and `assertHtml`.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text and HTML assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps. The expanded suite passed all 62 tests in the dev container, including the HTML assertion tests.
+- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. The earlier 62-test dev-container run covered `assertText` and `assertHtml`; the subsequent 81-test Windows run also covers `assertValue` and its label checks.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text, HTML, and input-value assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` steps. The build and all 81 mocked-browser tests passed locally on Windows; the earlier 62-test dev-container result predates `assertValue`.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference

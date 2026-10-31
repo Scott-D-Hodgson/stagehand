@@ -6,4 +6,4 @@ These lessons prepare the developer to deliver [Roadmap Phase 3](../../Planning/
 2. [Parallel execution, timeouts, cancellation, and failures](02-concurrency-timeouts-and-failure-policy.md)
 3. [CLI configuration, secrets, and automation behaviour](03-cli-overrides-and-automation.md)
 
-Read alongside [Epic E02](../../Planning/Backlog/epics/E02-execution-engine/README.md), [Epic E04](../../Planning/Backlog/epics/E04-cli/README.md), and the versioned plan contract. The editor exists first; this phase teaches how to execute its exported plans.
+Read alongside [Epic E02](../../Planning/Backlog/epics/E02-execution-engine/README.md), [Epic E04](../../Planning/Backlog/epics/E04-cli/README.md), and the versioned plan contract. The roadmap places visual authoring before the complete runner and CLI; this phase teaches how the planned runner will execute exported plans. The editor and CLI remain unimplemented.

@@ -51,6 +51,11 @@ export interface CaseBrowserSession {
     expected: ExpectedValue,
     options?: AssertionOptions,
   ): Promise<void>;
+  assertValue(
+    locator: LocatorDefinition,
+    expected: ExpectedValue,
+    options?: ValueAssertionOptions,
+  ): Promise<AssociatedLabelFailure | undefined>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
   executeSteps(
@@ -94,6 +99,16 @@ export interface AssertionOptions {
   timeout?: number;
 }
 
+export interface ValueAssertionOptions extends AssertionOptions {
+  associatedLabel?: ExpectedValue;
+}
+
+export interface AssociatedLabelFailure {
+  expected: string;
+  actual?: string;
+  message: string;
+}
+
 export interface ExpectedValue {
   default: string;
   locales?: Record<string, string>;
@@ -102,7 +117,8 @@ export interface ExpectedValue {
 export interface SoftAssertionFailure {
   caseId: string;
   stepIndex: number;
-  action: "assertText" | "assertHtml";
+  action: "assertText" | "assertHtml" | "assertValue";
+  check?: "associatedLabel";
   expected: string;
   actual?: string;
   message: string;
@@ -185,6 +201,15 @@ export interface AssertHtmlStep {
   soft?: boolean;
 }
 
+export interface AssertValueStep {
+  action: "assertValue";
+  locator: LocatorDefinition;
+  expected: ExpectedValue;
+  associatedLabel?: ExpectedValue;
+  timeout?: number;
+  soft?: boolean;
+}
+
 export type ExecutableStep =
   | NavigateStep
   | ClickStep
@@ -192,7 +217,8 @@ export type ExecutableStep =
   | FillStep
   | SelectOptionStep
   | AssertTextStep
-  | AssertHtmlStep;
+  | AssertHtmlStep
+  | AssertValueStep;
 
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
@@ -237,8 +263,8 @@ export class StepExecutionError extends Error {
 class StringAssertionMismatchError extends Error {
   expected: string;
   actual: string;
-  constructor(action: "assertText" | "assertHtml", expected: string, actual: string) {
-    const contentType = action === "assertText" ? "text" : "HTML";
+  constructor(action: "assertText" | "assertHtml" | "assertValue", expected: string, actual: string) {
+    const contentType = action === "assertText" ? "text" : action === "assertHtml" ? "HTML" : "value";
     super(`Expected ${contentType} ${JSON.stringify(expected)} but received ${JSON.stringify(actual)}.`);
     this.name = "StringAssertionMismatchError";
     this.expected = expected;
@@ -507,7 +533,7 @@ async function executeStringAssertion(
   expected: ExpectedValue,
   locale: string,
   timeout: number | undefined,
-  action: "assertText" | "assertHtml",
+  action: "assertText" | "assertHtml" | "assertValue",
 ): Promise<void> {
   const effectiveTimeout = timeout ?? DEFAULT_LOCATOR_TIMEOUT;
   if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
@@ -518,16 +544,56 @@ async function executeStringAssertion(
   const locator = await resolveUniqueLocator(page, definition, effectiveTimeout);
   const remaining = Math.floor(deadline - performance.now());
   if (remaining < 1) {
-    throw new Error(
+    throw new errors.TimeoutError(
       `${action} exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
     );
   }
   const actualValue =
     action === "assertText"
       ? await locator.innerText({ timeout: remaining })
-      : await locator.innerHTML({ timeout: remaining });
+      : action === "assertHtml"
+        ? await locator.innerHTML({ timeout: remaining })
+        : await locator.inputValue({ timeout: remaining });
   if (actualValue !== expectedText) {
     throw new StringAssertionMismatchError(action, expectedText, actualValue);
+  }
+}
+
+async function checkAssociatedLabel(
+  page: Page,
+  definition: LocatorDefinition,
+  expected: ExpectedValue,
+  locale: string,
+  deadline: number,
+): Promise<AssociatedLabelFailure | undefined> {
+  const expectedText = resolveExpectedValue(expected, locale);
+  try {
+    const remaining = Math.floor(deadline - performance.now());
+    if (remaining < 1) {
+      throw new errors.TimeoutError("Associated-label check exceeded the assertion timeout.");
+    }
+    const texts = await createLocator(page, definition).evaluate((element) => {
+      const labels = (element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).labels;
+      return Array.from(labels ?? [], (label) => label.innerText);
+    }, undefined, { timeout: remaining });
+    if (texts.length !== 1) {
+      return {
+        expected: expectedText,
+        message: `Associated-label check found ${texts.length} labels; exactly one is required.`,
+      };
+    }
+    if (texts[0] !== expectedText) {
+      return {
+        expected: expectedText,
+        actual: texts[0]!,
+        message: `Expected associated label ${JSON.stringify(expectedText)} but received ${JSON.stringify(texts[0])}.`,
+      };
+    }
+  } catch (error) {
+    if (!(error instanceof errors.TimeoutError)) {
+      throw error;
+    }
+    return { expected: expectedText, message: error.message };
   }
 }
 
@@ -707,6 +773,8 @@ async function executeCaseSteps(
           break;
         case "assertText":
         case "assertHtml":
+        case "assertValue": {
+          const deadline = performance.now() + (step.timeout ?? DEFAULT_LOCATOR_TIMEOUT);
           try {
             await executeStringAssertion(
               page,
@@ -732,11 +800,18 @@ async function executeCaseSteps(
                 ...(error instanceof StringAssertionMismatchError ? { actual: error.actual } : {}),
                 message: error.message,
               });
-              break;
+            } else {
+              throw error;
             }
-            throw error;
+          }
+          if (step.action === "assertValue" && step.associatedLabel !== undefined) {
+            const failure = await checkAssociatedLabel(page, step.locator, step.associatedLabel, locale, deadline);
+            if (failure) {
+              softFailures.push({ caseId, stepIndex, action: step.action, check: "associatedLabel", ...failure });
+            }
           }
           break;
+        }
         default:
           throw new TypeError(
             `Action "${String((step as { action?: unknown }).action)}" is not supported by this step executor.`,
@@ -817,6 +892,14 @@ export async function startBrowserRun(
             options.timeout,
             "assertHtml",
           );
+        },
+        async assertValue(locator, expected, options = {}) {
+          const locale = settings.locale ?? "en-CA";
+          const deadline = performance.now() + (options.timeout ?? DEFAULT_LOCATOR_TIMEOUT);
+          await executeStringAssertion(page, locator, expected, locale, options.timeout, "assertValue");
+          if (options.associatedLabel !== undefined) {
+            return checkAssociatedLabel(page, locator, options.associatedLabel, locale, deadline);
+          }
         },
         async runWaitList(waits) {
           await executeWaitList(page, waits);

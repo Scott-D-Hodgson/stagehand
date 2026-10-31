@@ -1239,3 +1239,450 @@ test("does not continue after an unsafe assertHtml error marked soft", async () 
   assert.equal(navigated, false);
   await run.close();
 });
+
+test("assertValue compares exact input value for the run locale within its timeout", async () => {
+  let locatorOptions;
+  let valueOptions;
+  const locator = {
+    async waitFor(options) {
+      locatorOptions = options;
+    },
+    async count() {
+      return 1;
+    },
+    async inputValue(options) {
+      valueOptions = options;
+      return "Se connecter";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page, { locale: "fr-CA" });
+  await session.assertValue(
+    { css: "#field" },
+    { default: "Sign in", locales: { "fr-ca": "Se connecter" } },
+    { timeout: 1_000 },
+  );
+  assert.ok(locatorOptions.timeout > 0 && locatorOptions.timeout <= 1_000);
+  assert.ok(valueOptions.timeout > 0 && valueOptions.timeout <= 1_000);
+  await run.close();
+});
+
+test("dispatches a passing assertValue step and uses its default expected value", async () => {
+  let valueRead = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async inputValue() {
+      valueRead = true;
+      return "Sign in";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertValue",
+      locator: { css: "#field" },
+      expected: { default: "Sign in", locales: { "fr-CA": "Se connecter" } },
+    },
+  ]);
+  assert.equal(valueRead, true);
+  assert.deepEqual(softFailures, []);
+  await run.close();
+});
+
+test("stops on a hard assertValue mismatch with case and step context", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async inputValue() {
+      return "Welcome";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" } },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.caseId === "sign-in" &&
+      error.stepIndex === 0 &&
+      error.action === "assertValue" &&
+      error.cause.expected === "Sign in" &&
+      error.cause.actual === "Welcome" &&
+      /Expected value "Sign in" but received "Welcome"/.test(error.message),
+  );
+  assert.equal(navigated, false);
+  await run.close();
+});
+
+test("returns a soft assertValue mismatch and continues to later steps", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async inputValue() {
+      return "Welcome";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertValue",
+      locator: { css: "#field" },
+      expected: { default: "Sign in" },
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertValue",
+      expected: "Sign in",
+      actual: "Welcome",
+      message: 'Expected value "Sign in" but received "Welcome".',
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertValue locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {
+          throw new errors.TimeoutError("locator wait timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertValue",
+      locator: { css: "#field" },
+      expected: { default: "Sign in" },
+      timeout: 1,
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertValue",
+      expected: "Sign in",
+      message: "Locator did not match an element within 1 milliseconds after 1 attempt.",
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertValue ambiguous-locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 2;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].action, "assertValue");
+  assert.equal(softFailures[0].expected, "Sign in");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.match(softFailures[0].message, /matched 2 elements/);
+  await run.close();
+});
+
+test("returns a soft assertValue value-read timeout and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async inputValue() {
+          throw new errors.TimeoutError("input value timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].action, "assertValue");
+  assert.equal(softFailures[0].expected, "Sign in");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.equal(softFailures[0].message, "input value timed out");
+  await run.close();
+});
+
+test("does not continue after an unsafe assertValue error marked soft", async () => {
+  let navigated = false;
+  const browserError = new Error("browser connection closed");
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async inputValue() {
+          throw browserError;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.stepIndex === 0 &&
+      error.action === "assertValue" &&
+      error.cause === browserError,
+  );
+  assert.equal(navigated, false);
+  await run.close();
+});
+
+for (const [name, labels, actual, expectedCount] of [
+  ["matching", ["Courriel"], undefined, 0],
+  ["missing", [], undefined, 1],
+  ["ambiguous", ["Courriel", "Adresse"], undefined, 1],
+  ["case mismatch", ["courriel"], "courriel", 1],
+  ["whitespace mismatch", [" Courriel "], " Courriel ", 1],
+]) {
+  test(`assertValue reports ${name} associated labels softly and continues`, async () => {
+    let navigated = false;
+    const locator = {
+      async waitFor() {},
+      async count() { return 1; },
+      async inputValue() { return "tester@example.invalid"; },
+      async evaluate(callback) {
+        return callback({ labels: labels.map((innerText) => ({ innerText })) });
+      },
+    };
+    const page = {
+      locator() { return locator; },
+      async goto() { navigated = true; return null; },
+    };
+    const { run, session } = await createSession(page, { locale: "fr-CA" });
+    try {
+      const failures = await session.executeSteps("profile", [
+        {
+          action: "assertValue", locator: { css: "#email" },
+          expected: { default: "tester@example.invalid" },
+          associatedLabel: { default: "Email", locales: { "fr-ca": "Courriel" } },
+        },
+        { action: "navigate", url: "https://example.test/next" },
+      ]);
+      assert.equal(navigated, true);
+      assert.equal(failures.length, expectedCount);
+      if (expectedCount) {
+        assert.equal(failures[0].check, "associatedLabel");
+        assert.equal(failures[0].expected, "Courriel");
+        assert.equal(failures[0].actual, actual);
+        assert.equal(failures[0].caseId, "profile");
+        assert.equal(failures[0].stepIndex, 0);
+      }
+    } finally {
+      await run.close();
+    }
+  });
+}
+
+test("direct assertValue returns label failure and shares one timeout budget", async () => {
+  let now = 0;
+  mock.method(performance, "now", () => now);
+  const locator = {
+    async waitFor() { now += 100; },
+    async count() { return 1; },
+    async inputValue(options) {
+      assert.equal(options.timeout, 900);
+      now += 200;
+      return "value";
+    },
+    async evaluate(callback, argument, options) {
+      assert.equal(options.timeout, 700);
+      return callback({ labels: [{ innerText: "Other" }] });
+    },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  try {
+    const failure = await session.assertValue({ css: "input" }, { default: "value" }, {
+      timeout: 1000, associatedLabel: { default: "Label" },
+    });
+    assert.equal(failure.expected, "Label");
+    assert.equal(failure.actual, "Other");
+  } finally {
+    await run.close();
+  }
+});
+
+for (const unsafe of [false, true]) {
+  test(`assertValue ${unsafe ? "stops on unsafe label errors" : "returns label timeouts softly"}`, async () => {
+    let navigated = false;
+    const error = unsafe ? new Error("browser closed") : new errors.TimeoutError("label timed out");
+    const locator = {
+      async waitFor() {},
+      async count() { return 1; },
+      async inputValue() { return "value"; },
+      async evaluate() { throw error; },
+    };
+    const { run, session } = await createSession({
+      locator() { return locator; },
+      async goto() { navigated = true; return null; },
+    });
+    try {
+      const execution = session.executeSteps("profile", [
+        { action: "assertValue", locator: { css: "input" }, expected: { default: "value" }, associatedLabel: { default: "Label" } },
+        { action: "navigate", url: "https://example.test/next" },
+      ]);
+      if (unsafe) {
+        await assert.rejects(execution, (failure) => failure instanceof StepExecutionError && failure.cause === error);
+      } else {
+        const failures = await execution;
+        assert.equal(failures[0].message, "label timed out");
+        assert.equal(failures[0].check, "associatedLabel");
+      }
+      assert.equal(navigated, !unsafe);
+    } finally {
+      await run.close();
+    }
+  });
+}
+
+test("assertValue retains both a soft value mismatch and a soft label mismatch", async () => {
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async inputValue() { return "actual"; },
+    async evaluate(callback) { return callback({ labels: [{ innerText: "Actual label" }] }); },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  try {
+    const failures = await session.executeSteps("profile", [{
+      action: "assertValue", locator: { css: "input" }, expected: { default: "expected" },
+      soft: true, associatedLabel: { default: "Expected label" },
+    }]);
+    assert.equal(failures.length, 2);
+    assert.equal(failures[0].actual, "actual");
+    assert.equal(failures[1].check, "associatedLabel");
+    assert.equal(failures[1].actual, "Actual label");
+  } finally {
+    await run.close();
+  }
+});
+
+test("assertValue rejects invalid timeouts before reading the field", async () => {
+  const { run, session } = await createSession({ locator() { assert.fail("must not resolve"); } });
+  try {
+    await assert.rejects(session.assertValue({ css: "input" }, { default: "value" }, { timeout: 0 }), RangeError);
+  } finally {
+    await run.close();
+  }
+});
+
+test("assertValue reports exhausted locator and label budgets without starting another read", async () => {
+  let now = 0;
+  mock.method(performance, "now", () => now);
+  let expireDuringLookup = true;
+  const locator = {
+    async waitFor() { if (expireDuringLookup) { now += 1000; } },
+    async count() { return 1; },
+    async inputValue() { now += 1000; return "value"; },
+    async evaluate() { assert.fail("label read must not start after the deadline"); },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  try {
+    const failures = await session.executeSteps("profile", [{
+      action: "assertValue", locator: { css: "input" }, expected: { default: "value" }, timeout: 1000, soft: true,
+    }]);
+    assert.equal(failures.length, 1);
+    assert.match(failures[0].message, /timeout while resolving/);
+    expireDuringLookup = false;
+    const labelFailure = await session.assertValue({ css: "input" }, { default: "value" }, {
+      timeout: 1000, associatedLabel: { default: "Label" },
+    });
+    assert.match(labelFailure.message, /Associated-label check exceeded/);
+  } finally {
+    await run.close();
+  }
+});
