@@ -34,7 +34,7 @@
 - The contributor guide provides a first-day setup path, observable baseline commands, architecture/change guidance, security and PR practices, and troubleshooting for the known container setup issues.
 - Contributor guidance explains where credentials may be cached, keeps host credential directories out of the workspace mounts, and does not rely on `.gitignore` to protect credentials outside the repository.
 - The initial GitHub Actions workflow passed on the PR, verifying the Node.js/npm pins, workspace installation and listing, Dev Container JSON, and container image build. Later checks are added with their implementation milestones.
-- The workflow has since added plan-schema, plan-engine, result-model, and runner-core package tests on Linux; plan-engine and runner-core are also tested on Windows. The checks build the packages and exercise their public APIs after installing workspaces. These are real package checks introduced incrementally, not placeholder steps.
+- GitHub Actions now separates tool-version verification, workspace dependency installation, Dev Container checks, and the plan-schema, plan-engine, result-model, and runner-core test suites into distinct jobs. Plan-engine and runner-core also run on Windows; the other package jobs run on Linux. Each package job installs the dependencies it needs, and the dedicated install job verifies `npm ci` and workspace resolution.
 
 ## Learning reference
 

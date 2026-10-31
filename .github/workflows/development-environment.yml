@@ -12,8 +12,8 @@ permissions:
   contents: read
 
 jobs:
-  verify:
-    name: Verify workspaces and development container
+  repository-versions:
+    name: Test repository Node.js and npm versions
     runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
@@ -32,33 +32,9 @@ jobs:
           test "$(node --version)" = "v26.12.1"
           test "$(npm --version)" = "11.20.0"
 
-      - name: Install workspace dependencies
-        run: npm ci
-
-      - name: Verify workspace packages
-        run: npm ls --workspaces --depth=0
-
-      - name: Test plan-schema package
-        run: npm test --workspace @stagehand/plan-schema
-
-      - name: Test plan-engine package
-        run: npm test --workspace @stagehand/plan-engine
-
-      - name: Test result-model package
-        run: npm test --workspace @stagehand/result-model
-
-      - name: Test runner-core package
-        run: npm test --workspace @stagehand/runner-core
-
-      - name: Validate Dev Container configuration
-        run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
-
-      - name: Build development container image
-        run: docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:ci .devcontainer
-
-  test-plan-engine-windows:
-    name: Test plan-engine on Windows
-    runs-on: windows-latest
+  workspace-dependencies:
+    name: Test workspace dependency installation
+    runs-on: ubuntu-24.04
     steps:
       - name: Check out repository
         uses: actions/checkout@v7
@@ -71,16 +47,122 @@ jobs:
       - name: Pin npm
         run: npm install --global npm@11.20.0
 
-      - name: Verify Node.js and npm versions
-        run: |
-          if ((node --version) -ne 'v26.12.1') { throw 'Unexpected Node.js version' }
-          if ((npm --version) -ne '11.20.0') { throw 'Unexpected npm version' }
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Verify workspace packages
+        run: npm ls --workspaces --depth=0
+
+  dev-container:
+    name: Test development container
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Validate Dev Container configuration
+        run: node -e "JSON.parse(require('node:fs').readFileSync('.devcontainer/devcontainer.json', 'utf8'))"
+
+      - name: Build development container image
+        run: docker build --file .devcontainer/Dockerfile --tag stagehand-devcontainer:ci .devcontainer
+
+  plan-schema:
+    name: Test plan-schema package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Test plan-schema package
+        run: npm test --workspace @stagehand/plan-schema
+
+  plan-engine:
+    name: Test plan-engine package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
 
       - name: Install workspace dependencies
         run: npm ci
 
       - name: Test plan-engine package
         run: npm test --workspace @stagehand/plan-engine
+
+  result-model:
+    name: Test result-model package
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Test result-model package
+        run: npm test --workspace @stagehand/result-model
+
+  runner-core:
+    name: Test runner-core package (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - windows-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install workspace dependencies
+        run: npm ci
 
       - name: Test runner-core package
         run: npm test --workspace @stagehand/runner-core
