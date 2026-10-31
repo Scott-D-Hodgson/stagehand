@@ -23,7 +23,7 @@ Each call to `createCaseSession` creates a fresh browser context and page. The c
 
 Use `async`/`await` to make the order of browser setup and cleanup clear. A `finally` block still runs if case work or setup fails, so it is the right place to close a case session and the run. Shutdown also has to wait for setup that started before it, otherwise Chromium could close while a context or page is still being created.
 
-This package does not load plan files, validate plans, execute actions, collect results, or apply M6 error/status policy. The caller owns using `loadPlanFile` before browser launch and closing each case session when its case completes.
+This package does not load plan files, validate plans, execute the full schema-defined action set, collect results, or apply M6 error/status policy. Its initial dispatcher handles only `navigate` and `click` steps supplied by the caller. The caller owns using `loadPlanFile` before browser launch and closing each case session when its case completes.
 
 ## Lifecycle example
 
@@ -59,7 +59,7 @@ try {
 | [`test/browser-run.test.js`](../../../packages/runner-core/test/browser-run.test.js) | Public-package tests for launch options, effective context settings, and cleanup paths. |
 | [`test/navigate.test.js`](../../../packages/runner-core/test/navigate.test.js) | Public-package tests for navigation defaults, supported overrides, URL validation, and error handling. |
 | [`test/click.test.js`](../../../packages/runner-core/test/click.test.js) | Public-package tests for unique clicks, timeout sharing, scrolling options, retry behaviour, and error handling. |
-| `test/step-execution.test.js` (planned) | Public-package tests still needed for ordered step dispatch, click wait lists, and failure context. |
+| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, click wait lists, and failure context. |
 | [`test/locator-resolution.test.js`](../../../packages/runner-core/test/locator-resolution.test.js) | Public-package tests for supported locator forms, exact matching, retries, timeout limits, and ambiguous matches. |
 | [`test/wait-list.test.js`](../../../packages/runner-core/test/wait-list.test.js) | Public-package tests for wait ordering, locator polling, page-state timeouts, and bounded delays. |
 | [`package.json`](../../../packages/runner-core/package.json) | Public package entry point, scripts, and pinned Playwright dependency. |
@@ -74,7 +74,7 @@ From the repository root, run:
 npm test --workspace @stagehand/runner-core
 ```
 
-Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the click tests to see how target retries, timeout sharing, scrolling, and click errors work. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
+Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the click tests to see how target retries, timeout sharing, scrolling, and click errors work. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Trace the dispatcher tests to see how navigation and clicks are ordered, when click wait lists run, and how the first step failure is reported. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
 
 ## You are ready when
 
@@ -84,4 +84,4 @@ Then trace the test double through launch, context creation, and cleanup. Change
 - You can describe the current locator resolution and click policies and explain the initial `navigate`/`click` step dispatcher.
 - You can explain how direct `navigate` and `click` methods differ from their use through `executeSteps`.
 - You can explain how the wait-list API is used by click steps and that other action handlers and integration with plan loading remain future work.
-- You know the lifecycle exists but action execution and result aggregation are not implemented here.
+- You know the dispatcher handles `navigate` and `click` only; other action handlers, plan loading, and result aggregation are not implemented here.
