@@ -1080,7 +1080,12 @@ test("returns a soft assertHtml mismatch and continues to later steps", async ()
   };
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
-    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    {
+      action: "assertHtml",
+      locator: { css: "main" },
+      expected: { default: "<h1>Sign in</h1>" },
+      soft: true,
+    },
     { action: "navigate", url: "https://example.test/next" },
   ]);
   assert.equal(navigated, true);
@@ -1114,7 +1119,13 @@ test("returns a soft assertHtml locator failure and continues to later steps", a
   };
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
-    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    {
+      action: "assertHtml",
+      locator: { css: "main" },
+      expected: { default: "<h1>Sign in</h1>" },
+      timeout: 1,
+      soft: true,
+    },
     { action: "navigate", url: "https://example.test/next" },
   ]);
   assert.equal(navigated, true);
@@ -1124,7 +1135,7 @@ test("returns a soft assertHtml locator failure and continues to later steps", a
       stepIndex: 0,
       action: "assertHtml",
       expected: "<h1>Sign in</h1>",
-      message: "Locator did not match an element within 30000 milliseconds after 1 attempt.",
+      message: "Locator did not match an element within 1 milliseconds after 1 attempt.",
     },
   ]);
   await run.close();
