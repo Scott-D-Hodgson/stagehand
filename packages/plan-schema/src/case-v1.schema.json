@@ -112,7 +112,11 @@
           "required": ["action", "url"],
           "properties": {
             "action": { "const": "navigate" },
-            "url": { "type": "string", "minLength": 1 },
+            "url": {
+              "type": "string",
+              "minLength": 1,
+              "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+            },
             "waitUntil": {
               "enum": ["domcontentloaded", "networkidle"],
               "default": "domcontentloaded"

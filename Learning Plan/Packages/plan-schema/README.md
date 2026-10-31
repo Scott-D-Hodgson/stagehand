@@ -19,6 +19,7 @@ Before reading, check which statements you can explain:
 - How the package selects Ajv's JSON Schema Draft 2020-12 implementation.
 - How the public validator API returns useful issues for invalid data.
 - How runtime locale-key checks supplement the JSON Schema constraints.
+- How schema and runtime checks require absolute HTTP/HTTPS navigation URLs.
 - How shared path matching connects plan references to imported relative file names.
 - How Node's built-in test runner checks behaviour through the package's public entry point.
 
@@ -28,7 +29,7 @@ The package owns shared plan and case JSON Schemas and synchronous functions tha
 
 The functions accept values of type `unknown`. A caller that starts with a JSON file must parse its text before calling a validator. The result says whether the value matches the selected schema. It does not say that the plan is ready to execute.
 
-The current case schema validates the initial action and assertion formats, including action-specific required fields, one locator strategy, ordered `before`/`after` wait lists, positive timeout values, and bounded delay values. Runtime validation also canonicalizes expected-value locale keys and rejects invalid or duplicate-equivalent keys. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. Action execution, browser-level locator checks and waits, variable resolution, and secrets remain future work.
+The current case schema validates the initial action and assertion formats, including action-specific required fields, one locator strategy, ordered `before`/`after` wait lists, positive timeout values, bounded delay values, and an absolute HTTP/HTTPS URL for navigation. Relative URLs are unsupported until a `baseURL` setting is designed. Runtime validation checks URL syntax and host presence and canonicalizes expected-value locale keys, rejecting invalid or duplicate-equivalent keys. `matchCaseReferences` compares normalized relative names only; it does not read case files or enforce canonical path containment. `validatePlanBundle` validates parsed cases and checks case-ID uniqueness within the plan. Action execution, browser-level locator checks and waits, variable resolution, and secrets remain future work.
 
 Browser settings in both plan defaults and case overrides accept only the type identifier `chromium`, representing Playwright-managed Chromium. Other browser types are rejected; later browser support will require an intentional schema update.
 
@@ -38,11 +39,11 @@ Accessibility configuration is optional and can be set in plan defaults or case 
 
 ## Case-step formats
 
-The case schema selects a step format by its `action` value. It accepts `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`. Each format requires its own fields and rejects unrecognised fields. Interactions require one valid locator; `type` also requires `text`, `fill` requires `value`, and `selectOption` requires exactly one of `value` or `label`. Assertions require an `expected` object with a string `default` and optional string locale values. `assertValue` may include an `associatedLabel` expected-value object.
+The case schema selects a step format by its `action` value. It accepts `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`. A `navigate` URL must be absolute and use HTTP or HTTPS with a host; a relative URL has no defined base and is rejected. Each format requires its own fields and rejects unrecognised fields. Interactions require one valid locator; `type` also requires `text`, `fill` requires `value`, and `selectOption` requires exactly one of `value` or `label`. Assertions require an `expected` object with a string `default` and optional string locale values. `assertValue` may include an `associatedLabel` expected-value object.
 
 Interactions may include ordered `before` and `after` lists, whose items are a locator wait, a `domcontentloaded`/`networkidle` state wait, or a bounded delay. The schema constrains timeout and delay values, but the runner will perform the waits and apply the agreed retry policy. The schema's defaults (including `soft: false`, `scrollIntoView: true`, and 30-second timeouts) are annotations; validation does not insert them into the caller's object.
 
-After the case matches its JSON Schema, `validateCase` checks expected-value locale keys with `Intl.getCanonicalLocales`. It rejects malformed BCP 47 tags and keys that canonicalize to the same locale. These semantic checks return normal `ValidationIssue` entries and leave the input unchanged.
+After the case matches its JSON Schema, `validateCase` parses navigation URLs with the standard `URL` API and checks that they use HTTP/HTTPS and have a host. It also checks expected-value locale keys with `Intl.getCanonicalLocales`, rejecting malformed BCP 47 tags and keys that canonicalize to the same locale. These semantic checks return normal `ValidationIssue` entries and leave the input unchanged.
 
 ## How validation works
 
@@ -100,6 +101,7 @@ Then work through these steps:
 6. Add a missing reference beside a matched reference and inspect both the issue and the partial matches returned.
 7. Validate a bundle with two cases that share an ID and inspect the duplicate-ID issue path.
 8. Compare the action-contract example with each action definition, then alter a locale key to observe a semantic validation issue.
+9. Try relative, FTP, and malformed navigation URLs and inspect the validation issue; then try the valid local HTTP URL in the action example.
 
 ## You are ready when
 
