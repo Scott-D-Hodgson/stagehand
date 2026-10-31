@@ -50,7 +50,12 @@ test("publishes browser defaults without inserting them into validated input", (
   assert.equal(planSchemaV1.$defs.accessibilitySettings.properties.failOnViolation.default, false);
   assert.deepEqual(validatePlan(plan), { valid: true });
   assert.deepEqual(plan, originalPlan);
-  assert.equal(caseSchemaV1.$defs.browserSettings.properties.headless.default, true);
+  assert.equal("headless" in caseSchemaV1.$defs.browserSettings.properties, false);
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  assert.equal(
+    validateCase({ ...exampleCase, settings: { browser: { headless: false } } }).valid,
+    false,
+  );
   assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.enabled.default, false);
   assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.failOnViolation.default, false);
 });

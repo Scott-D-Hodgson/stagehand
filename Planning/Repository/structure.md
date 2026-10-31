@@ -1,6 +1,6 @@
 ﻿# Proposed monorepo footprint
 
-This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. Plan execution and remaining semantic checks are still future work.
+This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. The runner-core workspace starts Playwright-managed Chromium and manages per-case contexts and pages. Step execution, result production, and remaining semantic checks are still future work.
 
 ```text
 stagehand/
@@ -35,7 +35,12 @@ stagehand/
 │   ├── api/                 # optional/later
 │   └── desktop/             # Electron, later
 ├── packages/
-│   ├── runner-core/          # npm workspace scaffold
+│   ├── runner-core/          # Chromium run lifecycle and per-case context/page setup
+│   │   ├── README.md
+│   │   ├── package.json
+│   │   ├── src/index.ts
+│   │   ├── test/browser-run.test.js
+│   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/
 │   │   │   ├── index.ts      # single public entry point

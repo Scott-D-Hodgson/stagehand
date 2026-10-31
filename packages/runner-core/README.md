@@ -1,7 +1,15 @@
-# Runner core workspace scaffold
+# `@stagehand/runner-core`
 
-This folder contains only the initial npm workspace manifest. Execution is not implemented yet.
+This package starts one Playwright-managed Chromium process for a run and creates an isolated browser context and page for each case. Run-wide locale and headless settings use Stagehand defaults when omitted. Each case inherits the run's viewport and time zone, and may override either setting. Headless mode is run-wide because it is selected at browser launch.
 
-- Future public source entry file: `src/index.ts`.
-- Future entry-point check: import the package by its public package name and verify the intended execution API is available without importing internal paths.
-- Add the source entry, `package.json` `exports` field, and check in a dedicated runner implementation change.
+The public entry point exports `startBrowserRun`. It returns a run with `createCaseSession` and `close` methods. Close each case session when its case finishes, and call the run's `close` method in a `finally` block. Closing the run waits for in-flight case setup, rejects sessions that have not finished setup when shutdown starts, closes any active case sessions, and then closes Chromium. Concurrent run `close` calls await the same cleanup. This package does not yet execute plan steps, load plans from disk, or build result records.
+
+Build and test from the repository root:
+
+```sh
+npm test --workspace @stagehand/runner-core
+```
+
+The tests import the public package name and replace the Playwright launch method with a small test double, so they do not require a downloaded browser.
+
+Playwright and its `playwright-core` dependency use Apache-2.0, not MIT. Their licence text and notices are recorded in the repository's [third-party notices](../../THIRD-PARTY-NOTICES.md), where this non-MIT dependency remains flagged for maintainer review.

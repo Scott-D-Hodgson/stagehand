@@ -7,7 +7,7 @@
 
 ## 1. Purpose and limits
 
-This is an initial engineering assessment to guide Stagehand's anticipated development and help teams identify controls that will need a product feature, an operator procedure, or both. It is based on the current repository's proposed architecture and backlog, not source code, a threat and risk assessment (TRA), a security categorization, a deployment design, or an assessment by an authorizer. The product itself is not yet implemented.
+This is an initial engineering assessment to guide Stagehand's anticipated development and help teams identify controls that will need a product feature, an operator procedure, or both. As of the assessment date above, it was based on the repository's proposed architecture and backlog, not source code, a threat and risk assessment (TRA), a security categorization, a deployment design, or an assessment by an authorizer. The product was not yet implemented at that time; this historical assessment has not been updated to evaluate later implementation work.
 
 The family ratings below are scoping hypotheses, not ITSG-33 control determinations. ITSG-33 Annex 2 says controls should be selected and tailored against the applicable organisational/domain profile and system security category, with threat and risk information; controls can be allocated to the system, its environment, or both. A final decision needs the system owner, security practitioner, assessor, and authorizer for the actual deployment.
 
