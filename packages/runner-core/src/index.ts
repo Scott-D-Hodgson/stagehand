@@ -34,6 +34,7 @@ export interface CaseBrowserSession {
     options?: LocatorResolutionOptions,
   ): Promise<Locator>;
   click(locator: LocatorDefinition, options?: ClickOptions): Promise<void>;
+  type(locator: LocatorDefinition, text: string, options?: TypeOptions): Promise<void>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
   executeSteps(caseId: string, steps: readonly ExecutableStep[]): Promise<void>;
@@ -51,6 +52,11 @@ export interface LocatorResolutionOptions {
 }
 
 export interface ClickOptions {
+  timeout?: number;
+  scrollIntoView?: boolean;
+}
+
+export interface TypeOptions {
   timeout?: number;
   scrollIntoView?: boolean;
 }
@@ -83,7 +89,17 @@ export interface ClickStep {
   scrollIntoView?: boolean;
 }
 
-export type ExecutableStep = NavigateStep | ClickStep;
+export interface TypeStep {
+  action: "type";
+  locator: LocatorDefinition;
+  text: string;
+  timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
+  scrollIntoView?: boolean;
+}
+
+export type ExecutableStep = NavigateStep | ClickStep | TypeStep;
 
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
@@ -223,6 +239,46 @@ async function executeClick(
     timeout: remaining,
     scroll: options.scrollIntoView === false ? "none" : "auto",
   });
+}
+
+async function executeType(
+  page: Page,
+  definition: LocatorDefinition,
+  text: string,
+  options: TypeOptions,
+): Promise<void> {
+  const timeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
+  if (!Number.isInteger(timeout) || timeout < 1) {
+    throw new RangeError("Type timeout must be a positive integer in milliseconds.");
+  }
+  if (options.scrollIntoView !== undefined && typeof options.scrollIntoView !== "boolean") {
+    throw new TypeError("scrollIntoView must be a boolean when provided.");
+  }
+  const deadline = performance.now() + timeout;
+  const locator = await resolveUniqueLocator(page, definition, timeout);
+  let remaining = Math.floor(deadline - performance.now());
+  if (remaining < 1) {
+    throw new Error(`Typing exceeded its ${timeout} millisecond timeout while resolving the locator.`);
+  }
+  if (options.scrollIntoView === false) {
+    const box = await locator.boundingBox({ timeout: remaining });
+    const viewport = page.viewportSize();
+    if (
+      !box ||
+      !viewport ||
+      box.x < 0 ||
+      box.y < 0 ||
+      box.x + box.width > viewport.width ||
+      box.y + box.height > viewport.height
+    ) {
+      throw new Error("Type target is outside the viewport and scrollIntoView is false.");
+    }
+    remaining = Math.floor(deadline - performance.now());
+    if (remaining < 1) {
+      throw new Error(`Typing exceeded its ${timeout} millisecond timeout while checking the viewport.`);
+    }
+  }
+  await locator.pressSequentially(text, { timeout: remaining });
 }
 
 function getWaitTimeout(timeout: number | undefined): number {
@@ -366,6 +422,14 @@ async function executeCaseSteps(
           });
           await executeWaitList(page, step.after ?? []);
           break;
+        case "type":
+          await executeWaitList(page, step.before ?? []);
+          await executeType(page, step.locator, step.text, {
+            timeout: step.timeout,
+            scrollIntoView: step.scrollIntoView,
+          });
+          await executeWaitList(page, step.after ?? []);
+          break;
         default:
           throw new TypeError(
             `Action "${String((step as { action?: unknown }).action)}" is not supported by this step executor.`,
@@ -416,6 +480,9 @@ export async function startBrowserRun(
         },
         async click(locator, options = {}) {
           await executeClick(page, locator, options);
+        },
+        async type(locator, text, options = {}) {
+          await executeType(page, locator, text, options);
         },
         async runWaitList(waits) {
           await executeWaitList(page, waits);
