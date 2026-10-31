@@ -41,9 +41,17 @@ export interface CaseBrowserSession {
     selection: SelectOptionSelection,
     options?: SelectOptionOptions,
   ): Promise<void>;
+  assertText(
+    locator: LocatorDefinition,
+    expected: ExpectedValue,
+    options?: AssertionOptions,
+  ): Promise<void>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
-  executeSteps(caseId: string, steps: readonly ExecutableStep[]): Promise<void>;
+  executeSteps(
+    caseId: string,
+    steps: readonly ExecutableStep[],
+  ): Promise<SoftAssertionFailure[]>;
   close(): Promise<void>;
 }
 
@@ -75,6 +83,24 @@ export interface FillOptions {
 export interface SelectOptionOptions {
   timeout?: number;
   scrollIntoView?: boolean;
+}
+
+export interface AssertionOptions {
+  timeout?: number;
+}
+
+export interface ExpectedValue {
+  default: string;
+  locales?: Record<string, string>;
+}
+
+export interface SoftAssertionFailure {
+  caseId: string;
+  stepIndex: number;
+  action: "assertText";
+  expected: string;
+  actual?: string;
+  message: string;
 }
 
 export type WaitDefinition =
@@ -138,7 +164,21 @@ export type SelectOptionStep = {
   scrollIntoView?: boolean;
 } & SelectOptionSelection;
 
-export type ExecutableStep = NavigateStep | ClickStep | TypeStep | FillStep | SelectOptionStep;
+export interface AssertTextStep {
+  action: "assertText";
+  locator: LocatorDefinition;
+  expected: ExpectedValue;
+  timeout?: number;
+  soft?: boolean;
+}
+
+export type ExecutableStep =
+  | NavigateStep
+  | ClickStep
+  | TypeStep
+  | FillStep
+  | SelectOptionStep
+  | AssertTextStep;
 
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
@@ -177,6 +217,17 @@ export class StepExecutionError extends Error {
     this.caseId = caseId;
     this.stepIndex = stepIndex;
     this.action = action;
+  }
+}
+
+class TextAssertionMismatchError extends Error {
+  expected: string;
+  actual: string;
+  constructor(expected: string, actual: string) {
+    super(`Expected text ${JSON.stringify(expected)} but received ${JSON.stringify(actual)}.`);
+    this.name = "TextAssertionMismatchError";
+    this.expected = expected;
+    this.actual = actual;
   }
 }
 
@@ -411,6 +462,56 @@ async function executeSelectOption(
   await locator.selectOption(option, { timeout: remaining });
 }
 
+function resolveExpectedValue(expected: ExpectedValue, locale: string): string {
+  if (
+    typeof expected !== "object" ||
+    expected === null ||
+    typeof expected.default !== "string" ||
+    (expected.locales !== undefined &&
+      (typeof expected.locales !== "object" || expected.locales === null || Array.isArray(expected.locales)))
+  ) {
+    throw new TypeError("Assertion expected value must have a string default and optional locale values.");
+  }
+  const canonicalLocale = Intl.getCanonicalLocales(locale)[0];
+  if (expected.locales) {
+    for (const [key, value] of Object.entries(expected.locales)) {
+      if (typeof value !== "string") {
+        throw new TypeError("Assertion locale values must be strings.");
+      }
+      if (Intl.getCanonicalLocales(key)[0] === canonicalLocale) {
+        return value;
+      }
+    }
+  }
+  return expected.default;
+}
+
+async function executeAssertText(
+  page: Page,
+  definition: LocatorDefinition,
+  expected: ExpectedValue,
+  locale: string,
+  timeout: number | undefined,
+): Promise<void> {
+  const effectiveTimeout = timeout ?? DEFAULT_LOCATOR_TIMEOUT;
+  if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
+    throw new RangeError("assertText timeout must be a positive integer in milliseconds.");
+  }
+  const expectedText = resolveExpectedValue(expected, locale);
+  const deadline = performance.now() + effectiveTimeout;
+  const locator = await resolveUniqueLocator(page, definition, effectiveTimeout);
+  const remaining = Math.floor(deadline - performance.now());
+  if (remaining < 1) {
+    throw new Error(
+      `assertText exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
+    );
+  }
+  const actualText = await locator.innerText({ timeout: remaining });
+  if (actualText !== expectedText) {
+    throw new TextAssertionMismatchError(expectedText, actualText);
+  }
+}
+
 function getWaitTimeout(timeout: number | undefined): number {
   const effectiveTimeout = timeout ?? DEFAULT_WAIT_TIMEOUT;
   if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
@@ -530,10 +631,12 @@ async function executeCaseSteps(
   page: Page,
   caseId: string,
   steps: readonly ExecutableStep[],
-): Promise<void> {
+  locale: string,
+): Promise<SoftAssertionFailure[]> {
   if (!Array.isArray(steps)) {
     throw new TypeError("Case steps must be an array.");
   }
+  const softFailures: SoftAssertionFailure[] = [];
   for (const [stepIndex, step] of steps.entries()) {
     const action = (step as { action?: unknown }).action;
     try {
@@ -583,6 +686,30 @@ async function executeCaseSteps(
           );
           await executeWaitList(page, step.after ?? []);
           break;
+        case "assertText":
+          try {
+            await executeAssertText(page, step.locator, step.expected, locale, step.timeout);
+          } catch (error) {
+            if (
+              step.soft === true &&
+              (error instanceof TextAssertionMismatchError ||
+                error instanceof LocatorResolutionError ||
+                error instanceof errors.TimeoutError)
+            ) {
+              const expectedText = resolveExpectedValue(step.expected, locale);
+              softFailures.push({
+                caseId,
+                stepIndex,
+                action: "assertText",
+                expected: expectedText,
+                ...(error instanceof TextAssertionMismatchError ? { actual: error.actual } : {}),
+                message: error.message,
+              });
+              break;
+            }
+            throw error;
+          }
+          break;
         default:
           throw new TypeError(
             `Action "${String((step as { action?: unknown }).action)}" is not supported by this step executor.`,
@@ -592,6 +719,7 @@ async function executeCaseSteps(
       throw new StepExecutionError(caseId, stepIndex, String(action), error);
     }
   }
+  return softFailures;
 }
 
 export async function startBrowserRun(
@@ -643,6 +771,9 @@ export async function startBrowserRun(
         async selectOption(locator, selection, options = {}) {
           await executeSelectOption(page, locator, selection, options);
         },
+        async assertText(locator, expected, options = {}) {
+          await executeAssertText(page, locator, expected, settings.locale ?? "en-CA", options.timeout);
+        },
         async runWaitList(waits) {
           await executeWaitList(page, waits);
         },
@@ -650,7 +781,7 @@ export async function startBrowserRun(
           return executeNavigation(page, url, options);
         },
         async executeSteps(caseId, steps) {
-          await executeCaseSteps(page, caseId, steps);
+          return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA");
         },
         close() {
           if (sessionClosePromise) {
