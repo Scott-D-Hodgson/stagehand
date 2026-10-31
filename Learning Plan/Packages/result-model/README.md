@@ -9,7 +9,7 @@ Before reading, check which statements you can explain:
 - [ ] I can explain the difference between JSON Schema runtime validation and TypeScript compile-time types.
 - [ ] I can describe the `validateResult` success and failure results.
 - [ ] I can identify what this validator checks and what remains execution policy.
-- [ ] I can distinguish accepted accessibility fields from the current schema and explain scan-tag input scope versus finding tags.
+- [ ] I can describe the implemented accessibility shape and explain scan-tag input scope versus finding tags.
 - [ ] I can run the package tests through its public entry point.
 
 ## What you will learn
@@ -23,9 +23,15 @@ Before reading, check which statements you can explain:
 
 The package owns the shared result document contract. Its public entry point exports the result v1 JSON Schema, TypeScript types, and `validateResult`. The schema is the normative contract for emitted result JSON; the TypeScript types help implementation code describe values that conform to it.
 
-M4's accessibility work will extend the v1 result shape with finding URLs, available affected-node details, and effective `enabled` and `failOnViolation` settings plus the effective scan-tag scope. The accepted companion run-level tag filter narrows the assessment when tags are selected; omitted or empty plan tags leave axe's default rule selection unrestricted. Cases inherit omitted tags; explicit case lists replace the plan list, with an empty list clearing the filter. The configuration shape is validated by plan-schema, but effective scope resolution and its result representation remain future work. This input filter is separate from the rule `tags` retained on findings. Findings stay attached to their case and are deduplicated within that case, as specified in [ATR-019](../../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md). These result-shape updates are planned work, not yet present in the package schema.
+M4's accessibility result v1 extension is implemented in the schema, TypeScript types, synthetic example, and public-entry tests. Every case must include `effectiveSettings.accessibility` with `enabled`, `failOnViolation`, and resolved `tags`, even if disabled or without findings. `[]` records axe defaults without a tag filter; a selected list records effective scope. Plan/case inheritance must be resolved by the future producer, not this validator. Finding-level `tags` describe the reported rule and can differ from the input list.
 
-The owner selected finding-level `tags` and affected-node `html`, `target`, `failureSummary`, `impact`, `xpath` when available, and `relatedNodes`. Tags describe the rule; node details describe the affected elements. Axe provides related elements inside individual checks, so retaining them requires mapping that information into Stagehand's result shape. Preserve structured selectors for frames/shadow DOM and optional related-node XPath; do not replace missing upstream details with invented values. See the [accepted field selection under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields). As an exercise, separate rule-level tags from node-level details in a synthetic finding and identify which fields may be absent. The schema, types, examples, and validation tests still need the corresponding implementation slice.
+Each finding now includes its URL and `affectedNodes`. An affected node retains markup, structured target, and an explicit `relatedNodes` list, with optional summary, impact, and XPath. Related nodes retain markup/target and optional XPath. Preserve frame/shadow-DOM paths rather than joining them into one selector. Empty target arrays preserve unavailable upstream selector information. Finding severity permits `null`; optional node severity can be absent or `null`. No severity or summary is invented.
+
+The future scanner will flatten related elements from axe's `any`, `all`, and `none` checks and retain one exact html/target/optional-xpath tuple. The schema rejects duplicate related objects but does not map, collect, or deduplicate observations, calculate `affectedNodeCount`, or generate results. See the [field mapping under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields) and the [package contract](../../../packages/result-model/README.md#accessibility-contract).
+
+Unlike plan configuration, result tag arrays are not checked against the current engine catalogue. They preserve recorded tags from other engine versions as unique non-empty strings. A valid report is historical evidence, not permission to reuse those tags as current configuration without plan validation.
+
+The pre-release result v1 contract now requires more information than the earlier minimal shape. Old examples/results missing case accessibility settings or finding URL/tags/node arrays need updating; no compatibility fallback or migration tool is supplied. This M4 feature extension does not reopen M3. The local Windows build and all 22 tests passed, as did a separate TypeScript public-import check; dev-container/CI and scanner integration remain outstanding.
 
 The validator checks structure and registered JSON Schema formats. It does not compute the source fingerprint, load plan files, check relationships among case counts and outcomes, or decide how cases aggregate into a run outcome. The `plan-engine` loader now calculates the fingerprint while loading; a future runner will include it in the emitted result. Execution aggregation policy belongs to M6.
 
@@ -41,13 +47,13 @@ Each result step has a required zero-based `index` within its case. Traceability
 
 ## Verify the package
 
-Run `npm test --workspace @stagehand/result-model`. The command builds the TypeScript entry point and runs Node's built-in test runner against the public package import, the synthetic result example, and representative invalid values.
+Run `npm test --workspace @stagehand/result-model`. The command builds the TypeScript entry point and runs Node's built-in test runner against the public package import, the synthetic result example, and representative invalid values, including node evidence, required effective settings, structured targets, and duplicate related nodes.
 
 ## Practice
 
 Add a synthetic invalid result that violates one schema constraint. Test that `validateResult` returns an issue with the expected JSON Pointer path and keyword. Do not add cross-field rules such as count aggregation to this validator unless the result schema itself is deliberately changed; those rules require an M6 policy decision.
 
-For the upcoming accessibility extension, sketch a synthetic finding with rule tags, one affected node, optional XPath, and a related element. Keep the run's selected scan-tag list separate from the finding's rule tags. Explain how a node without a failure summary or severity should avoid inventing evidence. This is a design exercise: the new fields are not yet valid input to the current result schema. Map the proposed fields to schema/type/example/test changes before implementation, and leave related-node duplicate handling explicit until defined.
+Start with the synthetic example and validate it through the public import. Remove its findings while keeping effective accessibility settings: explain why that remains valid. Then remove the effective tags list and inspect the issue. Duplicate a related node to observe a uniqueItems issue; change its target or XPath to demonstrate distinct evidence. Remove a node summary/impact or use null severity without inventing a value. Explain why a structurally valid result can still have inconsistent counts or an outcome that requires M6 review.
 
 ## You are ready when
 
@@ -71,6 +77,7 @@ For the upcoming accessibility extension, sketch a synthetic finding with rule t
 4. Does the result-model package calculate the `sha256-v1` fingerprint?
 5. Does a finding's `tags` array tell you the complete configured scope of an assessment?
 6. Are the selected affected-node fields already accepted by the current result schema?
+7. Why may a tag pass result validation but fail current plan validation?
 
 <details>
 <summary>Answer key</summary>
@@ -80,7 +87,8 @@ For the upcoming accessibility extension, sketch a synthetic finding with rule t
 3. No. Cross-field count consistency and outcome aggregation belong to execution policy, which M6 defines.
 4. No. `plan-engine` calculates the fingerprint while loading source files; the future runner will include it in the result document.
 5. No. Finding tags describe one reported rule; the effective input filter must be recorded separately to identify assessment scope, including a run with no findings.
-6. No. Their selection is agreed, but the schema, TypeScript types, example, and tests still need the M4 extension.
+6. Yes. The schema/types/example/tests now include them; scanner mapping, collection, count consistency, and result production remain future execution work.
+7. Results preserve recorded evidence across engine versions; current plans must use tags supported by the pinned engine. The two validators serve different purposes.
 
 </details>
 
