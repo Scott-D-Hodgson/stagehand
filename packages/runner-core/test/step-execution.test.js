@@ -957,3 +957,274 @@ test("does not continue after an unsafe assertText error marked soft", async () 
   assert.equal(navigated, false);
   await run.close();
 });
+
+test("assertHtml compares exact inner HTML for the run locale within its timeout", async () => {
+  let locatorOptions;
+  let htmlOptions;
+  const locator = {
+    async waitFor(options) {
+      locatorOptions = options;
+    },
+    async count() {
+      return 1;
+    },
+    async innerHTML(options) {
+      htmlOptions = options;
+      return "<strong>Se connecter</strong>";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page, { locale: "fr-CA" });
+  await session.assertHtml(
+    { css: "h1" },
+    { default: "<strong>Sign in</strong>", locales: { "fr-ca": "<strong>Se connecter</strong>" } },
+    { timeout: 1_000 },
+  );
+  assert.ok(locatorOptions.timeout > 0 && locatorOptions.timeout <= 1_000);
+  assert.ok(htmlOptions.timeout > 0 && htmlOptions.timeout <= 1_000);
+  await run.close();
+});
+
+test("dispatches a passing assertHtml step and uses its default expected value", async () => {
+  let htmlRead = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerHTML() {
+      htmlRead = true;
+      return "<h1>Sign in</h1>";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertHtml",
+      locator: { css: "main" },
+      expected: { default: "<h1>Sign in</h1>", locales: { "fr-CA": "<h1>Se connecter</h1>" } },
+    },
+  ]);
+  assert.equal(htmlRead, true);
+  assert.deepEqual(softFailures, []);
+  await run.close();
+});
+
+test("stops on a hard assertHtml mismatch with case and step context", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerHTML() {
+      return "<h1>Welcome</h1>";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" } },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.caseId === "sign-in" &&
+      error.stepIndex === 0 &&
+      error.action === "assertHtml" &&
+      error.cause.expected === "<h1>Sign in</h1>" &&
+      error.cause.actual === "<h1>Welcome</h1>" &&
+      /Expected HTML "<h1>Sign in<\/h1>" but received "<h1>Welcome<\/h1>"/.test(error.message),
+  );
+  assert.equal(navigated, false);
+  await run.close();
+});
+
+test("returns a soft assertHtml mismatch and continues to later steps", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerHTML() {
+      return "<h1>Welcome</h1>";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertHtml",
+      expected: "<h1>Sign in</h1>",
+      actual: "<h1>Welcome</h1>",
+      message: 'Expected HTML "<h1>Sign in</h1>" but received "<h1>Welcome</h1>".',
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertHtml locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {
+          throw new errors.TimeoutError("locator wait timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertHtml",
+      expected: "<h1>Sign in</h1>",
+      message: "Locator did not match an element within 30000 milliseconds after 1 attempt.",
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertHtml ambiguous-locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 2;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].action, "assertHtml");
+  assert.equal(softFailures[0].expected, "<h1>Sign in</h1>");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.match(softFailures[0].message, /matched 2 elements/);
+  await run.close();
+});
+
+test("returns a soft assertHtml HTML-read timeout and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async innerHTML() {
+          throw new errors.TimeoutError("inner HTML timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].action, "assertHtml");
+  assert.equal(softFailures[0].expected, "<h1>Sign in</h1>");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.equal(softFailures[0].message, "inner HTML timed out");
+  await run.close();
+});
+
+test("does not continue after an unsafe assertHtml error marked soft", async () => {
+  let navigated = false;
+  const browserError = new Error("browser connection closed");
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async innerHTML() {
+          throw browserError;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.stepIndex === 0 &&
+      error.action === "assertHtml" &&
+      error.cause === browserError,
+  );
+  assert.equal(navigated, false);
+  await run.close();
+});
