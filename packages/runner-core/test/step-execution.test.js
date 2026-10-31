@@ -439,6 +439,195 @@ test("reports an invalid fill timeout with the case and step context", async () 
   await run.close();
 });
 
+test("dispatches selectOption by value with ordered waits", async () => {
+  const events = [];
+  let selectedOption;
+  let selectOptions;
+  const locator = {
+    async waitFor() {
+      events.push("locator:wait");
+    },
+    async count() {
+      events.push("locator:count");
+      return 1;
+    },
+    async selectOption(option, options) {
+      events.push("selectOption");
+      selectedOption = option;
+      selectOptions = options;
+    },
+  };
+  const page = {
+    locator(selector) {
+      events.push(`locator:${selector}`);
+      return locator;
+    },
+    async waitForTimeout(delay) {
+      events.push(`delay:${delay}`);
+    },
+    async waitForLoadState(state) {
+      events.push(`state:${state}`);
+    },
+  };
+  const { run, session } = await createSession(page);
+  await session.executeSteps("preferences", [
+    {
+      action: "selectOption",
+      locator: { css: "select[name=language]" },
+      value: "fr-CA",
+      before: [{ delay: 200 }],
+      after: [{ waitForState: "domcontentloaded" }],
+    },
+  ]);
+  assert.deepEqual(events, [
+    "delay:200",
+    "locator:select[name=language]",
+    "locator:wait",
+    "locator:count",
+    "selectOption",
+    "state:domcontentloaded",
+  ]);
+  assert.deepEqual(selectedOption, { value: "fr-CA" });
+  assert.ok(selectOptions.timeout > 0 && selectOptions.timeout <= 30_000);
+  await run.close();
+});
+
+test("selects an option by its visible label through the case-session API", async () => {
+  let selectedOption;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async selectOption(option) {
+      selectedOption = option;
+    },
+  };
+  const { run, session } = await createSession({ locator: () => locator });
+  await session.selectOption({ css: "#language" }, { label: "French (Canada)" });
+  assert.deepEqual(selectedOption, { label: "French (Canada)" });
+  await run.close();
+});
+
+test("shares a selectOption timeout between locator lookup, viewport check, and selection", async () => {
+  let locatorTimeout;
+  let boundingBoxOptions;
+  let selectOptions;
+  const locator = {
+    async waitFor(options) {
+      locatorTimeout = options.timeout;
+    },
+    async count() {
+      return 1;
+    },
+    async boundingBox(options) {
+      boundingBoxOptions = options;
+      return { x: 10, y: 10, width: 100, height: 24 };
+    },
+    async selectOption(_option, options) {
+      selectOptions = options;
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    viewportSize() {
+      return { width: 300, height: 200 };
+    },
+  };
+  const { run, session } = await createSession(page);
+  await session.executeSteps("preferences", [
+    {
+      action: "selectOption",
+      locator: { css: "#language" },
+      label: "French (Canada)",
+      timeout: 2_000,
+      scrollIntoView: false,
+    },
+  ]);
+  assert.ok(locatorTimeout > 0 && locatorTimeout <= 2_000);
+  assert.ok(boundingBoxOptions.timeout > 0 && boundingBoxOptions.timeout <= 2_000);
+  assert.ok(selectOptions.timeout > 0 && selectOptions.timeout <= 2_000);
+  await run.close();
+});
+
+test("does not select an option when scrolling is disabled and the control is outside the viewport", async () => {
+  let selectCount = 0;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async boundingBox() {
+      return { x: 290, y: 10, width: 20, height: 24 };
+    },
+    async selectOption() {
+      selectCount += 1;
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    viewportSize() {
+      return { width: 300, height: 200 };
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("preferences", [
+      {
+        action: "selectOption",
+        locator: { css: "#language" },
+        value: "fr-CA",
+        scrollIntoView: false,
+      },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.caseId === "preferences" &&
+      error.stepIndex === 0 &&
+      error.action === "selectOption" &&
+      /outside the viewport and scrollIntoView is false/.test(error.cause.message),
+  );
+  assert.equal(selectCount, 0);
+  await run.close();
+});
+
+test("rejects invalid selectOption settings with case and step context", async () => {
+  let locatorCreated = false;
+  const page = {
+    locator() {
+      locatorCreated = true;
+      return {};
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("preferences", [
+      {
+        action: "selectOption",
+        locator: { css: "#language" },
+        value: "fr-CA",
+        timeout: 0,
+      },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.caseId === "preferences" &&
+      error.stepIndex === 0 &&
+      error.action === "selectOption" &&
+      /selectOption timeout must be a positive integer/.test(error.cause.message),
+  );
+  assert.equal(locatorCreated, false);
+  await assert.rejects(
+    session.selectOption({ css: "#language" }, { value: "fr-CA", label: "French" }),
+    /exactly one string value or label/,
+  );
+  await run.close();
+});
+
 test("stops at the first failed step and reports its case and index", async () => {
   const events = [];
   const locatorError = new Error("target is unavailable");
