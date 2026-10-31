@@ -45,6 +45,22 @@ Interactions may include ordered `before` and `after` lists, whose items are a l
 
 After the case matches its JSON Schema, `validateCase` parses navigation URLs with the standard `URL` API and checks that they use HTTP/HTTPS and have a host. It also checks expected-value locale keys with `Intl.getCanonicalLocales`, rejecting malformed BCP 47 tags and keys that canonicalize to the same locale. These semantic checks return normal `ValidationIssue` entries and leave the input unchanged.
 
+## Accessibility tag configuration
+
+The schemas accept `defaults.accessibility.tags` on a plan and `settings.accessibility.tags` on a case. Each is an optional array of unique exact axe-core 4.14.0 tag strings. Unknown tags, wrong case, whitespace changes, duplicates, and malformed values fail validation. Both standalone schemas publish the same tag catalogue; refresh it deliberately when updating the pinned engine. Axe is not a runtime dependency of this shared package.
+
+Omitting case tags preserves inheritance from the plan; a non-empty case list replaces the entire plan list, while `[]` clears it and requests axe defaults without a tag filter. At plan scope, omission or `[]` also means axe defaults. Tags do not enable scanning. Validation preserves the distinction between omission and an empty list without inserting defaults or calculating effective settings; scanner execution remains future work.
+
+The checkout example selects two tags, its sign-in case omits them, and the action-contract case explicitly clears them while keeping scanning disabled. Trace all three examples. Then change one tag to a misspelling and inspect the validation issue path. Explain why accepting these documents does not prove that scans run or inheritance is applied.
+
+After this slice, plan-schema builds and all 39 public-entry tests pass locally on Windows. The dependent plan-engine suite passes 14 tests and skips 3 Windows symlink tests. Dev-container and CI verification remain outstanding. See the [package README](../../../packages/plan-schema/README.md) for the scope table and update procedure.
+
+### Keeping the tag catalogue current
+
+The current public-entry tests check that both standalone schema inventories agree. Two identical lists can still both be stale after an engine upgrade. A separate comparison with the installed engine's full `getRules()` tag set checked this slice's inventory; it is not an automated release monitor. See the [manual inspection command](../../../packages/plan-schema/README.md) and proposed [TE-022](../../../Planning/Backlog/technical-enablers/te-022-axe-tag-catalogue-update-detection.md).
+
+As an exercise, sketch three situations: only the plan list is stale, both schema lists are identically stale, and a newer engine release exists while the pinned engine and both lists still match. Explain which comparison detects each situation. Distinguish local drift checking from upstream-release awareness, and identify why a candidate tag must not be accepted before a reviewed engine update supports it. The monitor, notification mechanism, and refresh generator remain proposed work.
+
 ## How validation works
 
 The schema documents declare JSON Schema Draft 2020-12 with `$schema`. Stagehand's own `schemaVersion` fields are separate: the initial plan and case documents each use integer version `1`. Ajv uses a distinct class for Draft 2020-12 schemas; this package creates that validator and compiles both schemas once when the module loads. The two compiled validators are then reused for calls.

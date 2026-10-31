@@ -45,9 +45,9 @@ The agreed initial action/assertion set is recorded in [ATR-008](../../Planning/
 
 ## Accessibility scan scope
 
-The accepted requirement pairs a run's axe assessment switch with an optional rule-tag list. For example, choosing `wcag2a` and `wcag2aa` scopes the scan to rules matching either tag. Omitting the list or providing an empty list means no tag restriction: use axe's default rules. It does not force-enable experimental or otherwise disabled rules. The input filter controls what gets assessed; finding-level `tags` describe each reported rule.
+The accepted requirement pairs a run's axe assessment switch with an optional rule-tag list. For example, choosing `wcag2a` and `wcag2aa` scopes the scan to rules matching either tag. At plan scope, omitting the list or providing `[]` means no tag restriction: use axe's default rules. A case inherits when it omits tags, replaces the whole plan list when it provides tags, or clears the filter with `[]`. It does not force-enable experimental or otherwise disabled rules. The input filter controls what gets assessed; finding-level `tags` describe each reported rule.
 
-This companion option is not yet supported by Stagehand's configuration schemas or runner. The JSON spelling, unknown-tag validation, and any case-level tag override remain configuration follow-through; exact CLI flags belong to later CLI implementation. These remaining items are tracked under [TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option). As an exercise, contrast the intended scope of a two-tag scan with an omitted-tag scan and identify why neither proves full accessibility conformance.
+Plan/case schemas now accept `accessibility.tags` and validate unique, case-sensitive strings against the pinned axe-core 4.14.0 catalogue. Unknown tags, duplicates, and wrong types fail before scanning. All 39 plan-schema tests pass locally on Windows; validation preserves input and does not resolve inheritance. Scanner application and exact CLI flags remain future work under [TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option). As an exercise, contrast a case that inherits two plan tags, one that replaces them, and one that explicitly clears them. Identify why schema validation alone proves neither effective execution nor full accessibility conformance.
 
 ## Input-value and label example
 
@@ -116,6 +116,6 @@ Answer from memory first, then check the answer key.
 5. Prefer user-facing role and label locators; use CSS selectors or XPath when needed.
 6. Findings are non-failing by default, but plan/case configuration may make them fail the case.
 7. No. The optional label check always reports a soft failure, while the value check keeps its own hard/soft setting. The label check uses the remaining assertion timeout.
-8. Neither. The enable switch controls whether scanning runs; omitted or empty tags apply no tag restriction and preserve axe's default rule selection.
+8. Neither. The enable switch controls whether scanning runs. An empty list clears the tag filter and uses axe defaults; an omitted case list first inherits the plan list.
 
 </details>
