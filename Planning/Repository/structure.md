@@ -44,7 +44,7 @@ stagehand/
 │   │   ├── test/wait-list.test.js
 │   │   ├── test/navigate.test.js
 │   │   ├── test/click.test.js
-│   │   ├── test/step-execution.test.js # planned public-entry coverage
+│   │   ├── test/step-execution.test.js # public-entry dispatcher coverage
 │   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/
