@@ -12,6 +12,7 @@
 - [x] Select `chromium` as the initial browser type identifier; plan and case schemas reject other browser types.
 - [x] Specify default headless mode `true` as run-wide because it is selected at Chromium launch; cases cannot override it. Set the default viewport to 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum, default IANA time zone to `UTC`, and default run-wide BCP 47 locale to `en-CA`; cases cannot override locale.
 - [x] Set the default navigation wait to `domcontentloaded`, the default action/navigation timeout to 30 seconds, and the maximum explicit fixed delay to 30 seconds; allow explicit bounded `networkidle` waits.
+- [x] Require `navigate.url` to be an absolute HTTP or HTTPS URL with a host; defer relative URLs and any `baseURL` setting for future consideration under [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
 - [x] Agree that locators use one strategy per object: role (optionally with accessible name), label, CSS, or XPath.
 - [x] Require exact role/label names; fail immediately on multiple matches and retry zero matches up to three total attempts by default. Reserve one-second gaps between attempts, then divide the remaining action timeout as evenly as possible among the locator waits; a 30-second timeout gives about 9.3 seconds per wait.
 - [x] Choose action names `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`; distinguish character typing from direct field setting and allow dropdown selection by value or visible label.
@@ -33,13 +34,14 @@
 - [x] Use one timeout budget for each `waitFor` locator; check once per second until exactly one match appears or the timeout expires. Fail immediately on multiple matches. The three-attempt rule applies to action locator lookups, not `waitFor` items.
 - [x] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Defer CLI flag names to CLI implementation and variable references to M5.
 - [x] Define accessibility settings and scan behaviour: scans are disabled by default, findings are non-failing by default, plan settings can be overridden by cases, and enabled scans run after completed steps with deduplicated findings. M6 defines how configured failure policies affect case/run outcomes and continuation.
-- [x] Represent the agreed action, assertion, browser-setting, and accessibility contracts in the schemas, examples, and invalid fixtures. `plan-schema` validates step shapes and locale-key semantics; it does not execute actions or apply retry policy.
+- [x] Represent the agreed action, assertion, browser-setting, accessibility, and navigation-URL contracts in the schemas, examples, and tests. `plan-schema` validates step shapes, absolute HTTP/HTTPS navigation URLs, and locale-key semantics; it does not execute actions or apply retry policy.
 - [x] Add public-entry tests for the supported actions, assertions, waits, locale overrides, timeout/delay constraints, and accessibility settings.
-- [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 31 tests passed in the dev container.
+- [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 32 tests passed in the dev container after absolute HTTP/HTTPS URL validation was added.
 - [x] Update the Phase 1 and package learning guides to reflect the implemented schema boundary.
 - [x] Implement the initial browser lifecycle in [`@stagehand/runner-core` under TE-003](../Backlog/technical-enablers/te-003-playwright-browser-lifecycle-and-factory.md): one Playwright-managed Chromium process per run and one isolated browser context/page per case. Apply run-wide locale/headless defaults and case-overridable viewport/time-zone settings; wait for in-flight case setup before browser shutdown, reject sessions whose setup finishes after shutdown starts, and make concurrent run cleanup calls await the same promise.
+- [x] Add case-session locator resolution to runner-core for role, label, CSS, and XPath strategies, enforcing exact role/label names, unique matches, and the agreed bounded retry policy. Whole-step execution remains outstanding.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
-- [x] Build and run the runner-core public-entry tests and plan-schema tests in the dev container; all 7 runner-core tests and all 31 plan-schema tests passed.
+- [x] Build and run the runner-core public-entry tests and plan-schema tests in the dev container; all 12 runner-core tests and all 32 plan-schema tests passed.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
 - [ ] Confirm the GitHub Actions Linux and Windows jobs pass.
 
@@ -51,8 +53,8 @@
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, and coordinates in-flight setup with idempotent run cleanup. Its seven public-entry tests pass in the dev container.
-- The plan-schema suite passes all 31 tests in the dev container after headless mode was restricted to plan/run scope. GitHub Actions checks are configured and awaiting the PR run.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, and resolves unique locators on case sessions. Its 12 public-entry tests pass in the dev container.
+- The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference
 

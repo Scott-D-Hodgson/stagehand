@@ -17,4 +17,4 @@ Implement Playwright browser selection, context settings, action handlers, lifec
 
 ## Notes
 
-The initial `runner-core` slice now starts one Chromium process per run, creates an isolated context and page per case, applies the agreed browser defaults and case viewport/time-zone overrides, and coordinates shutdown with in-flight case setup and concurrent close calls. Step handlers and the remaining execution behaviour are still outstanding. Refine this enabler into smaller tasks if implementation reveals independent workstreams.
+The initial `runner-core` slice starts one Chromium process per run, creates an isolated context and page per case, applies the agreed browser defaults and case viewport/time-zone overrides, coordinates shutdown with in-flight case setup and concurrent close calls, and exposes unique locator resolution on each case session. Whole-step handlers, ordered waits, and action execution remain outstanding. Refine this enabler into smaller tasks if implementation reveals independent workstreams.

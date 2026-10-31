@@ -134,6 +134,36 @@ function validateCaseSettings(input: unknown): ValidationIssue[] {
   );
 }
 
+function validateNavigationUrls(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !Array.isArray(input.steps)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  for (const [stepIndex, step] of input.steps.entries()) {
+    if (!isRecord(step) || step.action !== "navigate" || typeof step.url !== "string") {
+      continue;
+    }
+    const path = `/steps/${stepIndex}/url`;
+    try {
+      const url = new URL(step.url);
+      if (
+        !/^https?:\/\//i.test(step.url) ||
+        (url.protocol !== "http:" && url.protocol !== "https:") ||
+        url.hostname.length === 0
+      ) {
+        throw new TypeError("Navigation URL must be absolute and use HTTP or HTTPS.");
+      }
+    } catch {
+      issues.push({
+        path,
+        keyword: "invalidNavigationUrl",
+        message: "Navigation URL must be an absolute HTTP or HTTPS URL with a host.",
+      });
+    }
+  }
+  return issues;
+}
+
 function escapeJsonPointerSegment(value: string): string {
   return value.replace(/~/g, "~0").replace(/\//g, "~1");
 }
@@ -338,6 +368,7 @@ export function validateCase(input: unknown): ValidationResult {
   const schemaResult = toValidationResult(valid, validateCaseSchemaV1.errors);
   return includeSemanticIssues(schemaResult, [
     ...validateCaseSettings(input),
+    ...validateNavigationUrls(input),
     ...validateCaseExpectedLocales(input),
   ]);
 }

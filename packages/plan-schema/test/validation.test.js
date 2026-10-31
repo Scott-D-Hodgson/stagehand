@@ -144,6 +144,54 @@ test("rejects unsupported actions and missing action-specific fields", () => {
   }
 });
 
+test("requires navigation URLs to be absolute HTTP or HTTPS URLs", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  for (const url of [
+    "https://example.com/sign-in",
+    "http://localhost:3000/sign-in",
+    "HTTPS://example.com/sign-in",
+  ]) {
+    assert.deepEqual(
+      validateCase({ ...exampleCase, steps: [{ action: "navigate", url }] }),
+      { valid: true },
+    );
+  }
+  for (const url of [
+    "/sign-in",
+    "../sign-in",
+    "//example.com/sign-in",
+    "ftp://example.com/sign-in",
+    "javascript:alert(1)",
+    "https://",
+    "https:example.com/sign-in",
+  ]) {
+    const result = validateCase({
+      ...exampleCase,
+      steps: [{ action: "navigate", url }],
+    });
+    assert.equal(result.valid, false, `Expected ${url} to be rejected.`);
+    assert.ok(
+      result.issues.some(
+        (issue) =>
+          issue.path === "/steps/0/url" &&
+          (issue.keyword === "pattern" || issue.keyword === "invalidNavigationUrl"),
+      ),
+      `Expected ${url} to report a navigation URL issue.`,
+    );
+  }
+  const missingHost = validateCase({
+    ...exampleCase,
+    steps: [{ action: "navigate", url: "https://" }],
+  });
+  assert.ok(
+    missingHost.issues.some(
+      (issue) =>
+        issue.path === "/steps/0/url" &&
+        issue.keyword === "invalidNavigationUrl",
+    ),
+  );
+});
+
 test("requires selectOption to use exactly one of value or label", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const locator = { label: "Region" };
