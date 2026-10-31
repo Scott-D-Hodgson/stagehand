@@ -1,6 +1,6 @@
-﻿# Proposed monorepo footprint
+# Proposed monorepo footprint
 
-This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation, including absolute HTTP/HTTPS navigation URL checks; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. The runner-core workspace starts Playwright-managed Chromium, manages per-case contexts and pages, resolves case locators, runs ordered wait lists, navigates case sessions to absolute HTTP/HTTPS URLs, and performs direct clicks. Whole-step execution and result production are still future work.
+This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation, including absolute HTTP/HTTPS navigation URL checks; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. The runner-core workspace starts Playwright-managed Chromium, manages per-case contexts and pages, resolves case locators, runs ordered wait lists, navigates case sessions to absolute HTTP/HTTPS URLs, performs direct clicks, and initially dispatches validated `navigate` and `click` steps. Other action handlers, assertions, result production, and full plan integration remain future work.
 
 ```text
 stagehand/
@@ -35,7 +35,7 @@ stagehand/
 │   ├── api/                 # optional/later
 │   └── desktop/             # Electron, later
 ├── packages/
-│   ├── runner-core/          # Chromium lifecycle, per-case sessions, locator resolution, waits, navigation, and clicks
+│   ├── runner-core/          # Chromium lifecycle, per-case sessions, locator resolution, waits, navigation, clicks, and initial step dispatch
 │   │   ├── README.md
 │   │   ├── package.json
 │   │   ├── src/index.ts
@@ -44,6 +44,7 @@ stagehand/
 │   │   ├── test/wait-list.test.js
 │   │   ├── test/navigate.test.js
 │   │   ├── test/click.test.js
+│   │   ├── test/step-execution.test.js # planned public-entry coverage
 │   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/
