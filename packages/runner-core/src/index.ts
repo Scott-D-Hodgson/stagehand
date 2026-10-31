@@ -36,6 +36,7 @@ export interface CaseBrowserSession {
   click(locator: LocatorDefinition, options?: ClickOptions): Promise<void>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
+  executeSteps(caseId: string, steps: readonly ExecutableStep[]): Promise<void>;
   close(): Promise<void>;
 }
 
@@ -66,6 +67,24 @@ export interface NavigationOptions {
   waitUntil?: NavigationWaitUntil;
 }
 
+export interface NavigateStep {
+  action: "navigate";
+  url: string;
+  timeout?: number;
+  waitUntil?: NavigationWaitUntil;
+}
+
+export interface ClickStep {
+  action: "click";
+  locator: LocatorDefinition;
+  timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
+  scrollIntoView?: boolean;
+}
+
+export type ExecutableStep = NavigateStep | ClickStep;
+
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
   close(): Promise<void>;
@@ -89,6 +108,20 @@ export class WaitExecutionError extends Error {
   constructor(message: string, cause?: unknown) {
     super(message, { cause });
     this.name = "WaitExecutionError";
+  }
+}
+
+export class StepExecutionError extends Error {
+  caseId: string;
+  stepIndex: number;
+  action: string;
+  constructor(caseId: string, stepIndex: number, action: string, cause: unknown) {
+    const detail = cause instanceof Error ? cause.message : String(cause);
+    super(`Case "${caseId}", step ${stepIndex} (${action}) failed: ${detail}`, { cause });
+    this.name = "StepExecutionError";
+    this.caseId = caseId;
+    this.stepIndex = stepIndex;
+    this.action = action;
   }
 }
 
@@ -307,6 +340,43 @@ async function executeNavigation(
   return page.goto(url, { timeout, waitUntil });
 }
 
+async function executeCaseSteps(
+  page: Page,
+  caseId: string,
+  steps: readonly ExecutableStep[],
+): Promise<void> {
+  if (!Array.isArray(steps)) {
+    throw new TypeError("Case steps must be an array.");
+  }
+  for (const [stepIndex, step] of steps.entries()) {
+    const action = (step as { action?: unknown }).action;
+    try {
+      switch (step.action) {
+        case "navigate":
+          await executeNavigation(page, step.url, {
+            timeout: step.timeout,
+            waitUntil: step.waitUntil,
+          });
+          break;
+        case "click":
+          await executeWaitList(page, step.before ?? []);
+          await executeClick(page, step.locator, {
+            timeout: step.timeout,
+            scrollIntoView: step.scrollIntoView,
+          });
+          await executeWaitList(page, step.after ?? []);
+          break;
+        default:
+          throw new TypeError(
+            `Action "${String((step as { action?: unknown }).action)}" is not supported by this step executor.`,
+          );
+      }
+    } catch (error) {
+      throw new StepExecutionError(caseId, stepIndex, String(action), error);
+    }
+  }
+}
+
 export async function startBrowserRun(
   settings: BrowserRunSettings = {},
 ): Promise<BrowserRun> {
@@ -352,6 +422,9 @@ export async function startBrowserRun(
         },
         async navigate(url, options = {}) {
           return executeNavigation(page, url, options);
+        },
+        async executeSteps(caseId, steps) {
+          await executeCaseSteps(page, caseId, steps);
         },
         close() {
           if (sessionClosePromise) {
