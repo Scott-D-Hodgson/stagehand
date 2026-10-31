@@ -18,12 +18,14 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | HTML | HyperText Markup Language. |
 | IANA | Internet Assigned Numbers Authority. |
 | ID | Identifier. |
+| ISC | Internet Systems Consortium; the ISC licence applies to some bundled axe components. |
 | JSON | JavaScript Object Notation. |
 | LICENSE | The conventional filename for a repository's licence text; not an acronym in this context. |
 | LTS | Long-term support. |
 | M0–M7 | Work-plan milestone identifiers; M0 is repository bootstrap and M1–M7 cover Phase 1. |
 | MDN | Mozilla Developer Network. |
 | MIT | Massachusetts Institute of Technology; the project uses the MIT Licence. |
+| MPL-2.0 | Mozilla Public License, version 2.0. |
 | MVP | Minimum viable product. |
 | OS | Operating system. |
 | PR | Pull request. |

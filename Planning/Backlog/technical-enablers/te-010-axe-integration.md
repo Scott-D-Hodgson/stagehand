@@ -1,6 +1,7 @@
 # TE-010 — axe integration
 
-**Status:** Proposed  
+**Status:** In Progress
+
 **Priority:** Must  
 **Related stories:** ATR-019
 
@@ -18,3 +19,61 @@ Integrate axe scanning after each completed step when enabled, keep findings att
 ## Notes
 
 Refine this enabler into smaller tasks if implementation reveals independent workstreams.
+
+## Dependency review
+
+**Accepted by the owner on 31 October 2026:** use Deque's `@axe-core/playwright@4.14.0` as a production dependency of `@stagehand/runner-core`, with `axe-core@4.14.0` resolved in the lockfile. The owner accepts the MPL-2.0 obligations and will use the upstream packages without modifying their covered files. Both packages are installed; scanning remains unimplemented.
+
+### Options considered
+
+| Option | Fit for Stagehand | Trade-off |
+| --- | --- | --- |
+| `@axe-core/playwright` | Accepts the existing Playwright page and coordinates axe injection and frame analysis. | Adds the adapter and engine under MPL-2.0; Stagehand must still own scan cadence, settings, finding collection, and errors. |
+| Direct `axe-core` injection | Uses the same engine with one fewer npm package. | Stagehand would own more injection, frame, and navigation lifecycle logic; it does not avoid the engine's MPL-2.0 obligations. |
+
+The adapter is the accepted starting point because Stagehand already owns Playwright case sessions. Keep the integration inside runner-core; do not add a second browser process, CLI tool, test framework, or adapter package to Stagehand's architecture merely to run scans. The adapter can use helper pages internally, so its cleanup behaviour still needs verification.
+
+### Published-package evidence
+
+Reviewed the npm archives for both packages using `npm pack --ignore-scripts`; no package lifecycle scripts were executed. Inspected each archive's `package.json` and `LICENSE`, plus the engine's `LICENSE-3RD-PARTY.txt`. Registry metadata identified 4.14.0 as the adapter's current published version at review time.
+
+| Package | Licence | Runtime dependencies | Compatibility metadata |
+| --- | --- | --- | --- |
+| `@axe-core/playwright@4.14.0` | MPL-2.0 | `axe-core ~4.14.0`; peer `playwright-core >=1.0.0` | Node.js `>=22.12.0`; ESM and CommonJS exports with TypeScript declarations. |
+| `axe-core@4.14.0` | MPL-2.0 | No declared runtime npm dependencies. | Node.js `>=4`; ships the engine and TypeScript declarations. |
+
+Stagehand's Node.js 26.12.1 and existing Playwright/playwright-core 1.64.1 satisfy those declared ranges. These declared ranges match the installed dependency tree; real-browser scanning remains unverified. The adapter's versioning follows the engine's major/minor line; review patch updates deliberately as well. The direct dependency is pinned exactly, the lockfile resolves the engine to 4.14.0, and the existing playwright-core peer is reused.
+
+### Licence and bundled notices
+
+MPL-2.0 applies to both packages. Mozilla describes it as file-level copyleft: separate Stagehand files can retain MIT, while covered files and modifications to them remain subject to MPL. Redistribution requires preserving applicable notices and making the covered source available to recipients, including telling executable recipients how to obtain it. The accepted approach is to use upstream packages without modifying their covered files, retain their licence files, and document exact-version source locations. A release packaging check must verify that the shipped artifact provides those notices and source instructions.
+
+The engine also bundles code covered by MIT and ISC. Its published third-party notice lists:
+
+- MIT: `colorjs.io`, `core-js-pure`, `css-selector-parser`, `doT.js` (including jQote2 portions), `emoji-regex`, `es6-iterator`, `es6-promise`, `event-emitter`, `is-promise`, `lru-queue`, `typedarray`, and `weakmap-polyfill`.
+- ISC: `d`, `es5-ext`, `es6-symbol`, `es6-weak-map`, `ext`, `memoizee`, `next-tick`, `timers-ext`, and `type`.
+
+These are bundled components, not additional resolved runtime npm dependencies. Retain the complete shipped `LICENSE-3RD-PARTY.txt`, including all copyright statements and licence text. A dependency-tree licence scan alone would miss this distinction.
+
+[Third-party notices](../../../THIRD-PARTY-NOTICES.md) now identifies both installed MPL packages and reproduces the MPL text, the engine copyright header, trademark attribution, and complete bundled MIT/ISC notices. It includes exact-version source instructions. Package files are used unchanged; future release packaging still needs to verify notice and source-instruction inclusion in shipped artifacts.
+
+### Remaining decisions and verification
+
+- [x] Owner accepts the adapter choice and MPL-2.0 obligations, using upstream covered files unchanged.
+- [x] Install/pin the dependency and record the actual resolved tree and notices.
+- [x] Verify the ESM import and a TypeScript compile using `AxeBuilder` with Playwright's `Page` type; both passed locally on Windows with the pinned toolchain.
+- [x] Run the runner-core build and existing mocked-browser suite after installation; all 81 tests passed locally on Windows.
+- [ ] Verify real-browser scanning, including frames and cleanup.
+- [ ] Verify notices and covered-source instructions in future release artifacts.
+- [ ] Settle the minimal retained affected-node fields before the M4 result-model extension. Candidate fields for discussion are problematic markup, the structured target selector, and an available failure summary; they are not an accepted result shape.
+
+Keep violations separate from functional assertions. A rejected scan is an execution error, not an accessibility finding; handling incomplete results also needs deliberate treatment. M6 continues to own outcome and continuation policy. This review does not implement scanning, select a rule subset, or establish accessibility conformance.
+
+### Sources
+
+- [Deque adapter documentation, version 4.14.0](https://github.com/dequelabs/axe-core-npm/tree/v4.14.0/packages/playwright)
+- [Adapter source at the published package's gitHead](https://github.com/dequelabs/axe-core-npm/tree/2375f7f5523a2accaeef91a3cb12e30a46e7fbea/packages/playwright)
+- [axe-core source, version 4.14.0](https://github.com/dequelabs/axe-core/tree/v4.14.0)
+- [Engine bundled notices, version 4.14.0](https://github.com/dequelabs/axe-core/blob/v4.14.0/LICENSE-3RD-PARTY.txt)
+- [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
+- [Mozilla's MPL FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/)

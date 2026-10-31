@@ -17,3 +17,7 @@ npm test --workspace @stagehand/runner-core
 The tests import the public package name and replace the Playwright launch method with small test doubles, so they do not require a downloaded browser. Dispatcher tests cover ordered `navigate`/`click`/`type`/`fill`/`selectOption`/`assertText`/`assertHtml`/`assertValue` execution, interaction wait lists, scrolling, timeout handling, failure context, and the no-scroll viewport rule. The suite includes 19 added `assertValue` and associated-label test cases, alongside the existing 62 tests.
 
 Playwright and its `playwright-core` dependency use Apache-2.0, not MIT. Their licence text and notices are recorded in the repository's [third-party notices](../../THIRD-PARTY-NOTICES.md), where this non-MIT dependency remains flagged for maintainer review.
+
+`@axe-core/playwright` is pinned to 4.14.0 as a production dependency, with `axe-core` resolved to 4.14.0. The owner accepted MPL-2.0 for use of the upstream files unchanged. The [third-party notices](../../THIRD-PARTY-NOTICES.md#axe-accessibility-dependencies) contain the full licence text, source-availability instructions, engine copyright/trademark attribution, and bundled MIT/ISC notices. Installing this dependency does not implement accessibility scanning.
+
+The adapter's ESM import and TypeScript compatibility with Playwright's `Page` type were checked locally on Windows. The runner-core build and all 81 existing mocked-browser tests also passed after installation. Real-browser scanning and release-artifact notice inclusion remain unverified.

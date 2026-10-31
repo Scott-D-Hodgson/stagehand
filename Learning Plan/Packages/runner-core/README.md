@@ -4,6 +4,14 @@ This guide covers runner-core's current browser lifecycle, direct case-session n
 
 The runner-core build and all 81 mocked-browser tests passed locally on Windows. Dev-container, real-browser, and current CI verification of the input-value slice remain outstanding. It reads the input value exactly and can check the associated label using standard HTML associations. Label failures are always soft, and the check shares the assertion timeout. The direct API returns label failure details; the dispatcher returns them with `check: "associatedLabel"`. Hard value failures stop before the label check; soft value failures allow it to run. See the [package README](../../../packages/runner-core/README.md) for the API options.
 
+## Accessibility dependency boundary
+
+Runner-core now depends on `@axe-core/playwright@4.14.0`; the lockfile resolves its `axe-core` engine to 4.14.0 and reuses Playwright's existing peer dependency. The adapter's module import and TypeScript use with a Playwright page compile locally; no scanner is wired into step execution yet. All 81 existing runner-core tests passed after installation, but they use browser doubles.
+
+Both axe packages use the Mozilla Public License 2.0 (MPL-2.0). Stagehand will use their files unchanged. When redistributing them, retain notices and provide access to the covered source. The engine also bundles MIT/ISC components whose attributions live inside its package, so a list of npm dependencies alone does not describe every notice obligation. See [Stagehand's third-party notices](../../../THIRD-PARTY-NOTICES.md#axe-accessibility-dependencies) and the [accepted dependency review under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#dependency-review). Release packaging still needs to verify those materials in the shipped artifact.
+
+As a review exercise, locate both axe packages in the lockfile, compare their `LICENSE` files with the reproduced MPL text, and find the engine's `LICENSE-3RD-PARTY.txt`. Explain why installation and a successful import do not prove that scans run after steps.
+
 ## Self-assessment
 
 - [ ] I can explain why one browser process is shared by a run while each case receives its own context.

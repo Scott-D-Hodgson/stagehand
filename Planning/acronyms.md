@@ -24,6 +24,7 @@ This glossary collects acronyms used in the Planning materials. Meanings are giv
 | DNSSEC | Domain Name System Security Extensions. |
 | DEP/ASLR | Data Execution Prevention / Address Space Layout Randomization. |
 | DOM | Document Object Model. |
+| ESM | ECMAScript modules. |
 | GPS | Global Positioning System. |
 | HTML | HyperText Markup Language. |
 | IAM | Identity and access management. |
@@ -33,12 +34,14 @@ This glossary collects acronyms used in the Planning materials. Meanings are giv
 | IDS/IPS | Intrusion detection system / intrusion prevention system. |
 | JSON/XML/HTML | JavaScript Object Notation / Extensible Markup Language / HyperText Markup Language. |
 | IP | Internet Protocol. |
+| ISC | Internet Systems Consortium; the ISC licence applies to some bundled axe components. |
 | JSON | JavaScript Object Notation. |
 | LAN | Local area network. |
 | LTS | Long-term support. |
 | MFA | Multi-factor authentication. |
 | MIT | Massachusetts Institute of Technology; the project licence is the MIT Licence. |
 | MTTF | Mean time to failure. |
+| MPL-2.0 | Mozilla Public License, version 2.0. |
 | MVP | Minimum viable product. |
 | .NET | Microsoft's software development platform name; it is not expanded as an acronym here. |
 | NIST | National Institute of Standards and Technology (United States). |
