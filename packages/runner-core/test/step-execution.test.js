@@ -74,6 +74,35 @@ test("dispatches navigate and click steps in order with click waits", async () =
   await run.close();
 });
 
+test("passes a step's scrollIntoView setting to the click operation", async () => {
+  let clickOptions;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async click(options) {
+      clickOptions = options;
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await session.executeSteps("sign-in", [
+    {
+      action: "click",
+      locator: { css: "#continue" },
+      scrollIntoView: false,
+    },
+  ]);
+  assert.equal(clickOptions.scroll, "none");
+  assert.ok(clickOptions.timeout > 0);
+  await run.close();
+});
+
 test("stops at the first failed step and reports its case and index", async () => {
   const events = [];
   const locatorError = new Error("target is unavailable");

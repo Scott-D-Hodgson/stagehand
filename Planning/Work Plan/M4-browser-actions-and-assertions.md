@@ -46,6 +46,8 @@
 - [x] Add an initial case-step dispatcher that runs validated `navigate` and `click` steps in order, including click `before`/`after` waits, and wraps failures with case ID and zero-based step index. Result records and outcome aggregation remain out of scope for this slice.
 - [x] Add public-entry tests for ordered step dispatch, click wait lists, and failure context.
 - [x] Build and run the runner-core suite with the new dispatcher tests in the dev container; all 32 tests passed.
+- [x] Add a public-entry test confirming `scrollIntoView: false` is passed through to the click operation.
+- [ ] Rerun the runner-core suite with the step-level scrolling test.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
 - [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
@@ -59,7 +61,7 @@
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation and direct clicks, and initially dispatches validated `navigate` and `click` steps. The current 32 public-entry tests pass in the dev container, including ordered dispatch, click waits, and failure context.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation and direct clicks, and initially dispatches validated `navigate` and `click` steps. The existing 32 public-entry tests passed before the step-level scrolling test was added; the expanded suite needs to be rerun.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference
