@@ -41,7 +41,8 @@
 - [x] Agree that run-level axe assessment has a companion optional tag filter; selected tags scope the scan, while omitted/empty tags leave axe's default rule selection unrestricted. This input filter is separate from finding-level `tags`.
 - [x] Implement `accessibility.tags` in plan/case schemas and examples: reject unknown/non-exact tags, duplicates, and wrong types; preserve omission for inheritance, non-empty case lists for replacement, and explicit empty lists for clearing. All 39 plan-schema tests pass locally on Windows. Plan-engine builds with 14 passing tests and 3 skipped Windows symlink tests. Validation does not apply effective settings; exact CLI flag names remain deferred to CLI implementation.
 - [ ] Verify the scan-tag schema slice in the dev container/CI; prior local Windows evidence and PR merge status do not establish those results.
-- [ ] Resolve effective per-case accessibility enabled/failOnViolation/tags in a small runner-core slice: apply independent plan/case overrides, preserve explicit false, inherit omitted tags, replace non-empty tag lists, and clear with empty lists. Defaults are disabled/non-failing/unrestricted tags; add public-entry tests without introducing scans or M6 outcome policy.
+- [x] Resolve effective per-case accessibility enabled/failOnViolation/tags in a small runner-core slice: apply independent plan/case overrides, preserve explicit false, inherit omitted tags, replace non-empty tag lists, and clear with empty lists. Defaults are disabled/non-failing/unrestricted tags. The pure public resolver and session.accessibility snapshots copy tag arrays and preserve settings before asynchronous setup. All 88 runner-core tests (seven new settings tests) and a TypeScript result-settings compatibility check pass locally on Windows; scans and M6 policy remain unimplemented.
+- [ ] Verify the accessibility settings slice in the dev container/CI.
 - [ ] Apply/test resolved tag scope during scanner execution for one tag, multiple tags, omitted tags, and empty lists. See the [scan-scope option under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
 - [x] Extend the result-model v1 schema, types, and synthetic example with finding URLs/tags/affectedNodes, flat related-node evidence, optional XPath, nullable unknown impact, and required per-case effective enabled/failOnViolation/tags, including cases without findings. The build and all 22 result-model tests passed locally on Windows; a public TypeScript type check passed.
 - [ ] Verify the result-model slice in the dev container/CI. This extension remains M4 work and does not reopen M3.
@@ -89,6 +90,8 @@
 - [ ] Confirm the GitHub Actions Linux and Windows jobs pass.
 
 ## Completion evidence
+
+- Runner-core resolves accessibility defaults and independent plan/case overrides through a pure public helper and exposes per-session snapshots. The build and all 88 tests pass locally on Windows; a separate TypeScript public-import check confirms compatibility with result-model settings. These are mocked-browser tests, not axe scan execution evidence.
 
 - The accessibility result v1 extension is represented in JSON Schema, TypeScript types, a synthetic example, and 22 passing local Windows tests. It validates shape/formats and duplicate related objects; producer-side collection, count consistency, and scanner integration remain outstanding. Earlier minimal v1 accessibility records require the new fields; no migration tooling is implemented.
 
