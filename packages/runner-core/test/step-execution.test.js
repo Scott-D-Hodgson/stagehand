@@ -1,11 +1,11 @@
 import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
-import { chromium } from "playwright";
+import { chromium, errors } from "playwright";
 import { startBrowserRun, StepExecutionError } from "@stagehand/runner-core";
 
 afterEach(() => mock.restoreAll());
 
-async function createSession(page) {
+async function createSession(page, settings = {}) {
   const browser = {
     async newContext() {
       return {
@@ -18,7 +18,7 @@ async function createSession(page) {
     async close() {},
   };
   mock.method(chromium, "launch", async () => browser);
-  const run = await startBrowserRun();
+  const run = await startBrowserRun(settings);
   return { run, session: await run.createCaseSession() };
 }
 
@@ -660,5 +660,300 @@ test("stops at the first failed step and reports its case and index", async () =
       /Case "sign-in", step 1 \(click\) failed: target is unavailable/.test(error.message),
   );
   assert.deepEqual(events, ["navigate:https://example.com/sign-in"]);
+  await run.close();
+});
+
+test("assertText compares exact inner text using the run-locale expected value", async () => {
+  let textOptions;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerText(options) {
+      textOptions = options;
+      return "Se connecter";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page, { locale: "fr-CA" });
+  await session.assertText(
+    { css: "h1" },
+    { default: "Sign in", locales: { "fr-ca": "Se connecter" } },
+    { timeout: 1_000 },
+  );
+  assert.ok(textOptions.timeout > 0 && textOptions.timeout <= 1_000);
+  await run.close();
+});
+
+test("dispatches a passing assertText step and uses the default when no locale override matches", async () => {
+  let textRead = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerText() {
+      textRead = true;
+      return "Sign in";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertText",
+      locator: { css: "h1" },
+      expected: { default: "Sign in", locales: { "fr-CA": "Se connecter" } },
+    },
+  ]);
+  assert.equal(textRead, true);
+  assert.deepEqual(softFailures, []);
+  await run.close();
+});
+
+test("stops on a hard assertText mismatch with case and step context", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerText() {
+      return "Welcome";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      {
+        action: "assertText",
+        locator: { css: "h1" },
+        expected: { default: "Sign in" },
+      },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.caseId === "sign-in" &&
+      error.stepIndex === 0 &&
+      error.action === "assertText" &&
+      error.cause.expected === "Sign in" &&
+      error.cause.actual === "Welcome" &&
+      /Expected text "Sign in" but received "Welcome"/.test(error.message),
+  );
+  assert.equal(navigated, false);
+  await run.close();
+});
+
+test("returns a soft assertText mismatch and continues to later steps", async () => {
+  let navigated = false;
+  const locator = {
+    async waitFor() {},
+    async count() {
+      return 1;
+    },
+    async innerText() {
+      return "Welcome";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertText",
+      locator: { css: "h1" },
+      expected: { default: "Sign in" },
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertText",
+      expected: "Sign in",
+      actual: "Welcome",
+      message: 'Expected text "Sign in" but received "Welcome".',
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertText locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {
+          throw new errors.TimeoutError("locator wait timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertText",
+      locator: { css: "h1" },
+      expected: { default: "Sign in" },
+      timeout: 1,
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.deepEqual(softFailures, [
+    {
+      caseId: "sign-in",
+      stepIndex: 0,
+      action: "assertText",
+      expected: "Sign in",
+      message: "Locator did not match an element within 1 milliseconds after 1 attempt.",
+    },
+  ]);
+  await run.close();
+});
+
+test("returns a soft assertText ambiguous-locator failure and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 2;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertText",
+      locator: { css: "h1" },
+      expected: { default: "Sign in" },
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].expected, "Sign in");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.match(softFailures[0].message, /matched 2 elements/);
+  await run.close();
+});
+
+test("returns a soft assertText text-read timeout and continues to later steps", async () => {
+  let navigated = false;
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async innerText() {
+          throw new errors.TimeoutError("inner text timed out");
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [
+    {
+      action: "assertText",
+      locator: { css: "h1" },
+      expected: { default: "Sign in" },
+      soft: true,
+    },
+    { action: "navigate", url: "https://example.test/next" },
+  ]);
+  assert.equal(navigated, true);
+  assert.equal(softFailures.length, 1);
+  assert.equal(softFailures[0].expected, "Sign in");
+  assert.equal(softFailures[0].actual, undefined);
+  assert.equal(softFailures[0].message, "inner text timed out");
+  await run.close();
+});
+
+test("does not continue after an unsafe assertText error marked soft", async () => {
+  let navigated = false;
+  const browserError = new Error("browser connection closed");
+  const page = {
+    locator() {
+      return {
+        async waitFor() {},
+        async count() {
+          return 1;
+        },
+        async innerText() {
+          throw browserError;
+        },
+      };
+    },
+    async goto() {
+      navigated = true;
+      return null;
+    },
+  };
+  const { run, session } = await createSession(page);
+  await assert.rejects(
+    session.executeSteps("sign-in", [
+      {
+        action: "assertText",
+        locator: { css: "h1" },
+        expected: { default: "Sign in" },
+        soft: true,
+      },
+      { action: "navigate", url: "https://example.test/next" },
+    ]),
+    (error) =>
+      error instanceof StepExecutionError &&
+      error.stepIndex === 0 &&
+      error.action === "assertText" &&
+      error.cause === browserError,
+  );
+  assert.equal(navigated, false);
   await run.close();
 });
