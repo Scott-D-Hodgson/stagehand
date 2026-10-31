@@ -33,6 +33,7 @@ export interface CaseBrowserSession {
     locator: LocatorDefinition,
     options?: LocatorResolutionOptions,
   ): Promise<Locator>;
+  click(locator: LocatorDefinition, options?: ClickOptions): Promise<void>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
   close(): Promise<void>;
@@ -46,6 +47,11 @@ export type LocatorDefinition =
 
 export interface LocatorResolutionOptions {
   timeout?: number;
+}
+
+export interface ClickOptions {
+  timeout?: number;
+  scrollIntoView?: boolean;
 }
 
 export type WaitDefinition =
@@ -160,6 +166,30 @@ async function resolveUniqueLocator(
   throw new LocatorResolutionError(
     `Locator did not match an element within ${timeout} milliseconds after ${attemptCount} attempt${attemptCount === 1 ? "" : "s"}.`,
   );
+}
+
+async function executeClick(
+  page: Page,
+  definition: LocatorDefinition,
+  options: ClickOptions,
+): Promise<void> {
+  const timeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
+  if (!Number.isInteger(timeout) || timeout < 1) {
+    throw new RangeError("Click timeout must be a positive integer in milliseconds.");
+  }
+  if (options.scrollIntoView !== undefined && typeof options.scrollIntoView !== "boolean") {
+    throw new TypeError("scrollIntoView must be a boolean when provided.");
+  }
+  const deadline = performance.now() + timeout;
+  const locator = await resolveUniqueLocator(page, definition, timeout);
+  const remaining = Math.floor(deadline - performance.now());
+  if (remaining < 1) {
+    throw new Error(`Click exceeded its ${timeout} millisecond timeout while resolving the locator.`);
+  }
+  await locator.click({
+    timeout: remaining,
+    scroll: options.scrollIntoView === false ? "none" : "auto",
+  });
 }
 
 function getWaitTimeout(timeout: number | undefined): number {
@@ -313,6 +343,9 @@ export async function startBrowserRun(
             throw new RangeError("Locator timeout must be a positive integer in milliseconds.");
           }
           return resolveUniqueLocator(page, locator, timeout);
+        },
+        async click(locator, options = {}) {
+          await executeClick(page, locator, options);
         },
         async runWaitList(waits) {
           await executeWaitList(page, waits);

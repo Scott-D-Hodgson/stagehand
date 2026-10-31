@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "npm run build && node --test test/browser-run.test.js test/locator-resolution.test.js test/wait-list.test.js test/navigate.test.js"
+    "test": "npm run build && node --test test/browser-run.test.js test/locator-resolution.test.js test/wait-list.test.js test/navigate.test.js test/click.test.js"
   },
   "exports": {
     ".": {

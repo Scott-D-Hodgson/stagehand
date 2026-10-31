@@ -1,6 +1,6 @@
 # `@stagehand/runner-core` learning guide
 
-This guide covers runner-core's current browser lifecycle, direct case-session navigation, locator resolver, and ordered wait-list runner. It starts Chromium, manages isolated case sessions, and exposes navigation, locator resolution, and bounded waits; plan loading and whole-step execution remain separate or future work.
+This guide covers runner-core's current browser lifecycle, direct case-session navigation, locator resolver, click operation, and ordered wait-list runner. It starts Chromium, manages isolated case sessions, and exposes navigation, locator resolution, direct clicks on unique matches, and bounded waits; plan loading and whole-step execution remain separate or future work.
 
 ## Self-assessment
 
@@ -9,6 +9,7 @@ This guide covers runner-core's current browser lifecycle, direct case-session n
 - [ ] I can describe how run defaults and case overrides become Playwright context options.
 - [ ] I can explain how `navigate` applies URL validation, timeout, and `waitUntil` settings.
 - [ ] I can explain how the session resolves each locator form, exact names, retries, timeout budgets, and ambiguous matches.
+- [ ] I can explain how click applies the shared timeout budget and the per-action scroll setting.
 - [ ] I can explain how the session runs wait-list items in order and bounds each wait.
 - [ ] I can trace cleanup when page setup, case cleanup, or run cleanup fails.
 - [ ] I can explain why shutdown waits for in-flight setup and how `try/finally` preserves cleanup order.
@@ -18,7 +19,7 @@ This guide covers runner-core's current browser lifecycle, direct case-session n
 
 `startBrowserRun` launches Playwright-managed Chromium. It accepts effective run settings for the plan locale and browser defaults. If omitted, the package uses locale `en-CA`, headless mode, a 1280 by 720 CSS-pixel viewport, and time zone `UTC`. Headless mode is run-wide because Playwright selects it when launching Chromium.
 
-Each call to `createCaseSession` creates a fresh browser context and page. The case inherits the run viewport and time zone unless it supplies an override; locale remains run-wide. The returned session exposes its context and page, `navigate`, `resolveLocator`, `runWaitList`, and `close` methods. `navigate` accepts only an absolute HTTP or HTTPS URL with a host; it uses `domcontentloaded` and a 30-second timeout unless the caller supplies supported overrides. It returns the Playwright response, or `null` when Playwright provides no response. The resolver accepts one role, label, CSS, or XPath strategy. Role and label names match exactly. It waits for a unique match; multiple matches fail immediately. Missing matches get up to three attempts, with one-second gaps. The default timeout is 30 seconds; the total timeout is divided across the locator waits after reserving the gaps. `runWaitList` processes wait items one by one. Locator waits check once per second until exactly one element matches or the item's timeout expires; multiple matches fail immediately. Page-state waits use Playwright's `domcontentloaded` or `networkidle` state. Fixed delays accept values from 1 to 30,000 milliseconds, and a shorter timeout bounds a delay and reports a timeout error. Each item's timeout defaults to 30 seconds. Close each session after its case, and call the run's `close` method in a `finally` block. Run shutdown first waits for any case-session setup already in progress. Setup that finishes after shutdown begins is rejected and its context is closed. Shutdown then closes active case sessions and Chromium; concurrent `close` calls wait for the same cleanup to finish.
+Each call to `createCaseSession` creates a fresh browser context and page. The case inherits the run viewport and time zone unless it supplies an override; locale remains run-wide. The returned session exposes its context and page, `navigate`, `resolveLocator`, `click`, `runWaitList`, and `close` methods. `navigate` accepts only an absolute HTTP or HTTPS URL with a host; it uses `domcontentloaded` and a 30-second timeout unless the caller supplies supported overrides. It returns the Playwright response, or `null` when Playwright provides no response. The resolver accepts one role, label, CSS, or XPath strategy. Role and label names match exactly. It waits for a unique match; multiple matches fail immediately. Missing matches get up to three attempts, with one-second gaps. The default timeout is 30 seconds; the total timeout is divided across the locator waits after reserving the gaps. `click` shares that timeout budget with Playwright actionability checks and defaults scrolling on; setting `scrollIntoView` to `false` makes an off-screen click fail. `runWaitList` processes wait items one by one. Locator waits check once per second until exactly one element matches or the item's timeout expires; multiple matches fail immediately. Page-state waits use Playwright's `domcontentloaded` or `networkidle` state. Fixed delays accept values from 1 to 30,000 milliseconds, and a shorter timeout bounds a delay and reports a timeout error. Each item's timeout defaults to 30 seconds. Close each session after its case, and call the run's `close` method in a `finally` block. Run shutdown first waits for any case-session setup already in progress. Setup that finishes after shutdown begins is rejected and its context is closed. Shutdown then closes active case sessions and Chromium; concurrent `close` calls wait for the same cleanup to finish.
 
 Use `async`/`await` to make the order of browser setup and cleanup clear. A `finally` block still runs if case work or setup fails, so it is the right place to close a case session and the run. Shutdown also has to wait for setup that started before it, otherwise Chromium could close while a context or page is still being created.
 
@@ -38,7 +39,8 @@ try {
     browser: { viewport: { width: 1024, height: 768 } },
   });
   try {
-    // The future step executor will use caseSession.page here.
+    await caseSession.navigate("https://example.test/sign-in");
+    await caseSession.click({ role: "button", name: "Continue" });
   } finally {
     await caseSession.close();
   }
@@ -51,9 +53,10 @@ try {
 
 | File | What to learn from it |
 | --- | --- |
-| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun` and case-session APIs, locator resolution, ordered wait lists, defaults, context creation, and cleanup. |
+| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun` and case-session APIs, locator resolution, click execution, ordered wait lists, defaults, context creation, and cleanup. |
 | [`test/browser-run.test.js`](../../../packages/runner-core/test/browser-run.test.js) | Public-package tests for launch options, effective context settings, and cleanup paths. |
 | [`test/navigate.test.js`](../../../packages/runner-core/test/navigate.test.js) | Public-package tests for navigation defaults, supported overrides, URL validation, and error handling. |
+| [`test/click.test.js`](../../../packages/runner-core/test/click.test.js) | Public-package tests for unique clicks, timeout sharing, scrolling options, retry behaviour, and error handling. |
 | [`test/locator-resolution.test.js`](../../../packages/runner-core/test/locator-resolution.test.js) | Public-package tests for supported locator forms, exact matching, retries, timeout limits, and ambiguous matches. |
 | [`test/wait-list.test.js`](../../../packages/runner-core/test/wait-list.test.js) | Public-package tests for wait ordering, locator polling, page-state timeouts, and bounded delays. |
 | [`package.json`](../../../packages/runner-core/package.json) | Public package entry point, scripts, and pinned Playwright dependency. |
@@ -68,14 +71,15 @@ From the repository root, run:
 npm test --workspace @stagehand/runner-core
 ```
 
-Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
+Then trace the test double through launch, context creation, and cleanup. Change a case viewport override and identify which Playwright option changes. Explain why a case cannot choose a different headless setting while the run shares one browser process. Trace the navigation tests to see how URL validation, defaults, overrides, and Playwright errors are handled. Trace the click tests to see how target retries, timeout sharing, scrolling, and click errors work. Trace the locator tests to see how exact role/label options are passed to Playwright and how timeouts, retries, and multiple matches are handled. Follow the wait-list tests to check ordering and how locator, page-state, and fixed-delay waits are bounded. Finally, trace the in-flight setup test: identify what shutdown waits for, why a late session is rejected, and when Chromium is closed.
 
 ## You are ready when
 
 - You can explain how locale, viewport, and time zone map to Playwright settings.
 - You know that headless mode belongs to browser launch and is shared by the run.
 - You can identify who must close a case session and what run cleanup does if a case is still open.
-- You can describe the current locator resolution policy while recognizing that the runner still does not execute whole plan steps.
+- You can describe the current locator resolution and click policies while recognizing that the runner still does not execute whole plan steps.
+- You can explain how the direct click method acts on one resolved locator and does not yet execute a plan step.
 - You can explain the wait-list API while recognizing that step actions and integration with plan execution remain future work.
 - You can explain the first available action method and distinguish it from whole-plan step orchestration.
 - You know the lifecycle exists but action execution and result aggregation are not implemented here.

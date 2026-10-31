@@ -42,8 +42,9 @@
 - [x] Add case-session locator resolution to runner-core for role, label, CSS, and XPath strategies, enforcing exact role/label names, unique matches, and the agreed bounded retry policy. Whole-step execution remains outstanding.
 - [x] Add ordered case-session wait-list execution for locator waits, page-state waits, and bounded fixed delays; keep whole-step action orchestration outstanding.
 - [x] Add case-session navigation for absolute HTTP/HTTPS URLs, with `domcontentloaded` and a 30-second timeout by default plus supported overrides; keep navigation-step orchestration outstanding.
+- [x] Add a direct case-session click method using the agreed locator retry policy, shared timeout budget, and default scroll behaviour.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
-- [x] Build and run the runner-core public-entry tests in the dev container; all 24 tests passed.
+- [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
 - [ ] Confirm the GitHub Actions Linux and Windows jobs pass.
 
@@ -55,7 +56,7 @@
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
 - Examples and invalid fixtures reflect the documented rules; public-entry tests cover the supported action and assertion forms.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, and exposes case-session navigation. Its 24 public-entry tests pass in the dev container.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, and exposes case-session navigation and direct clicks. Its 25 public-entry tests pass in the dev container.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference
