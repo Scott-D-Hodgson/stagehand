@@ -34,6 +34,11 @@
 - [x] Use one timeout budget for each `waitFor` locator; check once per second until exactly one match appears or the timeout expires. Fail immediately on multiple matches. The three-attempt rule applies to action locator lookups, not `waitFor` items.
 - [x] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Defer CLI flag names to CLI implementation and variable references to M5.
 - [x] Define accessibility settings and scan behaviour: scans are disabled by default, findings are non-failing by default, plan settings can be overridden by cases, and enabled scans run after completed steps with deduplicated findings. M6 defines how configured failure policies affect case/run outcomes and continuation.
+- [x] Decide to keep accessibility findings attached to each case and deduplicate them by URL and violation description within that case; record effective `enabled` and `failOnViolation` settings.
+- [ ] Select the axe integration dependency, review its licence and transitive notices, and settle the minimal affected-node fields to retain from scan output.
+- [ ] Extend the result-model v1 schema, types, and example with accessibility finding URLs, affected-node details, and the effective `failOnViolation` setting. This is an M4 feature addition to the accepted v1 contract and does not reopen M3.
+- [ ] Implement optional axe scanning after each completed step and collect/deduplicate findings within the case; keep violations separate from functional assertion outcomes and leave status policy to M6.
+- [ ] Add public-entry tests for scan defaults, plan/case overrides, scan cadence, per-case de-duplication, affected-node data, and axe execution errors.
 - [x] Represent the agreed action, assertion, browser-setting, accessibility, and navigation-URL contracts in the schemas, examples, and tests. `plan-schema` validates step shapes, absolute HTTP/HTTPS navigation URLs, and locale-key semantics; it does not execute actions or apply retry policy.
 - [x] Add public-entry tests for the supported actions, assertions, waits, locale overrides, timeout/delay constraints, and accessibility settings.
 - [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 32 tests passed in the dev container after absolute HTTP/HTTPS URL validation was added.
@@ -64,7 +69,11 @@
 - [x] Build and run the expanded runner-core suite with the `assertText` tests in the dev container; build succeeded and all 54 tests passed.
 - [x] Implement direct and step-dispatched `assertHtml` using exact, case-sensitive inner-HTML comparison, run-locale expected-value selection, a shared timeout, and the established soft-failure behaviour.
 - [x] Add public-entry tests for `assertHtml` locale selection, exact comparison, locator failures, HTML-read timeout, hard-failure context, unsafe-error handling, and soft-failure continuation.
-- [ ] Build and run the expanded runner-core suite with the `assertHtml` tests in the dev container.
+- [x] Build and run the expanded runner-core suite with the `assertHtml` tests in the dev container; the build succeeded and all 62 tests passed.
+- [ ] Implement direct and step-dispatched `assertValue` with exact input-value comparison, run-locale expected-value selection, and the shared assertion timeout/failure behaviour.
+- [ ] Implement the optional associated-label check for `assertValue`; compare the label's visible text exactly and always report this check as soft.
+- [ ] Add public-entry tests for `assertValue` success, locale overrides, mismatch, timeout, associated-label success/missing/ambiguous outcomes, and hard/soft continuation.
+- [ ] Build and run the expanded runner-core suite with `assertValue` tests in the dev container.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
 - [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
@@ -77,8 +86,8 @@
 - The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
-- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. Eight focused runner-core tests for `assertText` are authored and verified in the 54-test suite that passed before `assertHtml` was added. Focused `assertHtml` tests are authored; a new suite run remains open.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text and HTML assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps. The prior expanded suite passed all 54 tests before the HTML assertion implementation.
+- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. The runner-core suite passed all 62 tests in the dev container, including focused tests for both `assertText` and `assertHtml`.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text and HTML assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps. The expanded suite passed all 62 tests in the dev container, including the HTML assertion tests.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference

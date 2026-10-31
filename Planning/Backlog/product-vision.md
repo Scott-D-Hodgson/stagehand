@@ -51,7 +51,7 @@ The MVP-supported editor browsers are current stable desktop Chrome and Edge on 
 - Nested plan/case/step variable scopes, one-level shared steps, environment-variable references, and loops capped at 10 by default with configuration overrides.
 - Case parallelism, cancellation, configurable 10-minute default plan/case timeouts, duration thresholds, and run/case timing.
 - A versioned JSON result for MVP; JUnit-compatible XML and HTML conversions are later work.
-- Optional axe scans after each step, grouped by URL and violation description with newly observed problematic markup appended, non-failing by default with plan/case failure overrides.
+- Optional axe scans after each completed step, with findings grouped by URL and violation description within each case and newly observed problematic markup appended; non-failing by default with plan/case failure overrides.
 - Local-first Vue SPA editor.
 - Markdown documentation rendered by Hugo.
 - Monorepo, development container, CI validation, and AI-agent guidance.

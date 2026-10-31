@@ -4,6 +4,8 @@ This package contains the normative JSON Schema for Stagehand result documents, 
 
 The schema describes the source plan identity and fingerprint, run outcome and timing, case counts, per-case effective settings, steps, assertions, diagnostics, accessibility findings, and optional artifact references. It defines the result shape; M6 will define how execution outcomes and counts are produced.
 
+M4's accessibility work will extend the v1 result shape with each finding's page URL and available affected-node details, and record both effective `enabled` and `failOnViolation` settings. Findings remain attached to their case and are deduplicated within that case. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md).
+
 The public entry point exports `resultSchemaV1`, the v1 result types, and `validateResult(input)`. The validator returns `{ valid: true }` for schema-conforming documents or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. It does not throw for invalid JSON values. Registered format checks validate date-time and URI fields, including the schema's UTC timestamp requirement.
 
 The synthetic [checkout result](examples/checkout-result.json) demonstrates one passing case. Its fingerprint is an example value, not a digest calculated from the plan files. The Node-side `plan-engine` loader now calculates the source fingerprint during loading; a future runner will carry it into the emitted result. Validation checks the result's structure and field formats. It does not check whether case counts agree with case outcomes or decide run aggregation; M6 owns those policies.

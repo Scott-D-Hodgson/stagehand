@@ -6,7 +6,7 @@
 
 ## Objective
 
-Integrate axe scanning after qualifying page actions and keep accessibility findings distinct from functional status.
+Integrate axe scanning after each completed step when enabled, keep findings attached to their case, and keep accessibility findings distinct from functional status.
 
 ## Acceptance criteria
 

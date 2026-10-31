@@ -13,7 +13,7 @@
 - How structured results serve both people and downstream tools.
 - Why results include outcome, duration, diagnostics, and effective safe configuration.
 - How to version a result contract independently from the plan schema.
-- How Stagehand accumulates accessibility findings within one run.
+- How Stagehand accumulates accessibility findings within each case.
 
 ## Core ideas
 
@@ -21,24 +21,24 @@ A result is a durable record of what a run did and observed. A human needs clear
 
 Stagehand's MVP emits JSON only. Azure DevOps retains it as a pipeline artifact; it does not publish individual tests into the Azure DevOps Test Results view. JUnit-compatible XML, HTML reports, and screenshots are deferred. Do not add those formats to the MVP just because they are familiar.
 
-The optional axe scan runs after each step. During a run, a finding is considered already seen only when URL, violation description, and problematic markup all match. If URL and description match but new problematic markup appears, add that markup to the existing finding. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
+The optional axe scan runs after each completed step. Findings stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. Results include the page URL, available affected-node details, and the case's effective `enabled` and `failOnViolation` settings. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
 
 Automated accessibility checks catch only issues that their rules can detect. They do not establish full conformance and do not replace manual review with assistive technology or keyboard use. Keep this limitation visible in the result and documentation.
 
 ## Apply this to Stagehand
 
-Use stable run and case IDs while keeping localized names and descriptions as display data. A step is identified by its case ID and zero-based position in the case's step array; authors do not assign step IDs. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and markup evidence so deduplication and later review are possible.
+Use stable run and case IDs while keeping localized names and descriptions as display data. A step is identified by its case ID and zero-based position in the case's step array; authors do not assign step IDs. Never include secret values in effective configuration. Include enough diagnostics to connect a failure to a case and step. Accessibility findings need rule identity, description, URL, and affected-node evidence so per-case deduplication and later review are possible.
 
 Define the relationship between case statuses and overall run status consistently. A non-failing accessibility finding should still be visible in JSON. If configuration makes findings fail the case, retain the finding and identify the configured policy that changed status.
 
 ## Exercise
 
-Create three synthetic axe observations: the same URL/description/markup twice; same URL/description but new markup; and same description/markup on a different URL. Show which observations deduplicate and what the accumulated JSON finding should contain. Add a separate scan-error example and a functional hard-assertion failure.
+Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Show which observations deduplicate and what the accumulated JSON finding should contain. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure.
 
 ## You are ready when
 
 - Consumers can read results without parsing console prose.
-- Findings are deduplicated by the agreed three-part identity and preserve new markup.
+- Findings are deduplicated within each case by URL, violation description, and affected markup; observations in separate cases remain separate.
 - Scan errors, accessibility findings, assertion failures, and infrastructure errors remain distinguishable.
 
 ## Read next
@@ -51,7 +51,7 @@ Create three synthetic axe observations: the same URL/description/markup twice; 
 ## Reinforcement quiz
 
 1. Why is the result version separate from the plan schema version?
-2. Which three values define a duplicate accessibility observation?
+2. Which three values define a duplicate accessibility observation within a case?
 3. What happens if the same URL and violation description include newly seen problematic markup?
 4. Do axe findings fail the case by default?
 5. What is outside the MVP result formats?
