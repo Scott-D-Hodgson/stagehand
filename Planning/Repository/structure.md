@@ -1,6 +1,6 @@
 ﻿# Proposed monorepo footprint
 
-This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation, including absolute HTTP/HTTPS navigation URL checks; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. The runner-core workspace starts Playwright-managed Chromium, manages per-case contexts and pages, and resolves case locators. Whole-step execution and result production are still future work.
+This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. The plan-schema workspace contains the plan/case schemas and shared validation, including absolute HTTP/HTTPS navigation URL checks; the plan-engine workspace loads plan files and referenced case files, checks that resolved files stay in the plan folder, validates parsed bundles, and computes a source fingerprint from the raw inputs. The result-model workspace contains the normative result v1 JSON Schema, TypeScript types, a runtime validator, tests, and a synthetic example. The runner-core workspace starts Playwright-managed Chromium, manages per-case contexts and pages, resolves case locators, and runs ordered wait lists. Whole-step execution and result production are still future work.
 
 ```text
 stagehand/
@@ -35,12 +35,13 @@ stagehand/
 │   ├── api/                 # optional/later
 │   └── desktop/             # Electron, later
 ├── packages/
-│   ├── runner-core/          # Chromium lifecycle, per-case sessions, and locator resolution
+│   ├── runner-core/          # Chromium lifecycle, per-case sessions, locator resolution, and waits
 │   │   ├── README.md
 │   │   ├── package.json
 │   │   ├── src/index.ts
 │   │   ├── test/browser-run.test.js
 │   │   ├── test/locator-resolution.test.js
+│   │   ├── test/wait-list.test.js
 │   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/

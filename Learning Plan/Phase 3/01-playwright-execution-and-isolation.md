@@ -14,6 +14,7 @@
 - How contexts isolate cookies and other browser state while reusing a browser process.
 - How locators and auto-waiting support predictable interactions.
 - How the initial runner-core case session resolves a unique locator with bounded retries.
+- How runner-core processes locator, page-state, and fixed-delay waits in order.
 - How to translate Stagehand's action vocabulary into browser operations.
 
 ## Core ideas
@@ -22,13 +23,13 @@ A browser process is the launched browser application. A browser context is an i
 
 Stagehand's chosen balance is one Playwright-managed browser process with an isolated context for each parallel case. This avoids sharing cookies between cases without launching a separate browser process for every case. Close each context after its case, even when a step fails.
 
-Headless mode is set when Chromium launches, so it applies to the whole run. Each case can still use its own viewport and time zone through its context. The run locale is also shared across cases. `@stagehand/runner-core` exposes this lifecycle and a `resolveLocator` method on each case session. That method waits for a unique role, label, CSS, or XPath match using the agreed exact-name and retry rules. Whole-step action execution remains future work.
+Headless mode is set when Chromium launches, so it applies to the whole run. Each case can still use its own viewport and time zone through its context. The run locale is also shared across cases. `@stagehand/runner-core` exposes this lifecycle, a `resolveLocator` method, and a `runWaitList` method on each case session. The locator resolver waits for a unique role, label, CSS, or XPath match using the agreed exact-name and retry rules. The wait-list method processes bounded locator, page-state, and fixed-delay waits in order. Whole-step action execution remains future work.
 
 Prefer user-facing locators such as roles and labels, which tend to survive layout changes better than brittle structure-based selectors. CSS selectors and XPath remain escape hatches when user-facing information is insufficient. Do not hide arbitrary code inside a plan; the supported action vocabulary is intentionally bounded.
 
 ## Apply this to Stagehand
 
-The planned Phase 3 action layer covers URL navigation, clicks, typing characters, direct value setting, dropdown selection, bounded waits/delays, optional scrolling into view, text/HTML assertions, input value checks, and optional soft associated-label checks. Navigation plans currently require absolute HTTP/HTTPS URLs; relative URLs await future `baseURL` design. Treat each action as a small operation with explicit inputs, timeout behaviour, and diagnostics. Keep `plan-engine` independent from Playwright; browser operations belong in `runner-core`. The current runner can resolve a locator, but it does not yet execute complete plan steps.
+The planned Phase 3 action layer covers URL navigation, clicks, typing characters, direct value setting, dropdown selection, bounded waits/delays, optional scrolling into view, text/HTML assertions, input value checks, and optional soft associated-label checks. Navigation plans currently require absolute HTTP/HTTPS URLs; relative URLs await future `baseURL` design. Treat each action as a small operation with explicit inputs, timeout behaviour, and diagnostics. Keep `plan-engine` independent from Playwright; browser operations belong in `runner-core`. The current runner can resolve locators and run a wait list, but it does not yet execute complete plan steps.
 
 For a selector-based action, report the case, step, locator strategy, action, and useful failure reason without dumping secret values. A navigation timeout should say which target and wait condition timed out. A failed assertion is a test outcome; a browser process crash is an execution error. They should not be flattened into the same vague message.
 
