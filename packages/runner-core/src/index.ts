@@ -46,6 +46,11 @@ export interface CaseBrowserSession {
     expected: ExpectedValue,
     options?: AssertionOptions,
   ): Promise<void>;
+  assertHtml(
+    locator: LocatorDefinition,
+    expected: ExpectedValue,
+    options?: AssertionOptions,
+  ): Promise<void>;
   runWaitList(waits: readonly WaitDefinition[]): Promise<void>;
   navigate(url: string, options?: NavigationOptions): Promise<Response | null>;
   executeSteps(
@@ -97,7 +102,7 @@ export interface ExpectedValue {
 export interface SoftAssertionFailure {
   caseId: string;
   stepIndex: number;
-  action: "assertText";
+  action: "assertText" | "assertHtml";
   expected: string;
   actual?: string;
   message: string;
@@ -172,13 +177,22 @@ export interface AssertTextStep {
   soft?: boolean;
 }
 
+export interface AssertHtmlStep {
+  action: "assertHtml";
+  locator: LocatorDefinition;
+  expected: ExpectedValue;
+  timeout?: number;
+  soft?: boolean;
+}
+
 export type ExecutableStep =
   | NavigateStep
   | ClickStep
   | TypeStep
   | FillStep
   | SelectOptionStep
-  | AssertTextStep;
+  | AssertTextStep
+  | AssertHtmlStep;
 
 export interface BrowserRun {
   createCaseSession(settings?: CaseSettings): Promise<CaseBrowserSession>;
@@ -220,12 +234,13 @@ export class StepExecutionError extends Error {
   }
 }
 
-class TextAssertionMismatchError extends Error {
+class StringAssertionMismatchError extends Error {
   expected: string;
   actual: string;
-  constructor(expected: string, actual: string) {
-    super(`Expected text ${JSON.stringify(expected)} but received ${JSON.stringify(actual)}.`);
-    this.name = "TextAssertionMismatchError";
+  constructor(action: "assertText" | "assertHtml", expected: string, actual: string) {
+    const contentType = action === "assertText" ? "text" : "HTML";
+    super(`Expected ${contentType} ${JSON.stringify(expected)} but received ${JSON.stringify(actual)}.`);
+    this.name = "StringAssertionMismatchError";
     this.expected = expected;
     this.actual = actual;
   }
@@ -486,16 +501,17 @@ function resolveExpectedValue(expected: ExpectedValue, locale: string): string {
   return expected.default;
 }
 
-async function executeAssertText(
+async function executeStringAssertion(
   page: Page,
   definition: LocatorDefinition,
   expected: ExpectedValue,
   locale: string,
   timeout: number | undefined,
+  action: "assertText" | "assertHtml",
 ): Promise<void> {
   const effectiveTimeout = timeout ?? DEFAULT_LOCATOR_TIMEOUT;
   if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
-    throw new RangeError("assertText timeout must be a positive integer in milliseconds.");
+    throw new RangeError(`${action} timeout must be a positive integer in milliseconds.`);
   }
   const expectedText = resolveExpectedValue(expected, locale);
   const deadline = performance.now() + effectiveTimeout;
@@ -503,12 +519,15 @@ async function executeAssertText(
   const remaining = Math.floor(deadline - performance.now());
   if (remaining < 1) {
     throw new Error(
-      `assertText exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
+      `${action} exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
     );
   }
-  const actualText = await locator.innerText({ timeout: remaining });
-  if (actualText !== expectedText) {
-    throw new TextAssertionMismatchError(expectedText, actualText);
+  const actualValue =
+    action === "assertText"
+      ? await locator.innerText({ timeout: remaining })
+      : await locator.innerHTML({ timeout: remaining });
+  if (actualValue !== expectedText) {
+    throw new StringAssertionMismatchError(action, expectedText, actualValue);
   }
 }
 
@@ -687,12 +706,20 @@ async function executeCaseSteps(
           await executeWaitList(page, step.after ?? []);
           break;
         case "assertText":
+        case "assertHtml":
           try {
-            await executeAssertText(page, step.locator, step.expected, locale, step.timeout);
+            await executeStringAssertion(
+              page,
+              step.locator,
+              step.expected,
+              locale,
+              step.timeout,
+              step.action,
+            );
           } catch (error) {
             if (
               step.soft === true &&
-              (error instanceof TextAssertionMismatchError ||
+              (error instanceof StringAssertionMismatchError ||
                 error instanceof LocatorResolutionError ||
                 error instanceof errors.TimeoutError)
             ) {
@@ -700,9 +727,9 @@ async function executeCaseSteps(
               softFailures.push({
                 caseId,
                 stepIndex,
-                action: "assertText",
+                action: step.action,
                 expected: expectedText,
-                ...(error instanceof TextAssertionMismatchError ? { actual: error.actual } : {}),
+                ...(error instanceof StringAssertionMismatchError ? { actual: error.actual } : {}),
                 message: error.message,
               });
               break;
@@ -772,7 +799,24 @@ export async function startBrowserRun(
           await executeSelectOption(page, locator, selection, options);
         },
         async assertText(locator, expected, options = {}) {
-          await executeAssertText(page, locator, expected, settings.locale ?? "en-CA", options.timeout);
+          await executeStringAssertion(
+            page,
+            locator,
+            expected,
+            settings.locale ?? "en-CA",
+            options.timeout,
+            "assertText",
+          );
+        },
+        async assertHtml(locator, expected, options = {}) {
+          await executeStringAssertion(
+            page,
+            locator,
+            expected,
+            settings.locale ?? "en-CA",
+            options.timeout,
+            "assertHtml",
+          );
         },
         async runWaitList(waits) {
           await executeWaitList(page, waits);

@@ -62,6 +62,9 @@
 - [x] Add public-entry tests for `assertText` locale selection, exact comparison, locator failures, text-read timeout, hard-failure context, and soft-failure continuation.
 - [x] Fix the `assertText` default-locale test double to use the CSS locator supported by its mock page.
 - [x] Build and run the expanded runner-core suite with the `assertText` tests in the dev container; build succeeded and all 54 tests passed.
+- [x] Implement direct and step-dispatched `assertHtml` using exact, case-sensitive inner-HTML comparison, run-locale expected-value selection, a shared timeout, and the established soft-failure behaviour.
+- [ ] Add public-entry tests for `assertHtml` locale selection, exact comparison, locator failures, HTML-read timeout, hard-failure context, and soft-failure continuation.
+- [ ] Build and run the expanded runner-core suite with the `assertHtml` tests in the dev container.
 - [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
 - [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
@@ -74,8 +77,8 @@
 - The initial assertions cover inner text/HTML and input value comparisons, with associated-label soft checks specified or explicitly deferred.
 - Invalid settings and unknown actions fail clearly before execution where possible.
 - The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
-- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. Eight focused runner-core tests for `assertText` are authored and verified in the passing suite.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, and `assertText` steps. The expanded runner-core suite passed all 54 tests.
+- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. Eight focused runner-core tests for `assertText` are authored and verified in the 54-test suite that passed before `assertHtml` was added. Focused `assertHtml` tests and a new suite run remain open.
+- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text and HTML assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, and `assertHtml` steps. The prior expanded suite passed all 54 tests before the HTML assertion implementation.
 - The plan-schema suite passes all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. GitHub Actions checks are configured; their result for the current PR is not yet recorded here.
 
 ## Learning reference
