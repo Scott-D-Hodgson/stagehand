@@ -63,7 +63,7 @@ These are bundled components, not additional resolved runtime npm dependencies. 
 - [x] Install/pin the dependency and record the actual resolved tree and notices.
 - [x] Verify the ESM import and a TypeScript compile using `AxeBuilder` with Playwright's `Page` type; both passed locally on Windows with the pinned toolchain.
 - [x] Run the runner-core build and existing mocked-browser suite after installation; all 81 tests passed locally on Windows.
-- [ ] Verify real-browser scanning, including frames and cleanup.
+- [ ] Deferred until the project test site exists: verify actual Chromium/axe scanning, including frames and cleanup.
 - [ ] Verify notices and covered-source instructions in future release artifacts.
 - [x] Settle the retained accessibility fields before the M4 result-model extension: the owner selected `html`, `target`, `failureSummary`, `impact`, `xpath` when available, `relatedNodes`, and `tags`.
 
@@ -88,16 +88,19 @@ A run requesting axe assessment must also offer an optional rule-tag list. A non
 The scanner should apply a non-empty list through `AxeBuilder.withTags(...)`; for an omitted or empty list, leave tag filtering unset. This is scan configuration, distinct from retaining each finding's rule `tags`. The owner accepted `accessibility.tags`, case list replacement/inheritance, explicit-empty clearing, and rejection of unknown tags. The plan and case schemas now validate unique, exact tag strings against the axe-core 4.14.0 inventory; malformed values and unknown tags fail before scanning. Validation preserves input and does not apply inheritance. Runner-core now resolves validated settings with `resolveAccessibilitySettings` and captures independent `session.accessibility` snapshots; explicit `scanAccessibility()` calls now apply them; automatic eligible-step cadence is now implemented. Exact CLI flag names remain deferred to CLI implementation. Record the effective filter in results so reviewers can interpret assessment scope; the result schema now requires `effectiveSettings.accessibility.tags` on each case, independently of finding tags.
 
 - [x] Agree to an optional companion run-level tag filter, defaulting to axe's unrestricted default rule selection when no tags are specified.
-- [x] Extend configuration schemas/examples/validation for `accessibility.tags`; plan-schema builds and all 39 tests pass locally on Windows. The dependent plan-engine build/check passes with 14 tests passing and 3 Windows symlink tests skipped. Dev-container and CI results are not yet established for this slice.
+- [x] Extend configuration schemas/examples/validation for `accessibility.tags`; plan-schema builds and all 39 tests pass locally on Windows. The dependent plan-engine build/check passes with 14 tests passing and 3 Windows symlink tests skipped. At that slice, dev-container and CI evidence was not yet recorded; the current evidence below supersedes that gap.
 - [x] Extend the result v1 schema/types/example with required effective tags and selected evidence. The build and all 22 result-model tests passed locally on Windows, plus a TypeScript public-import check. This is shape/type validation, not scanner integration.
-- [ ] Verify this result-model slice in the dev container/CI.
+- [x] Verify this result-model slice in the existing dev container; current-suite evidence is recorded below.
+- [x] Verify this result-model slice in CI. Owner confirmed passing CI on every PR.
 - [x] Resolve effective accessibility defaults/overrides independently and expose isolated session snapshots. The expanded runner-core build and all 88 tests pass locally on Windows, plus a TypeScript result-settings compatibility check.
-- [ ] Verify the accessibility settings slice in the dev container/CI.
+- [x] Verify the accessibility settings slice in the existing dev container; current-suite evidence is recorded below.
+- [x] Verify the accessibility settings slice in CI. Owner confirmed passing CI on every PR.
 - [x] Add direct case-session scanning with disabled/completed outcomes and AccessibilityScanError preserving causes. Tests cover selected/multiple/default/cleared tag handling before analysis, case overrides, raw/incomplete observations, and rejection paths. Build and all 99 tests pass locally on Windows, plus a TypeScript public-import check.
-- [ ] Verify successful real-browser scans, frame handling, and cleanup; wire direct scans into after-step execution in later slices.
+- [ ] Deferred until the project test site exists: verify successful Chromium/axe scans, frame handling, and cleanup. After-step wiring is implemented.
 - [x] Add pure mapAccessibilityFindings over raw violations using shared result-model types, with exact related tuple deduplication, deep evidence copies, and mapped-node counts. The runner-core build and all 109 tests pass locally on Windows, including 10 mapping tests checked against result-model, plus a public TypeScript check.
 - [x] Integrate automatic session scans with the implemented per-case collector; no M6 status policy is applied by the direct operation or mapper.
-- [ ] Verify the mapping slice in the dev container/CI.
+- [x] Verify the mapping slice in the existing dev container; current-suite evidence is recorded below.
+- [x] Verify the mapping slice in CI. Owner confirmed passing CI on every PR.
 
 Future upstream release/tag discovery, deterministic catalogue refresh, and checks for drift against the pinned engine are tracked separately under [TE-022](te-022-axe-tag-catalogue-update-detection.md). That maintenance mechanism is proposed and does not block this schema slice.
 
@@ -115,13 +118,34 @@ See [axe tag filtering](https://github.com/dequelabs/axe-core-npm/blob/v4.14.0/p
 ## Per-case collector implementation
 
 - [x] Implement explicit caller-owned collection. The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions now own an internal collector for enabled after-step scans.
-- [x] The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+- [x] The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. At that slice, browser and dev-container/CI verification remained outstanding. The current evidence below covers the existing suites and PR CI; actual browser assessments remain deferred.
 - [x] Integrate automatic session scans and collector calls; keep M6 outcome policy separate.
-- [ ] Verify collection in the dev container/CI.
+- [x] Verify collection in the existing dev container; current-suite evidence is recorded below.
+- [x] Verify collection in CI. Owner confirmed passing CI on every PR.
 
 ## Automatic assessment implementation
 
 - [x] Case-session `executeSteps` now awaits automatic accessibility scans after completed steps when enabled, using the existing scan operation and a collector owned by that session. Interaction after-waits finish before scanning. Successful assertions, soft failures, and recognized hard assertion mismatch/locator/timeout failures are scanned while the page is open. Failed interactions, unknown browser errors, and closed pages do not trigger scans. Hard assertions still stop execution after assessment. A scan rejection stops dispatch with StepExecutionError and AccessibilityScanError causes; simultaneous hard assertion and scan errors are preserved in an AggregateError. No failOnViolation outcome policy is applied.
 - [x] `getAccessibilityFindings()` returns deep copied accumulated findings. `getAccessibilityScans()` returns a new array of copied caseId/stepIndex records retaining the original raw result references, including incomplete observations; callers must treat those results as read-only. This avoids cloning arbitrary adapter data or live references. Repeated executeSteps calls on one session accumulate history; use one session per case. Direct navigation/assertion/scan methods do not automatically collect or trigger extra scans. Scan history retains raw observations for the session lifetime; no pruning or result serialization is implemented.
 - [x] The local Windows build and all 131 runner-core tests pass, including 14 new automatic execution tests. Browser/adapter doubles verify cadence, awaited scans, tags, case isolation, failure paths, and copied findings; they do not establish real-browser/frame coverage, dev-container/CI results, or a full result pipeline.
-- [ ] Verify successful real-browser assessments, frames, cleanup, and dev-container/CI results.
+- [ ] Deferred until the project test site exists: verify actual Chromium/axe assessments, frames, and cleanup.
+- [x] Verify existing unit suites in the existing dev container independently of deferred browser assessments; all 209 tests pass.
+- [x] Record owner confirmation that GitHub CI passed on every PR.
+
+## Deferred Chromium/axe verification
+
+The owner deferred actual Chromium/axe integration tests until the project contains its own test site. Resume this verification when that site is available; cover successful assessments, tag scope, repeated-scan deduplication, frames, and cleanup against synthetic site content. This is deferred verification, not a passing browser assessment or evidence that M4 is complete. Existing unit tests and dev-container/CI checks that do not require real Chromium/axe assessments can proceed independently. The site location, design, and implementation slice have not been selected.
+
+## Current dev-container verification
+
+The agent ran the existing suites in the running Stagehand Linux dev container at checkout `fe539f7`, using the repository Dockerfile environment with Node.js 26.12.1 and npm 11.20.0. `npm ci` succeeded, and `npm ls --workspaces --depth=0` then showed all seven linked workspaces without extraneous dependencies. Each package test command built its package successfully: plan-schema 39/39, plan-engine 17/17, result-model 22/22, and runner-core 131/131. All 209 tests passed with zero failures and zero skips, including the three filesystem-link tests previously skipped on Windows. These were the existing suites with browser/adapter doubles; no actual Chromium/axe assessments were run. This verifies the current checkout in the existing container, not a fresh container image build, GitHub CI run, or production Linux runner support.
+
+Commands run as the configured `node` user in `/workspaces/stagehand`: `npm ci`, `npm ls --workspaces --depth=0`, then `npm test --workspace @stagehand/plan-schema`, `npm test --workspace @stagehand/plan-engine`, `npm test --workspace @stagehand/result-model`, and `npm test --workspace @stagehand/runner-core`. The container shares the checkout and node_modules with the host; dependency refresh replaced the inconsistent pre-existing installation.
+
+## Owner-confirmed CI evidence
+
+The owner confirmed that GitHub CI passed on every PR through the merged automatic-assessment PR #50. This is owner-reported remote verification, separate from the agent-run 209-test dev-container verification. The agent did not inspect individual workflow runs or collect run URLs. Actual Chromium/axe assessments remain deferred until a project-owned test site exists; passing CI does not supply that missing browser evidence.
+
+## Current status
+
+M4 implementation tasks are complete. The existing suites pass in the running dev container (209 tests, no failures or skips), and the owner confirmed passing GitHub CI on every PR through PR #50. Actual Chromium/axe assessment verification is explicitly deferred until a project-owned test site exists. This status does not claim complete browser verification or close the deferred tasks; no test-site design or implementation has been agreed.

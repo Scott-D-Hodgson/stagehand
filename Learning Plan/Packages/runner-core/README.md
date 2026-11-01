@@ -2,7 +2,7 @@
 
 This guide covers runner-core's current browser lifecycle, direct case-session navigation, locator resolver, click, type, fill, selectOption, assertText, assertHtml, and assertValue operations, ordered wait-list runner, initial step dispatcher, explicit accessibility scans, and pure violation-to-finding mapping. It starts Chromium, manages isolated case sessions, and exposes navigation, locator resolution, direct clicks, character typing, direct field filling, option selection by value or visible label, exact locale-aware text, HTML, and input-value assertions, bounded waits, and sequential dispatch for validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` steps. Caller-owned collection is now available; automatic after-step scans and session/collector integration are now implemented; integration with plan loading and result aggregation remain future work.
 
-The runner-core build and all 81 mocked-browser tests passed locally on Windows. Dev-container, real-browser, and current CI verification of the input-value slice remain outstanding. It reads the input value exactly and can check the associated label using standard HTML associations. Label failures are always soft, and the check shares the assertion timeout. The direct API returns label failure details; the dispatcher returns them with `check: "associatedLabel"`. Hard value failures stop before the label check; soft value failures allow it to run. See the [package README](../../../packages/runner-core/README.md) for the API options.
+The runner-core build and all 81 mocked-browser tests passed locally on Windows. At the input-value slice, dev-container, real-browser, and current CI verification had not yet been recorded. The current verification sections below now cover the existing suites and owner-confirmed PR CI; actual Chromium/axe assessment tests remain deferred. It reads the input value exactly and can check the associated label using standard HTML associations. Label failures are always soft, and the check shares the assertion timeout. The direct API returns label failure details; the dispatcher returns them with `check: "associatedLabel"`. Hard value failures stop before the label check; soft value failures allow it to run. See the [package README](../../../packages/runner-core/README.md) for the API options.
 
 ## Accessibility dependency boundary
 
@@ -40,7 +40,7 @@ As an exercise, compare a disabled call, a completed call with a violation, a co
 
 This is not case-level accumulation. It preserves repeated affected markup and repeated violations, and has no state between calls. It ignores non-violation groups without mutating them, so callers still need raw incomplete/error observations. Targets and all output arrays are copied; arbitrary check data and live DOM references are not traversed. Read the [mapping contract](../../../packages/runner-core/README.md#mapping-axe-observations) for details.
 
-Runner-core declares a dependency on result-model and builds it first. Its source imports shared output types with `import type`, while tests import the public validator to check mapped findings inside complete synthetic result documents. At the mapping slice, the local Windows build and all 109 tests passed, including 10 new [mapping tests](../../../packages/runner-core/test/accessibility-mapping.test.js); a separate TypeScript import check passed. Real-browser scanning and dev-container/CI verification remain outstanding.
+Runner-core declares a dependency on result-model and builds it first. Its source imports shared output types with `import type`, while tests import the public validator to check mapped findings inside complete synthetic result documents. At the mapping slice, the local Windows build and all 109 tests passed, including 10 new [mapping tests](../../../packages/runner-core/test/accessibility-mapping.test.js); a separate TypeScript import check passed. At the mapping slice, real-browser and dev-container/CI evidence was not yet recorded; see the current verification sections below.
 
 As an exercise, trace related-node evidence repeated across three check groups, then change only one target or XPath. Predict which related entries survive. Next supply two affected nodes with the same markup and explain why both remain before collection deduplicates them. Finally, inspect the shared-validator test helper and distinguish a valid finding/document shape from an executed result pipeline.
 
@@ -50,7 +50,7 @@ The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper t
 
 Trace the [collection tests](../../../packages/runner-core/test/accessibility-collection.test.js). Predict the counts after adding one scan twice, new markup at the same URL, and identical markup at a different URL. Then mutate a snapshot target and explain why later snapshots remain unchanged. You are ready when you can distinguish mapper related-tuple deduplication from collector markup deduplication, explain first-observation retention, and identify who owns case association.
 
-At the collection-only slice, the local Windows build and all 117 runner-core tests passed, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+At the collection-only slice, the local Windows build and all 117 runner-core tests passed, including eight new collection tests checked through result-model using synthetic documents. Those were the collection-only results; current dev-container and owner-confirmed PR CI evidence is recorded below. Actual Chromium/axe assessments remain deferred.
 
 ## Automatic step assessments
 
@@ -227,3 +227,23 @@ Then trace the test double through launch, context creation, and cleanup. Change
 17. No. The array and record wrappers are copied, but raw result objects retain their original references and must be treated as read-only. Findings are separately deep copied.
 
 </details>
+
+## Deferred real-browser assessment exercise
+
+The owner deferred actual Chromium/axe integration tests until the project contains its own test site. Resume this verification when that site is available; cover successful assessments, tag scope, repeated-scan deduplication, frames, and cleanup against synthetic site content. This is deferred verification, not a passing browser assessment or evidence that M4 is complete. Existing unit tests and dev-container/CI checks that do not require real Chromium/axe assessments can proceed independently. The site location, design, and implementation slice have not been selected. See the [M4 verification decision](../../../Planning/Work%20Plan/M4-browser-actions-and-assertions.md#deferred-chromiumaxe-verification). For now, trace the browser/adapter-double tests and identify what they cannot establish about actual Chromium assessments.
+
+## Current dev-container verification
+
+The agent ran the existing suites in the running Stagehand Linux dev container at checkout `fe539f7`, using the repository Dockerfile environment with Node.js 26.12.1 and npm 11.20.0. `npm ci` succeeded, and `npm ls --workspaces --depth=0` then showed all seven linked workspaces without extraneous dependencies. Each package test command built its package successfully: plan-schema 39/39, plan-engine 17/17, result-model 22/22, and runner-core 131/131. All 209 tests passed with zero failures and zero skips, including the three filesystem-link tests previously skipped on Windows. These were the existing suites with browser/adapter doubles; no actual Chromium/axe assessments were run. This verifies the current checkout in the existing container, not a fresh container image build, GitHub CI run, or production Linux runner support.
+
+As an evidence-reading exercise, explain why this run closes the current dev-container unit-suite gap but does not verify Chromium/axe assessments, GitHub CI, or a clean rebuild of the container image. The earlier Windows and per-slice results remain historical evidence.
+
+## CI evidence update
+
+The owner confirmed that GitHub CI passed on every PR through the merged automatic-assessment PR #50. This is owner-reported remote verification, separate from the agent-run 209-test dev-container verification. The agent did not inspect individual workflow runs or collect run URLs. Actual Chromium/axe assessments remain deferred until a project-owned test site exists; passing CI does not supply that missing browser evidence. Earlier per-slice statements describe the evidence available at those stages; current verification now includes the existing dev-container suite and owner-confirmed PR CI.
+
+## Verification readiness check
+
+M4 implementation tasks are complete. The existing suites pass in the running dev container (209 tests, no failures or skips), and the owner confirmed passing GitHub CI on every PR through PR #50. Actual Chromium/axe assessment verification is explicitly deferred until a project-owned test site exists. This status does not claim complete browser verification or close the deferred tasks; no test-site design or implementation has been agreed.
+
+Explain which evidence supports each claim: 209 passing tests in the existing container, the owner confirmation of PR CI, and the absence of actual Chromium/axe assessments. You are ready when you can explain why passing browser-double tests and CI do not demonstrate frame scanning or real browser cleanup. Identify the project test site as the trigger to resume that verification.
