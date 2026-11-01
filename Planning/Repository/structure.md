@@ -35,16 +35,46 @@ stagehand/
 │   ├── api/                 # optional/later
 │   └── desktop/             # Electron, later
 ├── packages/
-│   ├── runner-core/          # Chromium lifecycle, per-case sessions, locator resolution, waits, navigation, clicks, and initial step dispatch
+│   ├── runner-core/          # browser lifecycle, actions/assertions, waits, dispatch, and accessibility modules
 │   │   ├── README.md
 │   │   ├── package.json
-│   │   ├── src/index.ts
+│   │   ├── src/
+│   │   │   ├── index.ts       # explicit public exports
+│   │   │   ├── defaults.ts
+│   │   │   ├── locators.ts
+│   │   │   ├── waits.ts
+│   │   │   ├── assertions.ts
+│   │   │   ├── browser/
+│   │   │   │   ├── types.ts
+│   │   │   │   ├── run.ts
+│   │   │   │   └── case-session.ts
+│   │   │   ├── actions/
+│   │   │   │   ├── navigation.ts
+│   │   │   │   └── interactions/
+│   │   │   │       ├── click.ts
+│   │   │   │       ├── type.ts
+│   │   │   │       ├── fill.ts
+│   │   │   │       └── select-option.ts
+│   │   │   ├── steps/
+│   │   │   │   ├── types.ts
+│   │   │   │   └── execute.ts
+│   │   │   └── accessibility/
+│   │   │       ├── types.ts
+│   │   │       ├── settings.ts
+│   │   │       ├── scan.ts
+│   │   │       ├── mapping.ts
+│   │   │       └── collection.ts
 │   │   ├── test/browser-run.test.js
 │   │   ├── test/locator-resolution.test.js
 │   │   ├── test/wait-list.test.js
 │   │   ├── test/navigate.test.js
 │   │   ├── test/click.test.js
 │   │   ├── test/step-execution.test.js # public-entry dispatcher coverage
+│   │   ├── test/accessibility-settings.test.js
+│   │   ├── test/accessibility-scan.test.js
+│   │   ├── test/accessibility-mapping.test.js
+│   │   ├── test/accessibility-collection.test.js
+│   │   ├── test/accessibility-execution.test.js
 │   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/

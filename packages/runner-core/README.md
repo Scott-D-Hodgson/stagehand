@@ -131,3 +131,36 @@ Read findings/history after catching a dispatch error to inspect assessments com
 The local Windows build and all 131 runner-core tests pass, including 14 new automatic execution tests. Browser/adapter doubles verify cadence, awaited scans, tags, case isolation, failure paths, and copied findings; they do not establish real-browser/frame coverage, dev-container/CI results, or a full result pipeline.
 
 Automatic scanning changes enabled `executeSteps` behaviour: calls now wait for analysis and can reject on scan execution errors. Direct methods and the returned soft-failure array retain their existing contracts. A missing scan-history record can mean disabled assessment, a closed page, an ineligible failed step, or rejected analysis; absence is not a passing assessment.
+
+## Source structure
+
+For a review, start with `index.ts`, then read the feature module being changed and its existing public-package tests. A direct session call and a dispatched step share the same action/assertion implementation; dispatch additionally owns ordering, waits, and its after-step callback.
+
+The public entry point is now a small explicit export list. Internal modules import their dependencies directly rather than importing through `index.ts`. Public exports and package subpath configuration are unchanged; internal helper exports are not additional package APIs. Error classes stay beside the behaviour that throws them, and the same classes are re-exported where they were public before.
+
+| Source | Responsibility |
+| --- | --- |
+| [index.ts](src/index.ts) | Explicit public exports only; callers continue to import from @stagehand/runner-core. |
+| [defaults.ts](src/defaults.ts) | Shared existing timeout, retry, and viewport defaults. |
+| [browser/types.ts](src/browser/types.ts) | Browser configuration, run/session interfaces, and their type-only dependencies. |
+| [browser/run.ts](src/browser/run.ts) | Chromium launch, context/page setup, pending setup, active sessions, and coordinated shutdown. |
+| [browser/case-session.ts](src/browser/case-session.ts) | Direct API wiring, per-session collector/history, automatic scan callback, and context close. |
+| [locators.ts](src/locators.ts) | Locator construction, exact matching, unique resolution, retry budgets, and locator errors. |
+| [waits.ts](src/waits.ts) | Ordered locator/state/delay waits and wait errors. |
+| [actions/navigation.ts](src/actions/navigation.ts) | Navigation options, URL checks, and execution. |
+| [actions/interactions/click.ts](src/actions/interactions/click.ts) | Click options and execution. |
+| [actions/interactions/type.ts](src/actions/interactions/type.ts) | Sequential character typing and its timeout/viewport rules. |
+| [actions/interactions/fill.ts](src/actions/interactions/fill.ts) | Direct field filling and its timeout/viewport rules. |
+| [actions/interactions/select-option.ts](src/actions/interactions/select-option.ts) | Option selection by value or visible label. |
+| [assertions.ts](src/assertions.ts) | Locale-aware expected values, text/HTML/value comparison, associated labels, and internal mismatch errors. |
+| [steps/types.ts](src/steps/types.ts) | Step contracts, executable-step union, and soft-failure details. |
+| [steps/execute.ts](src/steps/execute.ts) | Dispatch ordering, interaction waits, hard/soft handling, after-step callback, and step errors. |
+| [accessibility/types.ts](src/accessibility/types.ts) | Raw scan outcomes, settings, collector interface, and scan-history record types. |
+| [accessibility/settings.ts](src/accessibility/settings.ts) | Pure plan/case settings resolution. |
+| [accessibility/scan.ts](src/accessibility/scan.ts) | Axe adapter execution and cause-preserving scan errors. |
+| [accessibility/mapping.ts](src/accessibility/mapping.ts) | Pure raw violation projection and related-node deduplication. |
+| [accessibility/collection.ts](src/accessibility/collection.ts) | Stateful per-case finding accumulation and copied snapshots. |
+
+Run lifecycle state stays in `browser/run.ts`; session methods, findings, raw scan history, and close state stay in `browser/case-session.ts`. Dispatch controls eligible assessment timing through its existing callback, while the session callback invokes scanning and collection. The scanner itself does not choose cadence. Current action implementations were moved without introducing new shared interaction helpers.
+
+The structural refactor builds and passes all 131 existing runner-core tests in the running Linux dev container, with no failures or skips and no test changes. A separate TypeScript compatibility check compared all 36 original public type exports and the public runtime signatures against the original source; all eight runtime export names also match. These checks do not establish new CI or actual Chromium/axe verification.
