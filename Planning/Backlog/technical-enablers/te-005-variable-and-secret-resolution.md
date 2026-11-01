@@ -25,4 +25,4 @@ Current runner-core exposes original raw scan results and does not implement thi
 
 ## Implementation approach
 
-Keep the v1 contracts while M5 is in progress. The variable-schema foundation is implemented; next build references, then resolution, data sets, shared steps, and protected values in focused PRs. Define only the details needed by the active slice and record its tests and remaining limits.
+Keep the v1 contracts while M5 is in progress. Variable definitions and references in the agreed fields are implemented; next build resolution, then data sets, shared steps, and protected values in focused PRs. Define only the details needed by the active slice and record its tests and remaining limits.
