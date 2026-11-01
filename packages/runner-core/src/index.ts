@@ -6,6 +6,21 @@ import {
   type Page,
   type Response,
 } from "playwright";
+import AxeBuilder from "@axe-core/playwright";
+
+export type AccessibilityScanResults = Awaited<ReturnType<AxeBuilder["analyze"]>>;
+
+export type AccessibilityScanOutcome =
+  | { status: "disabled" }
+  | { status: "completed"; results: AccessibilityScanResults };
+
+export class AccessibilityScanError extends Error {
+  constructor(cause: unknown) {
+    const detail = cause instanceof Error ? cause.message : String(cause);
+    super(`Accessibility scan failed: ${detail}`, { cause });
+    this.name = "AccessibilityScanError";
+  }
+}
 
 export interface Viewport {
   width: number;
@@ -55,6 +70,7 @@ export interface CaseBrowserSession {
   context: BrowserContext;
   page: Page;
   accessibility: EffectiveAccessibilitySettings;
+  scanAccessibility(): Promise<AccessibilityScanOutcome>;
   resolveLocator(
     locator: LocatorDefinition,
     options?: LocatorResolutionOptions,
@@ -883,6 +899,21 @@ export async function startBrowserRun(
         context: createdContext,
         page,
         accessibility,
+        async scanAccessibility() {
+          if (!session.accessibility.enabled) {
+            return { status: "disabled" };
+          }
+          try {
+            const builder = new AxeBuilder({ page });
+            const tags = [...session.accessibility.tags];
+            if (tags.length > 0) {
+              builder.withTags(tags);
+            }
+            return { status: "completed", results: await builder.analyze() };
+          } catch (cause) {
+            throw new AccessibilityScanError(cause);
+          }
+        },
         async resolveLocator(locator, options = {}) {
           const timeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
           if (!Number.isInteger(timeout) || timeout < 1) {

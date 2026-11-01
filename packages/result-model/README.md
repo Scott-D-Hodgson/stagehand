@@ -8,7 +8,7 @@ The public entry point exports `resultSchemaV1`, the v1 result types, and `valid
 
 ## Accessibility contract
 
-M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Scanner execution and result production remain future work. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
+M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Runner-core now exposes direct case-session scans returning raw axe observations. Automatic cadence, Stagehand finding mapping/collection, and result production remain future work. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
 
 Every case must record `effectiveSettings.accessibility` with all three fields, even when disabled or when there are no findings:
 
@@ -29,7 +29,7 @@ Each finding requires `url`, `ruleId`, `impact`, `description`, `help`, `helpUrl
 
 `target` preserves axe's array structure: strings identify frame/element segments and nested arrays of at least two strings identify shadow-DOM paths. An empty target can preserve unavailable upstream selectors. XPath is a string array, not a joined path. Unknown finding severity is `null`; node severity may be omitted or `null`, while other optional unavailable details are omitted. No diagnostic value is invented.
 
-For the future scanner, flatten related elements from the affected node's `any`, `all`, and `none` checks into `relatedNodes`. Keep exact duplicates of the `html`/structured `target`/optional `xpath` tuple once. Different targets or XPath evidence remain distinct; absence and an explicitly empty XPath list are distinct representations. The schema rejects duplicate related objects but does not perform this mapping. It excludes full check records, arbitrary check data, ancestry, and live DOM references. Case-level finding grouping/deduplication by URL, description, and problematic markup remains scanner work.
+For the future finding mapper, flatten related elements from the affected node's `any`, `all`, and `none` checks into `relatedNodes`. Keep exact duplicates of the `html`/structured `target`/optional `xpath` tuple once. Different targets or XPath evidence remain distinct; absence and an explicitly empty XPath list are distinct representations. The schema rejects duplicate related objects but does not perform this mapping. It excludes full check records, arbitrary check data, ancestry, and live DOM references. Case-level finding grouping/deduplication by URL, description, and problematic markup remains scanner work.
 
 Result tag lists require unique non-empty strings, but deliberately do not embed the current engine's tag allowlist: stored results from other engine versions must remain readable. Current plan/case validation still rejects unknown configuration tags against the pinned catalogue.
 
