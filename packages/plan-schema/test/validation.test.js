@@ -5,6 +5,7 @@ import {
   caseSchemaV1,
   matchCaseReferences,
   planSchemaV1,
+  prepareCase,
   prepareCaseStep,
   resolveVariable,
   validateCase,
@@ -430,7 +431,10 @@ test("prepares navigation, selection, and assertion reference fields", () => {
     step: {
       action: "assertValue",
       locator: { label: "Email" },
-      expected: { default: { var: "expected" } },
+      expected: {
+        default: { var: "unusedExpected" },
+        locales: { "fr-CA": { var: "expected" } },
+      },
       associatedLabel: { default: { var: "label" } },
     },
     stepIndex: 2,
@@ -458,6 +462,68 @@ test("reports the source field for an unresolved prepared reference", () => {
     reason: "missingVariable",
     message: "No variable named \"missing\" is defined in step, case, or plan scope.",
   });
+});
+
+test("prepares every case step before runner integration", () => {
+  const result = prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "prepared-case",
+      variables: { email: { default: "case@example.invalid" } },
+      steps: [
+        { action: "navigate", url: { var: "baseUrl" } },
+        {
+          action: "fill",
+          locator: { label: "Email" },
+          value: { var: "email" },
+          variables: { email: { default: "step@example.invalid" } },
+        },
+      ],
+    },
+    locale: "en-CA",
+    planVariables: { baseUrl: { default: "https://example.invalid" } },
+  });
+  assert.equal(result.prepared, true);
+  if (!result.prepared) {
+    return;
+  }
+  assert.equal(result.case.steps[0].url, "https://example.invalid");
+  assert.equal(result.case.steps[1].value, "step@example.invalid");
+});
+
+test("reports the first unresolved reference and revalidates prepared values", () => {
+  const missing = prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "missing-variable",
+      steps: [
+        { action: "type", locator: { label: "Email" }, text: { var: "missing" } },
+        { action: "fill", locator: { label: "Password" }, value: { var: "alsoMissing" } },
+      ],
+    },
+    locale: "en-CA",
+  });
+  assert.deepEqual(missing, {
+    prepared: false,
+    path: "/steps/0/text",
+    reason: "missingVariable",
+    message: "No variable named \"missing\" is defined in step, case, or plan scope.",
+  });
+  const invalidUrl = prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "invalid-url",
+      steps: [{ action: "navigate", url: { var: "baseUrl" } }],
+    },
+    locale: "en-CA",
+    planVariables: { baseUrl: { default: "not-a-url" } },
+  });
+  assert.equal(invalidUrl.prepared, false);
+  if (invalidUrl.prepared) {
+    return;
+  }
+  assert.equal(invalidUrl.reason, "invalidPreparedCase");
+  assert.ok(invalidUrl.issues?.some((issue) => issue.path === "/steps/0/url"));
 });
 
 test("accepts variable references in agreed action and assertion fields", () => {

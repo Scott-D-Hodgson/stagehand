@@ -60,6 +60,22 @@ export type PrepareCaseStepResult =
       message: string;
     };
 
+export interface PrepareCaseOptions {
+  case: Readonly<Record<string, unknown>>;
+  locale: string;
+  planVariables?: Readonly<Record<string, VariableDefinition>>;
+}
+
+export type PrepareCaseResult =
+  | { prepared: true; case: Record<string, unknown> }
+  | {
+      prepared: false;
+      path: string;
+      reason: "invalidLocale" | "invalidPreparedCase" | "missingVariable";
+      message: string;
+      issues?: ValidationIssue[];
+    };
+
 export interface CaseReferenceMatch {
   caseIndex: number;
   reference: string;
@@ -393,30 +409,33 @@ function prepareExpectedValue(
   reason: "invalidLocale" | "missingVariable";
   message: string;
 } {
-  const prepared = { ...expected };
-  const defaultValue = prepareTextValue(expected.default, `${path}/default`, options, stepVariables);
-  if (!defaultValue.prepared) {
-    return defaultValue;
+  let canonicalLocale: string;
+  try {
+    canonicalLocale = Intl.getCanonicalLocales(options.locale)[0] ?? options.locale;
+  } catch {
+    return {
+      prepared: false,
+      path,
+      reason: "invalidLocale",
+      message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
+    };
   }
-  prepared.default = defaultValue.value;
-  if (!isRecord(expected.locales)) {
-    return { prepared: true, value: prepared };
-  }
-  const locales: Record<string, unknown> = { ...expected.locales };
-  for (const [locale, value] of Object.entries(expected.locales)) {
-    const localeValue = prepareTextValue(
-      value,
-      `${path}/locales/${escapeJsonPointerSegment(locale)}`,
-      options,
-      stepVariables,
-    );
-    if (!localeValue.prepared) {
-      return localeValue;
+  let selected = expected.default;
+  let selectedPath = `${path}/default`;
+  if (isRecord(expected.locales)) {
+    for (const [locale, value] of Object.entries(expected.locales)) {
+      if (Intl.getCanonicalLocales(locale)[0] === canonicalLocale) {
+        selected = value;
+        selectedPath = `${path}/locales/${escapeJsonPointerSegment(locale)}`;
+        break;
+      }
     }
-    locales[locale] = localeValue.value;
   }
-  prepared.locales = locales;
-  return { prepared: true, value: prepared };
+  const value = prepareTextValue(selected, selectedPath, options, stepVariables);
+  if (!value.prepared) {
+    return value;
+  }
+  return { prepared: true, value: { default: value.value } };
 }
 
 export function prepareCaseStep(
@@ -459,6 +478,55 @@ export function prepareCaseStep(
     prepared[field] = value.value;
   }
   return { prepared: true, step: prepared };
+}
+
+export function prepareCase(
+  options: PrepareCaseOptions,
+): PrepareCaseResult {
+  const prepared: Record<string, unknown> = structuredClone(options.case);
+  if (!Array.isArray(prepared.steps)) {
+    return {
+      prepared: false,
+      path: "/steps",
+      reason: "invalidPreparedCase",
+      message: "Case steps must be an array before preparing variable references.",
+    };
+  }
+  const caseVariables = isRecord(options.case.variables)
+    ? options.case.variables as Readonly<Record<string, VariableDefinition>>
+    : undefined;
+  for (const [stepIndex, step] of prepared.steps.entries()) {
+    if (!isRecord(step)) {
+      return {
+        prepared: false,
+        path: `/steps/${stepIndex}`,
+        reason: "invalidPreparedCase",
+        message: "Case steps must be objects before preparing variable references.",
+      };
+    }
+    const result = prepareCaseStep({
+      step,
+      stepIndex,
+      locale: options.locale,
+      ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
+      ...(caseVariables === undefined ? {} : { caseVariables }),
+    });
+    if (!result.prepared) {
+      return result;
+    }
+    prepared.steps[stepIndex] = result.step;
+  }
+  const validation = validateCase(prepared);
+  if (!validation.valid) {
+    return {
+      prepared: false,
+      path: "/",
+      reason: "invalidPreparedCase",
+      message: "Prepared case does not satisfy the case schema.",
+      issues: validation.issues,
+    };
+  }
+  return { prepared: true, case: prepared };
 }
 
 function includeSemanticIssues(
