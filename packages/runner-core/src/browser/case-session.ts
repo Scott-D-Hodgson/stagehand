@@ -11,6 +11,7 @@ import { executeType } from "../actions/interactions/type.js";
 import { executeFill } from "../actions/interactions/fill.js";
 import { executeSelectOption } from "../actions/interactions/select-option.js";
 import { executeCaseSteps } from "../steps/execute.js";
+import { prepareCaseForExecution } from "../steps/case.js";
 import { createAccessibilityFindingCollector } from "../accessibility/collection.js";
 import { scanAccessibility } from "../accessibility/scan.js";
 
@@ -101,6 +102,10 @@ export function createCaseBrowserSession(
           collector.add(outcome.results);
         }
       });
+    },
+    async executeCase(options) {
+      const prepared = prepareCaseForExecution(options, settings.locale ?? "en-CA");
+      return session.executeSteps(prepared.caseId, prepared.steps);
     },
     close() {
       if (sessionClosePromise) {

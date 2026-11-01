@@ -10,7 +10,7 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields. Pure helpers now resolve ordinary values and prepare a validated detached case with supported references replaced; data sets, shared steps, protected values, and runner integration are still future work.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields. Runner-core now prepares ordinary values and a detached validated case before it dispatches that case's first step; data sets, shared steps, protected values, and full pre-browser-startup orchestration are still future work.
 
 ## Core ideas
 
@@ -18,7 +18,7 @@ A variable definition describes a named, case-sensitive input. Its default is re
 
 A whole-field {"var":"name"} reference is now accepted for `navigate.url`, `type.text`, `fill.value`, `selectOption.value` or `label`, and assertion expected/associated-label values. It is still only an authored value: Stagehand does not resolve it yet. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
 
-Scope is like choosing the most specific instruction sheet: step overrides case, case overrides plan. The public pure resolver now applies that order and selects the winner's locale/default value without merging locale maps. The pure preparer replaces references in supported text fields on detached steps and converts numbers/booleans to text there; the case preflight stops at the first failure and validates the prepared case. CLI overrides JSON at its targeted scope, environment-value resolution, and runner integration remain later work. Other destination types will preserve their scalar type when they are supported.
+Scope is like choosing the most specific instruction sheet: step overrides case, case overrides plan. The public pure resolver now applies that order and selects the winner's locale/default value without merging locale maps. The pure preparer replaces references in supported text fields on detached steps and converts numbers/booleans to text there; the case preflight stops at the first failure and validates the prepared case. Runner-core `executeCase` uses that preflight before dispatching the first case step and reports a preparation failure without dispatching a step. CLI overrides JSON at its targeted scope, environment-value resolution, and full pre-browser-startup orchestration remain later work. Other destination types will preserve their scalar type when they are supported.
 
 The accepted replacement rule is separate from the still-proposed locale algorithm. The recommendation is to match canonical locale tags exactly, reject duplicate canonical keys, and fall back to default, following existing assertions. Do not invent prefix fallback or merge rules in an implementation.
 

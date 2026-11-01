@@ -23,6 +23,7 @@ import type {
 import type { WaitDefinition } from "../waits.js";
 import type { NavigationOptions } from "../actions/navigation.js";
 import type { ExecutableStep, SoftAssertionFailure } from "../steps/types.js";
+import type { CaseExecutionOptions } from "../steps/case.js";
 
 export interface Viewport {
   width: number;
@@ -85,6 +86,7 @@ export interface CaseBrowserSession {
     caseId: string,
     steps: readonly ExecutableStep[],
   ): Promise<SoftAssertionFailure[]>;
+  executeCase(options: CaseExecutionOptions): Promise<SoftAssertionFailure[]>;
   close(): Promise<void>;
 }
 
