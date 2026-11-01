@@ -10,11 +10,11 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. M5 is not implemented: examples are future contracts, not valid current plan fixtures or executed results.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The first M5 slice validates variable-definition shapes in the v1 schemas; references, resolution, data sets, shared steps, and protected values are still future work.
 
 ## Core ideas
 
-A variable definition describes a named input. Its default is required; locale variants are optional. Values are text, numbers, or booleans, with one resolved scalar type across all variants. A protected {"env":"NAME"} value names a process environment variable and resolves to text. The proposed default/locales wrapper is metadata, not permission for arbitrary nested-object values.
+A variable definition describes a named, case-sensitive input. Its default is required; locale variants are optional. Values are text, numbers, or booleans, with one resolved scalar type across all variants. The v1 schemas now validate this default/locales wrapper and reject empty names. A protected {"env":"NAME"} value names a process environment variable and resolves to text, but is a later M5 slice.
 
 A whole-field {"var":"name"} reference supplies an action input or assertion expected value. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
 
@@ -85,6 +85,12 @@ Follow the [M5 PR sequence](../../Planning/Work%20Plan/M5-data-and-reuse-semanti
 5. No. All variants share one resolved scalar type; field conversion follows selection.
 6. No. Loop execution is deferred beyond MVP.
 7. Diagnostics and retained assertion/axe observations could otherwise disclose resolved values through existing raw-history paths.
-8. Exact reference-enabled fields, wrapper/name syntax, canonical locale matching/default fallback, complete CLI/data precedence examples, safe evidence formats, and shared-step/result identity need the detailed contract review. No M5 schema or resolver implementation is claimed.
+8. M5 is built in small slices. The first slice adds only variable-definition schema support and focused tests; references, resolution, data sets, shared steps, and protected values remain later work. No M5 schema or resolver implementation is claimed yet.
 
 </details>
+
+## Incremental practice
+
+Start with a small schema-only change: add a named variable with a required scalar default and, optionally, locale variants of the same type. Write one valid example and focused invalid examples. Do not add reference resolution, data sets, shared steps, or environment lookup in that PR.
+
+M5 keeps the v1 contracts while the milestone is in progress. Each later PR should add one capability, explain its limits, and verify that capability before moving on.

@@ -1,8 +1,8 @@
 # M5 - Variables, data sets, shared steps, and protected values
 
-**Estimate:** 3-5 person-days (original estimate; reassess after the detailed contract draft)
+**Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Accepted scope recorded; detailed contract and implementation pending
+**Status:** Variable schema foundation implemented; remaining incremental slices pending
 
 ## Objective
 
@@ -31,14 +31,11 @@ Loops are deferred beyond MVP because the intended workflows do not normally nee
 
 Also defer lists/nested-object values, interpolation, run-wide data-set selection, page capture/reassignment, reference chains, locator/browser/run-setting references, and direct secret-store integrations. Case selection by ID remains Later under [ATR-006](../Backlog/epics/E01-plan-definition/stories/ATR-006.md); selecting data for a case does not add case filtering.
 
-## Contract details still to draft
+## Versioning and implementation approach
 
-- Review the exact allowed action/assertion fields and proposed default/locales wrapper, including associated-label expected values and interaction options.
-- Recommendation for review: use exact canonical BCP 47 matching with default fallback and duplicate canonical-key rejection, consistent with existing assertions. Do not silently introduce language-prefix fallback.
-- Specify name syntax, collection shapes, complete CLI/data-set precedence examples, and safe diagnostic/source paths.
-- Define shared-call/inner-step identity without losing case/step positions or prematurely adding M6 aggregation.
-- Design redacted representations that preserve field formats, and cover encoded/transformed protected content without promising unbounded automatic secret detection. Current original raw scan-reference exposure must be reconciled before protected execution.
-- Keep compatibility changes deliberate and document before widening schemas. No new owner answer is pending from the completed questionnaire; remaining proposals need review in the contract draft.
+M5 extends the existing v1 plan, case, and result contracts. Their `schemaVersion` fields remain `1` while the milestone is in progress; they are evolving project artifacts, not frozen releases. A milestone release can make a deliberate versioning decision once the complete contract is known. Do not claim that a planned field is currently supported until its schema, runtime behaviour, and focused tests are in place.
+
+Build one small, observable capability at a time. Each PR should state what it adds, what remains unsupported, and the focused checks that cover it. Details that become necessary during a slice should be decided narrowly in that PR rather than pre-designed for all of M5.
 
 ## Incremental PR sequence
 
@@ -46,17 +43,13 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 
 | Slice | Purpose and boundary |
 | --- | --- |
-| 1. Contract and synthetic fixtures | Review exact reference-enabled fields, localized definition shape/matching, naming rules, data-set/CLI precedence, shared-step identity, and safe redacted evidence formats. Document the unresolved proposals before changing schemas. |
-| 2. Localized variable/reference schemas | Add default/locale scalar definitions, protected environment-reference shapes, and whole-field references in the agreed fields. Reject invalid names/shapes, mixed variant types, chains, and out-of-scope reference locations. No execution yet. |
-| 3. Pure scope and locale resolution | Resolve unprotected inputs with case-sensitive lookup, whole-definition replacement, locale/default selection, type preservation, and text-field conversion. Preserve source context for diagnostics; leave environment values unresolved. |
-| 4. Named data-set selection | Validate and collect plan/case-contributed sets, reject duplicate/unknown names, apply per-case runtime/default selection, and import definitions with accepted precedence. Do not add run-wide selection or iteration. |
-| 5. Shared-group schemas and validation | Define stable group IDs/call shape, reject unknown or nested group calls, and preserve calling-case input rules without parameters/private defaults. No execution yet. |
-| 6. Shared-group expansion and traceability | Expand one-level calls with caller/inner-step identity, using the calling case context. Verify ordering and source paths without implementing M6 run aggregation. |
-| 7. Redaction and safe evidence projection | Use synthetic protected values to design and verify safe assertion/axe projections, including URLs, selectors, related nodes, errors, and exposed retained records. Preserve valid result formats and handle empty values safely. |
-| 8. Effective environment preflight | Resolve only winning scope/data-set/locale environment references before browser launch. Accept present empty values, reject missing effective values without disclosure, and retain protection metadata for redaction. Depend on the redaction slice; do not enable unsafe public execution paths. |
-| 9. Resolved ordinary-input execution | Connect prepared non-secret inputs and shared steps to existing case-session dispatch with preflight before browser startup. Keep validation/loading ownership explicit; no CLI/editor or full run/result orchestration. |
-| 10. Protected execution and retained evidence | Integrate protected preflight, execution, and redacted retained/exposed assertion/axe evidence. Remove original-reference escape paths for protected observations; verify errors and cleanup do not disclose secrets. Do not enable real protected inputs until this path is safe. |
-| 11. M5 verification and close-out | Run applicable package checks and current CI, reconcile contracts/examples/learning, review compatibility and retained evidence, and record what is verified. Keep deferred Chromium/axe tests and M6 policy separate. |
+| 1. Variable schema foundation | Implemented: v1 plan/case schemas now validate named variables with required scalar defaults and optional same-type locale variants. Focused valid/invalid tests cover shapes and locale keys; references and execution remain unsupported. |
+| 2. Variable references | Add v1 schema support for whole-field `{ "var": "name" }` references in the first agreed action input and assertion expected-value fields. Keep variables literal at runtime. |
+| 3. Ordinary variable resolution | Resolve non-secret variables from plan, case, and step scope, including whole-definition replacement, locale/default choice, and text-field conversion. Verify errors occur before browser startup. |
+| 4. Named data sets | Add per-case data-set declarations and selection, with duplicate/unknown-name checks and the accepted precedence. No run-wide selection or iteration. |
+| 5. Shared-step validation and execution | Add one-level shared groups, then execute them in the calling case context with focused ordering and traceability tests. |
+| 6. Protected environment values and safe evidence | Add effective environment lookup and the required redaction boundary for logs, errors, assertion evidence, and axe evidence before enabling protected execution. |
+| 7. M5 verification and close-out | Run applicable package checks and current CI, reconcile contracts/examples/learning, review retained evidence, and record what is verified. Keep deferred Chromium/axe tests and M6 policy separate. |
 
 ## Completion evidence
 

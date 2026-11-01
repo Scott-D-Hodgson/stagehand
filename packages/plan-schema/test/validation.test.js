@@ -243,6 +243,65 @@ test("rejects invalid and duplicate canonical locale keys in expected values", (
   assert.ok(duplicateLocale.issues.some((issue) => issue.keyword === "duplicateLocale"));
 });
 
+test("accepts scalar variable definitions with optional same-type locale variants", () => {
+  const variables = {
+    greeting: { default: "Hello", locales: { "fr-CA": "Bonjour" } },
+    retries: { default: 3, locales: { "fr-CA": 4 } },
+    enabled: { default: true, locales: { "fr-CA": false } },
+  };
+  const plan = { ...planWithReferences(), variables };
+  const exampleCase = { schemaVersion: 1, id: "variable-test", variables, steps: [] };
+  assert.deepEqual(validatePlan(plan), { valid: true });
+  assert.deepEqual(validateCase(exampleCase), { valid: true });
+});
+
+test("rejects invalid variable definitions in plans and cases", () => {
+  const invalidVariables = [
+    { greeting: {} },
+    { greeting: { default: null } },
+    { greeting: { default: ["Hello"] } },
+    { greeting: { default: { value: "Hello" } } },
+    { greeting: { default: "Hello", locales: { "fr-CA": 3 } } },
+    { greeting: { default: 3, locales: { "fr-CA": false } } },
+    { greeting: { default: true, locales: { "fr-CA": "false" } } },
+    { greeting: { default: "Hello", extra: true } },
+    { "": { default: "Hello" } },
+  ];
+  for (const variables of invalidVariables) {
+    assert.equal(validatePlan({ ...planWithReferences(), variables }).valid, false);
+    assert.equal(
+      validateCase({ schemaVersion: 1, id: "variable-test", variables, steps: [] }).valid,
+      false,
+    );
+  }
+});
+
+test("rejects invalid and duplicate canonical locale keys in variable definitions", () => {
+  const invalidLocale = {
+    greeting: { default: "Hello", locales: { "en__CA": "Hello" } },
+  };
+  const duplicateLocale = {
+    greeting: {
+      default: "Hello",
+      locales: { "en-us": "Hello", "en-US": "Hello" },
+    },
+  };
+  for (const variables of [invalidLocale, duplicateLocale]) {
+    const planResult = validatePlan({ ...planWithReferences(), variables });
+    const caseResult = validateCase({
+      schemaVersion: 1,
+      id: "variable-test",
+      variables,
+      steps: [],
+    });
+    assert.equal(planResult.valid, false);
+    assert.equal(caseResult.valid, false);
+    const keyword = variables === invalidLocale ? "invalidLocale" : "duplicateLocale";
+    assert.ok(planResult.issues.some((issue) => issue.keyword === keyword));
+    assert.ok(caseResult.issues.some((issue) => issue.keyword === keyword));
+  }
+});
+
 test("accepts accessibility failure policy on plan and case settings", () => {
   const plan = readFixture("../examples/checkout-plan.json");
   plan.defaults.accessibility = { failOnViolation: true };

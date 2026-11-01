@@ -28,7 +28,51 @@
   "$defs": {
     "variables": {
       "type": "object",
-      "additionalProperties": true
+      "propertyNames": { "minLength": 1 },
+      "additionalProperties": { "$ref": "#/$defs/variableDefinition" }
+    },
+    "variableDefinition": {
+      "oneOf": [
+        { "$ref": "#/$defs/textVariableDefinition" },
+        { "$ref": "#/$defs/numberVariableDefinition" },
+        { "$ref": "#/$defs/booleanVariableDefinition" }
+      ]
+    },
+    "textVariableDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "string" },
+        "locales": {
+          "type": "object",
+          "additionalProperties": { "type": "string" }
+        }
+      }
+    },
+    "numberVariableDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "number" },
+        "locales": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        }
+      }
+    },
+    "booleanVariableDefinition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["default"],
+      "properties": {
+        "default": { "type": "boolean" },
+        "locales": {
+          "type": "object",
+          "additionalProperties": { "type": "boolean" }
+        }
+      }
     },
     "timeout": {
       "type": "integer",

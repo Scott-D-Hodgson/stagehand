@@ -8,8 +8,10 @@
   },
   "variables": {
     "submitLabel": {
-      "en-CA": "Sign in",
-      "fr-CA": "Se connecter"
+      "default": "Sign in",
+      "locales": {
+        "fr-CA": "Se connecter"
+      }
     }
   },
   "steps": []
