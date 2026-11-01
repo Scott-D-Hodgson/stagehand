@@ -1,6 +1,6 @@
 # AT-1 — Security Awareness and Training Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, AT-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AT-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at1).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ The policy and procedures establish how the organisation implements the Awarenes
 
 This is the staff handbook for security learning: it says who needs to learn what, who is responsible, and when the handbook should be refreshed.
 
+## Related controls
+
+From the [official AT-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+
 ## Stagehand initial assessment
 
 Stagehand documentation can explain product-specific safe operation, but cannot establish or administer an adopting organisation’s security training program. Operators should incorporate Stagehand into existing security awareness policies, covering approved use, data handling, browser permissions, credential hygiene, automation risks, reporting errors or incidents, and prohibited workflows. Assign an accountable owner and keep the instructions current as deployment modes change.
@@ -27,4 +33,3 @@ None are listed for AT-1 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

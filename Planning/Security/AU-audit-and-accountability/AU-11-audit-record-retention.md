@@ -1,6 +1,6 @@
 # AU-11 — Audit Record Retention
 
-**Source:** [ITSG-33 Annex 3A, AU-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au11).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Records may need to remain available for administrative, legal, audit, or operat
 
 Keep the right receipts for as long as the rules or an investigation require, and make sure they can still be read later.
 
+## Related controls
+
+From the [official AU-11 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au11), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-4](AU-4-audit-storage-capacity.md), [AU-5](AU-5-response-to-audit-processing-failures.md), [AU-9](AU-9-protection-of-audit-information.md), [MP-6](../MP-media-protection/MP-6-media-sanitization.md).
+
 ## Stagehand initial assessment
 
 Stagehand’s deployment owner should set retention across application, host, CI, browser, and central log services, including backups and deletion behaviour. Minimize retained secrets and page content. Document how records are placed on legal hold, exported, and deleted at expiry. Verify actual provider retention rather than assuming logs persist.
@@ -27,4 +33,3 @@ Stagehand’s deployment owner should set retention across application, host, CI
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

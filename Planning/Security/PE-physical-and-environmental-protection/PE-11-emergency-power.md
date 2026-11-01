@@ -1,6 +1,6 @@
 # PE-11 — Emergency Power
 
-**Source:** [ITSG-33 Annex 3A, PE-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe11).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Provide short-term UPS power to support orderly shutdown or transition to long-t
 ## Supplemental guidance
 
 Primarily concerns facilities with concentrated system resources. Coordinate emergency power with continuity plans.
+
+## Related controls
+
+From the [official PE-11 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe11), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-3](../AT-awareness-and-training/AT-3-role-based-security-training.md), [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [CP-7](../CP-contingency-planning/CP-7-alternate-processing-site.md).
 
 ## Plain-language metaphor
 
@@ -26,4 +32,3 @@ Local devices should use endpoint power protections appropriate to their role. H
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

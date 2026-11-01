@@ -23,4 +23,3 @@ These records are initial planned-state summaries, not implementation evidence o
 - [CP-13 — Alternative Security Mechanisms](CP-13-alternative-security-mechanisms.md)
 
 All 13 numbered CP entries are represented. CP-5 is withdrawn and incorporated into CP-2.
-

@@ -1,6 +1,6 @@
 # AU-7 — Audit Reduction and Report Generation
 
-**Source:** [ITSG-33 Annex 3A, AU-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au7).
 
 ## Control definition
 
@@ -16,6 +16,13 @@ Reduction can remove or summarize detail to make large record sets manageable; r
 
 This is an index and summary of a large filing cabinet. It helps find the right folder quickly while leaving the original evidence intact.
 
+## Related controls
+
+From the [official AU-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-6](AU-6-audit-review-analysis-and-reporting.md).
+- **AU-7(1):** [AU-2](AU-2-auditable-events.md), [AU-12](AU-12-audit-generation.md).
+
 ## Stagehand initial assessment
 
 Stagehand logs have not been confirmed to provide immutable source records, search, or reporting. Operators should route structured events to an approved logging platform that supports these functions and ensure summaries link back to retained originals. Do not rely on console output or transient CI logs for investigative reporting without verifying retention and integrity.
@@ -28,4 +35,3 @@ Stagehand logs have not been confirmed to provide immutable source records, sear
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # IA-5 — Authenticator Management
 
-**Source:** [ITSG-33 Annex 3A, IA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia5).
 
 ## Control definition
 
@@ -11,6 +11,15 @@ Manage authenticators by verifying recipients, setting initial content and requi
 ## Supplemental guidance
 
 Authenticators include passwords, tokens, biometrics, certificates, and key cards. Factory defaults are commonly known and risky. Protect secrets in storage and transit; revoke credentials when no longer needed; report lost or compromised authenticators promptly. Password rules and procedures depend on mechanism and policy.
+
+## Related controls
+
+From the [official IA-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-2](../AC-access-control/AC-2-account-management.md), [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-6](../AC-access-control/AC-6-least-privilege.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [IA-2](IA-2-identification-and-authentication-organizational-users.md), [IA-4](IA-4-identifier-management.md), [IA-8](IA-8-identification-and-authentication-non-organizational-users.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md), [PS-5](../PS-personnel-security/PS-5-personnel-transfer.md), [PS-6](../PS-personnel-security/PS-6-access-agreements.md), [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md), [SC-17](../SC-system-and-communications-protection/SC-17-public-key-infrastructure-certificates.md), [SC-28](../SC-system-and-communications-protection/SC-28-protection-of-information-at-rest.md).
+- **IA-5(1):** [IA-6](IA-6-authenticator-feedback.md).
+- **IA-5(2):** [IA-6](IA-6-authenticator-feedback.md).
+- **IA-5(4):** [CA-2](../CA-security-assessment-and-authorization/CA-2-security-assessments.md), [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md), [RA-5](../RA-risk-assessment/RA-5-vulnerability-scanning.md).
 
 ## Plain-language metaphor
 
@@ -38,7 +47,12 @@ Stagehand plans must not contain secrets. Operators should use a secrets manager
 14. **IA-5(14), PKI trust-store management:** centrally govern trust-store contents across platforms and applications.
 15. **IA-5(15), FICAM-approved products/services:** marked not applicable to the Government of Canada in Annex 3A.
 
+## Current repository context
+
+Environment-variable-name references are the accepted initial secret design; resolution before browser startup, missing-secret validation, and redaction are not implemented yet. Current steps use literal values, and assertion errors or retained DOM markup can expose content. Operators must not assume a secret manager or redactor is integrated.
+
+Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
+
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

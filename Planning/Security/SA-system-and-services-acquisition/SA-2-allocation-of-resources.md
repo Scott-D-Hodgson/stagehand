@@ -1,6 +1,6 @@
 # SA-2 - Allocation of Resources
 
-**Source:** [ITSG-33 Annex 3A, SA-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa2).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ No organisation-defined parameters are stated in the base control.
 ## Supplemental guidance
 
 Resources include both initial acquisition and ongoing sustainment of the system or service.
+
+## Related controls
+
+From the [official SA-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # IR-3 — Incident Response Testing and Exercises
 
-**Source:** [ITSG-33 Annex 3A, IR-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir3).
 
 ## Control definition
 
@@ -11,6 +11,13 @@ Test incident-response capability at a defined frequency using defined tests, de
 ## Supplemental guidance
 
 Testing can use checklists, walkthroughs, tabletop exercises, simulations, or comprehensive exercises. Consider operational effects and identify weaknesses to correct.
+
+## Related controls
+
+From the [official IR-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-4](../CP-contingency-planning/CP-4-contingency-plan-testing-and-exercises.md), [IR-8](IR-8-incident-response-plan.md).
+- **IR-3(1):** [AT-2](../AT-awareness-and-training/AT-2-security-awareness.md).
 
 ## Plain-language metaphor
 
@@ -28,4 +35,3 @@ Exercise scenarios involving leaked credentials, unauthorized browser navigation
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

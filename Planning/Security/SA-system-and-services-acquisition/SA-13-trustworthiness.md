@@ -1,6 +1,6 @@
 # SA-13 - Trustworthiness
 
-**Source:** [ITSG-33 Annex 3A, SA-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa13).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Annex 3A records SA-13 as not allocated in Government of Canada profiles. It not
 ## Supplemental guidance
 
 The catalogue entry is an allocation note and cross-reference, not a base control with separate supplemental guidance.
+
+## Related controls
+
+From the [official SA-13 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa13), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

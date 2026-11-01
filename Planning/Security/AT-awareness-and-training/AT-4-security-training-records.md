@@ -1,6 +1,6 @@
 # AT-4 — Security Training Records
 
-**Source:** [ITSG-33 Annex 3A, AT-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AT-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at4).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Organisations may allow supervisors to maintain records for specialized training
 
 Keep a sign-in sheet for safety instruction so the organisation can tell who has been trained and who still needs a session.
 
+## Related controls
+
+From the [official AT-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-2](AT-2-security-awareness.md), [AT-3](AT-3-role-based-security-training.md).
+
 ## Stagehand initial assessment
 
 Stagehand does not establish or retain workforce training records as part of this assessment. The adopting organisation should record completion of required Stagehand-specific training in its approved learning or personnel system, restrict access to those records, and apply its retention schedule. Avoid placing personal training data in Stagehand logs or project artifacts.
@@ -27,4 +33,3 @@ None are listed for AT-4 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

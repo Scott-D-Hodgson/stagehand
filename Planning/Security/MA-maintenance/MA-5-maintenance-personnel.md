@@ -1,6 +1,6 @@
 # MA-5 — Maintenance Personnel
 
-**Source:** [ITSG-33 Annex 3A, MA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, MA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a39ma5).
 
 ## Control definition
 
@@ -9,6 +9,16 @@ Authorize maintenance personnel and keep a list of approved organisations/person
 ## Supplemental guidance
 
 Applies to hardware/software maintainers. Physical-area access is addressed separately. Vendors/consultants may require temporary privileges; base authorization and duration on risk.
+
+## Related controls
+
+From the [official MA-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a39ma5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-2](../AC-access-control/AC-2-account-management.md), [IA-8](../IA-identification-and-authentication/IA-8-identification-and-authentication-non-organizational-users.md), [MP-2](../MP-media-protection/MP-2-media-access.md), [PE-2](../PE-physical-and-environmental-protection/PE-2-physical-access-authorizations.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md), [PE-4](../PE-physical-and-environmental-protection/PE-4-access-control-for-transmission-medium.md), [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
+- **MA-5(1):** [MP-6](../MP-media-protection/MP-6-media-sanitization.md), [PL-2](../PL-planning/PL-2-system-security-plan.md).
+- **MA-5(2):** [PS-3](../PS-personnel-security/PS-3-personnel-screening.md).
+- **MA-5(3):** [PS-3](../PS-personnel-security/PS-3-personnel-screening.md).
+- **MA-5(4):** [PS-3](../PS-personnel-security/PS-3-personnel-screening.md).
 
 ## Plain-language metaphor
 
@@ -29,4 +39,3 @@ Operators should vet provider support personnel, issue time-limited access, esco
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # PL-8 — Information Security Architecture
 
-**Source:** [ITSG-33 Annex 3A, PL-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PL-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl8).
 
 ## Control definition
 
@@ -11,6 +11,14 @@ Develop a system security architecture describing the protection philosophy/requ
 ## Supplemental guidance
 
 Architecture describes placement of safeguards, interfaces and exchanged information, roles/privileges, information types, restoration priorities, and external dependencies. Coordinate with privacy officials. PL-8 is organisation-focused; SA-17 complements it for external development.
+
+## Related controls
+
+From the [official PL-8 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl8), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [PL-2](PL-2-system-security-plan.md), [SA-5](../SA-system-and-services-acquisition/SA-5-information-system-documentation.md), [SA-17](../SA-system-and-services-acquisition/SA-17-developer-security-architecture-and-design.md).
+- **PL-8(1):** [SC-29](../SC-system-and-communications-protection/SC-29-heterogeneity.md), [SC-36](../SC-system-and-communications-protection/SC-36-distributed-processing-and-storage.md).
+- **PL-8(2):** [SA-12](../SA-system-and-services-acquisition/SA-12-supply-chain-protection.md).
 
 ## Plain-language metaphor
 

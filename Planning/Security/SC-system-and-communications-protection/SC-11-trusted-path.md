@@ -1,6 +1,6 @@
 # SC-11 - Trusted Path
 
-**Source:** [ITSG-33 Annex 3A, SC-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc11).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Establish a trusted communication path between users and assigned security funct
 ## Supplemental guidance
 
 Trusted paths permit direct user communication with security functions, are activated by users or system security functions, and protect user responses from disclosure or alteration by untrusted applications. They are used for high-assurance actions such as logon.
+
+## Related controls
+
+From the [official SC-11 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc11), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-16](../AC-access-control/AC-16-security-attributes.md), [AC-25](../AC-access-control/AC-25-reference-monitor.md).
 
 ## Plain-language metaphor
 

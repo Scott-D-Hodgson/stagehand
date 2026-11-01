@@ -1,6 +1,6 @@
 # AC-9 — Previous Logon (Access) Notification
 
-**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac9).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ After successful access, show the user the date and time of the previous access.
 ## Supplemental Guidance summary
 
 This can apply to human login interfaces and other system architectures. It helps users notice access that may not have been theirs.
+
+## Related controls
+
+From the [official AC-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-7](AC-7-unsuccessful-login-attempts.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md).
 
 ## Plain-language explanation
 

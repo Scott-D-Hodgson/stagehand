@@ -1,7 +1,7 @@
 # AC-2 — Account Management
 
 **Assessment status:** Shared responsibility; planned / not implemented or verified  
-**Source:** [ITSG-33 Annex 3A, AC-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33)
+**Source:** [ITSG-33 Annex 3A, AC-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac2)
 
 This is an original-language summary of the legacy ITSG-33 entry. The source is authoritative for the complete control and enhancement wording. Annex 3A was superseded by ITSP.10.033 on 31 March 2026; see the [Security overview](../README.md#status-and-scope).
 
@@ -24,6 +24,18 @@ The organisation selects the account types it uses, assigns account managers, de
 ## Supplemental Guidance summary
 
 Account categories can include personal, shared, group, system, guest, emergency, vendor, temporary, and service accounts. Some lifecycle steps may be automated by the system. Privileged accounts warrant additional approval and scrutiny. Permissions can be assigned to individual accounts, account types, or both. Restrictions such as allowed times or origins need to be balanced against maintenance and business needs. Temporary and emergency accounts are short-lived; infrequently used accounts are different and may need to remain available. Remove or disable accounts when no longer needed or when a user's status changes. The guidance also links account handling to other access, audit, identity, configuration, and maintenance controls.
+
+## Related controls
+
+From the [official AC-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](AC-3-access-enforcement.md), [AC-4](AC-4-information-flow-enforcement.md), [AC-5](AC-5-separation-of-duties.md), [AC-6](AC-6-least-privilege.md), [AC-10](AC-10-concurrent-session-control.md), [AC-17](AC-17-remote-access.md), [AC-19](AC-19-access-control-for-mobile-devices.md), [AC-20](AC-20-use-of-external-systems.md), [AU-9](../AU-audit-and-accountability/AU-9-protection-of-audit-information.md), [IA-2](../IA-identification-and-authentication/IA-2-identification-and-authentication-organizational-users.md), [IA-4](../IA-identification-and-authentication/IA-4-identifier-management.md), [IA-5](../IA-identification-and-authentication/IA-5-authenticator-management.md), [IA-8](../IA-identification-and-authentication/IA-8-identification-and-authentication-non-organizational-users.md), [CM-5](../CM-configuration-management/CM-5-access-restrictions-for-change.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [CM-11](../CM-configuration-management/CM-11-user-installed-software.md), [MA-3](../MA-maintenance/MA-3-maintenance-tools.md), [MA-4](../MA-maintenance/MA-4-non-local-maintenance.md), [MA-5](../MA-maintenance/MA-5-maintenance-personnel.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
+- **AC-2(4):** [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [AU-12](../AU-audit-and-accountability/AU-12-audit-generation.md).
+- **AC-2(5):** [SC-23](../SC-system-and-communications-protection/SC-23-session-authenticity.md).
+- **AC-2(6):** [AC-16](AC-16-security-attributes.md).
+- **AC-2(8):** [AC-16](AC-16-security-attributes.md).
+- **AC-2(12):** [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md).
+- **AC-2(13):** [PS-4](../PS-personnel-security/PS-4-personnel-termination.md).
 
 ## Plain-language explanation
 
@@ -70,6 +82,12 @@ The catalogue has 13 numbered enhancements. The applicability notes below are pr
 | AC-2(13) | Disable accounts for high-risk individuals | Disable access within a risk-defined period when a credible high-risk condition is identified. This is an organisational HR/security/IAM process, not a Stagehand feature. |
 
 Enhancement guidance and organisation-defined values are summarized rather than reproduced. Check the official entry for exact applicability and wording. No AC-2 enhancement is claimed as implemented.
+
+## Current repository context
+
+The accepted initial secret source is process environment variables, referenced by name; secret resolution and redaction remain M5 work. External secret managers may populate the process environment, but Stagehand has no implemented direct secret-store integration. Current literal action inputs and diagnostics must not be treated as safe for real secrets.
+
+Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
 
 ## Evidence to collect
 

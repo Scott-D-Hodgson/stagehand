@@ -1,6 +1,6 @@
 # AU-4 — Audit Storage Capacity
 
-**Source:** [ITSG-33 Annex 3A, AU-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au4).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Capacity depends on the events recorded and processing needs. Insufficient space
 
 If a notebook is too small, important pages get lost. Estimate how many pages you need and arrange another protected notebook before it fills up.
 
+## Related controls
+
+From the [official AU-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-2](AU-2-auditable-events.md), [AU-5](AU-5-response-to-audit-processing-failures.md), [AU-6](AU-6-audit-review-analysis-and-reporting.md), [AU-7](AU-7-audit-reduction-and-report-generation.md), [AU-11](AU-11-audit-record-retention.md), [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+
 ## Stagehand initial assessment
 
 Operators should size local logs, container/runner output, centralized logging, and any cloud retention using observed workload volumes. Alert before capacity is exhausted and document what happens during outages or queue backlogs. Avoid silently dropping events or expanding logs in ways that capture sensitive browser content.
@@ -27,4 +33,3 @@ Operators should size local logs, container/runner output, centralized logging, 
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

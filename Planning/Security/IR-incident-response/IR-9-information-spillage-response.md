@@ -1,6 +1,6 @@
 # IR-9 — Information Spillage Response
 
-**Source:** [ITSG-33 Annex 3A, IR-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir9).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ For information spills, identify affected information; alert designated roles us
 ## Supplemental guidance
 
 A spill occurs when classified or sensitive information is placed on a system not authorized to process it. Response depends on sensitivity, system safeguards, affected media, and user access. Use an independent communication channel to avoid spreading the material further.
+
+## Related controls
+
+From the [official IR-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -30,4 +36,3 @@ If sensitive data enters an unauthorized browser, plan, screenshot, trace, or lo
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

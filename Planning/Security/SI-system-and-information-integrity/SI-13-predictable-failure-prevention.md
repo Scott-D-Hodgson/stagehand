@@ -1,6 +1,6 @@
 # SI-13 - Predictable Failure Prevention
 
-**Source:** [ITSG-33 Annex 3A, SI-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SI-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si13).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Determine mean time to failure for defined components in their operating environ
 ## Supplemental guidance
 
 Although MTTF is a reliability measure, this control concerns failures affecting security capabilities. Use installation-specific data, consider potential harm, and ensure transfer to standby components preserves safety, readiness, state, and security.
+
+## Related controls
+
+From the [official SI-13 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si13), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [CP-10](../CP-contingency-planning/CP-10-information-system-recovery-and-reconstitution.md), [MA-6](../MA-maintenance/MA-6-timely-maintenance.md).
 
 ## Plain-language metaphor
 

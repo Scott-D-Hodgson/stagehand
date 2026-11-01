@@ -1,6 +1,6 @@
 # IA-11 — Re-Authentication
 
-**Source:** [ITSG-33 Annex 3A, IA-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-11](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia11).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Require users and devices to authenticate again under organisation-defined condi
 ## Supplemental guidance
 
 Reauthentication can be required after credential or role changes, a change in system sensitivity, privileged actions, a fixed interval, or periodically, in addition to session-lock requirements.
+
+## Related controls
+
+From the [official IA-11 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia11), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-11](../AC-access-control/AC-11-session-lock.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None are listed for IA-11 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

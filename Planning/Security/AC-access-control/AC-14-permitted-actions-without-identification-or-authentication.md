@@ -1,6 +1,6 @@
 # AC-14 — Permitted Actions Without Identification or Authentication
 
-**Status:** Shared / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Shared / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac14).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Identify which actions, if any, may be performed without identification or authe
 ## Supplemental Guidance summary
 
 Some public information access may not need login. Organisations may also define narrowly controlled emergency bypasses. This control concerns cases where authentication has not occurred at all; it does not cover an existing authenticated session. An organisation may decide that no unauthenticated actions are permitted.
+
+## Related controls
+
+From the [official AC-14 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac14), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [IA-2](../IA-identification-and-authentication/IA-2-identification-and-authentication-organizational-users.md).
 
 ## Plain-language explanation
 

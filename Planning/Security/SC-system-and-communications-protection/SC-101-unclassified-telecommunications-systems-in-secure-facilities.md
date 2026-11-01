@@ -1,6 +1,6 @@
 # SC-101 - Unclassified Telecommunications Systems in Secure Facilities
 
-**Source:** [ITSG-33 Annex 3A, SC-101](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-101](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc101).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ In secure facilities, configure unclassified telecommunications so idle systems 
 ## Supplemental guidance
 
 A Secure Facility is a physical security zone processing classified information. The entry references CNSSI requirements for on-hook audio protection, computerized telephone systems, and VoIP.
+
+## Related controls
+
+From the [official SC-101 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc101), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # SA-18 - Tamper Resistance and Detection
 
-**Source:** [ITSG-33 Annex 3A, SA-18](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-18](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa18).
 
 ## Control definition
 
@@ -9,6 +9,14 @@ Implement a tamper-protection program for the system, component, or service.
 ## Supplemental guidance
 
 Anti-tamper methods protect critical systems/products from modification, reverse engineering, and substitution. Strong identification plus resistance/detection helps protect items during distribution and use.
+
+## Related controls
+
+From the [official SA-18 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa18), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md), [SA-12](SA-12-supply-chain-protection.md), [SI-7](../SI-system-and-information-integrity/SI-7-software-firmware-and-information-integrity.md).
+- **SA-18(1):** [SA-3](SA-3-system-development-lifecycle.md).
+- **SA-18(2):** [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
 
 ## Plain-language metaphor
 

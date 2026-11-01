@@ -1,6 +1,6 @@
 # IR-6 — Incident Reporting
 
-**Source:** [ITSG-33 Annex 3A, IR-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir6).
 
 ## Control definition
 
@@ -11,6 +11,13 @@ Require personnel to report suspected incidents to the response capability withi
 ## Supplemental guidance
 
 Report types, content, timing, and recipients should follow applicable government and organisational requirements. Suspicious communications can themselves be reportable events.
+
+## Related controls
+
+From the [official IR-6 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir6), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [IR-4](IR-4-incident-handling.md), [IR-5](IR-5-incident-monitoring.md), [IR-8](IR-8-incident-response-plan.md).
+- **IR-6(1):** [IR-7](IR-7-incident-response-assistance.md).
 
 ## Plain-language metaphor
 
@@ -29,4 +36,3 @@ Provide a clear route for Stagehand users to report unintended actions, disclosu
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

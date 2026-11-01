@@ -1,6 +1,6 @@
 # SC-15 - Collaborative Computing Devices
 
-**Source:** [ITSG-33 Annex 3A, SC-15](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-15](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc15).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Prohibit remote activation of collaborative computing devices except for defined
 ## Supplemental guidance
 
 Examples include networked whiteboards, cameras, and microphones. Clear indicators tell users when a device is active.
+
+## Related controls
+
+From the [official SC-15 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc15), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-21](../AC-access-control/AC-21-information-sharing.md).
 
 ## Plain-language metaphor
 

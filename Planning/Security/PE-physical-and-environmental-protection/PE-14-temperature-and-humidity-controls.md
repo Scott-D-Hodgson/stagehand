@@ -1,6 +1,6 @@
 # PE-14 — Temperature and Humidity Controls
 
-**Source:** [ITSG-33 Annex 3A, PE-14](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-14](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe14).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Maintain facility temperature and humidity within defined acceptable levels and 
 ## Supplemental guidance
 
 Primarily applies to facilities with concentrated IT equipment; limits depend on equipment and facility requirements.
+
+## Related controls
+
+From the [official PE-14 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe14), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-3](../AT-awareness-and-training/AT-3-role-based-security-training.md).
 
 ## Plain-language metaphor
 
@@ -28,4 +34,3 @@ This is inherited from the endpoint facility or hosting provider. Request eviden
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

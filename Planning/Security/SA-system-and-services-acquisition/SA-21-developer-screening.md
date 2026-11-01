@@ -1,6 +1,6 @@
 # SA-21 - Developer Screening
 
-**Source:** [ITSG-33 Annex 3A, SA-21](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-21](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa21).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Require developers of assigned systems/components/services to hold access author
 ## Supplemental guidance
 
 Developer trust may need to match the trust level expected of deployed-system users where the system supports critical national/economic activities. Criteria can include clearance or background checks; supplier ownership/relationships may also affect confidence in reliability.
+
+## Related controls
+
+From the [official SA-21 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa21), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PS-3](../PS-personnel-security/PS-3-personnel-screening.md), [PS-7](../PS-personnel-security/PS-7-third-party-personnel-security.md).
 
 ## Plain-language metaphor
 

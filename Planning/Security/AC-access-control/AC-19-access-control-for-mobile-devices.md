@@ -1,6 +1,6 @@
 # AC-19 — Access Control for Mobile Devices
 
-**Source:** [ITSG-33 Annex 3A, AC-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AC-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac19).
 
 ## Control definition
 
@@ -15,6 +15,14 @@ Mobile devices include portable computing devices with storage or network access
 ## In plain language
 
 A mobile device is a work key that can leave the building. Keep it locked, track its condition, and decide what it may open before it travels.
+
+## Related controls
+
+From the [official AC-19 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac19), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](AC-3-access-enforcement.md), [AC-7](AC-7-unsuccessful-login-attempts.md), [AC-18](AC-18-wireless-access.md), [AC-20](AC-20-use-of-external-systems.md), [CA-9](../CA-security-assessment-and-authorization/CA-9-internal-system-connections.md), [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md), [IA-2](../IA-identification-and-authentication/IA-2-identification-and-authentication-organizational-users.md), [IA-3](../IA-identification-and-authentication/IA-3-device-identification-and-authentication.md), [MP-2](../MP-media-protection/MP-2-media-access.md), [MP-4](../MP-media-protection/MP-4-media-storage.md), [MP-5](../MP-media-protection/MP-5-media-transport.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md), [SC-7](../SC-system-and-communications-protection/SC-7-boundary-protection.md), [SC-43](../SC-system-and-communications-protection/SC-43-usage-restrictions.md), [SI-3](../SI-system-and-information-integrity/SI-3-malicious-code-protection.md), [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+- **AC-19(4):** [CA-6](../CA-security-assessment-and-authorization/CA-6-security-authorization.md), [IR-4](../IR-incident-response/IR-4-incident-handling.md).
+- **AC-19(5):** [MP-5](../MP-media-protection/MP-5-media-transport.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md), [SC-28](../SC-system-and-communications-protection/SC-28-protection-of-information-at-rest.md).
 
 ## Stagehand initial assessment
 

@@ -1,6 +1,6 @@
 # PE-17 — Alternate Work Site
 
-**Source:** [ITSG-33 Annex 3A, PE-17](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-17](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe17).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Apply defined security controls at alternate work sites, assess them as feasible
 ## Supplemental guidance
 
 Alternate sites include government facilities or employee residences and may support continuity. Controls can vary with the work performed and site risk.
+
+## Related controls
+
+From the [official PE-17 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe17), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-17](../AC-access-control/AC-17-remote-access.md), [CP-7](../CP-contingency-planning/CP-7-alternate-processing-site.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed for PE-17.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # AC-8 — System Use Notification
 
-**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac8).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Before access, show a system-use notice that communicates privacy/security condi
 ## Supplemental Guidance summary
 
 Notices are usually pre-login warning banners for human-facing login interfaces. They are unnecessary where no human login interface exists. Organisations may need multiple languages and should obtain appropriate legal review of banner language.
+
+## Related controls
+
+From the [official AC-8 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac8), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language explanation
 

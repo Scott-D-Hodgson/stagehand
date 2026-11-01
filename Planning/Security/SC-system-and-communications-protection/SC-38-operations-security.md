@@ -1,6 +1,6 @@
 # SC-38 - Operations Security
 
-**Source:** [ITSG-33 Annex 3A, SC-38](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-38](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc38).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Use defined operations-security safeguards to protect key organisational informa
 ## Supplemental guidance
 
 OPSEC systematically identifies critical information, analyses threats and vulnerabilities, assesses risks, and applies countermeasures. It includes protecting details such as users, suppliers, designs, tests, and security implementations, including within the operating environment.
+
+## Related controls
+
+From the [official SC-38 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc38), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [RA-2](../RA-risk-assessment/RA-2-security-categorization.md), [RA-5](../RA-risk-assessment/RA-5-vulnerability-scanning.md), [SA-12](../SA-system-and-services-acquisition/SA-12-supply-chain-protection.md).
 
 ## Plain-language metaphor
 

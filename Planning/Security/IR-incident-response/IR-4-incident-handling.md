@@ -1,6 +1,6 @@
 # IR-4 — Incident Handling
 
-**Source:** [ITSG-33 Annex 3A, IR-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir4).
 
 ## Control definition
 
@@ -9,6 +9,14 @@ Operate incident handling covering preparation, detection/analysis, containment,
 ## Supplemental guidance
 
 Incident handling depends on system and business capabilities and should be considered during system design. Information may come from audit, network, physical monitoring, user reports, and supply-chain events. Effective handling coordinates security, business, legal, HR, operations, procurement, and other roles.
+
+## Related controls
+
+From the [official IR-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [CP-4](../CP-contingency-planning/CP-4-contingency-plan-testing-and-exercises.md), [IR-2](IR-2-incident-response-training.md), [IR-3](IR-3-incident-response-testing-and-exercises.md), [IR-8](IR-8-incident-response-plan.md), [PE-6](../PE-physical-and-environmental-protection/PE-6-monitoring-physical-access.md), [SC-5](../SC-system-and-communications-protection/SC-5-denial-of-service-protection.md), [SC-7](../SC-system-and-communications-protection/SC-7-boundary-protection.md), [SI-3](../SI-system-and-information-integrity/SI-3-malicious-code-protection.md), [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md), [SI-7](../SI-system-and-information-integrity/SI-7-software-firmware-and-information-integrity.md).
+- **IR-4(2):** [AC-2](../AC-access-control/AC-2-account-management.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md), [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md), [CM-3](../CM-configuration-management/CM-3-configuration-change-control.md), [CM-4](../CM-configuration-management/CM-4-security-impact-analysis.md).
+- **IR-4(9):** [CP-10](../CP-contingency-planning/CP-10-information-system-recovery-and-reconstitution.md).
 
 ## Plain-language metaphor
 
@@ -34,4 +42,3 @@ For Stagehand-related incidents, operators should halt affected tasks, isolate t
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

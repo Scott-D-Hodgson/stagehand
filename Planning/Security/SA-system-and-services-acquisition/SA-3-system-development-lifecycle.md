@@ -1,6 +1,6 @@
 # SA-3 - System Development Lifecycle
 
-**Source:** [ITSG-33 Annex 3A, SA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa3).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Manage the system under a defined lifecycle that incorporates security; define, 
 ## Supplemental guidance
 
 A well-defined lifecycle helps integrate security early and requires qualified security expertise among architects, engineers, and developers. Security awareness and enterprise architecture should support lifecycle decisions.
+
+## Related controls
+
+From the [official SA-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-3](../AT-awareness-and-training/AT-3-role-based-security-training.md), [SA-8](SA-8-security-engineering-principles.md).
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # PL-7 — Security Concepts of Operation
 
-**Source:** [ITSG-33 Annex 3A, PL-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PL-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl7).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Develop a security concept of operations (CONOPS) describing how the system will
 ## Supplemental guidance
 
 The CONOPS may be part of the security plan or lifecycle documents. Changes should be reflected in plans, architecture, procurement, and engineering records.
+
+## Related controls
+
+From the [official PL-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PL-2](PL-2-system-security-plan.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed for PL-7.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

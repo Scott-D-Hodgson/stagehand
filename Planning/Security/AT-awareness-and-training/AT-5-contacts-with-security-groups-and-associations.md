@@ -1,10 +1,16 @@
 # AT-5 — Contacts with Security Groups and Associations
 
-**Source:** [ITSG-33 Annex 3A, AT-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AT-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at5).
 
 ## Catalogue status
 
 The Annex 3A entry is **withdrawn**. It has no active base requirement or enhancements to assess in this legacy catalogue. Keep this file only so the family index accounts for every numbered identifier.
+
+## Related controls
+
+From the [official AT-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a32at5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Stagehand initial assessment
 
@@ -29,4 +35,3 @@ No separate organisation-defined parameters apply to this withdrawn entry in Ann
 ## Control enhancements
 
 None listed for the withdrawn entry.
-

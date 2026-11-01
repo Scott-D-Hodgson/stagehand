@@ -1,6 +1,6 @@
 # SI-2 - Flaw Remediation
 
-**Source:** [ITSG-33 Annex 3A, SI-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SI-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si2).
 
 ## Control definition
 
@@ -11,6 +11,13 @@ Identify, report, and correct system flaws; test relevant software/firmware upda
 ## Supplemental guidance
 
 Flaws can be found from advisories, scans, assessments, monitoring, incidents, or errors. Track fixes through change management and use authoritative vulnerability information; consider update source/signature and operational impact.
+
+## Related controls
+
+From the [official SI-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CA-2](../CA-security-assessment-and-authorization/CA-2-security-assessments.md), [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md), [CM-3](../CM-configuration-management/CM-3-configuration-change-control.md), [CM-5](../CM-configuration-management/CM-5-access-restrictions-for-change.md), [CM-8](../CM-configuration-management/CM-8-information-system-component-inventory.md), [MA-2](../MA-maintenance/MA-2-controlled-maintenance.md), [IR-4](../IR-incident-response/IR-4-incident-handling.md), [RA-5](../RA-risk-assessment/RA-5-vulnerability-scanning.md), [SA-10](../SA-system-and-services-acquisition/SA-10-developer-configuration-management.md), [SA-11](../SA-system-and-services-acquisition/SA-11-developer-security-testing.md), [SI-11](SI-11-error-handling.md).
+- **SI-2(2):** [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [SI-4](SI-4-information-system-monitoring.md).
 
 ## Plain-language metaphor
 

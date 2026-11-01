@@ -1,6 +1,6 @@
 # AU-1 — Audit and Accountability Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, AU-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au1).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ These policies establish how the organisation implements the Audit and Accountab
 
 This is the organisation’s rulebook for keeping activity records: it says what gets recorded, who checks it, and how the process stays current.
 
+## Related controls
+
+From the [official AU-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+
 ## Stagehand initial assessment
 
 Stagehand’s repository and deployment logs have not been validated here as an audit capability. Organisations should define audit responsibilities across Stagehand, browser, identity, host, and target-service layers; document which layer records each event; and establish review and escalation procedures. Do not assume product debug logs provide complete or durable security auditing.
@@ -27,4 +33,3 @@ None are listed for AU-1 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

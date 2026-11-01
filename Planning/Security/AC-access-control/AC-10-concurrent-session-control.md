@@ -1,6 +1,6 @@
 # AC-10 — Concurrent Session Control
 
-**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac10).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Limit the number of simultaneous sessions for organisation-defined accounts or a
 ## Supplemental Guidance summary
 
 Limits may vary globally, by account type, or by account. The control addresses sessions for an account, not one person using multiple separate accounts.
+
+## Related controls
+
+From the [official AC-10 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac10), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language explanation
 

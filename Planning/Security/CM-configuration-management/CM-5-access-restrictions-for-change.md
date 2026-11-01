@@ -1,6 +1,6 @@
 # CM-5 — Access Restrictions for Change
 
-**Source:** [ITSG-33 Annex 3A, CM-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CM-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a35cm5).
 
 ## Control definition
 
@@ -15,6 +15,18 @@ Only qualified, authorized people should make changes because changes can affect
 ## In plain language
 
 Only approved mechanics should be allowed to alter the engine, and the workshop should record who touched it.
+
+## Related controls
+
+From the [official CM-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a35cm5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-6](../AC-access-control/AC-6-least-privilege.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md).
+- **CM-5(1):** [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [AU-12](../AU-audit-and-accountability/AU-12-audit-generation.md), [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md), [CM-3](CM-3-configuration-change-control.md), [CM-6](CM-6-configuration-settings.md).
+- **CM-5(2):** [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md), [AU-7](../AU-audit-and-accountability/AU-7-audit-reduction-and-report-generation.md), [CM-3](CM-3-configuration-change-control.md), [CM-5](CM-5-access-restrictions-for-change.md), [PE-6](../PE-physical-and-environmental-protection/PE-6-monitoring-physical-access.md), [PE-8](../PE-physical-and-environmental-protection/PE-8-access-records.md).
+- **CM-5(3):** [CM-7](CM-7-least-functionality.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md), [SI-7](../SI-system-and-information-integrity/SI-7-software-firmware-and-information-integrity.md).
+- **CM-5(4):** [AC-5](../AC-access-control/AC-5-separation-of-duties.md), [CM-3](CM-3-configuration-change-control.md).
+- **CM-5(5):** [AC-2](../AC-access-control/AC-2-account-management.md).
+- **CM-5(6):** [AC-2](../AC-access-control/AC-2-account-management.md).
 
 ## Stagehand initial assessment
 

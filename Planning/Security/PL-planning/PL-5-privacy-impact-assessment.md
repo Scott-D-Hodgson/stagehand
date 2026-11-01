@@ -1,10 +1,16 @@
 # PL-5 — Privacy Impact Assessment
 
-**Source:** [ITSG-33 Annex 3A, PL-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PL-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl5).
 
 ## Catalogue status
 
 The Annex 3A entry is marked **withdrawn** and contains no separate active control statement or enhancement. Preserve for traceability and use the currently applicable privacy-assessment framework.
+
+## Related controls
+
+From the [official PL-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Stagehand initial assessment
 
@@ -29,4 +35,3 @@ No separate organisation-defined parameters apply to this withdrawn entry in Ann
 ## Control enhancements
 
 None listed for the withdrawn entry.
-

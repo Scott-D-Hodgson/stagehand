@@ -1,6 +1,6 @@
 # IA-7 — Cryptographic Module Authentication
 
-**Source:** [ITSG-33 Annex 3A, IA-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia7).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Authenticate to cryptographic modules using mechanisms that meet applicable legi
 ## Supplemental guidance
 
 Modules may require operator authentication and verification that the operator is authorized for the requested role and cryptographic service.
+
+## Related controls
+
+From the [official IA-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
 
 ## Plain-language metaphor
 
@@ -25,4 +31,3 @@ None are listed for IA-7 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

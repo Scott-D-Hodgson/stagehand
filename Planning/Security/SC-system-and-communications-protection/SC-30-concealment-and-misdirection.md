@@ -1,6 +1,6 @@
 # SC-30 - Concealment and Misdirection
 
-**Source:** [ITSG-33 Annex 3A, SC-30](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-30](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc30).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Use assigned concealment/misdirection techniques for defined systems at defined 
 ## Supplemental guidance
 
 Concealment can reduce adversary targeting opportunities; virtualization, randomness, and uncertainty can increase attacker effort. These methods require resources and are expected to be used selectively.
+
+## Related controls
+
+From the [official SC-30 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc30), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-26](SC-26-honeypots.md), [SC-29](SC-29-heterogeneity.md), [SI-14](../SI-system-and-information-integrity/SI-14-non-persistence.md).
 
 ## Plain-language metaphor
 

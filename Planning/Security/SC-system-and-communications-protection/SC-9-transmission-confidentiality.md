@@ -1,6 +1,6 @@
 # SC-9 - Transmission Confidentiality
 
-**Source:** [ITSG-33 Annex 3A, SC-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc9).
 
 ## Control definition
 
@@ -9,6 +9,13 @@ Withdrawn control; incorporated into SC-8(4).
 ## Supplemental guidance
 
 No separate active guidance; consult SC-8(4) for the incorporated requirement concerning communication-pattern confidentiality.
+
+## Related controls
+
+From the [official SC-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+- **Withdrawn-entry incorporation:** [SC-8(4)](SC-8-transmission-confidentiality-and-integrity.md). The source redirects this historical entry; these are successors, not a separate related-control list.
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # CP-9 — Information System Backup
 
-**Source:** [ITSG-33 Annex 3A, CP-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp9).
 
 ## Control definition
 
@@ -15,6 +15,17 @@ System-level information includes system state, operating systems, applications,
 ## In plain language
 
 Make protected copies of both the work and the tools needed to use it, and periodically prove the copies are sound.
+
+## Related controls
+
+From the [official CP-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](CP-2-contingency-plan.md), [CP-6](CP-6-alternate-storage-site.md), [MP-4](../MP-media-protection/MP-4-media-storage.md), [MP-5](../MP-media-protection/MP-5-media-transport.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
+- **CP-9(1):** [CP-4](CP-4-contingency-plan-testing-and-exercises.md).
+- **CP-9(2):** [CP-4](CP-4-contingency-plan-testing-and-exercises.md).
+- **CP-9(3):** [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md), [CM-8](../CM-configuration-management/CM-8-information-system-component-inventory.md).
+- **CP-9(6):** [CP-7](CP-7-alternate-processing-site.md), [CP-10](CP-10-information-system-recovery-and-reconstitution.md).
+- **CP-9(7):** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [MP-2](../MP-media-protection/MP-2-media-access.md).
 
 ## Stagehand initial assessment
 
