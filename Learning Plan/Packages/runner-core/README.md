@@ -10,12 +10,23 @@ Runner-core now depends on `@axe-core/playwright@4.14.0`; the lockfile resolves 
 
 Both axe packages use the Mozilla Public License 2.0 (MPL-2.0). Stagehand will use their files unchanged. When redistributing them, retain notices and provide access to the covered source. The engine also bundles MIT/ISC components whose attributions live inside its package, so a list of npm dependencies alone does not describe every notice obligation. See [Stagehand's third-party notices](../../../THIRD-PARTY-NOTICES.md#axe-accessibility-dependencies) and the [accepted dependency review under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#dependency-review). Release packaging still needs to verify those materials in the shipped artifact.
 
-The accepted future scanner also needs a companion optional run-level tag filter and the selected finding/node evidence. A non-empty list scopes the scan itself; at plan scope, an omitted or empty list preserves axe's default rule selection. Plan/case schemas now validate `accessibility.tags`; cases inherit omission, replace the plan list with an explicit list, or clear the filter with `[]`. Finding `tags` describe the rule and are not the input filter. The current session API does not implement these options. Review the [scan-scope decision under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option) before implementing scanning.
+The accepted future scanner also needs a companion optional run-level tag filter and the selected finding/node evidence. A non-empty list scopes the scan itself; at plan scope, an omitted or empty list preserves axe's default rule selection. Plan/case schemas now validate `accessibility.tags`; cases inherit omission, replace the plan list with an explicit list, or clear the filter with `[]`. Finding `tags` describe the rule and are not the input filter. The session API now accepts and resolves these settings and exposes `session.accessibility`, but does not scan steps. Review the [scan-scope decision under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option) before implementing scanning.
 
 As a review exercise, locate both axe packages in the lockfile, compare their `LICENSE` files with the reproduced MPL text, and find the engine's `LICENSE-3RD-PARTY.txt`. Explain why installation and a successful import do not prove that scans run after steps.
 
+## Resolving accessibility settings
+
+The pure public `resolveAccessibilitySettings(planSettings?, caseSettings?)` helper returns `enabled`, `failOnViolation`, and `tags`. It starts with disabled, non-failing, unrestricted defaults, and applies each case field independently over the plan value. Explicit `false` must survive: using boolean `||` for this merge would incorrectly discard it. Omitted tag lists inherit, explicit lists replace rather than concatenate, and `[]` clears the filter. A tag list or failure policy does not imply scanning is enabled.
+
+Browser runs capture accessibility defaults before launch; sessions resolve their overrides before asynchronous context/page setup and expose `session.accessibility`. Inputs and output arrays are copied, so changing caller tags or one session's tags does not change another case. The objects are mutable snapshots, not frozen objects. The helper expects validated settings; it does not replace plan-schema's unknown-tag/type checks.
+
+The runner-core build and all 88 tests passed locally on Windows, including seven new tests in [accessibility-settings.test.js](../../../packages/runner-core/test/accessibility-settings.test.js). A separate public TypeScript check confirmed compatibility with result-model's settings type. These checks do not establish dev-container/CI or actual scan execution.
+
+As an exercise, use the [package example](../../../packages/runner-core/README.md#effective-accessibility-settings) to resolve a plan with both booleans true and two tags against a case with enabled false and empty tags. Explain why failOnViolation stays true while scanning stays disabled. Then try an omitted case list and a replacement list. Trace the asynchronous snapshot test and explain what would break if the helper returned a caller's array directly.
+
 ## Self-assessment
 
+- [ ] I can explain independent accessibility overrides, explicit false values, list replacement/clearing, and snapshot isolation.
 - [ ] I can explain why installing the axe adapter does not implement scanning, and distinguish planned tag filtering from retained finding tags.
 - [ ] I can explain why one browser process is shared by a run while each case receives its own context.
 - [ ] I can explain why headless mode applies to a whole run.
@@ -85,11 +96,12 @@ In this synthetic example, the page supplies an email control with ID `email` an
 
 | File | What to learn from it |
 | --- | --- |
-| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun` and case-session APIs, locator resolution, click/type/fill/selectOption/assertText/assertHtml/assertValue execution and associated-label checks, step dispatch, ordered waits, defaults, context creation, and cleanup. |
+| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun`, `resolveAccessibilitySettings`, effective session settings, and case-session APIs, locator resolution, click/type/fill/selectOption/assertText/assertHtml/assertValue execution and associated-label checks, step dispatch, ordered waits, defaults, context creation, and cleanup. |
+| [`test/accessibility-settings.test.js`](../../../packages/runner-core/test/accessibility-settings.test.js) | Public-package tests for pure resolution, independent overrides, tag list semantics, non-mutation, and run/session snapshots. |
 | [`test/browser-run.test.js`](../../../packages/runner-core/test/browser-run.test.js) | Public-package tests for launch options, effective context settings, and cleanup paths. |
 | [`test/navigate.test.js`](../../../packages/runner-core/test/navigate.test.js) | Public-package tests for navigation defaults, supported overrides, URL validation, and error handling. |
 | [`test/click.test.js`](../../../packages/runner-core/test/click.test.js) | Public-package tests for unique clicks, timeout sharing, scrolling options, retry behaviour, and error handling. |
-| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, interaction wait lists, scrolling, typing, filling, option selection, timeout handling, viewport handling, and failure context. Tests cover all three assertions, locale selection, hard/soft continuation, shared timeout budgets, and associated-label success, mismatch, missing/ambiguous associations, timeouts, and unsafe errors. The current suite has 81 tests, including 19 added for the input-value slice. |
+| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, interaction wait lists, scrolling, typing, filling, option selection, timeout handling, viewport handling, and failure context. Tests cover all three assertions, locale selection, hard/soft continuation, shared timeout budgets, and associated-label success, mismatch, missing/ambiguous associations, timeouts, and unsafe errors. The suite now has 88 tests: the prior 81 tests plus seven accessibility settings tests. |
 | [`test/locator-resolution.test.js`](../../../packages/runner-core/test/locator-resolution.test.js) | Public-package tests for supported locator forms, exact matching, retries, timeout limits, and ambiguous matches. |
 | [`test/wait-list.test.js`](../../../packages/runner-core/test/wait-list.test.js) | Public-package tests for wait ordering, locator polling, page-state timeouts, and bounded delays. |
 | [`package.json`](../../../packages/runner-core/package.json) | Public package entry point, scripts, and pinned Playwright dependency. |
@@ -104,7 +116,7 @@ From the repository root, run:
 npm test --workspace @stagehand/runner-core
 ```
 
-The build and all 81 mocked-browser tests passed locally on Windows. Trace all three assertion groups to see how locale selection, exact comparison, hard failures, soft failures, and continuation work. In the label tests, follow the callback that reads standard HTML `labels` associations. Explain why these test doubles verify the runner's logic without proving real-browser label behaviour.
+The expanded build and all 88 tests passed locally on Windows. Trace the seven settings tests and all three assertion groups to see how locale selection, exact comparison, hard failures, soft failures, and continuation work. In the label tests, follow the callback that reads standard HTML `labels` associations. Explain why these test doubles verify the runner's logic without proving real-browser label behaviour.
 
 Extend the example on paper with a soft value mismatch and a missing label. Predict two returned failures at the same step index, with `check: "associatedLabel"` only on the label failure. Repeat with a hard value mismatch and explain why the label check and later steps do not run. Finally, subtract locator/read time from a 1,000-millisecond budget and identify the time available for the label read.
 
@@ -115,6 +127,7 @@ Then trace the test double through launch, context creation, and cleanup. Change
 - You can explain how locale, viewport, and time zone map to Playwright settings.
 - You know that headless mode belongs to browser launch and is shared by the run.
 - You can distinguish a direct value failure (which throws) from a returned soft label failure, and explain the dispatcher's `check: "associatedLabel"` field.
+- You can distinguish schema validation, pure accessibility resolution, browser-session snapshots, future scanning, and result production.
 - You can identify who must close a case session and what run cleanup does if a case is still open.
 - You can describe the current locator resolution, click, type, fill, selectOption, assertText, assertHtml, and assertValue policies and explain the `navigate`/`click`/`type`/`fill`/`selectOption`/`assertText`/`assertHtml`/`assertValue` step dispatcher.
 - You can explain how direct `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` methods differ from their use through `executeSteps`.
@@ -126,7 +139,10 @@ Then trace the test double through launch, context creation, and cleanup. Change
 1. Which Playwright read distinguishes `assertValue` from text and HTML assertions?
 2. What does the direct API return when the value passes but the label is missing?
 3. Can one dispatched step return two soft failures?
-4. Do the 81 passing mocked-browser tests verify standard label associations in Chromium?
+4. Do the 88 passing runner-core tests verify real-browser label behaviour or axe scans?
+5. A plan enables scans and failure-on-violation with two tags; a case sets enabled false and tags []. What is resolved?
+6. Can a caller mutate one returned tag list without changing run defaults or another session?
+7. Should the resolver receive the full plan document or its inner accessibility settings?
 
 <details>
 <summary>Answer key</summary>
@@ -134,6 +150,9 @@ Then trace the test double through launch, context creation, and cleanup. Change
 1. `inputValue`, rather than `innerText` or `innerHTML`.
 2. An `AssociatedLabelFailure` with the expected label and a diagnostic; it does not throw for the missing label.
 3. Yes. A soft value mismatch and a label failure can share a step index; the label failure includes `check: "associatedLabel"`.
-4. No. They verify the runner logic using test doubles; real-browser coverage remains outstanding.
+4. No. Browser-dependent tests use doubles; real-browser label and scan integration remain unverified by this suite.
+5. Enabled false, failOnViolation true, and tags []. Each field is independent, and failure policy does not enable scans.
+6. Yes. Each result has copied tags; the snapshots are mutable but do not share their arrays.
+7. The inner settings, after validation. The helper does not load documents or validate tag membership/types.
 
 </details>

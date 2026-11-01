@@ -18,7 +18,7 @@ Every case must record `effectiveSettings.accessibility` with all three fields, 
 | `failOnViolation` | Effective policy setting; the validator does not apply it to outcomes. |
 | `tags` | Resolved input filter. `[]` means axe defaults without a tag restriction; a non-empty list records the selected filter. |
 
-The future producer must resolve plan/case inheritance before recording these settings. Omitted case tags inherit; non-empty lists replace the plan list; explicit `[]` clears it. Tags do not enable scanning. The result requires a resolved list rather than an omitted value or inserted default.
+Runner-core now provides `resolveAccessibilitySettings` and per-session snapshots. A future result producer must carry those effective settings into the document; this validator does not calculate them. Omitted case tags inherit; non-empty lists replace the plan list; explicit `[]` clears it. Tags do not enable scanning. The result requires a resolved list rather than an omitted value or inserted default.
 
 Each finding requires `url`, `ruleId`, `impact`, `description`, `help`, `helpUrl`, `affectedNodeCount`, `tags`, and `affectedNodes`. Finding `tags` describe its rule and are separate from the effective input filter. URLs use absolute URI syntax so an actual scan location such as `about:blank` can be retained. The existing count is retained; producers must calculate it consistently with collected nodes, but this validator does not compare it with array length.
 

@@ -17,18 +17,44 @@ export interface BrowserContextSettings {
   timeZone?: string;
 }
 
+export interface AccessibilitySettings {
+  enabled?: boolean;
+  failOnViolation?: boolean;
+  tags?: readonly string[];
+}
+
+export interface EffectiveAccessibilitySettings {
+  enabled: boolean;
+  failOnViolation: boolean;
+  tags: string[];
+}
+
+export function resolveAccessibilitySettings(
+  planSettings: AccessibilitySettings = {},
+  caseSettings: AccessibilitySettings = {},
+): EffectiveAccessibilitySettings {
+  return {
+    enabled: caseSettings.enabled ?? planSettings.enabled ?? false,
+    failOnViolation: caseSettings.failOnViolation ?? planSettings.failOnViolation ?? false,
+    tags: [...(caseSettings.tags ?? planSettings.tags ?? [])],
+  };
+}
+
 export interface BrowserRunSettings {
   locale?: string;
   browser?: BrowserContextSettings & { headless?: boolean };
+  accessibility?: AccessibilitySettings;
 }
 
 export interface CaseSettings {
   browser?: BrowserContextSettings;
+  accessibility?: AccessibilitySettings;
 }
 
 export interface CaseBrowserSession {
   context: BrowserContext;
   page: Page;
+  accessibility: EffectiveAccessibilitySettings;
   resolveLocator(
     locator: LocatorDefinition,
     options?: LocatorResolutionOptions,
@@ -827,6 +853,7 @@ async function executeCaseSteps(
 export async function startBrowserRun(
   settings: BrowserRunSettings = {},
 ): Promise<BrowserRun> {
+  const runAccessibility = resolveAccessibilitySettings(settings.accessibility);
   const browser = await chromium.launch({
     headless: settings.browser?.headless ?? true,
   });
@@ -835,6 +862,7 @@ export async function startBrowserRun(
   let lifecycleState: "open" | "closing" | "closed" = "open";
   let runClosePromise: Promise<void> | undefined;
   async function createSession(caseSettings: CaseSettings): Promise<CaseBrowserSession> {
+    const accessibility = resolveAccessibilitySettings(runAccessibility, caseSettings.accessibility);
     let context: BrowserContext | undefined;
     try {
       const createdContext = await browser.newContext({
@@ -854,6 +882,7 @@ export async function startBrowserRun(
       const session: CaseBrowserSession = {
         context: createdContext,
         page,
+        accessibility,
         async resolveLocator(locator, options = {}) {
           const timeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
           if (!Number.isInteger(timeout) || timeout < 1) {
