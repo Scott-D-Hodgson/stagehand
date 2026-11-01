@@ -1,16 +1,16 @@
 # `@stagehand/runner-core` learning guide
 
-This guide covers runner-core's current browser lifecycle, direct case-session navigation, locator resolver, click, type, fill, selectOption, assertText, assertHtml, and assertValue operations, ordered wait-list runner, initial step dispatcher, explicit accessibility scans, and pure violation-to-finding mapping. It starts Chromium, manages isolated case sessions, and exposes navigation, locator resolution, direct clicks, character typing, direct field filling, option selection by value or visible label, exact locale-aware text, HTML, and input-value assertions, bounded waits, and sequential dispatch for validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` steps. Caller-owned collection is now available; automatic after-step scans and session/collector integration remain M4 implementation work; integration with plan loading and result aggregation remain future work.
+This guide covers runner-core's current browser lifecycle, direct case-session navigation, locator resolver, click, type, fill, selectOption, assertText, assertHtml, and assertValue operations, ordered wait-list runner, initial step dispatcher, explicit accessibility scans, and pure violation-to-finding mapping. It starts Chromium, manages isolated case sessions, and exposes navigation, locator resolution, direct clicks, character typing, direct field filling, option selection by value or visible label, exact locale-aware text, HTML, and input-value assertions, bounded waits, and sequential dispatch for validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` steps. Caller-owned collection is now available; automatic after-step scans and session/collector integration are now implemented; integration with plan loading and result aggregation remain future work.
 
 The runner-core build and all 81 mocked-browser tests passed locally on Windows. Dev-container, real-browser, and current CI verification of the input-value slice remain outstanding. It reads the input value exactly and can check the associated label using standard HTML associations. Label failures are always soft, and the check shares the assertion timeout. The direct API returns label failure details; the dispatcher returns them with `check: "associatedLabel"`. Hard value failures stop before the label check; soft value failures allow it to run. See the [package README](../../../packages/runner-core/README.md) for the API options.
 
 ## Accessibility dependency boundary
 
-Runner-core now depends on `@axe-core/playwright@4.14.0`; the lockfile resolves its `axe-core` engine to 4.14.0 and reuses Playwright's existing peer dependency. The adapter's module import and TypeScript use with a Playwright page compile locally; explicit scans are now available, but no scanner is wired into step execution yet. All 81 existing runner-core tests passed after installation, but they use browser doubles.
+Runner-core now depends on `@axe-core/playwright@4.14.0`; the lockfile resolves its `axe-core` engine to 4.14.0 and reuses Playwright's existing peer dependency. The adapter's module import and TypeScript use with a Playwright page compile locally; explicit scans and automatic step-dispatch scans are now available. All 81 existing runner-core tests passed after installation, but they use browser doubles.
 
 Both axe packages use the Mozilla Public License 2.0 (MPL-2.0). Stagehand will use their files unchanged. When redistributing them, retain notices and provide access to the covered source. The engine also bundles MIT/ISC components whose attributions live inside its package, so a list of npm dependencies alone does not describe every notice obligation. See [Stagehand's third-party notices](../../../THIRD-PARTY-NOTICES.md#axe-accessibility-dependencies) and the [accepted dependency review under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#dependency-review). Release packaging still needs to verify those materials in the shipped artifact.
 
-The accepted scan design includes a companion optional run-level tag filter and selected finding/node evidence. Direct scans implement tag filtering, and the pure mapper retains that evidence. A non-empty list scopes the scan itself; at plan scope, an omitted or empty list preserves axe's default rule selection. Plan/case schemas now validate `accessibility.tags`; cases inherit omission, replace the plan list with an explicit list, or clear the filter with `[]`. Finding `tags` describe the rule and are not the input filter. The session API now accepts and resolves these settings and exposes `session.accessibility`, and supports explicit `scanAccessibility()` calls; step dispatch still does not scan automatically. Review the [scan-scope decision under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option) before wiring scans into step execution.
+The accepted scan design includes a companion optional run-level tag filter and selected finding/node evidence. Direct scans implement tag filtering, and the pure mapper retains that evidence. A non-empty list scopes the scan itself; at plan scope, an omitted or empty list preserves axe's default rule selection. Plan/case schemas now validate `accessibility.tags`; cases inherit omission, replace the plan list with an explicit list, or clear the filter with `[]`. Finding `tags` describe the rule and are not the input filter. The session API now accepts and resolves these settings and exposes `session.accessibility`, and supports explicit `scanAccessibility()` calls; step dispatch now scans after eligible steps when enabled. Review the [scan-scope decision under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option) before wiring scans into step execution.
 
 As a review exercise, locate both axe packages in the lockfile, compare their `LICENSE` files with the reproduced MPL text, and find the engine's `LICENSE-3RD-PARTY.txt`. Explain why installation and a successful import do not prove that scans run after steps.
 
@@ -28,11 +28,11 @@ As an exercise, use the [package example](../../../packages/runner-core/README.m
 
 `session.scanAccessibility()` reads its effective accessibility settings. Disabled calls return `{ status: "disabled" }` without analysis. Enabled calls create a fresh adapter, apply a copied non-empty tag list before scanning, and return `{ status: "completed", results }` with raw axe observations. With empty tags, the adapter receives no tag filter.
 
-`completed` means the analysis resolved, not that there are no violations. `failOnViolation` does not change this direct operation; incomplete observations and other result groups are preserved. Rejected configuration or analysis throws `AccessibilityScanError`, retaining the original cause. A separate pure helper now maps violations to Stagehand findings; caller-owned accumulation is now available; after-step cadence, session integration, and M6 outcomes remain future work.
+`completed` means the analysis resolved, not that there are no violations. `failOnViolation` does not change this direct operation; incomplete observations and other result groups are preserved. Rejected configuration or analysis throws `AccessibilityScanError`, retaining the original cause. A separate pure helper now maps violations to Stagehand findings; caller-owned accumulation is now available; after-step cadence/session integration are implemented; M6 outcomes remain future work.
 
 At the explicit-scan slice, the local Windows build and all 99 tests passed, including 11 new scan tests. The [scan tests](../../../packages/runner-core/test/accessibility-scan.test.js) use doubles for successful analysis and failures, plus an actual-adapter/page-double failure check. They do not prove a successful real-browser assessment. A TypeScript public-import check verified discrimination between disabled and completed outcomes.
 
-As an exercise, compare a disabled call, a completed call with a violation, a completed call with incomplete observations, and a rejected scan. Identify which ones return observations and which one throws. Then trace the tag-configuration test to verify that filtering is applied before analysis, and the dispatcher test to verify no scan happens automatically.
+As an exercise, compare a disabled call, a completed call with a violation, a completed call with incomplete observations, and a rejected scan. Identify which ones return observations and which one throws. Then trace the tag-configuration test to verify that filtering is applied before analysis, and the dispatcher tests to verify enabled scans run after eligible steps.
 
 ## Mapping observations to findings
 
@@ -46,18 +46,31 @@ As an exercise, trace related-node evidence repeated across three check groups, 
 
 ## Collecting across scans
 
-The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions do not invoke the collector automatically.
+The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions now use an internal collector for automatic step assessments.
 
 Trace the [collection tests](../../../packages/runner-core/test/accessibility-collection.test.js). Predict the counts after adding one scan twice, new markup at the same URL, and identical markup at a different URL. Then mutate a snapshot target and explain why later snapshots remain unchanged. You are ready when you can distinguish mapper related-tuple deduplication from collector markup deduplication, explain first-observation retention, and identify who owns case association.
 
-The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+At the collection-only slice, the local Windows build and all 117 runner-core tests passed, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+
+## Automatic step assessments
+
+Case-session `executeSteps` now awaits automatic accessibility scans after completed steps when enabled, using the existing scan operation and a collector owned by that session. Interaction after-waits finish before scanning. Successful assertions, soft failures, and recognized hard assertion mismatch/locator/timeout failures are scanned while the page is open. Failed interactions, unknown browser errors, and closed pages do not trigger scans. Hard assertions still stop execution after assessment. A scan rejection stops dispatch with StepExecutionError and AccessibilityScanError causes; simultaneous hard assertion and scan errors are preserved in an AggregateError. No failOnViolation outcome policy is applied.
+
+`getAccessibilityFindings()` returns deep copied accumulated findings. `getAccessibilityScans()` returns a new array of copied caseId/stepIndex records retaining the original raw result references, including incomplete observations; callers must treat those results as read-only. This avoids cloning arbitrary adapter data or live references. Repeated executeSteps calls on one session accumulate history; use one session per case. Direct navigation/assertion/scan methods do not automatically collect or trigger extra scans. Scan history retains raw observations for the session lifetime; no pruning or result serialization is implemented.
+
+Trace the [automatic execution tests](../../../packages/runner-core/test/accessibility-execution.test.js). Predict the event sequence for navigate, scan, click, after-wait, scan. Follow the blocked-analysis test and explain why the second action cannot start early. Contrast a soft mismatch, a recognized hard mismatch, an unsafe browser error, and simultaneous assertion/scan failures. You are ready when you can retrieve findings after a thrown step error without treating observations as case outcomes.
+
+The local Windows build and all 131 runner-core tests pass, including 14 new automatic execution tests. Browser/adapter doubles verify cadence, awaited scans, tags, case isolation, failure paths, and copied findings; they do not establish real-browser/frame coverage, dev-container/CI results, or a full result pipeline.
 
 ## Self-assessment
+
+- [ ] I can identify eligible automatic scans, distinguish direct APIs from dispatch, and explain why scan rejection stops dispatch without assigning a case outcome.
+- [ ] I can distinguish copied findings from copied scan records whose raw result objects remain shared.
 
 - [ ] I can distinguish pure violation mapping, related-node deduplication, caller-owned accumulation, and future outcome policy.
 - [ ] I can explain independent accessibility overrides, explicit false values, list replacement/clearing, and snapshot isolation.
 - [ ] I can distinguish disabled/completed scan outcomes, incomplete observations, and a rejected scan, without inferring case status.
-- [ ] I can explain why installing the axe adapter does not implement scanning, and distinguish implemented direct tag filtering from retained finding tags and pending automatic cadence.
+- [ ] I can explain why installing the axe adapter does not implement scanning, and distinguish implemented direct tag filtering from retained finding tags and implemented automatic cadence.
 - [ ] I can explain why one browser process is shared by a run while each case receives its own context.
 - [ ] I can explain why headless mode applies to a whole run.
 - [ ] I can describe how run defaults and case overrides become Playwright context options.
@@ -129,13 +142,14 @@ In this synthetic example, the page supplies an email control with ID `email` an
 | --- | --- |
 | [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun`, `resolveAccessibilitySettings`, `mapAccessibilityFindings`, effective session settings, direct scan outcomes/errors, and case-session APIs, locator resolution, click/type/fill/selectOption/assertText/assertHtml/assertValue execution and associated-label checks, step dispatch, ordered waits, defaults, context creation, and cleanup. |
 | [`test/accessibility-settings.test.js`](../../../packages/runner-core/test/accessibility-settings.test.js) | Public-package tests for pure resolution, independent overrides, tag list semantics, non-mutation, and run/session snapshots. |
+| [`test/accessibility-execution.test.js`](../../../packages/runner-core/test/accessibility-execution.test.js) | Awaited automatic cadence, after-waits, tags, per-session collection, raw history, and error preservation. |
 | [`test/accessibility-collection.test.js`](../../../packages/runner-core/test/accessibility-collection.test.js) | Per-case grouping, exact markup deduplication, first-observation retention, count updates, copied snapshots, and synthetic result validation. |
 | [`test/accessibility-mapping.test.js`](../../../packages/runner-core/test/accessibility-mapping.test.js) | Pure violation projection, evidence copying/deduplication, counts, and result-contract validation. |
-| [`test/accessibility-scan.test.js`](../../../packages/runner-core/test/accessibility-scan.test.js) | Explicit scans: enable/tag handling, raw observations, case overrides, fresh builders, error causes, and no automatic step scanning. |
+| [`test/accessibility-scan.test.js`](../../../packages/runner-core/test/accessibility-scan.test.js) | Explicit scans: enable/tag handling, raw observations, case overrides, fresh builders, error causes, and automatic dispatch through the same scan operation. |
 | [`test/browser-run.test.js`](../../../packages/runner-core/test/browser-run.test.js) | Public-package tests for launch options, effective context settings, and cleanup paths. |
 | [`test/navigate.test.js`](../../../packages/runner-core/test/navigate.test.js) | Public-package tests for navigation defaults, supported overrides, URL validation, and error handling. |
 | [`test/click.test.js`](../../../packages/runner-core/test/click.test.js) | Public-package tests for unique clicks, timeout sharing, scrolling options, retry behaviour, and error handling. |
-| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, interaction wait lists, scrolling, typing, filling, option selection, timeout handling, viewport handling, and failure context. Tests cover all three assertions, locale selection, hard/soft continuation, shared timeout budgets, and associated-label success, mismatch, missing/ambiguous associations, timeouts, and unsafe errors. The current package suite has 117 tests: the prior 81 tests, seven settings tests, 11 scan tests, 10 mapping tests, and eight collection tests. |
+| [`test/step-execution.test.js`](../../../packages/runner-core/test/step-execution.test.js) | Public-package tests for ordered step dispatch, interaction wait lists, scrolling, typing, filling, option selection, timeout handling, viewport handling, and failure context. Tests cover all three assertions, locale selection, hard/soft continuation, shared timeout budgets, and associated-label success, mismatch, missing/ambiguous associations, timeouts, and unsafe errors. The current package suite has 131 tests: the prior 81 tests, seven settings tests, 11 scan tests, 10 mapping tests, eight collection tests, and 14 automatic execution tests. |
 | [`test/locator-resolution.test.js`](../../../packages/runner-core/test/locator-resolution.test.js) | Public-package tests for supported locator forms, exact matching, retries, timeout limits, and ambiguous matches. |
 | [`test/wait-list.test.js`](../../../packages/runner-core/test/wait-list.test.js) | Public-package tests for wait ordering, locator polling, page-state timeouts, and bounded delays. |
 | [`package.json`](../../../packages/runner-core/package.json) | Public package entry point, scripts, pinned browser/axe dependencies, and the result-model dependency built first. |
@@ -150,7 +164,7 @@ From the repository root, run:
 npm test --workspace @stagehand/runner-core
 ```
 
-The expanded build and all 117 tests passed locally on Windows. Trace the eight collection tests, 10 mapping tests, 11 scan tests, seven settings tests and all three assertion groups to see how locale selection, exact comparison, hard failures, soft failures, and continuation work. In the label tests, follow the callback that reads standard HTML `labels` associations. Explain why these test doubles verify the runner's logic without proving real-browser label behaviour.
+The expanded build and all 131 tests passed locally on Windows. Trace the 14 automatic execution tests, eight collection tests, 10 mapping tests, 11 scan tests, seven settings tests and all three assertion groups to see how locale selection, exact comparison, hard failures, soft failures, and continuation work. In the label tests, follow the callback that reads standard HTML `labels` associations. Explain why these test doubles verify the runner's logic without proving real-browser label behaviour.
 
 Extend the example on paper with a soft value mismatch and a missing label. Predict two returned failures at the same step index, with `check: "associatedLabel"` only on the label failure. Repeat with a hard value mismatch and explain why the label check and later steps do not run. Finally, subtract locator/read time from a 1,000-millisecond budget and identify the time available for the label read.
 
@@ -161,19 +175,19 @@ Then trace the test double through launch, context creation, and cleanup. Change
 - You can explain how locale, viewport, and time zone map to Playwright settings.
 - You know that headless mode belongs to browser launch and is shared by the run.
 - You can distinguish a direct value failure (which throws) from a returned soft label failure, and explain the dispatcher's `check: "associatedLabel"` field.
-- You can distinguish schema validation, pure accessibility resolution, browser-session snapshots, explicit scanning, pure finding mapping, caller-owned accumulation, future automatic cadence, and result production.
+- You can distinguish schema validation, pure accessibility resolution, browser-session snapshots, explicit scanning, pure finding mapping, caller-owned accumulation, implemented automatic cadence, and result production.
 - You can identify who must close a case session and what run cleanup does if a case is still open.
 - You can describe the current locator resolution, click, type, fill, selectOption, assertText, assertHtml, and assertValue policies and explain the `navigate`/`click`/`type`/`fill`/`selectOption`/`assertText`/`assertHtml`/`assertValue` step dispatcher.
 - You can explain how direct `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` methods differ from their use through `executeSteps`.
-- You can explain how the wait-list API is used by click, type, fill, and selectOption steps and that automatic scanning and integration with plan loading remain future work.
-- You know the dispatcher currently handles `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`; automatic scanning, integration with plan loading, and result aggregation are not implemented here.
+- You can explain how the wait-list API is used by click, type, fill, and selectOption steps and that automatic scanning is implemented while integration with plan loading remains future work.
+- You know the dispatcher currently handles `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`; automatic scanning is implemented; integration with plan loading and result aggregation remain pending.
 
 ## Reinforcement quiz
 
 1. Which Playwright read distinguishes `assertValue` from text and HTML assertions?
 2. What does the direct API return when the value passes but the label is missing?
 3. Can one dispatched step return two soft failures?
-4. Do the 117 passing runner-core tests verify real-browser label behaviour or successful axe assessments?
+4. Do the 131 passing runner-core tests verify real-browser label behaviour or successful axe assessments?
 5. A plan enables scans and failure-on-violation with two tags; a case sets enabled false and tags []. What is resolved?
 6. Can a caller mutate one returned tag list without changing run defaults or another session?
 7. Should the resolver receive the full plan document or its inner accessibility settings?
@@ -184,6 +198,9 @@ Then trace the test double through launch, context creation, and cleanup. Change
 12. Does an empty mapped findings array prove that an assessment passed, and does mapping validate arbitrary JSON?
 13. Two scans have the same URL/description/markup but different selectors, tags, or severity. What does the collector keep?
 14. Does the collector know which case it belongs to, and can you clear it by passing an empty scan?
+15. When does a click with after-waits scan, and can the next step begin before analysis resolves?
+16. What is retained if a hard assertion and its scan both fail?
+17. Does mutating raw results from getAccessibilityScans mutate a deep copied observation?
 
 <details>
 <summary>Answer key</summary>
@@ -204,5 +221,9 @@ Then trace the test double through launch, context creation, and cleanup. Change
 
 13. The first finding metadata and first node evidence. Exact markup defines duplicate nodes within the URL/description group; changed selectors do not append another node.
 14. No to both. The caller creates one collector per case; the collector stores no case ID. Empty scans leave existing findings unchanged. Create a new collector for a new case.
+
+15. After the action and its after-waits. The dispatcher awaits assessment before starting the next step. Direct click calls do not trigger automatic scans.
+16. A StepExecutionError wraps an AggregateError containing the assertion error first and scan error second. A scan rejection after a successful step is wrapped with step context and its AccessibilityScanError cause. No case/run outcome is calculated.
+17. No. The array and record wrappers are copied, but raw result objects retain their original references and must be treated as read-only. Findings are separately deep copied.
 
 </details>

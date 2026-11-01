@@ -150,11 +150,19 @@ export interface CaseSettings {
   accessibility?: AccessibilitySettings;
 }
 
+export interface StepAccessibilityScan {
+  caseId: string;
+  stepIndex: number;
+  results: AccessibilityScanResults;
+}
+
 export interface CaseBrowserSession {
   context: BrowserContext;
   page: Page;
   accessibility: EffectiveAccessibilitySettings;
   scanAccessibility(): Promise<AccessibilityScanOutcome>;
+  getAccessibilityFindings(): ResultAccessibilityFinding[];
+  getAccessibilityScans(): StepAccessibilityScan[];
   resolveLocator(
     locator: LocatorDefinition,
     options?: LocatorResolutionOptions,
@@ -843,6 +851,7 @@ async function executeCaseSteps(
   caseId: string,
   steps: readonly ExecutableStep[],
   locale: string,
+  afterStep: (stepIndex: number) => Promise<void>,
 ): Promise<SoftAssertionFailure[]> {
   if (!Array.isArray(steps)) {
     throw new TypeError("Case steps must be an array.");
@@ -944,6 +953,21 @@ async function executeCaseSteps(
           );
       }
     } catch (error) {
+      if (
+        (action === "assertText" || action === "assertHtml" || action === "assertValue") &&
+        (error instanceof StringAssertionMismatchError || error instanceof LocatorResolutionError || error instanceof errors.TimeoutError)
+      ) {
+        try {
+          await afterStep(stepIndex);
+        } catch (scanError) {
+          throw new StepExecutionError(caseId, stepIndex, String(action), new AggregateError([error, scanError], "Assertion and accessibility scan failed."));
+        }
+      }
+      throw new StepExecutionError(caseId, stepIndex, String(action), error);
+    }
+    try {
+      await afterStep(stepIndex);
+    } catch (error) {
       throw new StepExecutionError(caseId, stepIndex, String(action), error);
     }
   }
@@ -978,6 +1002,8 @@ export async function startBrowserRun(
       if (lifecycleState !== "open") {
         throw new Error("The browser run is closing or closed.");
       }
+      const collector = createAccessibilityFindingCollector();
+      const scans: StepAccessibilityScan[] = [];
       let sessionClosePromise: Promise<void> | undefined;
       const session: CaseBrowserSession = {
         context: createdContext,
@@ -997,6 +1023,12 @@ export async function startBrowserRun(
           } catch (cause) {
             throw new AccessibilityScanError(cause);
           }
+        },
+        getAccessibilityFindings() {
+          return collector.getFindings();
+        },
+        getAccessibilityScans() {
+          return scans.map((scan) => ({ ...scan }));
         },
         async resolveLocator(locator, options = {}) {
           const timeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
@@ -1052,7 +1084,16 @@ export async function startBrowserRun(
           return executeNavigation(page, url, options);
         },
         async executeSteps(caseId, steps) {
-          return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA");
+          return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA", async (stepIndex) => {
+            if (!session.accessibility.enabled || page.isClosed()) {
+              return;
+            }
+            const outcome = await session.scanAccessibility();
+            if (outcome.status === "completed") {
+              scans.push({ caseId, stepIndex, results: outcome.results });
+              collector.add(outcome.results);
+            }
+          });
         },
         close() {
           if (sessionClosePromise) {
