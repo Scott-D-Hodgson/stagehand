@@ -35,3 +35,7 @@ These paths are described in `structure.md` but have not been created as part of
 At the repository root, the proposal also calls for project guidance (`README.md`, `CONTRIBUTING.md`, `SECURITY.md`, and `AGENTS.md`) and shared TypeScript configuration. Those files describe or configure the repository as a whole rather than belonging to one application package.
 
 Treat the proposed layout as a guide for decisions, not evidence that every component has been built. The `structure.md` file says so too; a tidy drawing still doesn't make the road appear.
+
+## Runner-core source navigation
+
+Runner-core now has feature modules beneath `src/`, with a small `index.ts` that explicitly re-exports the existing public API. Run setup/shutdown remains in `browser/run.ts`; session methods and findings/history live in `browser/case-session.ts`. Actions have separate interaction files; assertions, locators, waits, step dispatch, and accessibility each have their own modules. See the [package source map](../../packages/runner-core/README.md#source-structure) and [repository footprint](structure.md). This is an internal restructure, not a new package boundary or public subpath API.

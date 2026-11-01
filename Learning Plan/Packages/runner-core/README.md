@@ -62,7 +62,19 @@ Trace the [automatic execution tests](../../../packages/runner-core/test/accessi
 
 The local Windows build and all 131 runner-core tests pass, including 14 new automatic execution tests. Browser/adapter doubles verify cadence, awaited scans, tags, case isolation, failure paths, and copied findings; they do not establish real-browser/frame coverage, dev-container/CI results, or a full result pipeline.
 
+## Reviewing the module structure
+
+Start at the public export list, then follow a call through browser/case-session.ts into the owning action or assertion module. browser/run.ts retains setup and run shutdown coordination; case-session.ts owns collector/history and direct method wiring. steps/execute.ts orders steps and invokes the existing after-step callback; accessibility/scan.ts performs analysis without deciding its timing. Types are grouped with the feature that owns them; browser/types.ts and steps/types.ts connect those features through type-only imports.
+
+As an exercise, trace one click from the public session method and another through dispatch, including after-waits and assessment. Then trace close during pending context setup. Explain why internal modules import each other directly instead of importing index.ts, and why the assertion mismatch error must be the same class in assertions and dispatch. You are ready when you can identify which file owns a change without searching the former large entry point.
+
+The refactor passed the unchanged 131-test suite in the existing Linux dev container. Compatibility checks compared all 36 public type exports and runtime signatures against the original source and confirmed the same eight runtime export names. This is structural verification; no new CI or Chromium/axe assessment evidence is established.
+
 ## Self-assessment
+
+- [ ] I can follow the unchanged public import into the owning feature module without importing internal paths as a consumer.
+- [ ] I can distinguish run-owned setup/shutdown from session-owned methods, findings/history, and close state.
+- [ ] I can explain why moving an error class requires its thrower and dispatcher to import the same class.
 
 - [ ] I can identify eligible automatic scans, distinguish direct APIs from dispatch, and explain why scan rejection stops dispatch without assigning a case outcome.
 - [ ] I can distinguish copied findings from copied scan records whose raw result objects remain shared.
@@ -140,7 +152,26 @@ In this synthetic example, the page supplies an email control with ID `email` an
 
 | File | What to learn from it |
 | --- | --- |
-| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Public `startBrowserRun`, `resolveAccessibilitySettings`, `mapAccessibilityFindings`, effective session settings, direct scan outcomes/errors, and case-session APIs, locator resolution, click/type/fill/selectOption/assertText/assertHtml/assertValue execution and associated-label checks, step dispatch, ordered waits, defaults, context creation, and cleanup. |
+| [`src/index.ts`](../../../packages/runner-core/src/index.ts) | Explicit public exports only; callers continue to import from @stagehand/runner-core. |
+| [`src/defaults.ts`](../../../packages/runner-core/src/defaults.ts) | Shared existing timeout, retry, and viewport defaults. |
+| [`src/browser/types.ts`](../../../packages/runner-core/src/browser/types.ts) | Browser configuration, run/session interfaces, and their type-only dependencies. |
+| [`src/browser/run.ts`](../../../packages/runner-core/src/browser/run.ts) | Chromium launch, context/page setup, pending setup, active sessions, and coordinated shutdown. |
+| [`src/browser/case-session.ts`](../../../packages/runner-core/src/browser/case-session.ts) | Direct API wiring, per-session collector/history, automatic scan callback, and context close. |
+| [`src/locators.ts`](../../../packages/runner-core/src/locators.ts) | Locator construction, exact matching, unique resolution, retry budgets, and locator errors. |
+| [`src/waits.ts`](../../../packages/runner-core/src/waits.ts) | Ordered locator/state/delay waits and wait errors. |
+| [`src/actions/navigation.ts`](../../../packages/runner-core/src/actions/navigation.ts) | Navigation options, URL checks, and execution. |
+| [`src/actions/interactions/click.ts`](../../../packages/runner-core/src/actions/interactions/click.ts) | Click options and execution. |
+| [`src/actions/interactions/type.ts`](../../../packages/runner-core/src/actions/interactions/type.ts) | Sequential character typing and its timeout/viewport rules. |
+| [`src/actions/interactions/fill.ts`](../../../packages/runner-core/src/actions/interactions/fill.ts) | Direct field filling and its timeout/viewport rules. |
+| [`src/actions/interactions/select-option.ts`](../../../packages/runner-core/src/actions/interactions/select-option.ts) | Option selection by value or visible label. |
+| [`src/assertions.ts`](../../../packages/runner-core/src/assertions.ts) | Locale-aware expected values, text/HTML/value comparison, associated labels, and internal mismatch errors. |
+| [`src/steps/types.ts`](../../../packages/runner-core/src/steps/types.ts) | Step contracts, executable-step union, and soft-failure details. |
+| [`src/steps/execute.ts`](../../../packages/runner-core/src/steps/execute.ts) | Dispatch ordering, interaction waits, hard/soft handling, after-step callback, and step errors. |
+| [`src/accessibility/types.ts`](../../../packages/runner-core/src/accessibility/types.ts) | Raw scan outcomes, settings, collector interface, and scan-history record types. |
+| [`src/accessibility/settings.ts`](../../../packages/runner-core/src/accessibility/settings.ts) | Pure plan/case settings resolution. |
+| [`src/accessibility/scan.ts`](../../../packages/runner-core/src/accessibility/scan.ts) | Axe adapter execution and cause-preserving scan errors. |
+| [`src/accessibility/mapping.ts`](../../../packages/runner-core/src/accessibility/mapping.ts) | Pure raw violation projection and related-node deduplication. |
+| [`src/accessibility/collection.ts`](../../../packages/runner-core/src/accessibility/collection.ts) | Stateful per-case finding accumulation and copied snapshots. |
 | [`test/accessibility-settings.test.js`](../../../packages/runner-core/test/accessibility-settings.test.js) | Public-package tests for pure resolution, independent overrides, tag list semantics, non-mutation, and run/session snapshots. |
 | [`test/accessibility-execution.test.js`](../../../packages/runner-core/test/accessibility-execution.test.js) | Awaited automatic cadence, after-waits, tags, per-session collection, raw history, and error preservation. |
 | [`test/accessibility-collection.test.js`](../../../packages/runner-core/test/accessibility-collection.test.js) | Per-case grouping, exact markup deduplication, first-observation retention, count updates, copied snapshots, and synthetic result validation. |
@@ -201,6 +232,9 @@ Then trace the test double through launch, context creation, and cleanup. Change
 15. When does a click with after-waits scan, and can the next step begin before analysis resolves?
 16. What is retained if a hard assertion and its scan both fail?
 17. Does mutating raw results from getAccessibilityScans mutate a deep copied observation?
+18. After restructuring, should consumers import executeClick from an internal interaction path?
+19. Which modules own pending context setup, accumulated scan history, and the order of after-step assessments?
+20. Do passing refactor tests establish new Chromium/axe or CI evidence?
 
 <details>
 <summary>Answer key</summary>
@@ -225,6 +259,10 @@ Then trace the test double through launch, context creation, and cleanup. Change
 15. After the action and its after-waits. The dispatcher awaits assessment before starting the next step. Direct click calls do not trigger automatic scans.
 16. A StepExecutionError wraps an AggregateError containing the assertion error first and scan error second. A scan rejection after a successful step is wrapped with step context and its AccessibilityScanError cause. No case/run outcome is calculated.
 17. No. The array and record wrappers are copied, but raw result objects retain their original references and must be treated as read-only. Findings are separately deep copied.
+
+18. No. The public package import and exports remain unchanged. Internal helper exports connect implementation modules; they are not new public subpath APIs.
+19. browser/run.ts owns pending setup and coordinated run shutdown; browser/case-session.ts owns accumulated scan history and session cleanup; steps/execute.ts determines when to invoke the after-step callback, which the session wires to scanning and collection.
+20. No. The unchanged 131-test suite passed in the existing dev container, and API compatibility checks passed. Actual Chromium/axe verification stays deferred, and CI for this refactor must be recorded separately.
 
 </details>
 
