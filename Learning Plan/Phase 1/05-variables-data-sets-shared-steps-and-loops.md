@@ -10,7 +10,7 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields; resolution, data sets, shared steps, and protected values are still future work.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields. A pure ordinary-value resolver now selects scope and locale/default values; step rewriting, data sets, shared steps, and protected values are still future work.
 
 ## Core ideas
 
@@ -18,7 +18,7 @@ A variable definition describes a named, case-sensitive input. Its default is re
 
 A whole-field {"var":"name"} reference is now accepted for `navigate.url`, `type.text`, `fill.value`, `selectOption.value` or `label`, and assertion expected/associated-label values. It is still only an authored value: Stagehand does not resolve it yet. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
 
-Scope is like choosing the most specific instruction sheet: step overrides case, case overrides plan. CLI overrides JSON at its targeted scope. The winning definition replaces the whole inherited definition, including its locale map; then select locale/default, resolve any selected environment value, and convert for the consuming field. Numbers/booleans become text in text fields; other types remain intact.
+Scope is like choosing the most specific instruction sheet: step overrides case, case overrides plan. The public pure resolver now applies that order and selects the winner's locale/default value without merging locale maps. CLI overrides JSON at its targeted scope. Rewriting a referenced step, resolving any selected environment value, and converting for the consuming field remain later work. Numbers/booleans will become text in text fields; other types will remain intact.
 
 The accepted replacement rule is separate from the still-proposed locale algorithm. The recommendation is to match canonical locale tags exactly, reject duplicate canonical keys, and fall back to default, following existing assertions. Do not invent prefix fallback or merge rules in an implementation.
 

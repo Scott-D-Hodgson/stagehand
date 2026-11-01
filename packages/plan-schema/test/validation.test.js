@@ -5,6 +5,7 @@ import {
   caseSchemaV1,
   matchCaseReferences,
   planSchemaV1,
+  resolveVariable,
   validateCase,
   validatePlan,
   validatePlanBundle,
@@ -300,6 +301,83 @@ test("rejects invalid and duplicate canonical locale keys in variable definition
     assert.ok(planResult.issues.some((issue) => issue.keyword === keyword));
     assert.ok(caseResult.issues.some((issue) => issue.keyword === keyword));
   }
+});
+
+test("resolves variables from the narrowest scope without merging locale variants", () => {
+  const result = resolveVariable({
+    name: "greeting",
+    locale: "fr-CA",
+    planVariables: {
+      greeting: { default: "Plan", locales: { "fr-CA": "Plan French" } },
+      attempts: { default: 3 },
+      enabled: { default: true },
+    },
+    caseVariables: {
+      greeting: { default: "Case" },
+      attempts: { default: 4 },
+    },
+    stepVariables: {
+      greeting: { default: "Step", locales: { "fr-CA": "Step French" } },
+    },
+  });
+  assert.deepEqual(result, { resolved: true, value: "Step French", source: "step" });
+  assert.deepEqual(resolveVariable({
+    name: "attempts",
+    locale: "fr-CA",
+    planVariables: { attempts: { default: 3 } },
+    caseVariables: { attempts: { default: 4 } },
+  }), { resolved: true, value: 4, source: "case" });
+  assert.deepEqual(resolveVariable({
+    name: "enabled",
+    locale: "fr-CA",
+    planVariables: { enabled: { default: true } },
+  }), { resolved: true, value: true, source: "plan" });
+});
+
+test("uses the selected definition default when its locale variant is absent", () => {
+  const result = resolveVariable({
+    name: "greeting",
+    locale: "fr-CA",
+    planVariables: {
+      greeting: { default: "Plan", locales: { "fr-CA": "Plan French" } },
+    },
+    caseVariables: { greeting: { default: "Case" } },
+  });
+  assert.deepEqual(result, { resolved: true, value: "Case", source: "case" });
+});
+
+test("matches canonical locale keys and reports missing variables", () => {
+  assert.deepEqual(resolveVariable({
+    name: "greeting",
+    locale: "fr-CA",
+    planVariables: { greeting: { default: "Hello", locales: { "fr-ca": "Bonjour" } } },
+  }), { resolved: true, value: "Bonjour", source: "plan" });
+  assert.deepEqual(resolveVariable({
+    name: "missing",
+    locale: "en-CA",
+    planVariables: { greeting: { default: "Hello" } },
+  }), {
+    resolved: false,
+    reason: "missingVariable",
+    message: "No variable named \"missing\" is defined in step, case, or plan scope.",
+  });
+  assert.equal(resolveVariable({
+    name: "Greeting",
+    locale: "en-CA",
+    planVariables: { greeting: { default: "Hello" } },
+  }).resolved, false);
+});
+
+test("reports an invalid resolver locale without throwing", () => {
+  assert.deepEqual(resolveVariable({
+    name: "greeting",
+    locale: "en__CA",
+    planVariables: { greeting: { default: "Hello" } },
+  }), {
+    resolved: false,
+    reason: "invalidLocale",
+    message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
+  });
 });
 
 test("accepts variable references in agreed action and assertion fields", () => {
