@@ -79,8 +79,12 @@ stagehand/
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/
 │   │   │   ├── index.ts      # single public entry point
+│   │   │   ├── json.ts       # shared JSON object and JSON Pointer helpers
 │   │   │   ├── plan-v1.schema.json
-│   │   │   └── case-v1.schema.json
+│   │   │   ├── case-v1.schema.json
+│   │   │   ├── validation/  # schema, semantic, and bundle validation
+│   │   │   ├── references/  # case-reference matching and result types
+│   │   │   └── variables/   # variable resolution and case preparation
 │   │   ├── examples/
 │   │   │   ├── checkout-plan.json
 │   │   │   └── cases/sign-in.json

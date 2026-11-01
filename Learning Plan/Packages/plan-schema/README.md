@@ -33,7 +33,7 @@ The current plan and case schemas validate named, non-empty, case-sensitive vari
 
 Browser settings in both plan defaults and case overrides accept only the type identifier `chromium`, representing Playwright-managed Chromium. Other browser types are rejected; later browser support will require an intentional schema update.
 
-The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Headless mode and locale are run-wide, so a case cannot override them; case settings may override the viewport and time zone. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation. `runner-core` applies these browser defaults when creating the run and case sessions; accessibility settings are not yet applied by the browser lifecycle.
+The planned run defaults are headless mode, 1280 by 720 CSS pixels, the `UTC` time zone, and the plan's `en-CA` locale. Headless mode and locale are run-wide, so a case cannot override them; case settings may override the viewport and time zone. JSON Schema `default` annotations document these values but do not modify input. The validators check locale syntax and time-zone support using the runtime's `Intl` implementation. `runner-core` applies the browser defaults when creating run and case sessions, resolves accessibility settings, and automatically scans eligible steps when scanning is enabled. Full result production remains future work.
 
 Accessibility configuration is optional and can be set in plan defaults or case settings. When present, omitted `enabled` and `failOnViolation` values default to `false`; a case can override the plan's values. These schema defaults also remain annotations until a consumer calculates effective settings.
 
@@ -53,7 +53,7 @@ Omitting case tags preserves inheritance from the plan; a non-empty case list re
 
 The checkout example selects two tags, its sign-in case omits them, and the action-contract case explicitly clears them while keeping scanning disabled. Trace all three examples. Then change one tag to a misspelling and inspect the validation issue path. Explain why accepting these documents does not prove that scans run or inheritance is applied.
 
-After this slice, plan-schema builds and all 39 public-entry tests pass locally on Windows. The dependent plan-engine suite passes 14 tests and skips 3 Windows symlink tests. Dev-container and CI verification remain outstanding. See the [package README](../../../packages/plan-schema/README.md) for the scope table and update procedure.
+The focused plan-schema suite has 56 passing public-entry tests in the development container. The dependent plan-engine suite previously passed 14 tests and skipped 3 Windows symlink tests in the owner's Windows environment. See the [package README](../../../packages/plan-schema/README.md) for the current verification notes and tag-catalogue update procedure.
 
 ### Keeping the tag catalogue current
 
@@ -92,7 +92,11 @@ After matching and parsing the referenced files in plan order, `validatePlanBund
 | --- | --- |
 | [`src/plan-v1.schema.json`](../../../packages/plan-schema/src/plan-v1.schema.json) | Required plan fields, defaults, case references, and constraints. |
 | [`src/case-v1.schema.json`](../../../packages/plan-schema/src/case-v1.schema.json) | Case envelope, settings, variables, and the supported initial action/assertion formats. |
-| [`src/index.ts`](../../../packages/plan-schema/src/index.ts) | Public exports, Ajv setup, compiled validators, relative path matching, parsed-bundle validation, and issue mapping. |
+| [`src/index.ts`](../../../packages/plan-schema/src/index.ts) | The small public entry point that re-exports the package API. |
+| [`src/validation/`](../../../packages/plan-schema/src/validation/) | Ajv setup, schema and semantic validation, parsed-bundle validation, and validation result types. |
+| [`src/references/`](../../../packages/plan-schema/src/references/) | Relative case-reference matching and its result types. |
+| [`src/variables/`](../../../packages/plan-schema/src/variables/) | Variable types, scalar resolution, step preparation, and case preparation. |
+| [`src/json.ts`](../../../packages/plan-schema/src/json.ts) | Small JSON-object and JSON Pointer helpers shared by the internal modules. |
 | [`test/validation.test.js`](../../../packages/plan-schema/test/validation.test.js) | Valid examples, invalid inputs, reference matching, parsed-bundle checks, and imports through `@stagehand/plan-schema`. |
 | [`examples/cases/action-contract.json`](../../../packages/plan-schema/examples/cases/action-contract.json) | One valid example covering every initial action/assertion and supported wait-list item. |
 | [`test/fixtures/invalid-action-case.json`](../../../packages/plan-schema/test/fixtures/invalid-action-case.json) | An invalid case demonstrating rejection of an unknown step property. |
@@ -112,7 +116,7 @@ Then work through these steps:
 1. Read the valid plan and case examples. Find one schema constraint for each.
 2. In a local test copy, change the plan's `schemaVersion` from `1` to `"1"`. Predict the issue path and keyword, then inspect the matching assertion in the test file.
 3. Change the case's `steps` value from an array to a string. Explain which schema rule rejects it.
-4. Trace a failing value from the test through `validatePlan` or `validateCase` in `src/index.ts` and identify where the issues are copied.
+4. Trace a failing value from the test through the public export in `src/index.ts` to `validatePlan` or `validateCase` in `src/validation/`, and identify where the issues are copied.
 5. Add a test for one other schema failure without changing the committed example files.
 6. Add a missing reference beside a matched reference and inspect both the issue and the partial matches returned.
 7. Validate a bundle with two cases that share an ID and inspect the duplicate-ID issue path.
