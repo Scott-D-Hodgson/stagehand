@@ -73,6 +73,31 @@ function validateCaseStepVariables(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+function validateCaseDataSets(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !Array.isArray(input.dataSets)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  const names = new Map<string, number>();
+  for (const [dataSetIndex, dataSet] of input.dataSets.entries()) {
+    if (!isRecord(dataSet) || typeof dataSet.name !== "string") {
+      continue;
+    }
+    issues.push(...validateVariables(dataSet.variables, `/dataSets/${dataSetIndex}/variables`));
+    const earlierIndex = names.get(dataSet.name);
+    if (earlierIndex !== undefined) {
+      issues.push({
+        path: `/dataSets/${dataSetIndex}/name`,
+        keyword: "duplicateDataSetName",
+        message: `Data-set name duplicates the name at /dataSets/${earlierIndex}/name.`,
+      });
+      continue;
+    }
+    names.set(dataSet.name, dataSetIndex);
+  }
+  return issues;
+}
+
 export function validateCase(input: unknown): ValidationResult {
   const result = validateCaseSchema(input);
   if (!result.valid) {
@@ -84,6 +109,7 @@ export function validateCase(input: unknown): ValidationResult {
     ...validateCaseExpectedLocales(input),
     ...validateVariables(isRecord(input) ? input.variables : undefined, "/variables"),
     ...validateCaseStepVariables(input),
+    ...validateCaseDataSets(input),
   ];
   return issues.length === 0 ? result : { valid: false, issues };
 }

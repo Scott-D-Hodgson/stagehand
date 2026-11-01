@@ -10,7 +10,7 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields. Runner-core now prepares ordinary values and a detached validated case before it dispatches that case's first step; data sets, shared steps, protected values, and full pre-browser-startup orchestration are still future work.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, data-set, and step scope and permit references in selected fields. Cases can now declare named data sets and a default selection, but selection and application remain future work. Runner-core prepares ordinary values and a detached validated case before it dispatches that case's first step; shared steps, protected values, and full pre-browser-startup orchestration are still future work.
 
 ## Core ideas
 
@@ -85,12 +85,12 @@ Follow the [M5 PR sequence](../../Planning/Work%20Plan/M5-data-and-reuse-semanti
 5. No. All variants share one resolved scalar type; field conversion follows selection.
 6. No. Loop execution is deferred beyond MVP.
 7. Diagnostics and retained assertion/axe observations could otherwise disclose resolved values through existing raw-history paths.
-8. M5 is built in small slices. The first slice adds only variable-definition schema support and focused tests; references, resolution, data sets, shared steps, and protected values remain later work. No M5 schema or resolver implementation is claimed yet.
+8. M5 is built in small slices. Variable definitions, references, ordinary preparation/dispatch, and data-set structure/validation are implemented. Data-set selection/application, shared steps, protected values, and full pre-browser-startup orchestration remain later work.
 
 </details>
 
 ## Incremental practice
 
-Start with small schema-only changes: add a named variable with a required scalar default and, optionally, locale variants of the same type; then permit whole-field references only in the agreed action/assertion fields. Write valid and focused invalid examples. Do not add reference resolution, data sets, shared steps, or environment lookup in either PR.
+The earlier foundation PRs added named variables with required scalar defaults and optional same-type locale variants, then permitted whole-field references only in the agreed action/assertion fields. The current data-set schema slice follows the same pattern: validate named sets and a default selection without selecting or applying them. Each later capability still needs its own valid and focused invalid examples.
 
 M5 keeps the v1 contracts while the milestone is in progress. Each later PR should add one capability, explain its limits, and verify that capability before moving on.
