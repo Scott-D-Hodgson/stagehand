@@ -224,6 +224,22 @@ function validateCaseExpectedLocales(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+function validateVariables(input: unknown, path: string): ValidationIssue[] {
+  if (!isRecord(input)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  for (const [name, definition] of Object.entries(input)) {
+    issues.push(
+      ...validateExpectedValueLocales(
+        definition,
+        `${path}/${escapeJsonPointerSegment(name)}`,
+      ),
+    );
+  }
+  return issues;
+}
+
 function includeSemanticIssues(
   result: ValidationResult,
   semanticIssues: ValidationIssue[],
@@ -360,7 +376,10 @@ export function matchCaseReferences(
 export function validatePlan(input: unknown): ValidationResult {
   const valid = validatePlanSchemaV1(input);
   const schemaResult = toValidationResult(valid, validatePlanSchemaV1.errors);
-  return includeSemanticIssues(schemaResult, validatePlanSettings(input));
+  return includeSemanticIssues(schemaResult, [
+    ...validatePlanSettings(input),
+    ...validateVariables(isRecord(input) ? input.variables : undefined, "/variables"),
+  ]);
 }
 
 export function validateCase(input: unknown): ValidationResult {
@@ -370,6 +389,7 @@ export function validateCase(input: unknown): ValidationResult {
     ...validateCaseSettings(input),
     ...validateNavigationUrls(input),
     ...validateCaseExpectedLocales(input),
+    ...validateVariables(isRecord(input) ? input.variables : undefined, "/variables"),
   ]);
 }
 

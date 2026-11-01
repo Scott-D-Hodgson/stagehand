@@ -23,6 +23,6 @@ Implement fixed localized input definitions, scope/data-set selection, effective
 
 Current runner-core exposes original raw scan results and does not implement this redaction contract. Pure schema/resolver slices must not be described as enabling safe secret execution. Implement and verify evidence projection before integrating protected preflight and retained output. Necessary raw values stay private to execution.
 
-## Remaining contract design
+## Implementation approach
 
-Review exact allowed fields, metadata/name syntax, complete data-set/CLI precedence, and safe redacted evidence formats. Canonical exact locale matching with default fallback is a recommendation aligned with assertions, not an independently accepted questionnaire answer. No further questionnaire answer is pending; review proposals in the contract draft.
+Keep the v1 contracts while M5 is in progress. The variable-schema foundation is implemented; next build references, then resolution, data sets, shared steps, and protected values in focused PRs. Define only the details needed by the active slice and record its tests and remaining limits.
