@@ -197,14 +197,15 @@ test("binds the actual adapter to the case page and preserves its evaluation fai
   }
 });
 
-test("does not scan automatically during session creation or step dispatch", async () => {
+test("scans after dispatch but not during session creation", async () => {
   const analyze = mock.method(AxeBuilder.prototype, "analyze", async () => observations());
-  const { run, session } = await createSession({ async goto() { return null; } }, { accessibility: { enabled: true } });
+  const { run, session } = await createSession({ isClosed() { return false; }, async goto() { return null; } }, { accessibility: { enabled: true } });
   try {
-    await session.executeSteps("synthetic-case", [{ action: "navigate", url: "https://example.test/form" }]);
     assert.equal(analyze.mock.callCount(), 0);
-    await session.scanAccessibility();
+    await session.executeSteps("synthetic-case", [{ action: "navigate", url: "https://example.test/form" }]);
     assert.equal(analyze.mock.callCount(), 1);
+    await session.scanAccessibility();
+    assert.equal(analyze.mock.callCount(), 2);
   } finally {
     await run.close();
   }

@@ -8,7 +8,7 @@ The public entry point exports `resultSchemaV1`, the v1 result types, and `valid
 
 ## Accessibility contract
 
-M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Runner-core now exposes direct case-session scans returning raw axe observations. Runner-core also provides a pure violation mapper into this shared finding shape. Runner-core also provides a caller-owned per-case collector that updates accumulated counts. Automatic cadence, session/collector integration, and result production remain future work. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
+M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Runner-core now exposes direct case-session scans returning raw axe observations. Runner-core also provides a pure violation mapper into this shared finding shape. Runner-core also provides a caller-owned per-case collector that updates accumulated counts. Automatic step cadence and session collection are implemented in runner-core; full result production remains future work. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
 
 Every case must record `effectiveSettings.accessibility` with all three fields, even when disabled or when there are no findings:
 
