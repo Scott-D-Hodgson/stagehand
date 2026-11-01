@@ -5,7 +5,7 @@
 Give the first user-facing Stagehand capability to the primary intended user—a non-technical tester—before the CLI runner is prioritized:
 
 - Local-first Vue SPA.
-- Provide controlled, form-based editing for plans, cases, browser/run configuration, localized expected assertion values, variables, shared steps, and loops before delivering the CLI. A raw JSON editor is deferred.
+- Provide controlled, form-based editing for plans, cases, browser/run configuration, localized expected assertion values, variables and shared steps before delivering the CLI. A raw JSON editor is deferred.
 - Import/export versioned JSON plans and validate against the shared contract without a Stagehand backend.
 - Support static hosting and current stable desktop Chrome and Edge on Windows. Use upload/import and download/export for user-owned files in every supported browser. Direct filesystem access is deferred to [TE-020](../../Backlog/technical-enablers/te-020-direct-filesystem-access-for-editor.md). Once loaded, the open editor remains usable offline; cold-starting offline is not initially required.
 - Protect unsaved work and make user-owned file handling clear.

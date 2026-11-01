@@ -36,12 +36,12 @@ These are initial planning labels. They are not estimates or commitments.
 
 ## Scope note
 
-This is an initial draft generated from Stagehand planning discussions. Review priorities, story boundaries, dependencies, and exact behaviour before treating items as committed scope. The developer has settled the baseline action vocabulary, variable scopes, loop bound, accessibility scan cadence/default outcome, editor-first sequence, and initial platform boundary; implementation details and reporting/status mappings remain open where noted.
+This is an initial draft generated from Stagehand planning discussions. Review priorities, story boundaries, dependencies, and exact behaviour before treating items as committed scope. The developer has settled the baseline action vocabulary, variable scopes, loop deferral beyond MVP, accessibility scan cadence/default outcome, editor-first sequence, and initial platform boundary; implementation details and reporting/status mappings remain open where noted.
 
 ## Suggested first steps
 
 1. Review `product-vision.md` and `release-plan.md`.
-2. Review epics and acceptance criteria, especially schema, editor-first scope, execution, soft assertions, accessibility, localization, and variable/loop semantics.
+2. Review epics and acceptance criteria, especially schema, editor-first scope, execution, soft assertions, accessibility, localization, and variable/shared-step semantics.
 3. Resolve remaining implementation choices in the stories, including dataset duplicate/unknown-name behaviour, accessibility scan-error policy, and report outcome mapping to Azure DevOps.
 4. Review the current decisions in `product-vision.md` and `release-plan.md`. If JUnit conversion is prioritized later, verify its result fields/outcomes against the Azure DevOps publishing task.
 5. Commit this backlog as the reviewed baseline through the intended PR workflow. M0 is recorded as complete and remains documented as a greenfield bootstrap process for reuse; see the M0 work plan for its completion evidence.

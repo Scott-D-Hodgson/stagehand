@@ -19,3 +19,13 @@ These ideas are not assigned to a delivery phase and may be prioritized later:
 - Add [opt-in screenshots](../../Backlog/epics/E03-results-and-reporting/stories/ATR-024.md) through plan/CLI settings, with safe artifact handling.
 - Consider [extended browser navigation and assertion actions](../../Backlog/epics/E02-execution-engine/stories/ATR-042.md), including reload/history navigation and additional assertion types.
 - [Automate the author-sensitive PR review policy check](../../Backlog/technical-enablers/te-021-automated-pr-review-policy-check.md) when additional developers are contributing regularly.
+
+## Deferred loop capability
+
+The owner deferred loops beyond MVP because they are not normally needed for the intended workflows. [ATR-018](../../Backlog/epics/E02-execution-engine/stories/ATR-018.md) retains the earlier candidate design; no delivery point is selected. Loop syntax/execution, editor controls, CLI limits, and iteration diagnostics should be reconsidered together if prioritised. Named data sets and one-level shared steps remain MVP scope.
+
+## Deferred runtime variable features
+
+MVP variables are fixed inputs. Capturing values from pages and reassigning variables during execution are deferred beyond MVP; no delivery point is selected. See the accepted scope in [ATR-016](../../Backlog/epics/E02-execution-engine/stories/ATR-016.md).
+
+MVP references are limited to action inputs and assertion expected values. Reference chains and locator/browser/run-setting references are also deferred; the accepted whole-field syntax is documented in [ATR-016](../../Backlog/epics/E02-execution-engine/stories/ATR-016.md).

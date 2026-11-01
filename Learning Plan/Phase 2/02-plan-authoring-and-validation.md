@@ -12,20 +12,20 @@
 
 - How to turn a structured plan contract into a form-driven authoring flow.
 - How to report validation errors near the control that can fix them.
-- How to make complex concepts such as variables, shared steps, and loops understandable.
+- How to make complex concepts such as variables, data sets, and shared steps understandable.
 - How accessibility and localization affect editor design.
 
 ## Core ideas
 
 Validation is a set of guardrails, not a scolding. A form can prevent invalid combinations, explain required fields, and still validate the whole document before export. Some rules depend on multiple fields or referenced files, so they cannot be checked by one input control alone. Runtime checks still matter for environment variables and browser behaviour that the editor cannot know.
 
-Stagehand users author test plans, not programming scripts. Prefer clear labels, guided choices, and summaries. For a loop, the editor should expose the repeated steps, data source, and maximum count in terms a tester can understand. Shared steps should show where they are called and which case variables they use. Do not hide structure merely to make a screen look simple.
+Stagehand users author test plans, not programming scripts. Prefer clear labels, guided choices, and summaries. Loops and their authoring controls are deferred beyond MVP. For named data sets, the editor should make selected inputs and overrides understandable. Shared steps should show where they are called and which case variables they use. Do not hide structure merely to make a screen look simple.
 
 Localization has two separate jobs: browser locale configures the page under test, while localized expected values let the plan assert different text for different cultures. Keep these controls separate and make the selected locale/value pairing visible.
 
 ## Apply this to Stagehand
 
-Use the shared plan schema to validate document shape, and provide actionable paths to the invalid field or referenced case. Keep stable IDs separate from human-readable names, which may be edited or translated. The planned editor supports plans, cases, browser/run configuration, localized expected values, variables, shared steps, loops, and referenced case files.
+Use the shared plan schema to validate document shape, and provide actionable paths to the invalid field or referenced case. Keep stable IDs separate from human-readable names, which may be edited or translated. The planned editor supports plans, cases, browser/run configuration, localized expected values, variables, shared steps, and referenced case files.
 
 The intended first user is a non-technical tester. Use plain-language labels and examples, but keep advanced options discoverable. Ensure keyboard focus is visible, controls have programmatic labels, errors are associated with fields, and dialogs can be operated without a mouse. Automated accessibility checks are useful but do not replace trying the main workflow with keyboard navigation.
 
@@ -57,7 +57,7 @@ Sketch a form for an input-value assertion with two localized expected values. A
 <summary>Answer key</summary>
 
 1. References and relationships across fields or files may be invalid even when each individual input looks valid.
-2. Examples include a loop's maximum and data source, a case's referenced dataset, or consistency between an action and its required locator.
+2. Examples include a case's referenced data set, a shared-group reference, or consistency between an action and its required locator.
 3. Browser locale affects the application-under-test session. Localized expected text selects the assertion value for the intended culture.
 4. It helps users find and correct the problem, including users navigating with assistive technology.
 

@@ -12,5 +12,5 @@ Use the [Phase 1 work plan](../../Work%20Plan/README.md) for milestones, deliver
 - Development container and contributor/agent guidance.
 - Versioned test-plan and result schemas.
 - Browser configuration, action vocabulary, assertion semantics.
-- Variable scopes, data sets, shared steps, and loop semantics.
+- Variable scopes, data sets, shared steps, and protected-value semantics; loops are deferred beyond MVP.
 - Error model and execution policies.

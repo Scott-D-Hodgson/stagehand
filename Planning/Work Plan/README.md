@@ -24,7 +24,7 @@ The plan assumes one contributor familiar with Git and basic TypeScript/Node.js,
 | [M2](M2-development-environment-and-guidance.md) | Development environment and contributor/agent guidance | M0, M1     |       3–5 person-days |
 | [M3](M3-versioned-plan-and-result-contracts.md)  | Versioned plan and result contracts                    | M1         |                     — |
 | [M4](M4-browser-actions-and-assertions.md)       | Browser configuration, actions, and assertions         | M2, M3     |       3–5 person-days |
-| [M5](M5-data-and-reuse-semantics.md)             | Variables, data sets, shared steps, and bounded loops  | M3, M4     |       3–5 person-days |
+| [M5](M5-data-and-reuse-semantics.md)             | Variables, data sets, shared steps, and protected values  | M3, M4     |       3–5 person-days |
 | [M6](M6-errors-and-execution-policies.md)        | Error model and execution policies                     | M3–M5      |       2–4 person-days |
 | [M7](M7-integration-and-phase-1-review.md)       | Integration, verification, and Phase 1 review          | M1–M6      |       2–3 person-days |
 | **Phase 1 subtotal (M1–M7; excluding M3)**        | **Estimated focused effort**                           |            | **15–26 person-days** |
@@ -42,7 +42,7 @@ Phase 1 is complete when:
 - A new contributor can follow a pinned development setup and run the documented baseline checks.
 - Contributor and agent guidance covers architecture, workflow, verification, and secret handling; any claimed runtime containment is backed by actual controls and its limits are documented.
 - Versioned plan and result contracts are documented, represented in the repository, and have valid/invalid examples with clear validation behaviour.
-- Browser settings, action vocabulary, assertion outcomes, variable/data rules, shared-step behaviour, loop bounds, error classes, and continuation policies are explicit enough for the execution engine to implement without guessing.
+- Browser settings, action vocabulary, assertion outcomes, variable/data rules, shared-step behaviour, error classes, and continuation policies are explicit enough for the execution engine to implement without guessing.
 - Cross-cutting choices and unresolved issues are recorded, and the Phase 1 examples and checks agree with the contracts.
 
 ## Tracking guidance

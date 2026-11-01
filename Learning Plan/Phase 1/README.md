@@ -7,7 +7,7 @@ These lessons prepare the developer for M0 and [Roadmap Phase 1](../../Planning/
 2. [Development container and contributor/agent guidance](02-development-container-and-contributor-guidance.md)
 3. [Versioned test-plan and result schemas](03-versioned-test-plan-and-result-schemas.md)
 4. [Browser configuration, action vocabulary, and assertion semantics](04-browser-actions-and-assertions.md)
-5. [Variable scopes, data sets, shared steps, and loop semantics](05-variables-data-sets-shared-steps-and-loops.md)
+5. [Variable scopes, data sets, shared steps, and protected values](05-variables-data-sets-shared-steps-and-loops.md)
 6. [Error model and execution policies](06-error-model-and-execution-policies.md)
 
 The lessons are AI-generated from the evolving Planning materials. Treat them as a learning guide; confirm current Stagehand decisions against the backlog, roadmap, and work plan. TypeScript is the default for new implementation code; plan-schema, plan-engine, and the result-model schema and API are the current code footprint covered by these lessons. Each lesson includes a self-assessment, practical exercise, success criteria, references, and a reinforcement quiz.

@@ -7,7 +7,7 @@ Epics group related user stories. Each epic has a short overview and a `stories/
 | Epic | Name | Focus |
 |---|---|---|
 | E01 | Plan definition and configuration | Versioned JSON contract, validation, browser and run configuration |
-| E02 | Execution engine | Reusable library, Playwright actions, shared steps, variables, loops, failure handling |
+| E02 | Execution engine | Reusable library, Playwright actions, shared steps, variables, failure handling; loops deferred |
 | E03 | Results and reporting | Result contract, JSON output, diagnostics, accessibility findings; XML/HTML conversions and screenshots are later work |
 | E04 | CLI and scheduling | CLI options, overrides, exit codes, non-interactive scheduled runs |
 | E05 | Local-first web editor | Vue SPA for user-owned test plan files |

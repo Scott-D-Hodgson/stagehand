@@ -19,7 +19,7 @@ Stagehand should recommend test/staging targets, without implying those environm
 - Initial assertions: compare selector-matched inner text or inner HTML with an expected value; compare an input's value with an expected value; optionally perform a soft check of the associated label's inner text or inner HTML.
 - Hard assertions stop the current case; soft assertions record failure and continue.
 - Recoverable case failures do not prevent independent cases from running.
-- Plan/case/step variable scopes with documented shadowing; one-level shared steps; named data sets; environment-variable secret references; loops capped at 10 by default with plan/case overrides.
+- Plan/case/step variable scopes with documented shadowing; one-level shared steps; named data sets selected per case with default fallback; environment-variable secret references. MVP variable values have defaults and optional locale-specific variants and resolve to fixed text, number, or boolean inputs, referenced as whole field {"var":"name"} objects in action inputs and assertion expected values. Protected definitions use {"env":"NAME"}. Missing references, unknown selected data sets, and duplicate names fail before browser startup. Text fields convert numbers/booleans to text; types are preserved elsewhere.
 - Case-level parallel execution, cancellation, 10-minute default active-case timeout, configurable timeout overrides and duration thresholds, with run/case elapsed times recorded. Each case uses an isolated Playwright context within a shared browser instance; default concurrency is five contexts, configurable at plan level.
 - A general non-blocking CLI warning before execution that reminds operators to verify authorization and consider side effects, egress, downloads, limits, and costs.
 - Current-run summary and step diagnostics.
@@ -27,7 +27,7 @@ Stagehand should recommend test/staging targets, without implying those environm
 - The run JSON has one case record per case, with case ID/name, outcome, duration, failure detail, detailed step/assertion/accessibility diagnostics, and effective non-secret configuration.
 - Optional axe scans after every step; only newly observed violations are accumulated, with non-failing default status and plan/case override.
 - CLI overrides of plan and case configuration, with documented scope and precedence.
-- Form-based local-first Vue SPA with import, edit, validate, and export; variables, shared steps, loops, and culture-specific expected values are supported before the CLI. Raw JSON editing is deferred.
+- Form-based local-first Vue SPA with import, edit, validate, and export; variables, shared steps, and culture-specific expected values are supported before the CLI. Raw JSON editing is deferred.
 - Static hosting with current stable desktop Chrome and Edge on Windows as the MVP-supported editor browsers. Use upload/import and download/export for user-owned files in every supported browser. Direct filesystem access is deferred to [TE-020](technical-enablers/te-020-direct-filesystem-access-for-editor.md). An already-open editor remains usable offline; offline cold start is not required. Browser storage is a convenience.
 - The local demo application/fixture and .NET xUnit integration are outside the MVP; see the Later candidates and ATR-033.
 - Markdown documentation and Hugo site.
@@ -43,6 +43,8 @@ Stagehand should recommend test/staging targets, without implying those environm
 - Wiki migration/export tool.
 - Arbitrary JavaScript execution from plans.
 
+Loops, list/nested-object values, text interpolation, run-wide data-set selection, page-value capture, variable reassignment, reference chains, and locator/browser/run-setting references are deferred beyond MVP. Loop editor controls, CLI limits, and iteration reporting are also deferred under [ATR-018](epics/E02-execution-engine/stories/ATR-018.md). No delivery point has been selected.
+
 ## Release acceptance themes
 
 - Invalid plans fail before browser execution with actionable errors.
@@ -52,7 +54,9 @@ Stagehand should recommend test/staging targets, without implying those environm
 - Report generation and CLI exit behaviour are documented and tested.
 - A new contributor can set up and verify the repository using the documented development container.
 - The editor can work without a Stagehand-managed server or central repository.
-- A non-technical tester can author plan and case configuration, variables, shared steps, loops, and localized expected values using controlled forms before the CLI is delivered.
+- A non-technical tester can author plan and case configuration, variables, shared steps, and localized expected values using controlled forms before the CLI is delivered.
 - A non-technical tester can author, inspect, validate, and export a plan through the Vue editor before CLI execution is delivered.
 - The CLI can produce the authoritative raw JSON result without requiring an interactive Stagehand report viewer or non-JSON conversion for MVP.
 - Documentation recommends test/staging targets and explains that operators are responsible for target authorization, side effects, network usage, downloads, and resulting costs or limits.
+
+Variable/data-set/shared-group names are case-sensitive. Environment lookup uses effective execution inputs only; unselected/overridden references are not required, and present empty values are valid inputs. Secret redaction includes retained assertion/axe evidence and exposed retained observations; this is required design work, not current runner behaviour.

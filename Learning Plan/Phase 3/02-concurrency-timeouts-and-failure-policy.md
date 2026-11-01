@@ -5,7 +5,7 @@
 - [ ] I can explain the difference between concurrency and parallelism.
 - [ ] I understand why each case needs isolated browser state.
 - [ ] I can distinguish queue time from active case execution time.
-- [ ] I know what should happen when a hard assertion fails inside a loop.
+- [ ] I know what should happen when a hard assertion fails in a case.
 - [ ] I can describe cancellation and the cleanup it requires.
 
 ## What you will learn
@@ -21,17 +21,17 @@ Concurrency limits how many cases are active at once. Stagehand's default is fiv
 
 Timeouts need a clock with a clearly stated start and stop. The agreed ten-minute default measures active case execution only; queue wait, browser/context startup, and cleanup are excluded. Plan/case settings may override it. Run and case durations are recorded, and configured duration thresholds can fail execution. Plan-wide active timeout semantics with parallel cases still need a design decision; document that gap rather than guessing.
 
-Cancellation is a request to stop work, not a magic eraser. The runner must stop scheduling queued cases, interrupt active operations where possible, close contexts, and report cancellation distinctly. A hard assertion stops its case immediately, including breaking out of an active loop. Independent cases can continue under the documented run policy.
+Cancellation is a request to stop work, not a magic eraser. The runner must stop scheduling queued cases, interrupt active operations where possible, close contexts, and report cancellation distinctly. A hard assertion stops its case immediately. Loops are deferred beyond MVP. Independent cases can continue under the documented run policy.
 
 ## Apply this to Stagehand
 
-Design the scheduler around a bounded queue and explicit case states. Record start time only when case execution becomes active. Ensure cancellation and timeout signals reach waits, browser operations, and loops. Keep each result tied to its stable case identity even if parallel cases finish in a different order than they started.
+Design the scheduler around a bounded queue and explicit case states. Record start time only when case execution becomes active. Ensure cancellation and timeout signals reach waits, browser operations, and case scheduling. Keep each result tied to its stable case identity even if parallel cases finish in a different order than they started.
 
 Separate test failures from infrastructure errors: a functional assertion mismatch or a configured accessibility failure is `failed`; cancellation is `cancelled`; a runner/browser/report infrastructure failure is `error`. Diagnostics should preserve which condition failed. JSON result status and CLI exit behaviour must follow a documented mapping. Whether a particular failure stops later cases is a policy choice and should be explicit.
 
 ## Exercise
 
-A plan has 12 cases, a concurrency limit of 5, a 10-minute active case timeout, and an operator cancels while five cases are running and seven are queued. Draw the scheduler state before and after cancellation. Then trace a hard assertion failure in a loop, including what happens to remaining loop iterations and unrelated cases.
+A plan has 12 cases, a concurrency limit of 5, a 10-minute active case timeout, and an operator cancels while five cases are running and seven are queued. Draw the scheduler state before and after cancellation. Then trace a hard assertion failure in one case, including what happens to its remaining steps and unrelated cases.
 
 ## You are ready when
 
@@ -51,7 +51,7 @@ A plan has 12 cases, a concurrency limit of 5, a 10-minute active case timeout, 
 1. What does the concurrency limit control?
 2. Does queue wait count toward the active case timeout?
 3. What must cancellation do with queued and active cases?
-4. What happens after a hard assertion fails inside a loop?
+4. What happens after a hard assertion fails in a case?
 5. Why should result ordering not depend on completion time?
 
 <details>
@@ -60,7 +60,7 @@ A plan has 12 cases, a concurrency limit of 5, a 10-minute active case timeout, 
 1. The maximum number of cases executing at once.
 2. No. The agreed timeout measures active case execution and excludes queue wait, startup, and cleanup.
 3. Stop scheduling queued cases, interrupt active work where possible, clean up contexts, and report cancellation.
-4. Exit the loop and stop the current case immediately.
+4. Stop the current case immediately; independent cases follow the run policy. Loops are deferred beyond MVP.
 5. Stable identities and explicit ordering make results understandable and reproducible despite parallel completion.
 
 </details>
