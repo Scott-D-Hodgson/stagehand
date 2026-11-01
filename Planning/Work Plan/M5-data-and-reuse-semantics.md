@@ -2,7 +2,7 @@
 
 **Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Variable schema foundations and pure ordinary-value resolution are implemented; remaining incremental slices pending
+**Status:** Variable schema foundations and pure ordinary-input preparation are implemented; remaining incremental slices pending
 
 ## Objective
 
@@ -46,7 +46,7 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 | 1. Variable schema foundation | Implemented: v1 plan/case schemas now validate named variables with required scalar defaults and optional same-type locale variants. Focused valid/invalid tests cover shapes and locale keys; resolution and execution remain unsupported. |
 | 1a. Step-variable schema foundation | Implemented: ordinary v1 case steps now accept the same variable-definition shape, including locale-key checks. Definitions remain unresolved. |
 | 2. Variable references | Implemented: v1 case schema support for whole-field `{ "var": "name" }` references in `navigate.url`, interaction inputs, and assertion expected/associated-label values. Locators, waits, and settings remain literal; variables remain unresolved at runtime. |
-| 3. Ordinary variable resolution | Partially implemented: `resolveVariable` selects an ordinary scalar from step, case, or plan scope, replaces whole definitions, selects locale/default values, preserves types, and reports missing names. Step rewriting, text-field conversion, and pre-browser integration remain later work. |
+| 3. Ordinary variable resolution | Partially implemented: `resolveVariable` selects an ordinary scalar from step, case, or plan scope, replaces whole definitions, selects locale/default values, preserves types, and reports missing names. `prepareCaseStep` creates a detached step, replaces supported references, converts them for text fields, and identifies missing-reference fields. Pre-browser orchestration and runner integration remain later work. |
 | 4. Named data sets | Add per-case data-set declarations and selection, with duplicate/unknown-name checks and the accepted precedence. No run-wide selection or iteration. |
 | 5. Shared-step validation and execution | Add one-level shared groups, then execute them in the calling case context with focused ordering and traceability tests. |
 | 6. Protected environment values and safe evidence | Add effective environment lookup and the required redaction boundary for logs, errors, assertion evidence, and axe evidence before enabling protected execution. |

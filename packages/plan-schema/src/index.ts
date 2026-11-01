@@ -43,6 +43,23 @@ export type VariableResolutionResult =
       message: string;
     };
 
+export interface PrepareCaseStepOptions {
+  step: Readonly<Record<string, unknown>>;
+  stepIndex: number;
+  locale: string;
+  planVariables?: Readonly<Record<string, VariableDefinition>>;
+  caseVariables?: Readonly<Record<string, VariableDefinition>>;
+}
+
+export type PrepareCaseStepResult =
+  | { prepared: true; step: Record<string, unknown> }
+  | {
+      prepared: false;
+      path: string;
+      reason: "invalidLocale" | "missingVariable";
+      message: string;
+    };
+
 export interface CaseReferenceMatch {
   caseIndex: number;
   reference: string;
@@ -332,6 +349,116 @@ export function resolveVariable(
     reason: "missingVariable",
     message: `No variable named "${options.name}" is defined in step, case, or plan scope.`,
   };
+}
+
+function isVariableReference(value: unknown): value is { var: string } {
+  return isRecord(value) && typeof value.var === "string" && Object.keys(value).length === 1;
+}
+
+function prepareTextValue(
+  value: unknown,
+  path: string,
+  options: PrepareCaseStepOptions,
+  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined,
+): { prepared: true; value: unknown } | {
+  prepared: false;
+  path: string;
+  reason: "invalidLocale" | "missingVariable";
+  message: string;
+} {
+  if (!isVariableReference(value)) {
+    return { prepared: true, value };
+  }
+  const result = resolveVariable({
+    name: value.var,
+    locale: options.locale,
+    ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
+    ...(options.caseVariables === undefined ? {} : { caseVariables: options.caseVariables }),
+    ...(stepVariables === undefined ? {} : { stepVariables }),
+  });
+  if (!result.resolved) {
+    return { prepared: false, path, reason: result.reason, message: result.message };
+  }
+  return { prepared: true, value: String(result.value) };
+}
+
+function prepareExpectedValue(
+  expected: Record<string, unknown>,
+  path: string,
+  options: PrepareCaseStepOptions,
+  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined,
+): { prepared: true; value: Record<string, unknown> } | {
+  prepared: false;
+  path: string;
+  reason: "invalidLocale" | "missingVariable";
+  message: string;
+} {
+  const prepared = { ...expected };
+  const defaultValue = prepareTextValue(expected.default, `${path}/default`, options, stepVariables);
+  if (!defaultValue.prepared) {
+    return defaultValue;
+  }
+  prepared.default = defaultValue.value;
+  if (!isRecord(expected.locales)) {
+    return { prepared: true, value: prepared };
+  }
+  const locales: Record<string, unknown> = { ...expected.locales };
+  for (const [locale, value] of Object.entries(expected.locales)) {
+    const localeValue = prepareTextValue(
+      value,
+      `${path}/locales/${escapeJsonPointerSegment(locale)}`,
+      options,
+      stepVariables,
+    );
+    if (!localeValue.prepared) {
+      return localeValue;
+    }
+    locales[locale] = localeValue.value;
+  }
+  prepared.locales = locales;
+  return { prepared: true, value: prepared };
+}
+
+export function prepareCaseStep(
+  options: PrepareCaseStepOptions,
+): PrepareCaseStepResult {
+  const prepared: Record<string, unknown> = structuredClone(options.step);
+  const stepVariables = isRecord(options.step.variables)
+    ? options.step.variables as Readonly<Record<string, VariableDefinition>>
+    : undefined;
+  const path = `/steps/${options.stepIndex}`;
+  const action = options.step.action;
+  const fields = action === "navigate"
+    ? ["url"]
+    : action === "type"
+      ? ["text"]
+      : action === "fill"
+        ? ["value"]
+        : action === "selectOption"
+          ? ["value", "label"]
+          : [];
+  for (const field of fields) {
+    if (!(field in options.step)) {
+      continue;
+    }
+    const value = prepareTextValue(options.step[field], `${path}/${field}`, options, stepVariables);
+    if (!value.prepared) {
+      return value;
+    }
+    prepared[field] = value.value;
+  }
+  for (const field of ["expected", "associatedLabel"]) {
+    const expected = options.step[field];
+    if (!isRecord(expected)) {
+      continue;
+    }
+    const value = prepareExpectedValue(expected, `${path}/${field}`, options, stepVariables);
+    if (!value.prepared) {
+      return value;
+    }
+    prepared[field] = value.value;
+  }
+  return { prepared: true, step: prepared };
 }
 
 function includeSemanticIssues(

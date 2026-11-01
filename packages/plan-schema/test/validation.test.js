@@ -5,6 +5,7 @@ import {
   caseSchemaV1,
   matchCaseReferences,
   planSchemaV1,
+  prepareCaseStep,
   resolveVariable,
   validateCase,
   validatePlan,
@@ -377,6 +378,85 @@ test("reports an invalid resolver locale without throwing", () => {
     resolved: false,
     reason: "invalidLocale",
     message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
+  });
+});
+
+test("prepares supported variable references without mutating the source step", () => {
+  const step = {
+    action: "fill",
+    locator: { label: "Attempts" },
+    value: { var: "attempts" },
+    variables: { attempts: { default: 4 } },
+  };
+  const result = prepareCaseStep({ step, stepIndex: 2, locale: "fr-CA" });
+  assert.deepEqual(result, {
+    prepared: true,
+    step: {
+      action: "fill",
+      locator: { label: "Attempts" },
+      value: "4",
+      variables: { attempts: { default: 4 } },
+    },
+  });
+  assert.deepEqual(step.value, { var: "attempts" });
+});
+
+test("prepares navigation, selection, and assertion reference fields", () => {
+  const planVariables = {
+    baseUrl: { default: "https://example.invalid" },
+    region: { default: 3 },
+    expected: { default: true, locales: { "fr-CA": false } },
+    label: { default: "Email address" },
+  };
+  assert.deepEqual(prepareCaseStep({
+    step: { action: "navigate", url: { var: "baseUrl" } },
+    stepIndex: 0,
+    locale: "fr-CA",
+    planVariables,
+  }), {
+    prepared: true,
+    step: { action: "navigate", url: "https://example.invalid" },
+  });
+  assert.deepEqual(prepareCaseStep({
+    step: { action: "selectOption", locator: { label: "Region" }, value: { var: "region" } },
+    stepIndex: 1,
+    locale: "fr-CA",
+    planVariables,
+  }), {
+    prepared: true,
+    step: { action: "selectOption", locator: { label: "Region" }, value: "3" },
+  });
+  assert.deepEqual(prepareCaseStep({
+    step: {
+      action: "assertValue",
+      locator: { label: "Email" },
+      expected: { default: { var: "expected" } },
+      associatedLabel: { default: { var: "label" } },
+    },
+    stepIndex: 2,
+    locale: "fr-CA",
+    planVariables,
+  }), {
+    prepared: true,
+    step: {
+      action: "assertValue",
+      locator: { label: "Email" },
+      expected: { default: "false" },
+      associatedLabel: { default: "Email address" },
+    },
+  });
+});
+
+test("reports the source field for an unresolved prepared reference", () => {
+  assert.deepEqual(prepareCaseStep({
+    step: { action: "type", locator: { label: "Email" }, text: { var: "missing" } },
+    stepIndex: 4,
+    locale: "en-CA",
+  }), {
+    prepared: false,
+    path: "/steps/4/text",
+    reason: "missingVariable",
+    message: "No variable named \"missing\" is defined in step, case, or plan scope.",
   });
 });
 
