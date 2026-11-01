@@ -39,3 +39,7 @@ Treat the proposed layout as a guide for decisions, not evidence that every comp
 ## Runner-core source navigation
 
 Runner-core now has feature modules beneath `src/`, with a small `index.ts` that explicitly re-exports the existing public API. Run setup/shutdown remains in `browser/run.ts`; session methods and findings/history live in `browser/case-session.ts`. Actions have separate interaction files; assertions, locators, waits, step dispatch, and accessibility each have their own modules. See the [package source map](../../packages/runner-core/README.md#source-structure) and [repository footprint](structure.md). This is an internal restructure, not a new package boundary or public subpath API.
+
+## Plan-schema source navigation
+
+Plan-schema also keeps a small `src/index.ts` as its single public entry point. Schema and semantic validation live under `src/validation/`, case-reference matching under `src/references/`, and ordinary variable resolution and case preparation under `src/variables/`; `src/json.ts` contains their small shared JSON helpers. Consumers continue importing from `@stagehand/plan-schema`, not from these internal modules. See the [package guide](../../packages/plan-schema/README.md) and [repository footprint](structure.md).
