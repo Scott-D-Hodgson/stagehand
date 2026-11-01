@@ -13,7 +13,7 @@
 - How structured results serve both people and downstream tools.
 - Why results include outcome, duration, diagnostics, and effective safe configuration.
 - How to version a result contract independently from the plan schema.
-- How Stagehand accumulates accessibility findings within each case.
+- How pure finding mapping differs from planned per-case accumulation.
 
 ## Core ideas
 
@@ -23,7 +23,7 @@ The planned Stagehand MVP will emit JSON only and retain it as an Azure DevOps p
 
 In the planned runner, an enabled axe scan will run after each completed step. Findings will stay attached to their case and are deduplicated within that case by URL and violation description. If URL and description match but new problematic markup appears, add that markup to the existing finding; identical observations in separate cases remain attributed to both cases. The implemented result-schema extension represents the page URL, selected affected-node details, and each case's required effective `enabled`, `failOnViolation`, and resolved `tags`. It validates this evidence without running scans or collecting findings. Findings do not fail functional status by default; plan/case settings can change that. An axe scan error is a separate execution problem, not an accessibility violation.
 
-The accepted scan configuration includes an optional companion run-level rule-tag list. Selected plan tags narrow the assessment; omitted or empty plan tags use axe's default rule selection without a tag restriction. Cases inherit omitted tags; explicit case lists replace the plan list, with `[]` clearing the filter. The input filter and the rule `tags` retained on findings have different roles. The result schema requires the effective filter even when a case has no findings, so future producers must record scope separately from observations. The adapter dependency is installed, and the `accessibility.tags` configuration shape and unknown-tag validation are now implemented in plan-schema. The result-schema extension and runner-core accessibility settings resolver are implemented. Case sessions expose their resolved snapshots; explicit runner-core scans return raw observations, while automatic after-step scanning, Stagehand finding mapping/collection, and result production remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
+The accepted scan configuration includes an optional companion run-level rule-tag list. Selected plan tags narrow the assessment; omitted or empty plan tags use axe's default rule selection without a tag restriction. Cases inherit omitted tags; explicit case lists replace the plan list, with `[]` clearing the filter. The input filter and the rule `tags` retained on findings have different roles. The result schema requires the effective filter even when a case has no findings, so future producers must record scope separately from observations. The adapter dependency is installed, and the `accessibility.tags` configuration shape and unknown-tag validation are now implemented in plan-schema. The result-schema extension and runner-core accessibility settings resolver are implemented. Case sessions expose their resolved snapshots; explicit runner-core scans return raw observations and a separate pure mapAccessibilityFindings helper maps violations to Stagehand findings. Automatic after-step scanning, mapping integration/per-case collection, and result production remain unimplemented; see the [scan-scope decision under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
 
 Automated accessibility checks catch only issues that their rules can detect. They do not establish full conformance and do not replace manual review with assistive technology or keyboard use. Keep this limitation visible in the result and documentation.
 
@@ -35,12 +35,14 @@ Define the relationship between case statuses and overall run status consistentl
 
 ## Exercise
 
+First trace the [runner-core mapping exercise](../Packages/runner-core/README.md#mapping-observations-to-findings). Confirm that duplicate related tuples collapse while repeated main affected nodes remain, and that affectedNodeCount equals the mapped node-array length. An empty mapped array does not rule out incomplete observations on the raw scan.
+
 Create synthetic axe observations in one case: the same URL/description/markup twice; the same URL/description but new markup; and the same description/markup on a different URL. Sketch which observations a future collector should deduplicate and what the accumulated JSON finding should contain; validate the hand-authored result shape without treating that as executed collection. Then repeat an identical observation in a second case and show why it remains attached to that case. Add a separate scan-error example and a functional hard-assertion failure. Contrast a tag-restricted assessment with the default assessment and show how their effective scope is represented by the required case accessibility settings. Keep the hand-authored example distinct from a generated execution result.
 
 ## You are ready when
 
 - Consumers can read results without parsing console prose.
-- Findings are deduplicated within each case by URL, violation description, and affected markup; observations in separate cases remain separate.
+- You can sketch the planned per-case deduplication by URL, violation description, and affected markup, while explaining why the implemented pure mapper does not perform it.
 - Scan errors, accessibility findings, assertion failures, and infrastructure errors remain distinguishable.
 - You can distinguish the effective scan-tag input scope from finding-level rule tags, and explain the omitted/empty-list default.
 
@@ -60,6 +62,7 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 5. What is outside the MVP result formats?
 6. How does a configured scan-tag list differ from the tags on a finding, and what happens when the configured list is empty?
 7. Can a structurally valid result prove that a producer applied failOnViolation or calculated the affected-node count correctly?
+8. What does the pure mapper count, and what must a later case accumulator update?
 
 <details>
 <summary>Answer key</summary>
@@ -71,5 +74,7 @@ Create synthetic axe observations in one case: the same URL/description/markup t
 5. JUnit conversion, HTML reports, and screenshots.
 6. The input list controls which rules are assessed; finding tags describe a reported rule. An empty input list applies no tag restriction and preserves axe's default rule selection; an omitted case list first inherits from the plan.
 7. No. The result validator checks structure and formats. Node count consistency is a producer responsibility; applying failure policy and case/run outcomes remains execution/M6 work.
+
+8. It counts the nodes mapped for each raw violation without merging main nodes or findings. A later accumulator must deduplicate observations within the case and update counts to match its retained nodes.
 
 </details>
