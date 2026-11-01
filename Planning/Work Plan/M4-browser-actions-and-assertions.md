@@ -37,7 +37,7 @@
 - [x] Decide to keep accessibility findings attached to each case and deduplicate them by URL and violation description within that case; record effective `enabled` and `failOnViolation` settings.
 - [x] Review the proposed axe integration dependency, published-package licences, and bundled notices; see the [dependency review under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#dependency-review). The subsequent owner acceptance and installation are recorded below.
 - [x] Accept `@axe-core/playwright@4.14.0` and its MPL-2.0 obligations for use without modifying covered files; install/pin it, resolve `axe-core@4.14.0`, and update the lockfile and third-party notices with the MPL text, bundled attributions, and exact-version source instructions.
-- [x] Settle retained accessibility fields: finding-level `tags`; affected-node `html`, structured `target`, available `failureSummary` and `impact`, `xpath` when available, and `relatedNodes`. See the [accepted field selection under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields). The result-schema extension is implemented below; the pure mapper is implemented below, while mapping integration/per-case collection remain outstanding.
+- [x] Settle retained accessibility fields: finding-level `tags`; affected-node `html`, structured `target`, available `failureSummary` and `impact`, `xpath` when available, and `relatedNodes`. See the [accepted field selection under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields). The result-schema extension is implemented below; the pure mapper is implemented below, while automatic session/collector integration remains outstanding.
 - [x] Agree that run-level axe assessment has a companion optional tag filter; selected tags scope the scan, while omitted/empty tags leave axe's default rule selection unrestricted. This input filter is separate from finding-level `tags`.
 - [x] Implement `accessibility.tags` in plan/case schemas and examples: reject unknown/non-exact tags, duplicates, and wrong types; preserve omission for inheritance, non-empty case lists for replacement, and explicit empty lists for clearing. All 39 plan-schema tests pass locally on Windows. Plan-engine builds with 14 passing tests and 3 skipped Windows symlink tests. Validation does not apply effective settings; exact CLI flag names remain deferred to CLI implementation.
 - [ ] Verify the scan-tag schema slice in the dev container/CI; prior local Windows evidence and PR merge status do not establish those results.
@@ -93,15 +93,22 @@
 - [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
 - [ ] Confirm the GitHub Actions Linux and Windows jobs pass.
 
+## Per-case collector implementation
+
+- [x] Implement explicit caller-owned collection. The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions do not invoke the collector automatically.
+- [x] The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+- [ ] Integrate automatic session scans and collector calls in a later slice; keep M6 outcome policy separate.
+- [ ] Verify collection in the dev container/CI.
+
 ## Completion evidence
 
-- Pure violation mapping is implemented and validated against result-model using synthetic observations/documents in the 109-test passing local Windows suite. This does not implement per-case accumulation, automatic cadence, result emission, or M6 policy.
+- Pure violation mapping is implemented and validated against result-model using synthetic observations/documents in the 109-test passing local Windows suite. The separate collector now implements caller-owned accumulation; automatic cadence, result emission, and M6 policy remain pending.
 
 - Direct case-session axe scanning is implemented and orchestration is covered by 11 new tests in the 99-test passing local Windows suite. Disabled and completed outcomes are distinct from rejections. No successful real-browser scan or automatic step cadence is established by those mocked checks.
 
 - Runner-core resolves accessibility defaults and independent plan/case overrides through a pure public helper and exposes per-session snapshots. The build and all 88 tests pass locally on Windows; a separate TypeScript public-import check confirms compatibility with result-model settings. These are mocked-browser tests, not axe scan execution evidence.
 
-- The accessibility result v1 extension is represented in JSON Schema, TypeScript types, a synthetic example, and 22 passing local Windows tests. It validates shape/formats and duplicate related objects; the pure mapper now calculates counts for each mapped violation, while accumulated count consistency, per-case collection, and scanner integration remain outstanding. Earlier minimal v1 accessibility records require the new fields; no migration tooling is implemented.
+- The accessibility result v1 extension is represented in JSON Schema, TypeScript types, a synthetic example, and 22 passing local Windows tests. It validates shape/formats and duplicate related objects; the pure mapper now calculates counts for each mapped violation, while the separate collector now updates accumulated counts; automatic scanner integration remains outstanding. Earlier minimal v1 accessibility records require the new fields; no migration tooling is implemented.
 
 - The `assertValue` slice builds and passes all 81 runner-core tests locally on Windows. Coverage includes exact input values, locale selection, shared timeout budgets, hard/soft failures, and optional associated-label checks. These tests mock Playwright; dev-container, real-browser, and current CI verification are not established by this run.
 - A plan author can determine valid settings and actions from the contract alone.
