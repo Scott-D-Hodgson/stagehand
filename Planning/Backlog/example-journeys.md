@@ -7,7 +7,7 @@ These short journeys make the intended user experience concrete across the edito
 **User:** A non-technical tester using the Vue editor.
 
 1. Open the statically hosted editor in current stable desktop Chrome or Edge on Windows, then upload/import a plan and its referenced case JSON files. Download/export the files after editing. An already-open editor can continue offline.
-2. Use forms to set browser culture, plan/case configuration, variables, a reusable shared step, and a bounded loop.
+2. Use forms to set browser culture, plan/case configuration, variables, a reusable shared step, and named input values.
 3. Provide expected assertion values for two cultures so the case can check the value appropriate to the session culture.
 4. See validation feedback, correct any issues, and export the user-owned files.
 

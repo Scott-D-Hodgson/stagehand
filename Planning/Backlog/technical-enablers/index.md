@@ -7,7 +7,7 @@
 | [TE-003](te-003-playwright-browser-lifecycle-and-factory.md) | Playwright browser lifecycle and factory | ATR-003, ATR-008, ATR-013 |
 | [TE-004](te-004-execution-context-and-failure-policy.md) | Execution context and failure policy | ATR-009, ATR-010, ATR-012, ATR-018 |
 | [TE-005](te-005-variable-and-secret-resolution.md) | Variable and secret resolution | ATR-016, ATR-017 |
-| [TE-006](te-006-shared-step-and-loop-engine.md) | Shared-step and loop engine | ATR-015, ATR-018 |
+| [TE-006](te-006-shared-step-and-loop-engine.md) | Shared-step engine | ATR-015; ATR-018 deferred |
 | [TE-007](te-007-common-result-model.md) | Common result model | ATR-020 |
 | [TE-008](te-008-cli-contract.md) | CLI contract | ATR-025, ATR-026, ATR-027 |
 | [TE-009](te-009-report-generators.md) | JSON result generation and later report conversions | ATR-021, ATR-022, ATR-023 |

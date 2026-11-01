@@ -21,7 +21,7 @@
 | ATR-015 | E02 | [Support shared reusable step groups](epics/E02-execution-engine/stories/ATR-015.md) | Must | MVP |
 | ATR-016 | E02 | [Resolve named variable sets and runtime variables](epics/E02-execution-engine/stories/ATR-016.md) | Must | MVP |
 | ATR-017 | E02 | [Resolve protected values from environment variables](epics/E02-execution-engine/stories/ATR-017.md) | Must | MVP |
-| ATR-018 | E02 | [Support controlled loops over variable lists](epics/E02-execution-engine/stories/ATR-018.md) | Must | MVP |
+| ATR-018 | E02 | [Support controlled loops over variable lists](epics/E02-execution-engine/stories/ATR-018.md) | Later | Later |
 | ATR-019 | E02 | [Run axe accessibility scans after each step](epics/E02-execution-engine/stories/ATR-019.md) | Must | MVP |
 | ATR-020 | E03 | [Define the versioned result contract](epics/E03-results-and-reporting/stories/ATR-020.md) | Must | MVP |
 | ATR-021 | E03 | [Generate JSON reports](epics/E03-results-and-reporting/stories/ATR-021.md) | Must | MVP |
@@ -34,7 +34,7 @@
 | ATR-028 | E04 | [Support external scheduled execution](epics/E04-cli/stories/ATR-028.md) | Must | MVP |
 | ATR-029 | E05 | [Provide a local-first Vue plan editor](epics/E05-web-editor/stories/ATR-029.md) | Must | MVP |
 | ATR-030 | E05 | [Export plans and protect unsaved work](epics/E05-web-editor/stories/ATR-030.md) | Must | MVP |
-| ATR-031 | E05 | [Edit shared steps, variables, loops, and localization](epics/E05-web-editor/stories/ATR-031.md) | Must | MVP |
+| ATR-031 | E05 | [Edit shared steps, variables, and localization](epics/E05-web-editor/stories/ATR-031.md) | Must | MVP |
 | ATR-032 | E06 | [Integrate runner execution into CI/CD pipelines](epics/E06-integrations/stories/ATR-032.md) | Must | MVP |
 | ATR-033 | E06 | [Integrate with .NET xUnit](epics/E06-integrations/stories/ATR-033.md) | Later | Later |
 | ATR-034 | E07 | [Maintain canonical Markdown documentation](epics/E07-documentation/stories/ATR-034.md) | Must | MVP |

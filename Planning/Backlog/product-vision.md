@@ -47,8 +47,8 @@ The MVP-supported editor browsers are current stable desktop Chrome and Edge on 
 - CLI execution and configuration overrides.
 - Hard and soft assertions.
 - Initial browser actions include URL navigation, selector-based click, typing and direct field-value setting, dropdown selection, bounded optional waits/delays, and optional scroll-into-viewport behaviour. Initial assertions compare inner text/HTML and input values, with an optional soft check of associated label text/HTML; detailed semantics are specified in ATR-008.
-- Form-based plan/case authoring in Vue before CLI delivery, including variables, shared steps, loops, and culture-specific expected assertion values.
-- Nested plan/case/step variable scopes, one-level shared steps, environment-variable references, and loops capped at 10 by default with configuration overrides.
+- Form-based plan/case authoring in Vue before CLI delivery, including variables, shared steps, and culture-specific expected assertion values.
+- Nested plan/case/step variable scopes, one-level shared steps, named data sets, and environment-variable references. Loops are deferred beyond MVP.
 - Case parallelism, cancellation, configurable 10-minute default plan/case timeouts, duration thresholds, and run/case timing.
 - A versioned JSON result for MVP; JUnit-compatible XML and HTML conversions are later work.
 - Optional axe scans after each completed step, with findings grouped by URL and violation description within each case and newly observed problematic markup appended; non-failing by default with plan/case failure overrides.
@@ -56,7 +56,7 @@ The MVP-supported editor browsers are current stable desktop Chrome and Edge on 
 - Markdown documentation rendered by Hugo.
 - Monorepo, development container, CI validation, and AI-agent guidance.
 
-The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visual plan authoring, including shared steps, variables, loops, and localization; Phase 3 execution engine and CLI; Phase 4 reports, integrations, and adoption. Linux runner and Edge support are follow-on work after MVP; cross-platform design during MVP is preferred when practical.
+The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visual plan authoring, including shared steps, variables, and localization; Phase 3 execution engine and CLI; Phase 4 reports, integrations, and adoption. Linux runner and Edge support are follow-on work after MVP; cross-platform design during MVP is preferred when practical.
 
 ## Non-goals for the initial release
 
@@ -64,7 +64,7 @@ The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visua
 - Mandatory user accounts or hosted execution service.
 - Long-term run-history database.
 - Arbitrary executable JavaScript embedded in JSON plans.
-- General-purpose workflow automation beyond defined test actions and controlled loops.
+- General-purpose workflow automation beyond defined test actions.
 - Wiki migration/export tooling.
 - Electron distribution unless prioritized after the web editor is validated.
 - Interactive Vue report viewing; defer until the core MVP is complete ([TE-018](technical-enablers/te-018-local-report-viewer.md)).
@@ -74,7 +74,7 @@ The rollout order is: Phase 1 contracts and foundation; Phase 2 form-based visua
 - Whether branded Google Chrome needs to be supported separately from Playwright-managed Chromium after the initial baseline.
 - Later candidates for browser navigation/assertions and distinct click variants are tracked in [ATR-042](epics/E02-execution-engine/stories/ATR-042.md); they are outside the accepted MVP vocabulary.
 - The precise selector-selection terminology, action-specific applicability/order of pre/post wait and delay options, and associated-label lookup behaviour when no label is found.
-- Variable types and list iteration details beyond the agreed scope precedence and default loop bound.
+- Detailed schema/resolution and shared-step result traceability for the accepted scalar, fixed-input, explicit-reference design; loops remain a deferred future candidate.
 - Exact JUnit XML dialect/task compatibility and the mapping from Stagehand outcomes/fields to Azure DevOps results.
 - Whether to add Firefox or Safari editor support after the MVP baseline.
 - How accessibility scan errors should affect case/run outcomes.

@@ -24,7 +24,7 @@ Browser **configuration** establishes the conditions under which a plan runs: fo
 
 An **action** tells the runner to do something, such as navigate or click. An **assertion** asks whether an expected condition holds. Think of actions as stage directions and assertions as the inspector checking that the scene now matches the required setup.
 
-A **hard assertion** stops the current case when it fails. Inside a loop, that means exiting the loop and stopping the case immediately. A **soft assertion** records a failure and lets the case continue; the case still ends as failed if a required soft assertion failed. Independent cases can continue after a recoverable case failure. These rules are specified in [ATR-010](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-010.md); M4 records the hard/soft setting, while M6 owns broader outcome and continuation policy.
+A **hard assertion** stops the current case when it fails. Loops are deferred beyond MVP. A **soft assertion** records a failure and lets the case continue; the case still ends as failed if a required soft assertion failed. Independent cases can continue after a recoverable case failure. These rules are specified in [ATR-010](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-010.md); M4 records the hard/soft setting, while M6 owns broader outcome and continuation policy.
 
 ## Concepts to understand
 
@@ -111,7 +111,7 @@ Answer from memory first, then check the answer key.
 
 1. Clicking is an action; checking that the heading is visible is an assertion.
 2. Settings affect reproducibility and user expectations; clear validation catches mistakes before they lead to confusing execution behaviour.
-3. A hard assertion failure stops the current case (and exits any active loop); a soft assertion records the failure and allows eligible later steps to continue. A required soft failure still makes the case fail.
+3. A hard assertion failure stops the current case (loops are deferred beyond MVP); a soft assertion records the failure and allows eligible later steps to continue. A required soft failure still makes the case fail.
 4. Examples: action name and arguments, assertion condition, units/formats, defaults, timeout, diagnostic shape, and control-flow effect.
 5. Prefer user-facing role and label locators; use CSS selectors or XPath when needed.
 6. Findings are non-failing by default, but plan/case configuration may make them fail the case.

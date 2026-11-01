@@ -17,7 +17,7 @@ Stagehand's MVP is the full sequence of Phases 1–4:
 
 The MVP runner baseline is Windows, the pinned Node.js version, and Playwright-managed Chromium. Linux runner and Edge support follow after the MVP; during development, prefer designs that work on both Windows and Linux when practical. The editor is intended for current desktop Chrome and Edge on Windows.
 
-Plans cover navigation, common browser actions, text and input assertions, variables, named data sets, shared steps, bounded loops, and localized expected values. Optional axe scans run after each step; findings are non-failing by default unless the plan or case says otherwise.
+Plans cover navigation, common browser actions, text and input assertions, variables, named data sets, shared steps, and localized expected values. Optional axe scans run after each step; findings are non-failing by default unless the plan or case says otherwise.
 
 The MVP result format is JSON. JUnit and HTML reports, screenshots, production-specific controls, direct filesystem access, browser reload/back/forward actions, and .NET xUnit integration are later candidates. A general warning will remind operators that they are responsible for target authorization, side effects, and costs.
 
