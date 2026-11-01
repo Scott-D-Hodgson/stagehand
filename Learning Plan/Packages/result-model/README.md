@@ -27,7 +27,7 @@ M4's accessibility result v1 extension is implemented in the schema, TypeScript 
 
 Each finding now includes its URL and `affectedNodes`. An affected node retains markup, structured target, and an explicit `relatedNodes` list, with optional summary, impact, and XPath. Related nodes retain markup/target and optional XPath. Preserve frame/shadow-DOM paths rather than joining them into one selector. Empty target arrays preserve unavailable upstream selector information. Finding severity permits `null`; optional node severity can be absent or `null`. No severity or summary is invented.
 
-Runner-core's pure `mapAccessibilityFindings` helper now flattens related elements from axe's `any`, `all`, and `none` checks and retains one exact html/target/optional-xpath tuple. The mapper removes exact related-node duplicates and calculates each mapped finding's node count. The schema itself does neither: it rejects duplicate related objects but does not map/collect observations, calculate counts, or generate results. Per-case accumulation remains future work. See the [field mapping under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields) and the [package contract](../../../packages/result-model/README.md#accessibility-contract).
+Runner-core's pure `mapAccessibilityFindings` helper now flattens related elements from axe's `any`, `all`, and `none` checks and retains one exact html/target/optional-xpath tuple. The mapper removes exact related-node duplicates and calculates each mapped finding's node count. The schema itself does neither: it rejects duplicate related objects but does not map/collect observations, calculate counts, or generate results. A separate caller-owned runner-core collector now performs per-case accumulation and updates retained-node counts; automatic session integration remains pending. See the [field mapping under TE-010](../../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields) and the [package contract](../../../packages/result-model/README.md#accessibility-contract).
 
 Unlike plan configuration, result tag arrays are not checked against the current engine catalogue. They preserve recorded tags from other engine versions as unique non-empty strings. A valid report is historical evidence, not permission to reuse those tags as current configuration without plan validation.
 
@@ -87,7 +87,7 @@ Start with the synthetic example and validate it through the public import. Remo
 3. No. Cross-field count consistency and outcome aggregation belong to execution policy, which M6 defines.
 4. No. `plan-engine` calculates the fingerprint while loading source files; the future runner will include it in the result document.
 5. No. Finding tags describe one reported rule; the effective input filter must be recorded separately to identify assessment scope, including a run with no findings.
-6. Yes. The schema/types/example/tests now include them; the pure mapper is implemented, while its integration, per-case collection/count updates, and result production remain future execution work.
+6. Yes. The schema/types/example/tests now include them; the pure mapper and caller-owned collector are implemented, including count updates. Automatic session integration and result production remain future execution work.
 7. Results preserve recorded evidence across engine versions; current plans must use tags supported by the pinned engine. The two validators serve different purposes.
 
 </details>

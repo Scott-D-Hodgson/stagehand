@@ -69,7 +69,7 @@ These are bundled components, not additional resolved runtime npm dependencies. 
 
 ### Accepted retained fields
 
-The owner selected these fields on 31 October 2026. The result schema, TypeScript types, synthetic example, and validation tests now implement this retention contract. The pure violation mapper is implemented; scanner/mapping integration and per-case accumulation remain outstanding.
+The owner selected these fields on 31 October 2026. The result schema, TypeScript types, synthetic example, and validation tests now implement this retention contract. The pure violation mapper is implemented; caller-owned per-case accumulation is now implemented separately; automatic session integration remains outstanding.
 
 | Scope | Fields | Mapping notes |
 | --- | --- | --- |
@@ -77,7 +77,7 @@ The owner selected these fields on 31 October 2026. The result schema, TypeScrip
 | Affected node | `html`, `target`, `failureSummary`, `impact`, `xpath`, `relatedNodes` | Retain problematic markup, structured selectors, available failure summaries and node severity, optional XPath, and related elements. Preserve frame/shadow-DOM selector structure. |
 | Related node | `html`, `target`, optional `xpath` | Axe supplies related elements inside individual checks in `any`, `all`, and `none`; retain the related-node information from those checks. |
 
-Retain optional upstream information when available; do not invent failure summaries, XPath, or severity when absent. Tags belong to the finding, not each affected node. Full check records/messages, arbitrary check `data`, ancestry paths, and live DOM element references are outside this selected field set. Result v1 now uses `affectedNodes` and a required flat `relatedNodes` array per affected node. Related elements are projected from `any`/`all`/`none` checks, retaining one exact html/structured-target/optional-xpath tuple per node; the validator rejects duplicate related objects without collecting or deduplicating them. Finding impact permits null for unknown severity; optional node impact may be absent or null. Empty upstream target arrays are preserved. Required case accessibility settings record enabled, failOnViolation, and resolved tags even without findings. The pure mapper copies selected fields and sets per-finding counts; accumulator-side grouping and count updates remain later work; this decision does not change the agreed case-level grouping by URL/description and problematic-markup deduplication.
+Retain optional upstream information when available; do not invent failure summaries, XPath, or severity when absent. Tags belong to the finding, not each affected node. Full check records/messages, arbitrary check `data`, ancestry paths, and live DOM element references are outside this selected field set. Result v1 now uses `affectedNodes` and a required flat `relatedNodes` array per affected node. Related elements are projected from `any`/`all`/`none` checks, retaining one exact html/structured-target/optional-xpath tuple per node; the validator rejects duplicate related objects without collecting or deduplicating them. Finding impact permits null for unknown severity; optional node impact may be absent or null. Empty upstream target arrays are preserved. Required case accessibility settings record enabled, failOnViolation, and resolved tags even without findings. The pure mapper copies selected fields and sets per-finding counts; the separate collector now implements grouping and count updates; this decision does not change the agreed case-level grouping by URL/description and problematic-markup deduplication.
 
 Keep violations separate from functional assertions. A rejected scan is an execution error, not an accessibility finding; handling incomplete results also needs deliberate treatment. M6 continues to own outcome and continuation policy. The direct scan operation returns raw observations without establishing accessibility conformance. The accepted companion tag option below allows authors to choose scan scope without Stagehand imposing a fixed rule subset.
 
@@ -96,7 +96,7 @@ The scanner should apply a non-empty list through `AxeBuilder.withTags(...)`; fo
 - [x] Add direct case-session scanning with disabled/completed outcomes and AccessibilityScanError preserving causes. Tests cover selected/multiple/default/cleared tag handling before analysis, case overrides, raw/incomplete observations, and rejection paths. Build and all 99 tests pass locally on Windows, plus a TypeScript public-import check.
 - [ ] Verify successful real-browser scans, frame handling, and cleanup; wire direct scans into after-step execution in later slices.
 - [x] Add pure mapAccessibilityFindings over raw violations using shared result-model types, with exact related tuple deduplication, deep evidence copies, and mapped-node counts. The runner-core build and all 109 tests pass locally on Windows, including 10 mapping tests checked against result-model, plus a public TypeScript check.
-- [ ] Integrate mapping with scans and accumulate/deduplicate within cases; no M6 status policy is applied by the direct operation or mapper.
+- [ ] Integrate automatic session scans with the implemented per-case collector; no M6 status policy is applied by the direct operation or mapper.
 - [ ] Verify the mapping slice in the dev container/CI.
 
 Future upstream release/tag discovery, deterministic catalogue refresh, and checks for drift against the pinned engine are tracked separately under [TE-022](te-022-axe-tag-catalogue-update-detection.md). That maintenance mechanism is proposed and does not block this schema slice.
@@ -111,3 +111,10 @@ See [axe tag filtering](https://github.com/dequelabs/axe-core-npm/blob/v4.14.0/p
 - [Engine bundled notices, version 4.14.0](https://github.com/dequelabs/axe-core/blob/v4.14.0/LICENSE-3RD-PARTY.txt)
 - [Mozilla Public License 2.0](https://www.mozilla.org/en-US/MPL/2.0/)
 - [Mozilla's MPL FAQ](https://www.mozilla.org/en-US/MPL/2.0/FAQ/)
+
+## Per-case collector implementation
+
+- [x] Implement explicit caller-owned collection. The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions do not invoke the collector automatically.
+- [x] The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
+- [ ] Integrate automatic session scans and collector calls in a later slice; keep M6 outcome policy separate.
+- [ ] Verify collection in the dev container/CI.
