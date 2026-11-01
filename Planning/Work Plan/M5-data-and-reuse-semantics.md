@@ -2,7 +2,7 @@
 
 **Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Variable schema and reference foundations implemented; remaining incremental slices pending
+**Status:** Variable schema foundations implemented at plan, case, and step scope; selected-field variable references are implemented; remaining incremental slices pending
 
 ## Objective
 
@@ -44,6 +44,7 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 | Slice | Purpose and boundary |
 | --- | --- |
 | 1. Variable schema foundation | Implemented: v1 plan/case schemas now validate named variables with required scalar defaults and optional same-type locale variants. Focused valid/invalid tests cover shapes and locale keys; resolution and execution remain unsupported. |
+| 1a. Step-variable schema foundation | Implemented: ordinary v1 case steps now accept the same variable-definition shape, including locale-key checks. Definitions remain unresolved. |
 | 2. Variable references | Implemented: v1 case schema support for whole-field `{ "var": "name" }` references in `navigate.url`, interaction inputs, and assertion expected/associated-label values. Locators, waits, and settings remain literal; variables remain unresolved at runtime. |
 | 3. Ordinary variable resolution | Resolve non-secret variables from plan, case, and step scope, including whole-definition replacement, locale/default choice, and text-field conversion. Verify errors occur before browser startup. |
 | 4. Named data sets | Add per-case data-set declarations and selection, with duplicate/unknown-name checks and the accepted precedence. No run-wide selection or iteration. |
