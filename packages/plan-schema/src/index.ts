@@ -16,6 +16,33 @@ export type ValidationResult =
   | { valid: true }
   | { valid: false; issues: ValidationIssue[] };
 
+export type ScalarVariableValue = string | number | boolean;
+
+export interface VariableDefinition {
+  default: ScalarVariableValue;
+  locales?: Readonly<Record<string, ScalarVariableValue>>;
+}
+
+export interface ResolveVariableOptions {
+  name: string;
+  locale: string;
+  planVariables?: Readonly<Record<string, VariableDefinition>>;
+  caseVariables?: Readonly<Record<string, VariableDefinition>>;
+  stepVariables?: Readonly<Record<string, VariableDefinition>>;
+}
+
+export type VariableResolutionResult =
+  | {
+      resolved: true;
+      value: ScalarVariableValue;
+      source: "plan" | "case" | "step";
+    }
+  | {
+      resolved: false;
+      reason: "invalidLocale" | "missingVariable";
+      message: string;
+    };
+
 export interface CaseReferenceMatch {
   caseIndex: number;
   reference: string;
@@ -252,6 +279,59 @@ function validateVariables(input: unknown, path: string): ValidationIssue[] {
     );
   }
   return issues;
+}
+
+function selectVariableLocaleValue(
+  definition: VariableDefinition,
+  locale: string,
+): ScalarVariableValue {
+  for (const [localeKey, value] of Object.entries(definition.locales ?? {})) {
+    if (Intl.getCanonicalLocales(localeKey)[0] === locale) {
+      return value;
+    }
+  }
+  return definition.default;
+}
+
+export function resolveVariable(
+  options: ResolveVariableOptions,
+): VariableResolutionResult {
+  let locale: string;
+  try {
+    locale = Intl.getCanonicalLocales(options.locale)[0] ?? options.locale;
+  } catch {
+    return {
+      resolved: false,
+      reason: "invalidLocale",
+      message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
+    };
+  }
+  const scopes: Array<[
+    "step" | "case" | "plan",
+    Readonly<Record<string, VariableDefinition>> | undefined,
+  ]> = [
+    ["step", options.stepVariables],
+    ["case", options.caseVariables],
+    ["plan", options.planVariables],
+  ];
+  for (const [source, variables] of scopes) {
+    if (variables !== undefined && Object.hasOwn(variables, options.name)) {
+      const definition = variables[options.name];
+      if (definition === undefined) {
+        continue;
+      }
+      return {
+        resolved: true,
+        value: selectVariableLocaleValue(definition, locale),
+        source,
+      };
+    }
+  }
+  return {
+    resolved: false,
+    reason: "missingVariable",
+    message: `No variable named "${options.name}" is defined in step, case, or plan scope.`,
+  };
 }
 
 function includeSemanticIssues(
