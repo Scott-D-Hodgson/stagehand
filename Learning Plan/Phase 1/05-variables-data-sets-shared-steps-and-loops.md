@@ -10,13 +10,13 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The first M5 slice validates variable-definition shapes in the v1 schemas; references, resolution, data sets, shared steps, and protected values are still future work.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The first two M5 slices validate variable definitions and permit references in selected fields; resolution, data sets, shared steps, and protected values are still future work.
 
 ## Core ideas
 
 A variable definition describes a named, case-sensitive input. Its default is required; locale variants are optional. Values are text, numbers, or booleans, with one resolved scalar type across all variants. The v1 schemas now validate this default/locales wrapper and reject empty names. A protected {"env":"NAME"} value names a process environment variable and resolves to text, but is a later M5 slice.
 
-A whole-field {"var":"name"} reference supplies an action input or assertion expected value. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
+A whole-field {"var":"name"} reference is now accepted for `navigate.url`, `type.text`, `fill.value`, `selectOption.value` or `label`, and assertion expected/associated-label values. It is still only an authored value: Stagehand does not resolve it yet. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
 
 Scope is like choosing the most specific instruction sheet: step overrides case, case overrides plan. CLI overrides JSON at its targeted scope. The winning definition replaces the whole inherited definition, including its locale map; then select locale/default, resolve any selected environment value, and convert for the consuming field. Numbers/booleans become text in text fields; other types remain intact.
 
@@ -91,6 +91,6 @@ Follow the [M5 PR sequence](../../Planning/Work%20Plan/M5-data-and-reuse-semanti
 
 ## Incremental practice
 
-Start with a small schema-only change: add a named variable with a required scalar default and, optionally, locale variants of the same type. Write one valid example and focused invalid examples. Do not add reference resolution, data sets, shared steps, or environment lookup in that PR.
+Start with small schema-only changes: add a named variable with a required scalar default and, optionally, locale variants of the same type; then permit whole-field references only in the agreed action/assertion fields. Write valid and focused invalid examples. Do not add reference resolution, data sets, shared steps, or environment lookup in either PR.
 
 M5 keeps the v1 contracts while the milestone is in progress. Each later PR should add one capability, explain its limits, and verify that capability before moving on.

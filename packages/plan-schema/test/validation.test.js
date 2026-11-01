@@ -302,6 +302,66 @@ test("rejects invalid and duplicate canonical locale keys in variable definition
   }
 });
 
+test("accepts variable references in agreed action and assertion fields", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const steps = [
+    { action: "navigate", url: { var: "baseUrl" } },
+    { action: "type", locator: { label: "Email" }, text: { var: "email" } },
+    { action: "fill", locator: { label: "Password" }, value: { var: "password" } },
+    { action: "selectOption", locator: { label: "Region" }, value: { var: "region" } },
+    { action: "selectOption", locator: { label: "Language" }, label: { var: "language" } },
+    {
+      action: "assertText",
+      locator: { role: "heading" },
+      expected: { default: { var: "heading" }, locales: { "fr-CA": { var: "headingFr" } } },
+    },
+    {
+      action: "assertValue",
+      locator: { label: "Email" },
+      expected: { default: { var: "email" } },
+      associatedLabel: { default: { var: "emailLabel" } },
+    },
+  ];
+  assert.deepEqual(validateCase({ ...exampleCase, steps }), { valid: true });
+});
+
+test("rejects malformed variable references in supported fields", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const invalidSteps = [
+    { action: "navigate", url: { var: "" } },
+    { action: "type", locator: { label: "Email" }, text: { var: 3 } },
+    { action: "fill", locator: { label: "Email" }, value: { var: "email", extra: true } },
+    { action: "selectOption", locator: { label: "Region" }, value: { variable: "region" } },
+    {
+      action: "assertText",
+      locator: { role: "heading" },
+      expected: { default: { var: "heading", extra: true } },
+    },
+  ];
+  for (const step of invalidSteps) {
+    assert.equal(validateCase({ ...exampleCase, steps: [step] }).valid, false);
+  }
+});
+
+test("rejects variable references outside agreed action and assertion fields", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const invalidSteps = [
+    { action: "navigate", url: "https://example.invalid", waitUntil: { var: "wait" } },
+    { action: "click", locator: { role: { var: "buttonRole" } } },
+    { action: "type", locator: { label: "Email" }, text: "email", timeout: { var: "timeout" } },
+    { action: "fill", locator: { label: "Email" }, value: "email", scrollIntoView: { var: "scroll" } },
+    {
+      action: "assertText",
+      locator: { role: "heading" },
+      expected: { default: "Welcome" },
+      soft: { var: "soft" },
+    },
+  ];
+  for (const step of invalidSteps) {
+    assert.equal(validateCase({ ...exampleCase, steps: [step] }).valid, false);
+  }
+});
+
 test("accepts accessibility failure policy on plan and case settings", () => {
   const plan = readFixture("../examples/checkout-plan.json");
   plan.defaults.accessibility = { failOnViolation: true };

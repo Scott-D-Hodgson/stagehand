@@ -140,12 +140,26 @@
       "additionalProperties": false,
       "required": ["default"],
       "properties": {
-        "default": { "type": "string" },
+        "default": { "$ref": "#/$defs/textOrVariableReference" },
         "locales": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": { "$ref": "#/$defs/textOrVariableReference" }
         }
       }
+    },
+    "variableReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["var"],
+      "properties": {
+        "var": { "type": "string", "minLength": 1 }
+      }
+    },
+    "textOrVariableReference": {
+      "oneOf": [
+        { "type": "string" },
+        { "$ref": "#/$defs/variableReference" }
+      ]
     },
     "navigateStep": {
       "type": "object",
@@ -157,9 +171,14 @@
           "properties": {
             "action": { "const": "navigate" },
             "url": {
-              "type": "string",
-              "minLength": 1,
-              "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+              "oneOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+                },
+                { "$ref": "#/$defs/variableReference" }
+              ]
             },
             "waitUntil": {
               "enum": ["domcontentloaded", "networkidle"],
@@ -195,7 +214,7 @@
           "properties": {
             "action": { "const": "type" },
             "locator": { "$ref": "#/$defs/locator" },
-            "text": { "type": "string" }
+            "text": { "$ref": "#/$defs/textOrVariableReference" }
           }
         }
       ],
@@ -211,7 +230,7 @@
           "properties": {
             "action": { "const": "fill" },
             "locator": { "$ref": "#/$defs/locator" },
-            "value": { "type": "string" }
+            "value": { "$ref": "#/$defs/textOrVariableReference" }
           }
         }
       ],
@@ -227,8 +246,8 @@
           "properties": {
             "action": { "const": "selectOption" },
             "locator": { "$ref": "#/$defs/locator" },
-            "value": { "type": "string" },
-            "label": { "type": "string" }
+            "value": { "$ref": "#/$defs/textOrVariableReference" },
+            "label": { "$ref": "#/$defs/textOrVariableReference" }
           },
           "oneOf": [
             { "required": ["value"], "not": { "required": ["label"] } },
