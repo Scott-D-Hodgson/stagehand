@@ -44,9 +44,11 @@ export type {
   AssertValueStep,
   ExecutableStep,
 } from "./steps/types.js";
+export type { CaseExecutionOptions } from "./steps/case.js";
 export type { WaitDefinition } from "./waits.js";
 export type { NavigationWaitUntil, NavigationOptions } from "./actions/navigation.js";
 export { LocatorResolutionError } from "./locators.js";
 export { WaitExecutionError } from "./waits.js";
 export { StepExecutionError } from "./steps/execute.js";
+export { CasePreparationError } from "./steps/case.js";
 export { startBrowserRun } from "./browser/run.js";
