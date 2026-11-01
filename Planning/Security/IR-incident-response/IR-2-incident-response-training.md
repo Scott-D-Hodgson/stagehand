@@ -1,6 +1,6 @@
 # IR-2 — Incident Response Training
 
-**Source:** [ITSG-33 Annex 3A, IR-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir2).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Train personnel for their incident-response duties within an organisation-define
 ## Supplemental guidance
 
 Training detail should fit the role: users identify/report, administrators contain/remediate, and responders handle investigation, forensics, recovery, and restoration. Include suspicious activity from internal and external sources.
+
+## Related controls
+
+From the [official IR-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-3](../AT-awareness-and-training/AT-3-role-based-security-training.md), [CP-3](../CP-contingency-planning/CP-3-contingency-training.md), [IR-8](IR-8-incident-response-plan.md).
 
 ## Plain-language metaphor
 
@@ -28,4 +34,3 @@ Train users to stop automation safely and report unexpected actions or data expo
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

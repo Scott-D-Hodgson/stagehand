@@ -1,6 +1,6 @@
 # PE-18 — Location of Information System Components
 
-**Source:** [ITSG-33 Annex 3A, PE-18](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-18](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe18).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Place system components to reduce damage from defined physical/environmental haz
 ## Supplemental guidance
 
 Consider natural hazards, vandalism, electromagnetic interference, and nearby entry points that may enable observation or interception.
+
+## Related controls
+
+From the [official PE-18 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe18), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [PE-19](PE-19-information-leakage.md), [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ Operators/provider should place hosts and network components in suitable secure 
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

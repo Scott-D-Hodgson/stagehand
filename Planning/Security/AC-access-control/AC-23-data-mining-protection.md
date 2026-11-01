@@ -1,6 +1,6 @@
 # AC-23 — Data Mining Protection
 
-**Source:** [ITSG-33 Annex 3A, AC-23](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AC-23](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac23).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Data mining can combine or analyse stored information to infer sensitive facts o
 
 Even if each drawer is locked, someone could learn a lot by comparing many files. Watch for unusual patterns of looking through drawers, not just forced entry.
 
+## Related controls
+
+From the [official AC-23 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac23), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+
 ## Stagehand initial assessment
 
 Stagehand is not assessed as a data-mining detection system. Its browser automation could access and collect records at scale if granted broad access. Restrict automation identities and data scope, rate-limit bulk operations where appropriate, log access, alert on anomalous collection, and use approved test datasets. Operators should keep analytics and monitoring lawful and aligned with data-use agreements.
@@ -27,4 +33,3 @@ No enhancements are listed for this control in the Annex 3A catalogue.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

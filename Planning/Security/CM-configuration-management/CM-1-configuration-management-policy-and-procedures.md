@@ -1,6 +1,6 @@
 # CM-1 — Configuration Management Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, CM-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CM-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a35cm1).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ The policy and procedures implement the CM family and should reflect applicable 
 
 This is the organisation’s rulebook for changing systems safely: who may change them, how changes are checked, and how the rules stay current.
 
+## Related controls
+
+From the [official CM-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a35cm1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+
 ## Stagehand initial assessment
 
 The maintainers should define product configuration items and change processes across plans/schema, source, dependencies, builds, releases, and documentation. Operators should establish their own configuration procedures for the host, browser, runner, and policy settings. The presence of version control alone does not establish a complete CM program.
@@ -27,4 +33,3 @@ None are listed for CM-1 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

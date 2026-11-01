@@ -1,6 +1,6 @@
 # SA-5 - Information System Documentation
 
-**Source:** [ITSG-33 Annex 3A, SA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa5).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Obtain administrator documentation covering secure configuration, installation, 
 ## Supplemental guidance
 
 Documentation helps personnel implement and operate security controls. Assess its quality and completeness, recreate essential missing material where needed, and protect vulnerability-related content in proportion to system sensitivity. Explain secure startup and recovery after interruption.
+
+## Related controls
+
+From the [official SA-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [CM-8](../CM-configuration-management/CM-8-information-system-component-inventory.md), [PL-2](../PL-planning/PL-2-system-security-plan.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md), [PS-2](../PS-personnel-security/PS-2-position-categorization.md), [SA-3](SA-3-system-development-lifecycle.md), [SA-4](SA-4-acquisition-process.md).
 
 ## Plain-language metaphor
 

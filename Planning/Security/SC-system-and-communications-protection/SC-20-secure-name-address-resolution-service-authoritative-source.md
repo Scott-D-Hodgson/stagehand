@@ -1,6 +1,6 @@
 # SC-20 - Secure Name/Address Resolution Service (Authoritative Source)
 
-**Source:** [ITSG-33 Annex 3A, SC-20](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-20](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc20).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Authoritative resolution services provide origin-authentication and integrity ev
 ## Supplemental guidance
 
 DNS and DNSSEC signatures/keys are examples. Other name-to-address technologies need equivalent means to assure response authenticity and integrity.
+
+## Related controls
+
+From the [official SC-20 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc20), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-10](../AU-audit-and-accountability/AU-10-non-repudiation.md), [SC-8](SC-8-transmission-confidentiality-and-integrity.md), [SC-12](SC-12-cryptographic-key-establishment-and-management.md), [SC-13](SC-13-use-of-cryptography.md), [SC-21](SC-21-secure-name-address-resolution-service-recursive-or-caching-resolver.md), [SC-22](SC-22-architecture-and-provisioning-for-name-address-resolution-service.md).
 
 ## Plain-language metaphor
 

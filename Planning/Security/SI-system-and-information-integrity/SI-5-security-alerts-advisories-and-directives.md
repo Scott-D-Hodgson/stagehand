@@ -1,6 +1,6 @@
 # SI-5 - Security Alerts, Advisories, and Directives
 
-**Source:** [ITSG-33 Annex 3A, SI-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SI-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si5).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Receive security alerts/advisories/directives from defined external organisation
 ## Supplemental guidance
 
 Timely compliance matters because delays can create immediate adverse effects. External recipients can include partners, suppliers, and service providers.
+
+## Related controls
+
+From the [official SI-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SI-2](SI-2-flaw-remediation.md).
 
 ## Plain-language metaphor
 

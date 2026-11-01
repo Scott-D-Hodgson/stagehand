@@ -1,6 +1,6 @@
 # CP-7 — Alternate Processing Site
 
-**Source:** [ITSG-33 Annex 3A, CP-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp7).
 
 ## Control definition
 
@@ -15,6 +15,15 @@ Alternate processing sites are geographically distinct and provide processing ca
 ## In plain language
 
 If the main workshop is unusable, have a prepared second workshop with the tools and protections needed to keep essential work running.
+
+## Related controls
+
+From the [official CP-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](CP-2-contingency-plan.md), [CP-6](CP-6-alternate-storage-site.md), [CP-8](CP-8-telecommunications-services.md), [CP-9](CP-9-information-system-backup.md), [CP-10](CP-10-information-system-recovery-and-reconstitution.md), [MA-6](../MA-maintenance/MA-6-timely-maintenance.md).
+- **CP-7(1):** [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
+- **CP-7(2):** [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
+- **CP-7(4):** [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md).
 
 ## Stagehand initial assessment
 

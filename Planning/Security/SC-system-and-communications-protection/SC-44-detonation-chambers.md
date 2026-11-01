@@ -1,6 +1,6 @@
 # SC-44 - Detonation Chambers
 
-**Source:** [ITSG-33 Annex 3A, SC-44](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-44](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc44).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Employ a detonation-chamber capability within an assigned system, component, or 
 ## Supplemental guidance
 
 A detonation chamber is an isolated dynamic execution environment for inspecting suspicious attachments, applications, or URL requests for malicious code. Unlike a deception environment, it is intended to identify malware quickly and prevent propagation.
+
+## Related controls
+
+From the [official SC-44 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc44), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-7](SC-7-boundary-protection.md), [SC-25](SC-25-thin-nodes.md), [SC-26](SC-26-honeypots.md), [SC-30](SC-30-concealment-and-misdirection.md).
 
 ## Plain-language metaphor
 

@@ -1,7 +1,7 @@
 # AC-3 â€” Access Enforcement
 
 **Assessment status:** Shared responsibility; planned / not implemented or verified  
-**Source:** [ITSG-33 Annex 3A, AC-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33)
+**Source:** [ITSG-33 Annex 3A, AC-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac3)
 
 This record summarizes the legacy ITSG-33 control and Supplemental Guidance in original wording. Consult the source for exact statements and enhancement applicability. Annex 3A was superseded by ITSP.10.033 on 31 March 2026; see the [Security overview](../README.md#status-and-scope).
 
@@ -12,6 +12,16 @@ The information system must enforce approved logical-access permissions for info
 ## Supplemental Guidance summary
 
 Access policies can be based on identities, roles, or attributes. Enforcement mechanisms such as permissions lists, access matrices, or cryptography mediate requests between users or processes and the files, records, devices, and services they want to use. Enforcement can occur at the operating-system, application, or service layer. The control's value depends on coverage of all relevant resources and processes within the defined system boundary.
+
+## Related controls
+
+From the [official AC-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-2](AC-2-account-management.md), [AC-4](AC-4-information-flow-enforcement.md), [AC-5](AC-5-separation-of-duties.md), [AC-6](AC-6-least-privilege.md), [AC-16](AC-16-security-attributes.md), [AC-17](AC-17-remote-access.md), [AC-18](AC-18-wireless-access.md), [AC-19](AC-19-access-control-for-mobile-devices.md), [AC-20](AC-20-use-of-external-systems.md), [AC-21](AC-21-information-sharing.md), [AC-22](AC-22-publicly-accessible-content.md), [AU-9](../AU-audit-and-accountability/AU-9-protection-of-audit-information.md), [CM-5](../CM-configuration-management/CM-5-access-restrictions-for-change.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [CM-11](../CM-configuration-management/CM-11-user-installed-software.md), [MA-3](../MA-maintenance/MA-3-maintenance-tools.md), [MA-4](../MA-maintenance/MA-4-non-local-maintenance.md), [MA-5](../MA-maintenance/MA-5-maintenance-personnel.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md).
+- **AC-3(2):** [CP-9](../CP-contingency-planning/CP-9-information-system-backup.md), [MP-6](../MP-media-protection/MP-6-media-sanitization.md).
+- **AC-3(3):** [AC-25](AC-25-reference-monitor.md), [SC-11](../SC-system-and-communications-protection/SC-11-trusted-path.md).
+- **AC-3(5):** [CM-3](../CM-configuration-management/CM-3-configuration-change-control.md).
+- **AC-3(10):** [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md).
 
 ## Plain-language explanation
 
@@ -54,10 +64,15 @@ The planned local-first editor does not have a Stagehand login service, and the 
 
 The table is a short implementation-oriented summary. Refer to the official source for complete enhancement statements and guidance. None are marked implemented.
 
+## Current repository context
+
+Plan-schema now validates supported shapes and absolute HTTP/HTTPS navigation URLs; plan-engine checks case-file containment, including canonical filesystem links, and loads only referenced cases. Browser sessions still expect caller-validated steps; no target authorization, destination allowlist, or validation-to-execution integration is provided by the dispatcher.
+
+Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
+
 ## Evidence to collect
 
 - Approved access policy and role-to-resource mapping for each deployment boundary.
 - Host/CI/network tests demonstrating that unapproved users, jobs, and destinations are denied.
 - Review and release approval logs, including any two-person or override workflows selected by the system owner.
 - Evidence that reports and exported information are protected after leaving the runner boundary.
-

@@ -1,6 +1,6 @@
 # CA-3 — Information System Connections
 
-**Source:** [ITSG-33 Annex 3A, CA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a34ca3).
 
 ## Control definition
 
@@ -15,6 +15,13 @@ This applies to dedicated system interconnections, not ordinary user-controlled 
 ## In plain language
 
 Before connecting two buildings’ networks, document what crosses the bridge, the rules on both sides, and who maintains the bridge.
+
+## Related controls
+
+From the [official CA-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a34ca3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-20](../AC-access-control/AC-20-use-of-external-systems.md), [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [AU-12](../AU-audit-and-accountability/AU-12-audit-generation.md), [AU-16](../AU-audit-and-accountability/AU-16-cross-organizational-auditing.md), [CA-7](CA-7-continuous-monitoring.md), [IA-3](../IA-identification-and-authentication/IA-3-device-identification-and-authentication.md), [SA-9](../SA-system-and-services-acquisition/SA-9-external-information-system-services.md), [SC-7](../SC-system-and-communications-protection/SC-7-boundary-protection.md), [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+- **CA-3(5):** [CM-7](../CM-configuration-management/CM-7-least-functionality.md).
 
 ## Stagehand initial assessment
 
@@ -31,4 +38,3 @@ For Stagehand integrations or dedicated connections to identity, orchestration, 
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

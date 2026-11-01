@@ -1,6 +1,6 @@
 # SC-10 - Network Disconnect
 
-**Source:** [ITSG-33 Annex 3A, SC-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc10).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Terminate a network connection at the end of its communications session or after
 ## Supplemental guidance
 
 Applies to internal and external networks. Termination can release TCP/IP address/port assignments or application-level connections when sessions share an OS connection.
+
+## Related controls
+
+From the [official SC-10 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc10), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

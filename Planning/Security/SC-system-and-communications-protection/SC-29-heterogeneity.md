@@ -1,6 +1,6 @@
 # SC-29 - Heterogeneity
 
-**Source:** [ITSG-33 Annex 3A, SC-29](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-29](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc29).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Use a diverse set of information technologies for organisation-defined system co
 ## Supplemental guidance
 
 Diversity can reduce the impact of exploits targeting one technology and some supply-chain failures, but increases management overhead and risk of configuration errors.
+
+## Related controls
+
+From the [official SC-29 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc29), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SA-12](../SA-system-and-services-acquisition/SA-12-supply-chain-protection.md), [SA-14](../SA-system-and-services-acquisition/SA-14-criticality-analysis.md), [SC-27](SC-27-platform-independent-applications.md).
 
 ## Plain-language metaphor
 

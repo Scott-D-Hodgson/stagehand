@@ -1,6 +1,6 @@
 # PS-1 — Personnel Security Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, PS-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PS-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a313ps1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Suggested review: provide to HR, security, managers, and system owners; review a
 ## Supplemental guidance
 
 Explains GC personnel-security requirements and supports the selected PS controls. It may be enterprise-wide with system-specific procedures as needed.
+
+## Related controls
+
+From the [official PS-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a313ps1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed.
 ## Assessment status
 
 **Planned / not verified.** Stagehand implementation and deployment evidence must be assessed before assigning an implemented or compliant status. This summary is a paraphrase for planning, not an authorization decision.
-

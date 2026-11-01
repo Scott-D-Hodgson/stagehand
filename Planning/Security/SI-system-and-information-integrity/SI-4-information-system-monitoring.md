@@ -1,6 +1,6 @@
 # SI-4 - Information System Monitoring
 
-**Source:** [ITSG-33 Annex 3A, SI-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SI-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si4).
 
 ## Control definition
 
@@ -11,6 +11,20 @@ Monitor for attacks/indicators and unauthorized local, network, or remote connec
 ## Supplemental guidance
 
 Monitoring can be internal or at system boundaries, using IDS/IPS, malware protection, scanning, audit, or network tools. Monitoring supports continuous monitoring and incident response; collected detail should match objectives and system capabilities.
+
+## Related controls
+
+From the [official SI-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a317si4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-8](../AC-access-control/AC-8-system-use-notification.md), [AC-17](../AC-access-control/AC-17-remote-access.md), [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md), [AU-7](../AU-audit-and-accountability/AU-7-audit-reduction-and-report-generation.md), [AU-9](../AU-audit-and-accountability/AU-9-protection-of-audit-information.md), [AU-12](../AU-audit-and-accountability/AU-12-audit-generation.md), [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md), [IR-4](../IR-incident-response/IR-4-incident-handling.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md), [RA-5](../RA-risk-assessment/RA-5-vulnerability-scanning.md), [SC-7](../SC-system-and-communications-protection/SC-7-boundary-protection.md), [SC-26](../SC-system-and-communications-protection/SC-26-honeypots.md), [SC-35](../SC-system-and-communications-protection/SC-35-honeyclients.md), [SI-3](SI-3-malicious-code-protection.md), [SI-7](SI-7-software-firmware-and-information-integrity.md).
+- **SI-4(5):** [AU-5](../AU-audit-and-accountability/AU-5-response-to-audit-processing-failures.md), [PE-6](../PE-physical-and-environmental-protection/PE-6-monitoring-physical-access.md).
+- **SI-4(9):** [CP-9](../CP-contingency-planning/CP-9-information-system-backup.md).
+- **SI-4(12):** [AC-18](../AC-access-control/AC-18-wireless-access.md), [IA-3](../IA-identification-and-authentication/IA-3-device-identification-and-authentication.md).
+- **SI-4(14):** [AC-18](../AC-access-control/AC-18-wireless-access.md), [IA-3](../IA-identification-and-authentication/IA-3-device-identification-and-authentication.md).
+- **SI-4(15):** [AC-18](../AC-access-control/AC-18-wireless-access.md).
+- **SI-4(16):** [AU-6](../AU-audit-and-accountability/AU-6-audit-review-analysis-and-reporting.md).
+- **SI-4(17):** [SA-12](../SA-system-and-services-acquisition/SA-12-supply-chain-protection.md).
+- **SI-4(22):** [AC-6](../AC-access-control/AC-6-least-privilege.md), [CM-7](../CM-configuration-management/CM-7-least-functionality.md), [SA-5](../SA-system-and-services-acquisition/SA-5-information-system-documentation.md), [SA-9](../SA-system-and-services-acquisition/SA-9-external-information-system-services.md).
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # SA-4 - Acquisition Process
 
-**Source:** [ITSG-33 Annex 3A, SA-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa4).
 
 ## Control definition
 
@@ -9,6 +9,20 @@ For system/component/service acquisitions, include applicable security functiona
 ## Supplemental guidance
 
 Components include identifiable hardware, software, and firmware. Security strength concerns correctness, completeness, and resistance to attack/tampering. Assurance includes development practices and evidence that required functionality is implemented. Requirements should be tailored and documented; administrator/user documentation should support secure operation.
+
+## Related controls
+
+From the [official SA-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [PL-2](../PL-planning/PL-2-system-security-plan.md), [PS-7](../PS-personnel-security/PS-7-third-party-personnel-security.md), [SA-3](SA-3-system-development-lifecycle.md), [SA-5](SA-5-information-system-documentation.md), [SA-8](SA-8-security-engineering-principles.md), [SA-11](SA-11-developer-security-testing.md), [SA-12](SA-12-supply-chain-protection.md).
+- **SA-4(1):** [SA-5](SA-5-information-system-documentation.md).
+- **SA-4(2):** [SA-5](SA-5-information-system-documentation.md).
+- **SA-4(3):** [SA-12](SA-12-supply-chain-protection.md).
+- **SA-4(5):** [CM-8](../CM-configuration-management/CM-8-information-system-component-inventory.md).
+- **SA-4(6):** [SC-8](../SC-system-and-communications-protection/SC-8-transmission-confidentiality-and-integrity.md), [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
+- **SA-4(7):** [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
+- **SA-4(8):** [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md).
+- **SA-4(9):** [CM-7](../CM-configuration-management/CM-7-least-functionality.md), [SA-9](SA-9-external-information-system-services.md).
 
 ## Plain-language metaphor
 

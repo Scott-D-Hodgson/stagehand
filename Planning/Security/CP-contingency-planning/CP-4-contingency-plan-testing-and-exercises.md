@@ -1,6 +1,6 @@
 # CP-4 — Contingency Plan Testing and Exercises
 
-**Source:** [ITSG-33 Annex 3A, CP-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp4).
 
 ## Control definition
 
@@ -16,6 +16,15 @@ Testing can include walkthroughs, tabletops, checklists, simulations, and full e
 
 Practice the emergency drill before a real emergency reveals that the instructions or equipment do not work.
 
+## Related controls
+
+From the [official CP-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](CP-2-contingency-plan.md), [CP-3](CP-3-contingency-training.md), [IR-3](../IR-incident-response/IR-3-incident-response-testing-and-exercises.md).
+- **CP-4(1):** [IR-8](../IR-incident-response/IR-8-incident-response-plan.md).
+- **CP-4(2):** [CP-7](CP-7-alternate-processing-site.md).
+- **CP-4(4):** [CP-10](CP-10-information-system-recovery-and-reconstitution.md), [SC-24](../SC-system-and-communications-protection/SC-24-fail-in-known-state.md).
+
 ## Stagehand initial assessment
 
 Exercise runner outage, corrupted plan, browser/provider failure, suspected credential exposure, and recovery from trusted configuration. Verify the fallback workflow and restoration of logging/security controls. Do not use live sensitive data in exercises unless authorized and protected.
@@ -30,4 +39,3 @@ Exercise runner outage, corrupted plan, browser/provider failure, suspected cred
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

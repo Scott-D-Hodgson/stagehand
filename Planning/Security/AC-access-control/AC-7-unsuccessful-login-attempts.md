@@ -1,6 +1,6 @@
 # AC-7 — Unsuccessful Login Attempts
 
-**Status:** Shared / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Shared / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac7).
 
 ## Control definition
 
@@ -9,6 +9,13 @@ Limit consecutive invalid login attempts within an organisation-defined period a
 ## Supplemental Guidance summary
 
 Lockouts can themselves be abused to deny service, so temporary automatic release is common. Controls may be enforced by the operating system or application. The source excludes actions explicitly documented as not requiring authentication under AC-14.
+
+## Related controls
+
+From the [official AC-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+- **AC-7(2):** [AC-19](AC-19-access-control-for-mobile-devices.md), [MP-5](../MP-media-protection/MP-5-media-transport.md), [MP-6](../MP-media-protection/MP-6-media-sanitization.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
 
 ## Plain-language explanation
 

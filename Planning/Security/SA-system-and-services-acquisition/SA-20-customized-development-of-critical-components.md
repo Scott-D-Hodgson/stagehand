@@ -1,6 +1,6 @@
 # SA-20 - Customized Development of Critical Components
 
-**Source:** [ITSG-33 Annex 3A, SA-20](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SA-20](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa20).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Re-implement or custom develop assigned critical system components.
 ## Supplemental guidance
 
 Organisations may choose custom development when a component cannot be trusted because of specific threats/vulnerabilities and no viable safeguards adequately reduce risk. If it is not feasible, consider compensating protections such as enhanced auditing and restricted access to source/system utilities.
+
+## Related controls
+
+From the [official SA-20 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa20), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [SA-8](SA-8-security-engineering-principles.md), [SA-14](SA-14-criticality-analysis.md).
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # RA-1 — Risk Assessment Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, RA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, RA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a314ra1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Suggested review: distribute to system owners, security, and risk decision-maker
 ## Supplemental guidance
 
 Policy supports RA controls, reflects applicable government requirements, and can be organisation-wide or system-specific.
+
+## Related controls
+
+From the [official RA-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a314ra1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed.
 ## Assessment status
 
 **Planned / not verified.** Stagehand implementation and deployment evidence must be assessed before assigning an implemented or compliant status. This summary is a paraphrase for planning, not an authorization decision.
-

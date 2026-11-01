@@ -1,6 +1,6 @@
 # PE-6 — Monitoring Physical Access
 
-**Source:** [ITSG-33 Annex 3A, PE-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe6).
 
 ## Control definition
 
@@ -11,6 +11,14 @@ Monitor facility access to detect/respond to physical incidents; review access l
 ## Supplemental guidance
 
 Investigate suspicious patterns such as unusual hours, repeated access to unfamiliar areas, long dwell times, or out-of-order entries. Coordinate physical and cyber incident handling.
+
+## Related controls
+
+From the [official PE-6 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe6), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md), [IR-4](../IR-incident-response/IR-4-incident-handling.md), [IR-8](../IR-incident-response/IR-8-incident-response-plan.md).
+- **PE-6(2):** [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+- **PE-6(4):** [PS-2](../PS-personnel-security/PS-2-position-categorization.md), [PS-3](../PS-personnel-security/PS-3-personnel-screening.md).
 
 ## Plain-language metaphor
 
@@ -30,4 +38,3 @@ Application logging does not show who entered a server room or accessed an unatt
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

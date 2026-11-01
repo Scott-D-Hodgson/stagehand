@@ -1,6 +1,6 @@
 # SC-31 - Covert Channel Analysis
 
-**Source:** [ITSG-33 Annex 3A, SC-31](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-31](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc31).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Analyse communications for potential storage or timing covert channels and estim
 ## Supplemental guidance
 
 Developers are best placed to identify potential covert-channel paths. Analysis is especially relevant where unauthorized flows may cross security domains, including multilevel or cross-domain systems.
+
+## Related controls
+
+From the [official SC-31 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc31), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [PL-2](../PL-planning/PL-2-system-security-plan.md).
 
 ## Plain-language metaphor
 

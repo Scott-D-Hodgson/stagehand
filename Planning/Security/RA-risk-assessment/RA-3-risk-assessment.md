@@ -1,6 +1,6 @@
 # RA-3 — Risk Assessment
 
-**Source:** [ITSG-33 Annex 3A, RA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, RA-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a314ra3).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Suggested review: annual reassessment and whenever architecture, data, threats, 
 ## Supplemental guidance
 
 Assessment covers threats, vulnerabilities, internal and external parties, and impacts at organisational, business, or system levels.
+
+## Related controls
+
+From the [official RA-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a314ra3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [RA-2](RA-2-security-categorization.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed.
 ## Assessment status
 
 **Planned / not verified.** Stagehand implementation and deployment evidence must be assessed before assigning an implemented or compliant status. This summary is a paraphrase for planning, not an authorization decision.
-

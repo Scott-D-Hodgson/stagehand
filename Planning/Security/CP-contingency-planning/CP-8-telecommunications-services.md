@@ -1,6 +1,6 @@
 # CP-8 — Telecommunications Services
 
-**Source:** [ITSG-33 Annex 3A, CP-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp8).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Alternate services should satisfy continuity requirements and may include separa
 
 If one phone line is cut, have another route for the important messages to get through.
 
+## Related controls
+
+From the [official CP-8 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp8), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](CP-2-contingency-plan.md), [CP-6](CP-6-alternate-storage-site.md), [CP-7](CP-7-alternate-processing-site.md).
+
 ## Stagehand initial assessment
 
 Hosted automation depends on network/telecommunications availability to reach identity, orchestration, logging, and target services. Operators should identify those dependencies and decide whether alternate connectivity is needed. Do not weaken network or identity safeguards during failover.
@@ -29,4 +35,3 @@ Hosted automation depends on network/telecommunications availability to reach id
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

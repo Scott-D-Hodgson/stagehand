@@ -1,10 +1,17 @@
 # PL-3 — System Security Plan Update
 
-**Source:** [ITSG-33 Annex 3A, PL-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PL-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl3).
 
 ## Catalogue status
 
 The Annex 3A entry is **withdrawn and incorporated into PL-2 (System Security Plan)**. Retained for identifier traceability only.
+
+## Related controls
+
+From the [official PL-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+- **Withdrawn-entry incorporation:** [PL-2](PL-2-system-security-plan.md). The source redirects this historical entry; these are successors, not a separate related-control list.
 
 ## Stagehand initial assessment
 
@@ -29,4 +36,3 @@ No separate organisation-defined parameters apply to this withdrawn entry in Ann
 ## Control enhancements
 
 None listed for the withdrawn entry.
-

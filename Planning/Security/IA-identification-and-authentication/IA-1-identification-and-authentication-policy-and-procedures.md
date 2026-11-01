@@ -1,6 +1,6 @@
 # IA-1 — Identification and Authentication Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, IA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Develop, document, and distribute identification/authentication policy and proce
 ## Supplemental guidance
 
 These documents implement the IA family and should align with applicable government policy. Enterprise policy may cover multiple systems, with system-specific procedures added where risk requires.
+
+## Related controls
+
+From the [official IA-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

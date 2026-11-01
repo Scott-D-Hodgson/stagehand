@@ -1,6 +1,6 @@
 # PE-10 — Emergency Shutoff
 
-**Source:** [ITSG-33 Annex 3A, PE-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe10).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Provide emergency power shutoff for the system/components, locate switches where
 ## Supplemental guidance
 
 Primarily applies to facilities with concentrated computing resources such as data centres and server rooms.
+
+## Related controls
+
+From the [official PE-10 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe10), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PE-15](PE-15-water-damage-protection.md).
 
 ## Plain-language metaphor
 

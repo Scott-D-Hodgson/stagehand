@@ -1,6 +1,6 @@
 # CA-1 — Security Assessment and Authorization Policies and Procedures
 
-**Source:** [ITSG-33 Annex 3A, CA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CA-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a34ca1).
 
 ## Control definition
 
@@ -16,6 +16,12 @@ Policies and procedures support effective implementation of the CA family, refle
 
 This is the playbook for checking a system’s safety and deciding who may accept its risks.
 
+## Related controls
+
+From the [official CA-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a34ca1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+
 ## Stagehand initial assessment
 
 Stagehand documentation can describe product capabilities and evidence, but authorization policy and decisions belong to the adopting organisation. Include the application, runner, browser, identity, target systems, and hosting environment in the assessment boundary. Use the organisation’s established security authorization process.
@@ -27,4 +33,3 @@ None are listed for CA-1 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

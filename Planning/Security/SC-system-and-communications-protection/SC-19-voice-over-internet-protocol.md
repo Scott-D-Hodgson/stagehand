@@ -1,6 +1,6 @@
 # SC-19 - Voice over Internet Protocol
 
-**Source:** [ITSG-33 Annex 3A, SC-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc19).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Set use restrictions and implementation guidance for VoIP based on potential har
 ## Supplemental guidance
 
 The catalogue relates this control to configuration management, boundary protection, and collaborative devices. Its enhancement guidance references classified-facility restrictions.
+
+## Related controls
+
+From the [official SC-19 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc19), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [SC-7](SC-7-boundary-protection.md), [SC-15](SC-15-collaborative-computing-devices.md).
 
 ## Plain-language metaphor
 

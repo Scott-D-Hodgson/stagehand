@@ -1,6 +1,6 @@
 # AC-11 — Session Lock
 
-**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Environment / conditional; not implemented or verified. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac11).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ After an organisation-defined inactive period, or on user request, prevent furth
 ## Supplemental Guidance summary
 
 A session lock protects a temporarily unattended device or application session. It is not a replacement for required end-of-day logout. It can be implemented at OS or application level when session activity is observable.
+
+## Related controls
+
+From the [official AC-11 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac11), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-7](AC-7-unsuccessful-login-attempts.md).
 
 ## Plain-language explanation
 

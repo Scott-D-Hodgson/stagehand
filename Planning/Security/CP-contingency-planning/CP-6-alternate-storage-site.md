@@ -1,6 +1,6 @@
 # CP-6 — Alternate Storage Site
 
-**Source:** [ITSG-33 Annex 3A, CP-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp6).
 
 ## Control definition
 
@@ -13,6 +13,14 @@ Alternate sites are geographically distinct and hold duplicate information/data.
 ## In plain language
 
 Keep a protected spare copy somewhere far enough away that the same local disaster is unlikely to destroy both copies.
+
+## Related controls
+
+From the [official CP-6 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp6), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](CP-2-contingency-plan.md), [CP-7](CP-7-alternate-processing-site.md), [CP-9](CP-9-information-system-backup.md), [CP-10](CP-10-information-system-recovery-and-reconstitution.md), [MP-4](../MP-media-protection/MP-4-media-storage.md).
+- **CP-6(1):** [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
+- **CP-6(3):** [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md).
 
 ## Stagehand initial assessment
 
@@ -27,4 +35,3 @@ Operators should decide whether plans, configuration, logs, or reports require b
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

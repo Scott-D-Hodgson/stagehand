@@ -1,6 +1,6 @@
 # AU-5 — Response to Audit Processing Failures
 
-**Source:** [ITSG-33 Annex 3A, AU-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-5](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au5).
 
 ## Control definition
 
@@ -16,6 +16,13 @@ Failures include hardware/software errors, capture mechanism failures, or storag
 
 If the security camera stops recording, someone must be told and the site needs a pre-agreed fallback plan.
 
+## Related controls
+
+From the [official AU-5 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au5), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AU-4](AU-4-audit-storage-capacity.md), [SI-12](../SI-system-and-information-integrity/SI-12-information-output-handling-and-retention.md).
+- **AU-5(4):** [AU-15](AU-15-alternate-audit-capability.md).
+
 ## Stagehand initial assessment
 
 The deployment should detect logging SDK/collector errors, full disks, blocked forwarding, and unavailable central stores. Operators should decide whether automation pauses, continues in a restricted mode, or stops when security logging is unavailable; ensure queued records are protected and recovered. Stagehand must not be described as emitting real-time alerts or failing closed without implementation evidence.
@@ -30,4 +37,3 @@ The deployment should detect logging SDK/collector errors, full disks, blocked f
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

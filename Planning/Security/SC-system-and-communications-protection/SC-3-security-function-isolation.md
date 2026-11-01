@@ -1,6 +1,6 @@
 # SC-3 - Security Function Isolation
 
-**Source:** [ITSG-33 Annex 3A, SC-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-3](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc3).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Isolate system security functions from non-security functions using boundaries t
 ## Supplemental guidance
 
 Isolation may use partitions/domains, hardware modes, filesystem protections, or address-space boundaries. Minimize non-security functions inside the boundary that enforces security; some implementations need limited exceptions.
+
+## Related controls
+
+From the [official SC-3 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc3), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-6](../AC-access-control/AC-6-least-privilege.md), [SA-4](../SA-system-and-services-acquisition/SA-4-acquisition-process.md), [SA-5](../SA-system-and-services-acquisition/SA-5-information-system-documentation.md), [SA-8](../SA-system-and-services-acquisition/SA-8-security-engineering-principles.md), [SA-13](../SA-system-and-services-acquisition/SA-13-trustworthiness.md), [SC-2](SC-2-application-partitioning.md), [SC-7](SC-7-boundary-protection.md), [SC-39](SC-39-process-isolation.md).
 
 ## Plain-language metaphor
 

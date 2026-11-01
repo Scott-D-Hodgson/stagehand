@@ -1,6 +1,6 @@
 # IA-6 — Authenticator Feedback
 
-**Source:** [ITSG-33 Annex 3A, IA-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-6](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia6).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Obscure authentication feedback so unauthorized people cannot exploit informatio
 ## Supplemental guidance
 
 Do not reveal credential values or useful hints while authenticating. Choose masking behaviour for the device and context, balancing shoulder-surfing risk against input errors on small screens.
+
+## Related controls
+
+From the [official IA-6 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia6), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PE-18](../PE-physical-and-environmental-protection/PE-18-location-of-information-system-components.md).
 
 ## Plain-language metaphor
 
@@ -22,7 +28,12 @@ Authentication prompts are generally provided by the browser or target service. 
 
 None are listed for IA-6 in Annex 3A.
 
+## Current repository context
+
+No secret-safe entry or output masking has been implemented by Stagehand. Assertions can retain expected/actual content; axe findings retain page markup, selectors, summaries, and related-node evidence. Target-application masking and browser security do not redact these diagnostics automatically.
+
+Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
+
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

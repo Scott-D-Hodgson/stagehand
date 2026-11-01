@@ -1,6 +1,6 @@
 # PE-9 — Power Equipment and Power Cabling
 
-**Source:** [ITSG-33 Annex 3A, PE-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe9).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Protect system power equipment and cabling from damage or destruction.
 ## Supplemental guidance
 
 Protection may differ by location and include external generators/cables, internal wiring, data-centre UPS, or power systems for self-contained platforms.
+
+## Related controls
+
+From the [official PE-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [PE-4](PE-4-access-control-for-transmission-medium.md).
 
 ## Plain-language metaphor
 
@@ -26,4 +32,3 @@ Local device power resilience is an endpoint responsibility; hosted systems inhe
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

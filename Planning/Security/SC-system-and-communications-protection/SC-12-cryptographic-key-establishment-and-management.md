@@ -1,6 +1,6 @@
 # SC-12 - Cryptographic Key Establishment and Management
 
-**Source:** [ITSG-33 Annex 3A, SC-12](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-12](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc12).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Establish and manage keys for required cryptography under defined rules for gene
 ## Supplemental guidance
 
 Key management may be manual or automated with supporting procedures. Manage trust stores so only approved trust anchors are present. Key use must meet SC-13.
+
+## Related controls
+
+From the [official SC-12 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc12), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-13](SC-13-use-of-cryptography.md), [SC-17](SC-17-public-key-infrastructure-certificates.md).
 
 ## Plain-language metaphor
 

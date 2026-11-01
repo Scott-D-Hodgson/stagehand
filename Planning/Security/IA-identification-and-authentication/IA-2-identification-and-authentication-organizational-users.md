@@ -1,6 +1,6 @@
 # IA-2 — Identification and Authentication (Organisational Users)
 
-**Source:** [ITSG-33 Annex 3A, IA-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia2).
 
 ## Control definition
 
@@ -9,6 +9,18 @@ Uniquely identify and authenticate organisational users and processes acting for
 ## Supplemental guidance
 
 Organisational users include employees and equivalent personnel such as contractors. Authentication may use knowledge, possession, or biometric factors; multifactor authentication combines distinct factors. Apply identification at system or application level as risk requires. IA-8 covers non-organisational users.
+
+## Related controls
+
+From the [official IA-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-2](../AC-access-control/AC-2-account-management.md), [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-14](../AC-access-control/AC-14-permitted-actions-without-identification-or-authentication.md), [AC-17](../AC-access-control/AC-17-remote-access.md), [AC-18](../AC-access-control/AC-18-wireless-access.md), [IA-4](IA-4-identifier-management.md), [IA-5](IA-5-authenticator-management.md), [IA-8](IA-8-identification-and-authentication-non-organizational-users.md).
+- **IA-2(1):** [AC-6](../AC-access-control/AC-6-least-privilege.md).
+- **IA-2(3):** [AC-6](../AC-access-control/AC-6-least-privilege.md).
+- **IA-2(6):** [AC-6](../AC-access-control/AC-6-least-privilege.md).
+- **IA-2(11):** [AC-6](../AC-access-control/AC-6-least-privilege.md).
+- **IA-2(12):** [AU-2](../AU-audit-and-accountability/AU-2-auditable-events.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md), [SA-4](../SA-system-and-services-acquisition/SA-4-acquisition-process.md).
+- **IA-2(13):** [IA-10](IA-10-adaptive-identification-and-authentication.md), [IA-11](IA-11-re-authentication.md), [SC-37](../SC-system-and-communications-protection/SC-37-out-of-band-channels.md).
 
 ## Plain-language metaphor
 

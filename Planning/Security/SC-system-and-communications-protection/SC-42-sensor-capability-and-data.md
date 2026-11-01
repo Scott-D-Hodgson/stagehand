@@ -1,6 +1,6 @@
 # SC-42 - Sensor Capability and Data
 
-**Source:** [ITSG-33 Annex 3A, SC-42](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-42](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc42).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Prohibit remote activation of environmental sensors except for defined exception
 ## Supplemental guidance
 
 Mobile systems may contain cameras, microphones, GPS, and accelerometers. Covert activation could reveal sensitive information or track people.
+
+## Related controls
+
+From the [official SC-42 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc42), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

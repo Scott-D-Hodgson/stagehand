@@ -1,6 +1,6 @@
 # SC-2 - Application Partitioning
 
-**Source:** [ITSG-33 Annex 3A, SC-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc2).
 
 ## Control definition
 
@@ -9,6 +9,13 @@ Separate user functionality, including user-interface services, from information
 ## Supplemental guidance
 
 Management functions often require privileged access. Separation may use separate machines, OS instances, network addresses, virtualization, or distinct interfaces/authentication, such as a separate protected administration domain.
+
+## Related controls
+
+From the [official SC-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SA-4](../SA-system-and-services-acquisition/SA-4-acquisition-process.md), [SA-8](../SA-system-and-services-acquisition/SA-8-security-engineering-principles.md), [SC-3](SC-3-security-function-isolation.md).
+- **SC-2(1):** [AC-3](../AC-access-control/AC-3-access-enforcement.md).
 
 ## Plain-language metaphor
 

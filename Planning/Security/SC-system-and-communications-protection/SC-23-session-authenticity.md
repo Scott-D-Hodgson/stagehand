@@ -1,6 +1,6 @@
 # SC-23 - Session Authenticity
 
-**Source:** [ITSG-33 Annex 3A, SC-23](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-23](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc23).
 
 ## Control definition
 
@@ -9,6 +9,14 @@ Protect the authenticity of communications sessions.
 ## Supplemental guidance
 
 Session-level protection establishes confidence in each party’s identity and transmitted information and addresses interception, hijacking, and insertion of false information.
+
+## Related controls
+
+From the [official SC-23 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc23), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-8](SC-8-transmission-confidentiality-and-integrity.md), [SC-10](SC-10-network-disconnect.md), [SC-11](SC-11-trusted-path.md).
+- **SC-23(3):** [SC-13](SC-13-use-of-cryptography.md).
+- **SC-23(5):** [SC-13](SC-13-use-of-cryptography.md).
 
 ## Plain-language metaphor
 

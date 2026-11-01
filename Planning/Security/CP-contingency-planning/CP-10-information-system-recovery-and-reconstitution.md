@@ -1,6 +1,6 @@
 # CP-10 — Information System Recovery and Reconstitution
 
-**Source:** [ITSG-33 Annex 3A, CP-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp10).
 
 ## Control definition
 
@@ -13,6 +13,14 @@ Recovery restores business functions; reconstitution returns systems to full ope
 ## In plain language
 
 First get essential work running safely again; then rebuild the normal service from a trusted recipe and check that its safeguards are back.
+
+## Related controls
+
+From the [official CP-10 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp10), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CA-2](../CA-security-assessment-and-authorization/CA-2-security-assessments.md), [CA-6](../CA-security-assessment-and-authorization/CA-6-security-authorization.md), [CA-7](../CA-security-assessment-and-authorization/CA-7-continuous-monitoring.md), [CP-2](CP-2-contingency-plan.md), [CP-4](CP-4-contingency-plan-testing-and-exercises.md), [CP-6](CP-6-alternate-storage-site.md), [CP-7](CP-7-alternate-processing-site.md), [CP-9](CP-9-information-system-backup.md), [SC-24](../SC-system-and-communications-protection/SC-24-fail-in-known-state.md).
+- **CP-10(4):** [CM-2](../CM-configuration-management/CM-2-baseline-configuration.md).
+- **CP-10(6):** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-6](../AC-access-control/AC-6-least-privilege.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md).
 
 ## Stagehand initial assessment
 

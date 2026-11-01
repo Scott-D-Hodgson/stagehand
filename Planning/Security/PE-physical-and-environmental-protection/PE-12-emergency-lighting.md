@@ -1,6 +1,6 @@
 # PE-12 — Emergency Lighting
 
-**Source:** [ITSG-33 Annex 3A, PE-12](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-12](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe12).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Maintain automatic emergency lighting for system facilities that activates durin
 ## Supplemental guidance
 
 Primarily applies to data centres, server rooms, and facilities with concentrations of system resources.
+
+## Related controls
+
+From the [official PE-12 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe12), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CP-2](../CP-contingency-planning/CP-2-contingency-plan.md), [CP-7](../CP-contingency-planning/CP-7-alternate-processing-site.md).
 
 ## Plain-language metaphor
 
@@ -25,4 +31,3 @@ This is an inherited facility control. Verify through facility/provider assuranc
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

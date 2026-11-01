@@ -1,6 +1,6 @@
 # PE-13 — Fire Protection
 
-**Source:** [ITSG-33 Annex 3A, PE-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-13](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe13).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Maintain fire detection and suppression systems for the information system, supp
 ## Supplemental guidance
 
 Primarily applies to concentrated computing facilities. Devices can include sprinklers, extinguishers, hoses, and smoke detectors.
+
+## Related controls
+
+From the [official PE-13 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe13), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -28,4 +34,3 @@ This is a facility/provider responsibility. Operators should review data-centre 
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # SC-1 - System and Communications Protection Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, SC-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Develop, document, and distribute system/communications protection policy and pr
 ## Supplemental guidance
 
 The policy and procedures support selected SC-family controls, reflect applicable government requirements, and may be organisation-wide or system-specific based on risk.
+
+## Related controls
+
+From the [official SC-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

@@ -1,6 +1,6 @@
 # PE-19 — Information Leakage
 
-**Source:** [ITSG-33 Annex 3A, PE-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PE-19](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe19).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Protect the system from information leakage through electromagnetic emanations.
 ## Supplemental guidance
 
 Choose controls based on the sensitivity/classification of the system and applicable national emissions/TEMPEST requirements.
+
+## Related controls
+
+From the [official PE-19 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a311pe19), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -25,4 +31,3 @@ This is a facility/hardware concern, not an application feature. Organisations h
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

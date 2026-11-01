@@ -1,6 +1,6 @@
 # AU-9 — Protection of Audit Information
 
-**Source:** [ITSG-33 Annex 3A, AU-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-9](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au9).
 
 ## Control definition
 
@@ -15,6 +15,17 @@ Audit information includes records, settings, and reports needed to audit system
 ## In plain language
 
 The referee’s notebook must be protected from anyone who could change the score after the game.
+
+## Related controls
+
+From the [official AU-9 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au9), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-6](../AC-access-control/AC-6-least-privilege.md), [MP-2](../MP-media-protection/MP-2-media-access.md), [MP-4](../MP-media-protection/MP-4-media-storage.md), [PE-2](../PE-physical-and-environmental-protection/PE-2-physical-access-authorizations.md), [PE-3](../PE-physical-and-environmental-protection/PE-3-physical-access-control.md), [PE-6](../PE-physical-and-environmental-protection/PE-6-monitoring-physical-access.md).
+- **AU-9(1):** [AU-4](AU-4-audit-storage-capacity.md), [AU-5](AU-5-response-to-audit-processing-failures.md).
+- **AU-9(2):** [AU-4](AU-4-audit-storage-capacity.md), [AU-5](AU-5-response-to-audit-processing-failures.md), [AU-11](AU-11-audit-record-retention.md).
+- **AU-9(3):** [AU-10](AU-10-non-repudiation.md), [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md).
+- **AU-9(4):** [AC-5](../AC-access-control/AC-5-separation-of-duties.md).
+- **AU-9(5):** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [MP-2](../MP-media-protection/MP-2-media-access.md).
 
 ## Stagehand initial assessment
 
@@ -32,4 +43,3 @@ Operators should restrict log access, separate audit administration from ordinar
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # IR-1 — Incident Response Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, IR-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Develop, document, and distribute incident-response policy/procedures to defined
 ## Supplemental guidance
 
 The policy establishes how the organisation implements the IR family and should reflect applicable legislation and government direction. Enterprise policy may be supplemented with system-specific procedures based on risk.
+
+## Related controls
+
+From the [official IR-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 
@@ -27,4 +33,3 @@ None listed for IR-1.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

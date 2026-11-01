@@ -1,6 +1,6 @@
 # IA-8 — Identification and Authentication (Non-Organisational Users)
 
-**Source:** [ITSG-33 Annex 3A, IA-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IA-8](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia8).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Uniquely identify and authenticate non-organisational users and processes acting
 ## Supplemental guidance
 
 Non-organisational users include people outside the workforce scope of IA-2. Use risk assessment to balance security, scalability, and usability. Identity/credential assurance guidance may define levels and corresponding safeguards.
+
+## Related controls
+
+From the [official IA-8 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a37ia8), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-2](../AC-access-control/AC-2-account-management.md), [AC-14](../AC-access-control/AC-14-permitted-actions-without-identification-or-authentication.md), [AC-17](../AC-access-control/AC-17-remote-access.md), [AC-18](../AC-access-control/AC-18-wireless-access.md), [IA-2](IA-2-identification-and-authentication-organizational-users.md), [IA-4](IA-4-identifier-management.md), [IA-5](IA-5-authenticator-management.md), [MA-4](../MA-maintenance/MA-4-non-local-maintenance.md), [RA-3](../RA-risk-assessment/RA-3-risk-assessment.md), [SA-12](../SA-system-and-services-acquisition/SA-12-supply-chain-protection.md), [SC-8](../SC-system-and-communications-protection/SC-8-transmission-confidentiality-and-integrity.md).
 
 ## Plain-language metaphor
 
@@ -26,4 +32,3 @@ For customers, partners, or external testers using a Stagehand deployment, opera
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

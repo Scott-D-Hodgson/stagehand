@@ -1,9 +1,9 @@
 # AC-1 — Access Control Policy and Procedures
 
 **Assessment status:** Planned / not implemented or verified  
-**Source:** [ITSG-33 Annex 3A, AC-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33)
+**Source:** [ITSG-33 Annex 3A, AC-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac1)
 
-> The official control statement and Supplemental Guidance are summarized below in original wording. Consult the linked catalogue for the authoritative text, related controls, and references. This entry follows the requested ITSG-33 taxonomy; ITSG-33 Annex 3A was superseded by ITSP.10.033 effective 31 March 2026.
+> The official control statement and Supplemental Guidance are summarized below in original wording. Consult the linked catalogue for the authoritative text and references; related controls are linked below. This entry follows the requested ITSG-33 taxonomy; ITSG-33 Annex 3A was superseded by ITSP.10.033 effective 31 March 2026.
 
 ## Control definition
 
@@ -20,6 +20,12 @@ The organisation must establish, document, and communicate an access-control pol
 ## Supplemental Guidance summary
 
 This control establishes the policy and procedures that make the other access-control safeguards usable and consistent. Those documents may be organisation-wide or system-specific, depending on the organisation's security program and complexity. They should reflect the policies and rules that apply to the organisation and its risk-management approach. Supplemental Guidance gives implementation context; the mandatory requirements are the control statements above.
+
+## Related controls
+
+From the [official AC-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language explanation
 

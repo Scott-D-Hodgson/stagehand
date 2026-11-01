@@ -1,6 +1,6 @@
 # SC-43 - Usage Restrictions
 
-**Source:** [ITSG-33 Annex 3A, SC-43](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-43](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc43).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Set usage restrictions and implementation guidance for components based on poten
 ## Supplemental guidance
 
 Components can include hardware, software, and firmware such as VoIP, mobile code, printers, scanners, wireless technology, and mobile devices. Related controls include configuration settings and boundary protection.
+
+## Related controls
+
+From the [official SC-43 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc43), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [SC-7](SC-7-boundary-protection.md).
 
 ## Plain-language metaphor
 

@@ -8,9 +8,17 @@ The current assessment remains based on ITSG-33 as requested. A follow-up backlo
 
 ## Status and scope
 
-Stagehand remains under development. `runner-core` now has a Chromium browser lifecycle, case-session locator resolution, ordered waits, direct navigation, clicks, sequential typing, field filling, option selection, exact locale-aware text, HTML, and input-value assertions with optional soft associated-label checks, and a dispatcher for validated `navigate`/`click`/`type`/`fill`/`selectOption`/`assertText`/`assertHtml`/`assertValue` case steps, but this security assessment has not reviewed those implementations. Direct case-session axe scans now apply resolved enable/tag settings and return raw observations or cause-preserving execution errors; this security assessment has not reviewed that implementation. Pure violation mapping and caller-owned per-case collection are now implemented but have not been assessed here. Automatic step scanning/collection is now implemented but has not been assessed here. Full plan execution, the CLI, and the Vue editor remain unimplemented. Control mappings in this folder describe intended design work or deployment responsibilities, not verified safeguards. Assess each control against the implemented product and the specific deployment before relying on it.
+Stagehand remains under development. Shared schemas, Node-side plan loading and source fingerprinting, the result contract, browser actions/assertions, explicit cleanup, and automatic per-session axe scanning/collection are implemented. The [current review](REVIEW.md) records their security-relevant context and limits; it does not verify control satisfaction. The existing 209-test dev-container run and owner-confirmed PR CI are functional development evidence, while actual Chromium/axe tests remain deferred pending a project-owned test site. Secret resolution/redaction, full result production, the CLI, and the Vue editor remain unimplemented. Assess each control against the actual deployment before relying on these mappings.
 
 The requested reference is the [official ITSG-33 Annex 3A page](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33) (effective 30 December 2014). **Currency note:** on 31 March 2026, the Cyber Centre published [ITSP.10.033, Security and privacy controls and assurance activities catalogue](https://www.cyber.gc.ca/en/guidance/cyber-security-privacy-risk-management/itsp10033/foreword-overview-introduction), which explicitly supersedes ITSG-33 Annex 3A. Because this project folder was requested in ITSG-33 terms, it retains that taxonomy for this initial assessment; before using it for a real authorization or compliance decision, the organisation should select the current applicable catalogue/profile and assess a crosswalk. The newer catalogue adds privacy controls and other families, so the two are not interchangeable.
+
+## Current review and navigation
+
+The [security documentation review](REVIEW.md) records the 1 November 2026 implementation-context review and source verification across all 242 control pages. Each control now has a Related controls section with source-derived relative links, enhancement-specific rows where listed, and separately labelled withdrawn-entry successors. No relationships are inferred. Use those links to navigate; a relationship is not evidence that either control is implemented.
+
+### PE-21 source discrepancy
+
+The official [SA-12(9) guidance](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a315sa12) lists PE-21, but Annex 3A defines no PE-21 control and the 242-record inventory contains no such page. The [SA-12 record](SA-system-and-services-acquisition/SA-12-supply-chain-protection.md#related-controls) retains this reference and links here. No PE-21 control or substitute relationship has been invented; resolve the source discrepancy with the authoritative catalogue before relying on it.
 
 ## Suggested structure
 
@@ -25,7 +33,8 @@ Each control file should contain:
 5. Stagehand applicability and planned implementation notes, separated by component (plans, runner/CLI, editor, reports, build/release, or deployment).
 6. End-user and operator configuration recommendations where the control depends on the hosting environment, CI platform, identity provider, network, endpoint, or operating procedures.
 7. Applicability/evidence status (planned, implemented, verified, inherited, not applicable, or open), rationale, and source link/date.
-8. For every enhancement: its identifier/title, control statement summary, supplemental-guidance summary, Stagehand mapping, and deployment advice using the same distinctions as the base control.
+8. Related controls from the base entry and enhancement guidance, using relative links to local control pages and a direct source anchor/date. State when none are explicitly listed; preserve unresolved source references as such.
+9. For every enhancement: its identifier/title, control statement summary, supplemental-guidance summary, Stagehand mapping, and deployment advice using the same distinctions as the base control.
 
 Do not infer an enhancement from a title, treat supplemental guidance as a mandatory statement, or mark a control implemented without evidence. Preserve withdrawn entries as historical only when the official catalogue does so.
 
@@ -57,13 +66,13 @@ The catalogue's classes are not strict boundaries: a control may need both techn
 
 ## Stagehand-wide implementation assumptions to verify
 
-- Plans are user-owned JSON files. Keep credentials out of plans; resolve secrets from an approved external store and prevent values from appearing in diagnostics, reports, screenshots, and traces.
+- Plans are user-owned JSON files. Keep credentials out of plans; the accepted initial design resolves environment-variable-name references before browser startup. Resolution and redaction are unimplemented M5 work; do not assume current literal steps, diagnostics, or DOM evidence are secret-safe. Direct external secret-store integrations remain later work.
 - The runner will drive browsers through Playwright. Treat test plans as potentially powerful input: validate them, constrain supported actions and destinations where appropriate, and run with least privilege in a disposable or otherwise isolated environment.
 - Recommend test and staging targets by default, but do not imply those environments are free of quotas, egress/download limits, or costs. Stagehand enables browser actions but does not own target authorization, limits, costs, or operational consequences. Operators select authorized targets and are responsible for understanding and accepting those conditions; production use is possible but must be deliberate.
 - The local-first editor is intended not to upload plans by default. Verify this in the implemented build, and document browser storage, download, and hosting behaviour.
 - CI jobs, browsers, target systems, network boundaries, operating systems, identity, logging, backups, incident response, and physical security are deployment concerns unless Stagehand later adds services that take responsibility for them.
-- Reports, screenshots, traces, HTML output, accessibility findings, and test data may contain sensitive information. Define retention, access, encryption, and safe sharing rules for the actual environment.
+- Current assertion diagnostics and accessibility findings/raw scan history may contain sensitive information. JSON is the MVP result format; HTML/JUnit reports, screenshots, and traces are deferred, but would need the same handling assessment if introduced. Define retention, access, encryption, and safe sharing rules for the actual environment.
 
 ## Progress
 
-The inventory contains one Markdown record for each of the 242 Annex 3A control identifiers, including withdrawn and unallocated entries. Each record is a paraphrased, source-linked planning assessment with a Stagehand/operator mapping; verify the linked catalogue when tailoring controls for an authorization. No control is asserted as satisfied. All Stagehand mappings are planned and unverified against an implemented release. Annex 3A is superseded by ITSP.10.033; see the currency note above.
+The inventory contains one Markdown record for each of the 242 Annex 3A control identifiers, including withdrawn and unallocated entries. Each record is a paraphrased, source-linked planning assessment with a Stagehand/operator mapping; verify the linked catalogue when tailoring controls for an authorization. No control is asserted as satisfied. Current product context has been reviewed, but control-specific security and deployment evidence remains unassessed. Annex 3A is superseded by ITSP.10.033; see the currency note above.

@@ -1,6 +1,6 @@
 # SC-16 - Transmission of Security Attributes
 
-**Source:** [ITSG-33 Annex 3A, SC-16](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, SC-16](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc16).
 
 ## Control definition
 
@@ -11,6 +11,13 @@ Associate organisation-defined security attributes with information exchanged be
 ## Supplemental guidance
 
 Security attributes may be explicit or implicit associations with information. Related controls include access enforcement and security attributes under AC-3, AC-4, and AC-16.
+
+## Related controls
+
+From the [official SC-16 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a316sc16), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md).
+- **SC-16(1):** [AU-10](../AU-audit-and-accountability/AU-10-non-repudiation.md), [SC-8](SC-8-transmission-confidentiality-and-integrity.md).
 
 ## Plain-language metaphor
 

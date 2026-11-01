@@ -1,6 +1,6 @@
 # IR-7 — Incident Response Assistance
 
-**Source:** [ITSG-33 Annex 3A, IR-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, IR-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir7).
 
 ## Control definition
 
@@ -9,6 +9,12 @@ Provide an incident-response support resource within the organisational response
 ## Supplemental guidance
 
 Support can include a help desk, assistance group, or forensic services when needed.
+
+## Related controls
+
+From the [official IR-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a38ir7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AT-2](../AT-awareness-and-training/AT-2-security-awareness.md), [IR-4](IR-4-incident-handling.md), [IR-6](IR-6-incident-reporting.md), [IR-8](IR-8-incident-response-plan.md), [SA-9](../SA-system-and-services-acquisition/SA-9-external-information-system-services.md).
 
 ## Plain-language metaphor
 
@@ -26,4 +32,3 @@ The product should identify where users of an adopting organisation can seek hel
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,10 +1,17 @@
 # AC-15 — Automated Marking
 
-**Status:** Withdrawn in ITSG-33 Annex 3A. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Status:** Withdrawn in ITSG-33 Annex 3A. **Source:** [ITSG-33 Annex 3A](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac15).
 
 ## Control definition and guidance
 
 The catalogue marks AC-15 as withdrawn and incorporated into MP-3 (Media Marking). There is no separate active control statement or enhancement in this entry.
+
+## Related controls
+
+From the [official AC-15 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac15), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
+- **Withdrawn-entry incorporation:** [MP-3](../MP-media-protection/MP-3-media-marking.md). The source redirects this historical entry; these are successors, not a separate related-control list.
 
 ## Plain-language explanation
 
@@ -25,4 +32,3 @@ Annex 3A marks this control withdrawn and incorporated into successor controls; 
 ## Parameters - suggestions for review
 
 No separate organisation-defined parameters apply to this withdrawn entry.
-

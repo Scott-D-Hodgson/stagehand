@@ -1,7 +1,7 @@
 # AC-4 — Information Flow Enforcement
 
 **Assessment status:** Shared; planned / not implemented or verified  
-**Source:** [ITSG-33 Annex 3A, AC-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33)
+**Source:** [ITSG-33 Annex 3A, AC-4](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac4)
 
 ## Control definition
 
@@ -10,6 +10,19 @@ The system enforces approved rules governing where information may move within t
 ## Supplemental Guidance summary
 
 Information-flow rules govern destinations and paths, while access-control rules govern who may use information. They can be enforced at network boundaries, proxies, gateways, or application transfer points and may examine addresses, content, or structure. Transfers between systems with different security policies create risk. The catalogue notes that many higher-numbered enhancements address specialized cross-domain filtering and guard solutions.
+
+## Related controls
+
+From the [official AC-4 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a31ac4), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-3](AC-3-access-enforcement.md), [AC-17](AC-17-remote-access.md), [AC-19](AC-19-access-control-for-mobile-devices.md), [AC-21](AC-21-information-sharing.md), [CM-6](../CM-configuration-management/CM-6-configuration-settings.md), [CM-7](../CM-configuration-management/CM-7-least-functionality.md), [SA-8](../SA-system-and-services-acquisition/SA-8-security-engineering-principles.md), [SC-2](../SC-system-and-communications-protection/SC-2-application-partitioning.md), [SC-5](../SC-system-and-communications-protection/SC-5-denial-of-service-protection.md), [SC-7](../SC-system-and-communications-protection/SC-7-boundary-protection.md), [SC-18](../SC-system-and-communications-protection/SC-18-mobile-code.md).
+- **AC-4(1):** [AC-16](AC-16-security-attributes.md).
+- **AC-4(3):** [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+- **AC-4(4):** [SI-4](../SI-system-and-information-integrity/SI-4-information-system-monitoring.md).
+- **AC-4(6):** [AC-16](AC-16-security-attributes.md), [SI-7](../SI-system-and-information-integrity/SI-7-software-firmware-and-information-integrity.md).
+- **AC-4(15):** [SI-3](../SI-system-and-information-integrity/SI-3-malicious-code-protection.md).
+- **AC-4(17):** [IA-2](../IA-identification-and-authentication/IA-2-identification-and-authentication-organizational-users.md), [IA-3](../IA-identification-and-authentication/IA-3-device-identification-and-authentication.md), [IA-4](../IA-identification-and-authentication/IA-4-identifier-management.md), [IA-5](../IA-identification-and-authentication/IA-5-authenticator-management.md).
+- **AC-4(18):** [AC-16](AC-16-security-attributes.md), [SC-16](../SC-system-and-communications-protection/SC-16-transmission-of-security-attributes.md).
 
 ## Plain-language explanation
 
@@ -63,6 +76,12 @@ The catalogue lists 22 enhancements; many address specialized cross-domain syste
 | AC-4(22) | Access only | Permit access to multiple domains while preventing data transfer between them; a host/VDI architecture decision. |
 
 Enhancement entries above are concise summaries, not control statements. Consult the official catalogue for exact definitions and supplemental guidance. None are asserted as satisfied.
+
+## Current repository context
+
+The supported navigation contract accepts absolute HTTP and HTTPS URLs; it does not enforce approved hosts, HTTPS-only transport, redirects, or subresource destinations. Host/network egress restrictions remain operator controls. JSON is the MVP result output; HTML/JUnit reports, screenshots, and traces remain deferred capabilities, not current data exports.
+
+Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
 
 ## Evidence to collect
 

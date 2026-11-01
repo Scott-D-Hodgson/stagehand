@@ -1,6 +1,6 @@
 # CP-2 — Contingency Plan
 
-**Source:** [ITSG-33 Annex 3A, CP-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, CP-2](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp2).
 
 ## Control definition
 
@@ -15,6 +15,18 @@ Contingency planning supports organisational continuity and includes restoration
 ## In plain language
 
 It is the emergency plan for a shop: know what work matters most, who does what, how to keep essential work going, and how to restore safely.
+
+## Related controls
+
+From the [official CP-2 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a36cp2), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-14](../AC-access-control/AC-14-permitted-actions-without-identification-or-authentication.md), [CP-6](CP-6-alternate-storage-site.md), [CP-7](CP-7-alternate-processing-site.md), [CP-8](CP-8-telecommunications-services.md), [CP-9](CP-9-information-system-backup.md), [CP-10](CP-10-information-system-recovery-and-reconstitution.md), [IR-4](../IR-incident-response/IR-4-incident-handling.md), [IR-8](../IR-incident-response/IR-8-incident-response-plan.md), [MP-2](../MP-media-protection/MP-2-media-access.md), [MP-4](../MP-media-protection/MP-4-media-storage.md), [MP-5](../MP-media-protection/MP-5-media-transport.md).
+- **CP-2(3):** [PE-12](../PE-physical-and-environmental-protection/PE-12-emergency-lighting.md).
+- **CP-2(4):** [PE-12](../PE-physical-and-environmental-protection/PE-12-emergency-lighting.md).
+- **CP-2(5):** [PE-12](../PE-physical-and-environmental-protection/PE-12-emergency-lighting.md).
+- **CP-2(6):** [PE-12](../PE-physical-and-environmental-protection/PE-12-emergency-lighting.md).
+- **CP-2(7):** [SA-9](../SA-system-and-services-acquisition/SA-9-external-information-system-services.md).
+- **CP-2(8):** [SA-14](../SA-system-and-services-acquisition/SA-14-criticality-analysis.md), [SA-15](../SA-system-and-services-acquisition/SA-15-development-process-standards-and-tools.md).
 
 ## Stagehand initial assessment
 
@@ -34,4 +46,3 @@ Operators should define how to preserve or safely stop automation, recover plans
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-

@@ -1,6 +1,6 @@
 # AU-10 — Non-Repudiation
 
-**Source:** [ITSG-33 Annex 3A, AU-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, AU-10](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au10).
 
 ## Control definition
 
@@ -15,6 +15,16 @@ Non-repudiation can establish who created, sent, received, or approved informati
 ## In plain language
 
 It is a signed delivery receipt that helps show who sent or approved a package and whether it changed along the way.
+
+## Related controls
+
+From the [official AU-10 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a33au10), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [SC-12](../SC-system-and-communications-protection/SC-12-cryptographic-key-establishment-and-management.md), [SC-8](../SC-system-and-communications-protection/SC-8-transmission-confidentiality-and-integrity.md), [SC-13](../SC-system-and-communications-protection/SC-13-use-of-cryptography.md), [SC-16](../SC-system-and-communications-protection/SC-16-transmission-of-security-attributes.md), [SC-17](../SC-system-and-communications-protection/SC-17-public-key-infrastructure-certificates.md), [SC-23](../SC-system-and-communications-protection/SC-23-session-authenticity.md).
+- **AU-10(1):** [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md).
+- **AU-10(2):** [AC-3](../AC-access-control/AC-3-access-enforcement.md), [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md).
+- **AU-10(3):** [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md).
+- **AU-10(4):** [AC-4](../AC-access-control/AC-4-information-flow-enforcement.md), [AC-16](../AC-access-control/AC-16-security-attributes.md).
 
 ## Stagehand initial assessment
 

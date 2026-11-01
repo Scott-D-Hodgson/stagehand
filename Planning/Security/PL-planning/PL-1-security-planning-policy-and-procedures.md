@@ -1,6 +1,6 @@
 # PL-1 — Security Planning Policy and Procedures
 
-**Source:** [ITSG-33 Annex 3A, PL-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, PL-1](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl1).
 
 ## Control definition
 
@@ -11,6 +11,12 @@ Develop, document, and distribute security-planning policy/procedures to defined
 ## Supplemental guidance
 
 The policy supports PL-family controls, reflects applicable government requirements, and may be enterprise-wide with system-specific procedures based on risk.
+
+## Related controls
+
+From the [official PL-1 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a312pl1), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** No explicit related-control list is provided in the source entry.
 
 ## Plain-language metaphor
 

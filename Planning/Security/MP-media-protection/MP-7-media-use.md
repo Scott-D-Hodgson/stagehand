@@ -1,6 +1,6 @@
 # MP-7 — Media Use
 
-**Source:** [ITSG-33 Annex 3A, MP-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33).
+**Source:** [ITSG-33 Annex 3A, MP-7](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a310mp7).
 
 ## Control definition
 
@@ -11,6 +11,14 @@ Restrict or prohibit defined types of digital and non-digital media on defined s
 ## Supplemental guidance
 
 Portable media can introduce malicious code or remove sensitive information. Organisations may restrict media by type, authorization, device, or operational environment.
+
+## Related controls
+
+From the [official MP-7 entry](https://www.cyber.gc.ca/en/guidance/annex-3a-security-control-catalogue-itsg-33#a310mp7), checked 1 November 2026. These are catalogue relationships, not a claim that the linked controls are implemented.
+
+- **Base control:** [AC-19](../AC-access-control/AC-19-access-control-for-mobile-devices.md), [PL-4](../PL-planning/PL-4-rules-of-behaviour.md).
+- **MP-7(1):** [PL-4](../PL-planning/PL-4-rules-of-behaviour.md).
+- **MP-7(2):** [MP-6](MP-6-media-sanitization.md).
 
 ## Plain-language metaphor
 
@@ -27,4 +35,3 @@ No enhancements are listed for MP-7 in Annex 3A.
 ## Assessment status
 
 **Planned / not verified.** This mapping reflects the anticipated Stagehand design or deployment context; it is not implementation evidence or a compliance determination.
-
