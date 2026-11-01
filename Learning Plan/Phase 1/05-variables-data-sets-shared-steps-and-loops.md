@@ -10,11 +10,11 @@
 
 ## What you will learn
 
-How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The first two M5 slices validate variable definitions and permit references in selected fields; resolution, data sets, shared steps, and protected values are still future work.
+How the accepted M5 design makes fixed inputs reusable across cases and locales, and how to review its implementation in small PRs. The M5 schema slices validate variable definitions at plan, case, and step scope and permit references in selected fields; resolution, data sets, shared steps, and protected values are still future work.
 
 ## Core ideas
 
-A variable definition describes a named, case-sensitive input. Its default is required; locale variants are optional. Values are text, numbers, or booleans, with one resolved scalar type across all variants. The v1 schemas now validate this default/locales wrapper and reject empty names. A protected {"env":"NAME"} value names a process environment variable and resolves to text, but is a later M5 slice.
+A variable definition describes a named, case-sensitive input. Its default is required; locale variants are optional. Values are text, numbers, or booleans, with one resolved scalar type across all variants. The v1 schemas now validate this default/locales wrapper and reject empty names at plan, case, and step scope. A protected {"env":"NAME"} value names a process environment variable and resolves to text, but is a later M5 slice.
 
 A whole-field {"var":"name"} reference is now accepted for `navigate.url`, `type.text`, `fill.value`, `selectOption.value` or `label`, and assertion expected/associated-label values. It is still only an authored value: Stagehand does not resolve it yet. Ordinary text such as "${name}" stays literal. Locator and browser/run-setting references, reference chains, page capture, reassignment, interpolation, and lists are deferred. Names are case-sensitive.
 

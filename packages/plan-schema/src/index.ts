@@ -224,6 +224,20 @@ function validateCaseExpectedLocales(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+function validateCaseStepVariables(input: unknown): ValidationIssue[] {
+  if (!isRecord(input) || !Array.isArray(input.steps)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  for (const [stepIndex, step] of input.steps.entries()) {
+    if (!isRecord(step)) {
+      continue;
+    }
+    issues.push(...validateVariables(step.variables, `/steps/${stepIndex}/variables`));
+  }
+  return issues;
+}
+
 function validateVariables(input: unknown, path: string): ValidationIssue[] {
   if (!isRecord(input)) {
     return [];
@@ -390,6 +404,7 @@ export function validateCase(input: unknown): ValidationResult {
     ...validateNavigationUrls(input),
     ...validateCaseExpectedLocales(input),
     ...validateVariables(isRecord(input) ? input.variables : undefined, "/variables"),
+    ...validateCaseStepVariables(input),
   ]);
 }
 

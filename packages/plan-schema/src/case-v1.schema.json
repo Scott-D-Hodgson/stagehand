@@ -82,7 +82,8 @@
     "stepTimeout": {
       "type": "object",
       "properties": {
-        "timeout": { "$ref": "#/$defs/timeout" }
+        "timeout": { "$ref": "#/$defs/timeout" },
+        "variables": { "$ref": "#/$defs/variables" }
       }
     },
     "interactionStep": {

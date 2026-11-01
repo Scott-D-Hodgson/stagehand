@@ -362,6 +362,47 @@ test("rejects variable references outside agreed action and assertion fields", (
   }
 });
 
+test("accepts step-level variable definitions with same-type locale variants", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const result = validateCase({
+    ...exampleCase,
+    steps: [{
+      action: "fill",
+      locator: { label: "Email" },
+      value: "tester@example.invalid",
+      variables: {
+        email: {
+          default: "tester@example.invalid",
+          locales: { "fr-CA": "testeur@example.invalid" },
+        },
+        retries: { default: 3 },
+      },
+    }],
+  });
+  assert.deepEqual(result, { valid: true });
+});
+
+test("rejects invalid step-level variable definitions and locale keys", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const invalidVariables = [
+    { email: { default: "tester@example.invalid", locales: { "fr-CA": 3 } } },
+    { email: { default: "tester@example.invalid", locales: { "en__CA": "tester@example.invalid" } } },
+    { email: { default: "tester@example.invalid", locales: { "en-us": "tester@example.invalid", "en-US": "tester@example.invalid" } } },
+  ];
+  for (const variables of invalidVariables) {
+    const result = validateCase({
+      ...exampleCase,
+      steps: [{
+        action: "fill",
+        locator: { label: "Email" },
+        value: "tester@example.invalid",
+        variables,
+      }],
+    });
+    assert.equal(result.valid, false);
+  }
+});
+
 test("accepts accessibility failure policy on plan and case settings", () => {
   const plan = readFixture("../examples/checkout-plan.json");
   plan.defaults.accessibility = { failOnViolation: true };
