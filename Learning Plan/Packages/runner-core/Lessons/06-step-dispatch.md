@@ -2,7 +2,7 @@
 
 > “How does runner-core execute a validated list of steps in the intended order?” — Johnny “JavaScript Junior” Jones, Developer
 
-`executeSteps(caseId, steps)` visits the array from first to last and sends each recognized action to its handler. Interaction wait lists wrap their action. A hard failure becomes `StepExecutionError` with the case ID, zero-based step index, action, and original cause.
+`executeSteps(caseId, steps)` visits the array from first to last and sends each recognized action to its handler. Interaction wait lists wrap their action. A hard failure becomes `StepExecutionError` with the case ID, zero-based step index, action, and original cause. When `executeCase` dispatches expanded shared steps, the error also identifies the calling case step and the shared group/inner step. Soft assertion failures retain the same extra identity.
 
 ```mermaid
 flowchart LR

@@ -101,6 +101,9 @@ export type PrepareCaseSharedStepsResult =
       reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownSharedStepGroup";
       message: string;
       issues?: ValidationIssue[];
+      caseStepIndex?: number;
+      sharedStepGroupId?: string;
+      sharedStepIndex?: number;
     };
 
 export type PrepareCaseResult =

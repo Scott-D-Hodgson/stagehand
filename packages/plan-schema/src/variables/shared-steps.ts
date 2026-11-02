@@ -130,6 +130,9 @@ export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): 
         path: prepareFailurePath(expandedStep, result.path),
         reason: result.reason,
         message: result.message,
+        caseStepIndex: expandedStep.caseStepIndex,
+        ...(expandedStep.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: expandedStep.sharedStepGroupId }),
+        ...(expandedStep.sharedStepIndex === undefined ? {} : { sharedStepIndex: expandedStep.sharedStepIndex }),
       };
     }
     steps.push({ ...expandedStep, step: result.step });

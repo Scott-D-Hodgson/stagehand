@@ -4,7 +4,7 @@
 
 The public [`src/index.ts`](../../../../packages/runner-core/src/index.ts) re-exports the supported API. Internals are grouped by responsibility: `browser/`, `actions/`, `steps/`, and `accessibility/`, with focused locator, wait, and assertion modules. Consumers import `@stagehand/runner-core`, not internal paths.
 
-Run `npm test --workspace @stagehand/runner-core`. The current development-container suite has 134 passing tests. These tests use browser and axe doubles, so they verify orchestration, mapping, error handling, and cleanup logic without proving successful real Chromium/axe behaviour.
+Run `npm test --workspace @stagehand/runner-core`. Before the shared-step execution slice, the development-container suite had 137 passing tests. Record the updated result for this slice before merge. These tests use browser and axe doubles, so they verify orchestration, mapping, error handling, and cleanup logic without proving successful real Chromium/axe behaviour.
 
 Actual Chromium/axe testing remains deferred until Stagehand has a project-owned test site. Historical runs and owner-reported CI evidence must remain labelled as historical or owner-reported.
 

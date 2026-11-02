@@ -13,19 +13,32 @@ import { executeClick } from "../actions/interactions/click.js";
 import { executeType } from "../actions/interactions/type.js";
 import { executeFill } from "../actions/interactions/fill.js";
 import { executeSelectOption } from "../actions/interactions/select-option.js";
+import type { StepExecutionIdentity } from "./case.js";
 import type { ExecutableStep, SoftAssertionFailure } from "./types.js";
 
 export class StepExecutionError extends Error {
   caseId: string;
   stepIndex: number;
   action: string;
-  constructor(caseId: string, stepIndex: number, action: string, cause: unknown) {
+  caseStepIndex?: number;
+  sharedStepGroupId?: string;
+  sharedStepIndex?: number;
+  constructor(caseId: string, stepIndex: number, action: string, cause: unknown, identity?: StepExecutionIdentity) {
     const detail = cause instanceof Error ? cause.message : String(cause);
     super(`Case "${caseId}", step ${stepIndex} (${action}) failed: ${detail}`, { cause });
     this.name = "StepExecutionError";
     this.caseId = caseId;
     this.stepIndex = stepIndex;
     this.action = action;
+    if (identity !== undefined) {
+      this.caseStepIndex = identity.caseStepIndex;
+      if (identity.sharedStepGroupId !== undefined) {
+        this.sharedStepGroupId = identity.sharedStepGroupId;
+      }
+      if (identity.sharedStepIndex !== undefined) {
+        this.sharedStepIndex = identity.sharedStepIndex;
+      }
+    }
   }
 }
 
@@ -35,12 +48,14 @@ export async function executeCaseSteps(
   steps: readonly ExecutableStep[],
   locale: string,
   afterStep: (stepIndex: number) => Promise<void>,
+  stepIdentities?: readonly StepExecutionIdentity[],
 ): Promise<SoftAssertionFailure[]> {
   if (!Array.isArray(steps)) {
     throw new TypeError("Case steps must be an array.");
   }
   const softFailures: SoftAssertionFailure[] = [];
   for (const [stepIndex, step] of steps.entries()) {
+    const identity = stepIdentities?.[stepIndex];
     const action = (step as { action?: unknown }).action;
     try {
       switch (step.action) {
@@ -114,6 +129,9 @@ export async function executeCaseSteps(
                 caseId,
                 stepIndex,
                 action: step.action,
+                ...(identity?.caseStepIndex === undefined ? {} : { caseStepIndex: identity.caseStepIndex }),
+                ...(identity?.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: identity.sharedStepGroupId }),
+                ...(identity?.sharedStepIndex === undefined ? {} : { sharedStepIndex: identity.sharedStepIndex }),
                 expected: expectedText,
                 ...(error instanceof StringAssertionMismatchError ? { actual: error.actual } : {}),
                 message: error.message,
@@ -125,7 +143,16 @@ export async function executeCaseSteps(
           if (step.action === "assertValue" && step.associatedLabel !== undefined) {
             const failure = await checkAssociatedLabel(page, step.locator, step.associatedLabel, locale, deadline);
             if (failure) {
-              softFailures.push({ caseId, stepIndex, action: step.action, check: "associatedLabel", ...failure });
+              softFailures.push({
+                caseId,
+                stepIndex,
+                action: step.action,
+                check: "associatedLabel",
+                ...(identity?.caseStepIndex === undefined ? {} : { caseStepIndex: identity.caseStepIndex }),
+                ...(identity?.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: identity.sharedStepGroupId }),
+                ...(identity?.sharedStepIndex === undefined ? {} : { sharedStepIndex: identity.sharedStepIndex }),
+                ...failure,
+              });
             }
           }
           break;
@@ -143,15 +170,15 @@ export async function executeCaseSteps(
         try {
           await afterStep(stepIndex);
         } catch (scanError) {
-          throw new StepExecutionError(caseId, stepIndex, String(action), new AggregateError([error, scanError], "Assertion and accessibility scan failed."));
+          throw new StepExecutionError(caseId, stepIndex, String(action), new AggregateError([error, scanError], "Assertion and accessibility scan failed."), identity);
         }
       }
-      throw new StepExecutionError(caseId, stepIndex, String(action), error);
+      throw new StepExecutionError(caseId, stepIndex, String(action), error, identity);
     }
     try {
       await afterStep(stepIndex);
     } catch (error) {
-      throw new StepExecutionError(caseId, stepIndex, String(action), error);
+      throw new StepExecutionError(caseId, stepIndex, String(action), error, identity);
     }
   }
   return softFailures;

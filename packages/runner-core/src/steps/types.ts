@@ -9,6 +9,9 @@ export interface SoftAssertionFailure {
   stepIndex: number;
   action: "assertText" | "assertHtml" | "assertValue";
   check?: "associatedLabel";
+  caseStepIndex?: number;
+  sharedStepGroupId?: string;
+  sharedStepIndex?: number;
   expected: string;
   actual?: string;
   message: string;
