@@ -6,15 +6,20 @@ import type {
   PrepareCaseResult,
   PrepareCaseStepOptions,
   PrepareCaseStepResult,
+  ProtectedVariableValue,
   VariableDefinition,
 } from "./types.js";
 
 type PreparedValueResult =
   | { prepared: true; value: unknown }
-  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable"; message: string };
+  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 function isVariableReference(value: unknown): value is { var: string } {
   return isRecord(value) && typeof value.var === "string" && Object.keys(value).length === 1;
+}
+
+function isProtectedVariableValue(value: unknown): value is ProtectedVariableValue {
+  return isRecord(value) && typeof value.env === "string" && Object.keys(value).length === 1;
 }
 
 function prepareTextValue(
@@ -34,9 +39,19 @@ function prepareTextValue(
     ...(stepVariables === undefined ? {} : { stepVariables }),
     ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
   });
-  return result.resolved
-    ? { prepared: true, value: String(result.value) }
-    : { prepared: false, path, reason: result.reason, message: result.message };
+  if (!result.resolved) {
+    return { prepared: false, path, reason: result.reason, message: result.message };
+  }
+  if (isProtectedVariableValue(result.value)) {
+    return {
+      prepared: false,
+      path,
+      reason: "unresolvedProtectedValue",
+      message: `Protected environment variable "${result.value.env}" must be resolved before preparing execution values.`,
+      environmentVariable: result.value.env,
+    };
+  }
+  return { prepared: true, value: String(result.value) };
 }
 
 function prepareExpectedValue(

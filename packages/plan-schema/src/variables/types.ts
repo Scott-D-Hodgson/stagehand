@@ -2,9 +2,15 @@ import type { ValidationIssue } from "../validation/types.js";
 
 export type ScalarVariableValue = string | number | boolean;
 
+export interface ProtectedVariableValue {
+  env: string;
+}
+
+export type VariableValue = ScalarVariableValue | ProtectedVariableValue;
+
 export interface VariableDefinition {
-  default: ScalarVariableValue;
-  locales?: Readonly<Record<string, ScalarVariableValue>>;
+  default: VariableValue;
+  locales?: Readonly<Record<string, VariableValue>>;
 }
 
 export interface NamedDataSet {
@@ -37,7 +43,7 @@ export interface ResolveVariableOptions {
 }
 
 export type VariableResolutionResult =
-  | { resolved: true; value: ScalarVariableValue; source: "plan" | "case" | "dataSet" | "step" }
+  | { resolved: true; value: VariableValue; source: "plan" | "case" | "dataSet" | "step" }
   | { resolved: false; reason: "invalidLocale" | "missingVariable"; message: string };
 
 export interface PrepareCaseStepOptions {
@@ -51,7 +57,7 @@ export interface PrepareCaseStepOptions {
 
 export type PrepareCaseStepResult =
   | { prepared: true; step: Record<string, unknown> }
-  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable"; message: string };
+  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 export interface PrepareCaseOptions {
   case: Readonly<Record<string, unknown>>;
@@ -98,12 +104,13 @@ export type PrepareCaseSharedStepsResult =
   | {
       prepared: false;
       path: string;
-      reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownSharedStepGroup";
+      reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownSharedStepGroup" | "unresolvedProtectedValue";
       message: string;
       issues?: ValidationIssue[];
       caseStepIndex?: number;
       sharedStepGroupId?: string;
       sharedStepIndex?: number;
+      environmentVariable?: string;
     };
 
 export type PrepareCaseResult =
@@ -111,7 +118,8 @@ export type PrepareCaseResult =
   | {
       prepared: false;
       path: string;
-      reason: "invalidLocale" | "invalidPreparedCase" | "missingVariable";
+      reason: "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "unresolvedProtectedValue";
       message: string;
       issues?: ValidationIssue[];
+      environmentVariable?: string;
     };

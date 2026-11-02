@@ -53,15 +53,33 @@
         { "$ref": "#/$defs/booleanVariableDefinition" }
       ]
     },
+    "environmentVariableReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["env"],
+      "properties": {
+        "env": { "type": "string", "minLength": 1 }
+      }
+    },
     "textVariableDefinition": {
       "type": "object",
       "additionalProperties": false,
       "required": ["default"],
       "properties": {
-        "default": { "type": "string" },
+        "default": {
+          "oneOf": [
+            { "type": "string" },
+            { "$ref": "#/$defs/environmentVariableReference" }
+          ]
+        },
         "locales": {
           "type": "object",
-          "additionalProperties": { "type": "string" }
+          "additionalProperties": {
+            "oneOf": [
+              { "type": "string" },
+              { "$ref": "#/$defs/environmentVariableReference" }
+            ]
+          }
         }
       }
     },

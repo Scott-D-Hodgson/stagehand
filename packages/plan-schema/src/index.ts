@@ -24,6 +24,8 @@ export type {
   ExpandedCaseStep,
   ResolveVariableOptions,
   ScalarVariableValue,
+  ProtectedVariableValue,
+  VariableValue,
   NamedDataSet,
   SelectCaseDataSetOptions,
   SelectCaseDataSetResult,

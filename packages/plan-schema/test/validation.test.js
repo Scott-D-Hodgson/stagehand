@@ -261,6 +261,25 @@ test("accepts scalar variable definitions with optional same-type locale variant
   assert.deepEqual(validateCase(exampleCase), { valid: true });
 });
 
+test("accepts protected environment references only for text variable definitions", () => {
+  const variables = {
+    password: { default: { env: "TEST_PASSWORD" }, locales: { "fr-CA": { env: "TEST_PASSWORD_FR" } } },
+    greeting: { default: "Hello", locales: { "fr-CA": { env: "TEST_GREETING_FR" } } },
+  };
+  assert.deepEqual(validatePlan({ ...planWithReferences(), variables }), { valid: true });
+  assert.deepEqual(validateCase({ schemaVersion: 1, id: "protected-variable-test", variables, steps: [] }), { valid: true });
+  for (const invalid of [
+    { password: { default: { env: "" } } },
+    { password: { default: { env: "TEST_PASSWORD", extra: true } } },
+    { password: { default: {} } },
+    { attempts: { default: { env: "TEST_ATTEMPTS" } } },
+    { enabled: { default: true, locales: { "fr-CA": { env: "TEST_ENABLED" } } } },
+  ]) {
+    assert.equal(validatePlan({ ...planWithReferences(), variables: invalid }).valid, false);
+    assert.equal(validateCase({ schemaVersion: 1, id: "protected-variable-test", variables: invalid, steps: [] }).valid, false);
+  }
+});
+
 test("rejects invalid variable definitions in plans and cases", () => {
   const invalidVariables = [
     { greeting: {} },
@@ -583,6 +602,38 @@ test("uses the selected definition default when its locale variant is absent", (
     caseVariables: { greeting: { default: "Case" } },
   });
   assert.deepEqual(result, { resolved: true, value: "Case", source: "case" });
+});
+
+test("keeps selected protected values unresolved during preparation", () => {
+  assert.deepEqual(resolveVariable({
+    name: "password",
+    locale: "fr-CA",
+    planVariables: { password: { default: "ordinary-plan-value" } },
+    dataSetVariables: {
+      password: { default: { env: "TEST_PASSWORD" }, locales: { "fr-CA": { env: "TEST_PASSWORD_FR" } } },
+    },
+  }), {
+    resolved: true,
+    value: { env: "TEST_PASSWORD_FR" },
+    source: "dataSet",
+  });
+  assert.deepEqual(prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "protected-variable-case",
+      steps: [{ action: "fill", locator: { css: "#password" }, value: { var: "password" } }],
+    },
+    locale: "fr-CA",
+    dataSetVariables: {
+      password: { default: { env: "TEST_PASSWORD" }, locales: { "fr-CA": { env: "TEST_PASSWORD_FR" } } },
+    },
+  }), {
+    prepared: false,
+    path: "/steps/0/value",
+    reason: "unresolvedProtectedValue",
+    message: "Protected environment variable \"TEST_PASSWORD_FR\" must be resolved before preparing execution values.",
+    environmentVariable: "TEST_PASSWORD_FR",
+  });
 });
 
 test("matches canonical locale keys and reports missing variables", () => {
