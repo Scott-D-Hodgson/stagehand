@@ -50,7 +50,7 @@ export interface CaseBrowserSession {
   context: BrowserContext;
   page: Page;
   accessibility: EffectiveAccessibilitySettings;
-  scanAccessibility(): Promise<AccessibilityScanOutcome>;
+  scanAccessibility(protectedValues?: readonly string[]): Promise<AccessibilityScanOutcome>;
   getAccessibilityFindings(): ResultAccessibilityFinding[];
   getAccessibilityScans(): StepAccessibilityScan[];
   resolveLocator(

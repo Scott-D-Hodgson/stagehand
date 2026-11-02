@@ -49,14 +49,14 @@ Before the explicit scan slice, the settings resolver build and all 88 tests pas
 
 ## Explicit accessibility scans
 
-Call `session.scanAccessibility()` to assess that session's page using its current `session.accessibility` settings. Each enabled invocation creates a fresh Deque `AxeBuilder`. Non-empty tags are copied into `withTags` before analysis; empty tags leave tag filtering unset and preserve axe defaults.
+Call `session.scanAccessibility()` to assess that session's page using its current `session.accessibility` settings. Each enabled invocation creates a fresh Deque `AxeBuilder`. Non-empty tags are copied into `withTags` before analysis; empty tags leave tag filtering unset and preserve axe defaults. A caller that has protected values can pass them as `session.scanAccessibility(protectedValues)` to redact returned observations and scan-error details without changing axe's original output.
 
 The promise returns an `AccessibilityScanOutcome`:
 
 | Status | Meaning |
 | --- | --- |
 | `disabled` | Scanning is off; no analysis or page evaluation is requested and no fabricated findings are returned. |
-| `completed` | The adapter resolved. `results` contains its raw axe observations, including violations, incomplete results, passes, and inapplicable rules. This does not mean the page passed accessibility checks. |
+| `completed` | The adapter resolved. `results` contains axe observations, including violations, incomplete results, passes, and inapplicable rules. They are redacted when protected values were supplied. This does not mean the page passed accessibility checks. |
 
 ```ts
 const outcome = await caseSession.scanAccessibility();
@@ -67,9 +67,9 @@ if (outcome.status === "completed") {
 
 `AccessibilityScanResults` is the adapter's analysis result type. The direct scan operation does not map or collect Stagehand findings; call the separate pure `mapAccessibilityFindings` helper explicitly when needed. `failOnViolation` does not turn observations into exceptions or case outcomes; M6 retains that policy. Incomplete observations, including per-rule error details supplied within them, are preserved for later interpretation. They are not automatically converted into a rejected scan, a violation, or a case outcome. A completed assessment with no violations is also different from a disabled call; it can still include incomplete observations.
 
-Adapter configuration/analysis rejections throw `AccessibilityScanError` with the original rejection as `cause`. A rejection is distinct from a detected violation. Inputs still require prior plan-schema validation. The scan reads the session's mutable snapshot at invocation time; changes to that snapshot affect subsequent explicit calls but not other sessions or run defaults.
+Adapter configuration/analysis rejections throw `AccessibilityScanError` with the original rejection as `cause`, unless supplied protected values require a redacted replacement cause. A rejection is distinct from a detected violation. Inputs still require prior plan-schema validation. The scan reads the session's mutable snapshot at invocation time; changes to that snapshot affect subsequent explicit calls but not other sessions or run defaults.
 
-Session creation does not scan. `executeSteps` now invokes this same operation after eligible steps when enabled. Await explicit scans before continuing case work. Direct scans still return raw outcomes without collecting them.
+Session creation does not scan. `executeSteps` now invokes this same operation after eligible steps when enabled. Await explicit scans before continuing case work. Direct scans return outcomes without collecting them.
 
 At the explicit-scan slice, the runner-core build and all 99 tests passed locally on Windows, including 11 scan tests and the previous 88 tests. A TypeScript public-import check verified outcome narrowing and exported result/error types. Browser/adapter doubles cover orchestration and failures; no successful real-browser axe assessment, frame coverage, dev-container run, or CI result is established by these checks.
 
