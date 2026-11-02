@@ -24,18 +24,20 @@ export interface StepExecutionIdentity {
 export class CasePreparationError extends Error {
   caseId: string;
   path: string;
-  reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup";
+  reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup" | "unresolvedProtectedValue";
   issues?: ReadonlyArray<{ path: string; keyword: string; message: string }>;
+  environmentVariable?: string;
   caseStepIndex?: number;
   sharedStepGroupId?: string;
   sharedStepIndex?: number;
   constructor(
     caseId: string,
     path: string,
-    reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup",
+    reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup" | "unresolvedProtectedValue",
     message: string,
     issues?: ReadonlyArray<{ path: string; keyword: string; message: string }>,
     identity?: StepExecutionIdentity,
+    environmentVariable?: string,
   ) {
     super(`Case "${caseId}" could not be prepared at ${path}: ${message}`);
     this.name = "CasePreparationError";
@@ -44,6 +46,9 @@ export class CasePreparationError extends Error {
     this.reason = reason;
     if (issues !== undefined) {
       this.issues = issues;
+    }
+    if (environmentVariable !== undefined) {
+      this.environmentVariable = environmentVariable;
     }
     if (identity !== undefined) {
       this.caseStepIndex = identity.caseStepIndex;
@@ -105,6 +110,7 @@ export function prepareCaseForExecution(
             ...(prepared.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: prepared.sharedStepGroupId }),
             ...(prepared.sharedStepIndex === undefined ? {} : { sharedStepIndex: prepared.sharedStepIndex }),
           },
+      prepared.environmentVariable,
     );
   }
   return {

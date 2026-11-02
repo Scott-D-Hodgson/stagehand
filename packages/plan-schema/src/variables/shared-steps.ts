@@ -131,6 +131,7 @@ export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): 
         reason: result.reason,
         message: result.message,
         caseStepIndex: expandedStep.caseStepIndex,
+        ...(result.environmentVariable === undefined ? {} : { environmentVariable: result.environmentVariable }),
         ...(expandedStep.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: expandedStep.sharedStepGroupId }),
         ...(expandedStep.sharedStepIndex === undefined ? {} : { sharedStepIndex: expandedStep.sharedStepIndex }),
       };

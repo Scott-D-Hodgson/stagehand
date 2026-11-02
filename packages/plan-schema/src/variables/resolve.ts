@@ -1,11 +1,11 @@
 import type {
   ResolveVariableOptions,
-  ScalarVariableValue,
   VariableDefinition,
+  VariableValue,
   VariableResolutionResult,
 } from "./types.js";
 
-function selectLocaleValue(definition: VariableDefinition, locale: string): ScalarVariableValue {
+function selectLocaleValue(definition: VariableDefinition, locale: string): VariableValue {
   for (const [localeKey, value] of Object.entries(definition.locales ?? {})) {
     if (Intl.getCanonicalLocales(localeKey)[0] === locale) {
       return value;
