@@ -4,7 +4,9 @@ This package contains the normative JSON Schema for Stagehand result documents, 
 
 The schema describes source identity/fingerprint, timing, case counts, effective settings, steps, assertions, diagnostics, accessibility findings, and optional artifacts. It validates structure and formats; it does not produce results, calculate fingerprints, collect/deduplicate scan findings, check cross-field counts, or enforce M6 outcome policy.
 
-The public entry point exports `resultSchemaV1`, the v1 result types, and `validateResult(input)`. The validator returns `{ valid: true }` or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. Invalid JSON values do not throw. Registered formats check UTC date-time and URI fields. Validation does not insert defaults or modify input.
+The public entry point exports `resultSchemaV1`, the v1 result types, `validateResult(input)`, and `redactEvidence(evidence, protectedValues)`. The validator returns `{ valid: true }` or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. Invalid JSON values do not throw. Registered formats check UTC date-time and URI fields. Validation does not insert defaults or modify input.
+
+`redactEvidence` returns a detached copy of JSON-like evidence, replacing every supplied non-empty protected literal in strings with `[REDACTED]`. It covers nested diagnostics, assertion details, URLs, markup, selectors, summaries, tags, related nodes, and raw scan records when a future caller passes those values to it. It does not read environment variables, identify sensitive values itself, or make existing runner histories safe until the protected-value execution slice uses it.
 
 ## Accessibility contract
 

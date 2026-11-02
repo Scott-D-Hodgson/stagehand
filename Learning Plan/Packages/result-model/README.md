@@ -8,6 +8,7 @@ This course teaches the shape of Stagehand's saved run results and the differenc
 - How runtime result validation works.
 - How accessibility evidence is represented.
 - Which outcome and aggregation rules remain outside this package.
+- How the redaction helper prepares evidence sharing without enabling protected execution.
 
 ## Do I need this course?
 
@@ -18,7 +19,7 @@ This course teaches the shape of Stagehand's saved run results and the differenc
 
 ## Current boundary
 
-The package exports the normative result v1 schema, matching TypeScript types, and a runtime validator. It checks document shape and formats. It does not calculate fingerprints, create results, scan pages, or decide case/run outcomes.
+The package exports the normative result v1 schema, matching TypeScript types, a runtime validator, and a pure redaction helper. It checks document shape and formats. The helper redacts supplied values from a detached JSON-like copy; it does not identify secrets or protect runner history on its own. The package does not calculate fingerprints, create results, scan pages, or decide case/run outcomes.
 
 ## Lessons
 
@@ -27,5 +28,6 @@ The package exports the normative result v1 schema, matching TypeScript types, a
 3. [Runtime validation](Lessons/03-runtime-validation.md)
 4. [Accessibility evidence](Lessons/04-accessibility-evidence.md)
 5. [Structure versus execution policy](Lessons/05-policy-boundary.md)
+6. [Redaction foundation](Lessons/06-redaction-foundation.md)
 
 Finish with the [course skill check](quiz.md).

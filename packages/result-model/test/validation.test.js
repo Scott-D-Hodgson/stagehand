@@ -1,7 +1,12 @@
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
-import { resultSchemaV1, validateResult } from "@stagehand/result-model";
+import {
+  REDACTED_EVIDENCE_VALUE,
+  redactEvidence,
+  resultSchemaV1,
+  validateResult,
+} from "@stagehand/result-model";
 
 function readFixture(path) {
   return JSON.parse(readFileSync(new URL(path, import.meta.url), "utf8"));
@@ -14,6 +19,91 @@ function exampleResult() {
 test("exports the result schema and validates the synthetic example publicly", () => {
   assert.equal(resultSchemaV1.$schema, "https://json-schema.org/draft/2020-12/schema");
   assert.deepEqual(validateResult(exampleResult()), { valid: true });
+});
+
+test("redacts protected values from retained result and accessibility evidence without mutating it", () => {
+  const protectedValue = "not-a-real-password";
+  const result = exampleResult();
+  result.run.diagnostics = [{
+    source: "runner",
+    severity: "error",
+    code: "synthetic",
+    message: `Run diagnostic: ${protectedValue}`,
+  }];
+  result.cases[0].steps[1].assertions[0].message = `Assertion: ${protectedValue}`;
+  result.cases[0].accessibilityFindings[0] = {
+    ...result.cases[0].accessibilityFindings[0],
+    url: `https://example.test/${protectedValue}`,
+    description: `Description ${protectedValue}`,
+    help: `Help ${protectedValue}`,
+    helpUrl: `https://example.test/help/${protectedValue}`,
+    tags: [`tag-${protectedValue}`],
+    affectedNodes: [{
+      ...result.cases[0].accessibilityFindings[0].affectedNodes[0],
+      html: `<input value="${protectedValue}">`,
+      target: [`#${protectedValue}`],
+      xpath: [`//*[@id='${protectedValue}']`],
+      failureSummary: `Failure ${protectedValue}`,
+      relatedNodes: [{
+        html: `<label>${protectedValue}</label>`,
+        target: [`label[for='${protectedValue}']`],
+        xpath: [`//*[@for='${protectedValue}']`],
+      }],
+    }],
+  };
+  const original = structuredClone(result);
+  const redacted = redactEvidence(result, [protectedValue]);
+  assert.equal(redacted.run.diagnostics[0].message, `Run diagnostic: ${REDACTED_EVIDENCE_VALUE}`);
+  assert.equal(redacted.cases[0].steps[1].assertions[0].message, `Assertion: ${REDACTED_EVIDENCE_VALUE}`);
+  const finding = redacted.cases[0].accessibilityFindings[0];
+  assert.deepEqual(finding, {
+    ...finding,
+    url: `https://example.test/${REDACTED_EVIDENCE_VALUE}`,
+    description: `Description ${REDACTED_EVIDENCE_VALUE}`,
+    help: `Help ${REDACTED_EVIDENCE_VALUE}`,
+    helpUrl: `https://example.test/help/${REDACTED_EVIDENCE_VALUE}`,
+    tags: [`tag-${REDACTED_EVIDENCE_VALUE}`],
+    affectedNodes: [{
+      ...finding.affectedNodes[0],
+      html: `<input value="${REDACTED_EVIDENCE_VALUE}">`,
+      target: [`#${REDACTED_EVIDENCE_VALUE}`],
+      xpath: [`//*[@id='${REDACTED_EVIDENCE_VALUE}']`],
+      failureSummary: `Failure ${REDACTED_EVIDENCE_VALUE}`,
+      relatedNodes: [{
+        html: `<label>${REDACTED_EVIDENCE_VALUE}</label>`,
+        target: [`label[for='${REDACTED_EVIDENCE_VALUE}']`],
+        xpath: [`//*[@for='${REDACTED_EVIDENCE_VALUE}']`],
+      }],
+    }],
+  });
+  assert.deepEqual(result, original);
+});
+
+test("redacts longer overlapping protected values first and ignores empty values", () => {
+  const evidence = { message: "alpha-secret alpha" };
+  assert.deepEqual(redactEvidence(evidence, ["alpha", "alpha-secret", ""]), {
+    message: `${REDACTED_EVIDENCE_VALUE} ${REDACTED_EVIDENCE_VALUE}`,
+  });
+  assert.deepEqual(evidence, { message: "alpha-secret alpha" });
+});
+
+test("redacts supplied raw scan records without needing to understand their shape", () => {
+  const protectedValue = "not-a-real-token";
+  const scanRecord = {
+    url: `https://example.test/${protectedValue}`,
+    violations: [{
+      nodes: [{
+        html: `<input value="${protectedValue}">`,
+        target: [`#${protectedValue}`],
+        any: [{ relatedNodes: [{ html: `<label>${protectedValue}</label>` }] }],
+      }],
+    }],
+  };
+  const redacted = redactEvidence(scanRecord, [protectedValue]);
+  assert.equal(redacted.url, `https://example.test/${REDACTED_EVIDENCE_VALUE}`);
+  assert.equal(redacted.violations[0].nodes[0].html, `<input value="${REDACTED_EVIDENCE_VALUE}">`);
+  assert.equal(redacted.violations[0].nodes[0].any[0].relatedNodes[0].html, `<label>${REDACTED_EVIDENCE_VALUE}</label>`);
+  assert.deepEqual(scanRecord.violations[0].nodes[0].target, [`#${protectedValue}`]);
 });
 
 test("returns a schema issue for an unsupported result version", () => {
