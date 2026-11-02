@@ -9,7 +9,8 @@ Use the package source and tests when needed. Answer in your own words.
 5. A case definition overrides a plan definition but omits its `fr-CA` value. Is the plan's `fr-CA` value merged in?
 6. How does a case choose a data set, and what remains unimplemented afterward?
 7. Why must one shared-step group not call another?
-8. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
+8. What identity should an expanded shared step retain?
+9. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
 
 ## Answer key
 
@@ -20,4 +21,5 @@ Use the package source and tests when needed. Answer in your own words.
 5. No. The narrower definition replaces the complete broader definition, then falls back to its own default.
 6. `selectCaseDataSet` uses an explicit per-case name when supplied, otherwise the case default; the selected definitions sit below step variables and above case/plan definitions. Runner hand-off and runtime application remain future work.
 7. One-level calls prevent recursion and keep later expansion, variable context, and traceability understandable.
-8. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.
+8. Its calling case-step index plus the shared group ID/index and inner-step index.
+9. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.

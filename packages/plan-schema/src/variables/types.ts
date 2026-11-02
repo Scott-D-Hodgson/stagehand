@@ -60,6 +60,49 @@ export interface PrepareCaseOptions {
   dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
 }
 
+export interface SharedStepGroup {
+  id: string;
+  steps: readonly Readonly<Record<string, unknown>>[];
+}
+
+export interface ExpandedCaseStep {
+  caseStepIndex: number;
+  sharedStepGroupId?: string;
+  sharedStepGroupIndex?: number;
+  sharedStepIndex?: number;
+  step: Record<string, unknown>;
+}
+
+export interface ExpandCaseSharedStepsOptions {
+  case: Readonly<Record<string, unknown>>;
+  sharedStepGroups: readonly SharedStepGroup[];
+}
+
+export type ExpandCaseSharedStepsResult =
+  | { expanded: true; steps: ExpandedCaseStep[] }
+  | {
+      expanded: false;
+      path: string;
+      reason: "invalidCaseSteps" | "nestedSharedStepCall" | "unknownSharedStepGroup";
+      message: string;
+    };
+
+export interface PrepareCaseSharedStepsOptions extends ExpandCaseSharedStepsOptions {
+  locale: string;
+  planVariables?: Readonly<Record<string, VariableDefinition>>;
+  dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
+}
+
+export type PrepareCaseSharedStepsResult =
+  | { prepared: true; case: Record<string, unknown>; steps: ExpandedCaseStep[] }
+  | {
+      prepared: false;
+      path: string;
+      reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownSharedStepGroup";
+      message: string;
+      issues?: ValidationIssue[];
+    };
+
 export type PrepareCaseResult =
   | { prepared: true; case: Record<string, unknown> }
   | {
