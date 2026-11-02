@@ -13,6 +13,7 @@ import { executeClick } from "../actions/interactions/click.js";
 import { executeType } from "../actions/interactions/type.js";
 import { executeFill } from "../actions/interactions/fill.js";
 import { executeSelectOption } from "../actions/interactions/select-option.js";
+import { redactEvidence } from "@stagehand/result-model";
 import type { StepExecutionIdentity } from "./case.js";
 import type { ExecutableStep, SoftAssertionFailure } from "./types.js";
 
@@ -42,6 +43,18 @@ export class StepExecutionError extends Error {
   }
 }
 
+function redactCause(cause: unknown, protectedValues: readonly string[]): unknown {
+  if (protectedValues.length === 0) {
+    return cause;
+  }
+  const detail = cause instanceof Error ? cause.message : String(cause);
+  const redacted = new Error(redactEvidence(detail, protectedValues));
+  if (cause instanceof Error) {
+    redacted.name = cause.name;
+  }
+  return redacted;
+}
+
 export async function executeCaseSteps(
   page: Page,
   caseId: string,
@@ -49,6 +62,7 @@ export async function executeCaseSteps(
   locale: string,
   afterStep: (stepIndex: number) => Promise<void>,
   stepIdentities?: readonly StepExecutionIdentity[],
+  protectedValues: readonly string[] = [],
 ): Promise<SoftAssertionFailure[]> {
   if (!Array.isArray(steps)) {
     throw new TypeError("Case steps must be an array.");
@@ -125,7 +139,7 @@ export async function executeCaseSteps(
                 error instanceof errors.TimeoutError)
             ) {
               const expectedText = resolveExpectedValue(step.expected, locale);
-              softFailures.push({
+              softFailures.push(redactEvidence({
                 caseId,
                 stepIndex,
                 action: step.action,
@@ -135,7 +149,7 @@ export async function executeCaseSteps(
                 expected: expectedText,
                 ...(error instanceof StringAssertionMismatchError ? { actual: error.actual } : {}),
                 message: error.message,
-              });
+              }, protectedValues));
             } else {
               throw error;
             }
@@ -143,7 +157,7 @@ export async function executeCaseSteps(
           if (step.action === "assertValue" && step.associatedLabel !== undefined) {
             const failure = await checkAssociatedLabel(page, step.locator, step.associatedLabel, locale, deadline);
             if (failure) {
-              softFailures.push({
+              softFailures.push(redactEvidence({
                 caseId,
                 stepIndex,
                 action: step.action,
@@ -152,7 +166,7 @@ export async function executeCaseSteps(
                 ...(identity?.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: identity.sharedStepGroupId }),
                 ...(identity?.sharedStepIndex === undefined ? {} : { sharedStepIndex: identity.sharedStepIndex }),
                 ...failure,
-              });
+              }, protectedValues));
             }
           }
           break;
@@ -170,15 +184,15 @@ export async function executeCaseSteps(
         try {
           await afterStep(stepIndex);
         } catch (scanError) {
-          throw new StepExecutionError(caseId, stepIndex, String(action), new AggregateError([error, scanError], "Assertion and accessibility scan failed."), identity);
+          throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(new AggregateError([error, scanError], "Assertion and accessibility scan failed."), protectedValues), identity);
         }
       }
-      throw new StepExecutionError(caseId, stepIndex, String(action), error, identity);
+      throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
     }
     try {
       await afterStep(stepIndex);
     } catch (error) {
-      throw new StepExecutionError(caseId, stepIndex, String(action), error, identity);
+      throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
     }
   }
   return softFailures;

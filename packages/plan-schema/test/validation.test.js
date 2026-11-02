@@ -635,6 +635,26 @@ test("keeps selected protected values unresolved during preparation", () => {
     message: "Protected environment variable \"TEST_PASSWORD_FR\" must be resolved before preparing execution values.",
     environmentVariable: "TEST_PASSWORD_FR",
   });
+  assert.deepEqual(prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "protected-variable-case",
+      steps: [{ action: "fill", locator: { css: "#password" }, value: { var: "password" } }],
+    },
+    locale: "fr-CA",
+    environment: { TEST_PASSWORD_FR: "not-a-real-password" },
+    dataSetVariables: {
+      password: { default: { env: "TEST_PASSWORD" }, locales: { "fr-CA": { env: "TEST_PASSWORD_FR" } } },
+    },
+  }), {
+    prepared: true,
+    case: {
+      schemaVersion: 1,
+      id: "protected-variable-case",
+      steps: [{ action: "fill", locator: { css: "#password" }, value: "not-a-real-password" }],
+    },
+    protectedValues: ["not-a-real-password"],
+  });
 });
 
 test("resolves only the selected protected environment value from a supplied map", () => {

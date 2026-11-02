@@ -115,11 +115,13 @@ export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): 
   }
   const caseVariables = getCaseVariables(options.case);
   const steps: ExpandedCaseStep[] = [];
+  const protectedValues: string[] = [];
   for (const expandedStep of expanded.steps) {
     const result = prepareCaseStep({
       step: expandedStep.step,
       stepIndex: expandedStep.sharedStepIndex ?? expandedStep.caseStepIndex,
       locale: options.locale,
+      ...(options.environment === undefined ? {} : { environment: options.environment }),
       ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
       ...(caseVariables === undefined ? {} : { caseVariables }),
       ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
@@ -137,12 +139,13 @@ export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): 
       };
     }
     steps.push({ ...expandedStep, step: result.step });
+    protectedValues.push(...(result.protectedValues ?? []));
   }
   const caseFile: Record<string, unknown> = structuredClone(options.case);
   caseFile.steps = steps.map((expandedStep) => expandedStep.step);
   const validation = validateCase(caseFile);
   return validation.valid
-    ? { prepared: true, case: caseFile, steps }
+    ? { prepared: true, case: caseFile, steps, ...(protectedValues.length === 0 ? {} : { protectedValues: [...new Set(protectedValues)] }) }
     : {
         prepared: false,
         path: "/",

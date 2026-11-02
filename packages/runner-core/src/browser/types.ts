@@ -86,6 +86,7 @@ export interface CaseBrowserSession {
     caseId: string,
     steps: readonly ExecutableStep[],
     stepIdentities?: readonly StepExecutionIdentity[],
+    protectedValues?: readonly string[],
   ): Promise<SoftAssertionFailure[]>;
   executeCase(options: CaseExecutionOptions): Promise<SoftAssertionFailure[]>;
   close(): Promise<void>;

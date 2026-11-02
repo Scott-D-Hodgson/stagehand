@@ -59,18 +59,20 @@ export interface PrepareCaseStepOptions {
   step: Readonly<Record<string, unknown>>;
   stepIndex: number;
   locale: string;
+  environment?: Readonly<Record<string, string | undefined>>;
   planVariables?: Readonly<Record<string, VariableDefinition>>;
   caseVariables?: Readonly<Record<string, VariableDefinition>>;
   dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
 }
 
 export type PrepareCaseStepResult =
-  | { prepared: true; step: Record<string, unknown> }
+  | { prepared: true; step: Record<string, unknown>; protectedValues?: string[] }
   | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 export interface PrepareCaseOptions {
   case: Readonly<Record<string, unknown>>;
   locale: string;
+  environment?: Readonly<Record<string, string | undefined>>;
   planVariables?: Readonly<Record<string, VariableDefinition>>;
   dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
 }
@@ -104,12 +106,13 @@ export type ExpandCaseSharedStepsResult =
 
 export interface PrepareCaseSharedStepsOptions extends ExpandCaseSharedStepsOptions {
   locale: string;
+  environment?: Readonly<Record<string, string | undefined>>;
   planVariables?: Readonly<Record<string, VariableDefinition>>;
   dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
 }
 
 export type PrepareCaseSharedStepsResult =
-  | { prepared: true; case: Record<string, unknown>; steps: ExpandedCaseStep[] }
+  | { prepared: true; case: Record<string, unknown>; steps: ExpandedCaseStep[]; protectedValues?: string[] }
   | {
       prepared: false;
       path: string;
@@ -123,7 +126,7 @@ export type PrepareCaseSharedStepsResult =
     };
 
 export type PrepareCaseResult =
-  | { prepared: true; case: Record<string, unknown> }
+  | { prepared: true; case: Record<string, unknown>; protectedValues?: string[] }
   | {
       prepared: false;
       path: string;

@@ -21,7 +21,7 @@ Implement fixed localized input definitions, scope/data-set selection, effective
 
 ## Current gap and sequencing
 
-`result-model` now provides a pure `redactEvidence` helper for detached JSON-like evidence, and plan-schema can look up an already-selected protected name from a caller-supplied map. Runner-core still exposes original raw scan results and does not use either helper. Pure schema/resolver slices must not be described as enabling safe secret execution. Integrate and verify the helpers at the retained-output boundary before enabling protected preflight and execution. Necessary raw values stay private to execution.
+`result-model` provides a pure `redactEvidence` helper, plan-schema can look up an already-selected protected name from a caller-supplied map, and protected `executeCase` calls redact returned soft failures plus retained accessibility findings/scan history. Direct scan calls and general runner APIs are not a secret-safe boundary. Do not describe this as direct process-environment support or complete protected execution; integrate and verify remaining retained-output paths before broadening the API.
 
 ## Implementation approach
 

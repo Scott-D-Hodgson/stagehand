@@ -2,11 +2,11 @@
 
 > “How are case inputs and shared steps prepared before the first step is dispatched?” — Casey “Case Composer” Cole, Developer
 
-`executeCase({ case, planVariables?, dataSets?, selectedDataSet?, sharedStepGroups? })` asks `plan-schema` to select a case default or explicit per-case data set, expand `callSharedSteps` markers, then prepare detached steps using the run locale. Supported `{ "var": "name" }` references are replaced, and numbers/booleans become text for text destinations. The selected definitions sit below step variables but above same-named case and plan definitions.
+`executeCase({ case, planVariables?, dataSets?, selectedDataSet?, sharedStepGroups?, environment? })` asks `plan-schema` to select a case default or explicit per-case data set, expand `callSharedSteps` markers, then prepare detached steps using the run locale. Supported `{ "var": "name" }` references are replaced, and numbers/booleans become text for text destinations. The selected definitions sit below step variables but above same-named case and plan definitions. A caller-supplied `environment` map resolves only effective protected `{ "env": "NAME" }` values; it is not `process.env`.
 
-Preparation covers the whole case before dispatch starts. A `CasePreparationError` retains the case ID, source path, reason, message, and shared-step identity when applicable; no step from that call is dispatched. A runtime `StepExecutionError` retains the same shared-step identity.
+Preparation covers the whole case before dispatch starts. A `CasePreparationError` retains the case ID, source path, reason, message, and shared-step identity when applicable; no step from that call is dispatched. A runtime `StepExecutionError` retains the same shared-step identity. When protected values are used, soft assertion failures and retained accessibility evidence are redacted, and hard execution errors use a redacted cause.
 
-This is a case-session boundary. Chromium and the session already exist, so full pre-browser-startup orchestration remains future work. Protected environment values are not integrated.
+This is a case-session boundary. Chromium and the session already exist, so full pre-browser-startup orchestration remains future work. Direct process-environment access and CLI support are not integrated.
 
 ## Try it
 
