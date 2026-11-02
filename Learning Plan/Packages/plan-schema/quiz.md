@@ -11,7 +11,8 @@ Use the package source and tests when needed. Answer in your own words.
 7. Why must one shared-step group not call another?
 8. What identity should an expanded shared step retain?
 9. What happens when preparation selects `{ "env": "TEST_PASSWORD" }`?
-10. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
+10. How does `resolveProtectedEnvironmentValue` treat an empty value and an inherited-only name?
+11. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
 
 ## Answer key
 
@@ -24,4 +25,5 @@ Use the package source and tests when needed. Answer in your own words.
 7. One-level calls prevent recursion and keep later expansion, variable context, and traceability understandable.
 8. Its calling case-step index plus the shared group ID/index and inner-step index.
 9. The schema accepts it only for a text definition. `resolveVariable` preserves the marker, while preparation stops with `unresolvedProtectedValue`; it does not read the environment or dispatch a browser step.
-10. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.
+10. An own empty value is supplied. An inherited-only name is missing, so the helper never reads a value from the prototype.
+11. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.

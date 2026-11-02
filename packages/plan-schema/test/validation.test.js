@@ -9,6 +9,7 @@ import {
   prepareCase,
   prepareCaseSharedSteps,
   prepareCaseStep,
+  resolveProtectedEnvironmentValue,
   resolveVariable,
   selectCaseDataSet,
   validateCase,
@@ -633,6 +634,49 @@ test("keeps selected protected values unresolved during preparation", () => {
     reason: "unresolvedProtectedValue",
     message: "Protected environment variable \"TEST_PASSWORD_FR\" must be resolved before preparing execution values.",
     environmentVariable: "TEST_PASSWORD_FR",
+  });
+});
+
+test("resolves only the selected protected environment value from a supplied map", () => {
+  const environment = Object.create({ INHERITED_VALUE: "must-not-be-used" });
+  Object.defineProperty(environment, "UNSELECTED_VALUE", {
+    get() { throw new Error("An unselected environment value must not be read."); },
+  });
+  environment.TEST_PASSWORD = "not-a-real-password";
+  environment.TEST_EMPTY = "";
+  assert.deepEqual(resolveProtectedEnvironmentValue({
+    value: { env: "TEST_PASSWORD" },
+    environment,
+  }), {
+    resolved: true,
+    value: "not-a-real-password",
+    environmentVariable: "TEST_PASSWORD",
+  });
+  assert.deepEqual(resolveProtectedEnvironmentValue({
+    value: { env: "TEST_EMPTY" },
+    environment,
+  }), {
+    resolved: true,
+    value: "",
+    environmentVariable: "TEST_EMPTY",
+  });
+  assert.deepEqual(resolveProtectedEnvironmentValue({
+    value: { env: "MISSING_VALUE" },
+    environment,
+  }), {
+    resolved: false,
+    reason: "missingEnvironmentVariable",
+    environmentVariable: "MISSING_VALUE",
+    message: "Required environment variable \"MISSING_VALUE\" is not available.",
+  });
+  assert.deepEqual(resolveProtectedEnvironmentValue({
+    value: { env: "INHERITED_VALUE" },
+    environment,
+  }), {
+    resolved: false,
+    reason: "missingEnvironmentVariable",
+    environmentVariable: "INHERITED_VALUE",
+    message: "Required environment variable \"INHERITED_VALUE\" is not available.",
   });
 });
 
