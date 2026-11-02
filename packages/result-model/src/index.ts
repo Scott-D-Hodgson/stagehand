@@ -2,6 +2,8 @@ import resultSchema from "./result-v1.schema.json" with { type: "json" };
 import { Ajv2020, type AnySchema, type ErrorObject } from "ajv/dist/2020.js";
 import * as ajvFormats from "ajv-formats";
 
+export { REDACTED_EVIDENCE_VALUE, redactEvidence } from "./redaction.js";
+
 export type ResultOutcome = "passed" | "failed" | "cancelled" | "error";
 
 export interface ResultFingerprint {

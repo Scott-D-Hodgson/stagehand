@@ -21,8 +21,8 @@ Implement fixed localized input definitions, scope/data-set selection, effective
 
 ## Current gap and sequencing
 
-Current runner-core exposes original raw scan results and does not implement this redaction contract. Pure schema/resolver slices must not be described as enabling safe secret execution. Implement and verify evidence projection before integrating protected preflight and retained output. Necessary raw values stay private to execution.
+`result-model` now provides a pure `redactEvidence` helper for detached JSON-like evidence, but runner-core still exposes original raw scan results and does not use it. Pure schema/resolver slices must not be described as enabling safe secret execution. Integrate and verify the helper at the retained-output boundary before enabling protected preflight and execution. Necessary raw values stay private to execution.
 
 ## Implementation approach
 
-Keep the v1 contracts while M5 is in progress. Variable definitions and references in the agreed fields, ordinary resolution, pure per-case data-set selection, and case-session runner hand-off are implemented. Next build shared steps, then protected values in focused PRs. Full orchestration must still move effective preflight ahead of browser startup. Define only the details needed by the active slice and record its tests and remaining limits.
+Keep the v1 contracts while M5 is in progress. Variable definitions/references, ordinary resolution, pure per-case data-set selection, case-session runner hand-off, shared-step execution, and the pure evidence-redaction foundation are implemented. Next integrate protected environment-value preflight and the retained-output boundary in focused PRs. Full orchestration must still move effective preflight ahead of browser startup. Define only the details needed by the active slice and record its tests and remaining limits.
