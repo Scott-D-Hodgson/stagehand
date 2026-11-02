@@ -5,7 +5,7 @@
 3. Where do `before` and `after` waits run around an interaction?
 4. How do `type` and `fill` differ?
 5. Can one `assertValue` step return two soft failures?
-6. What information does `StepExecutionError` preserve?
+6. What additional location information is retained when an expanded shared step fails?
 7. Why does a later missing variable or an unknown selected data set prevent an earlier case step from running through `executeCase`?
 8. Does `completed` accessibility scanning mean the page passed?
 9. What is the difference between mapping and collecting accessibility findings?
@@ -19,7 +19,7 @@
 3. Before waits finish first, then the interaction runs, then after waits finish.
 4. `type` enters characters sequentially; `fill` sets the field value directly.
 5. Yes: a soft value mismatch and an associated-label failure can share one step index.
-6. Case ID, zero-based step index, action, and original cause.
+6. `StepExecutionError` retains the case ID, zero-based expanded-step index, action, original cause, calling case-step index, shared-group ID, and inner-step index. Soft assertion failures retain the same shared-step location information.
 7. The complete detached case is prepared before any step is dispatched.
 8. No. It only means axe analysis resolved; violations and incomplete observations may remain.
 9. Mapping transforms one trusted raw result without state; collection accumulates mapped findings for a caller-owned case history.

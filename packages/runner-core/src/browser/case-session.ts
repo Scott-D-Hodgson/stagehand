@@ -91,7 +91,7 @@ export function createCaseBrowserSession(
     async navigate(url, options = {}) {
       return executeNavigation(page, url, options);
     },
-    async executeSteps(caseId, steps) {
+    async executeSteps(caseId, steps, stepIdentities) {
       return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA", async (stepIndex) => {
         if (!session.accessibility.enabled || page.isClosed()) {
           return;
@@ -101,11 +101,11 @@ export function createCaseBrowserSession(
           scans.push({ caseId, stepIndex, results: outcome.results });
           collector.add(outcome.results);
         }
-      });
+      }, stepIdentities);
     },
     async executeCase(options) {
       const prepared = prepareCaseForExecution(options, settings.locale ?? "en-CA");
-      return session.executeSteps(prepared.caseId, prepared.steps);
+      return session.executeSteps(prepared.caseId, prepared.steps, prepared.stepIdentities);
     },
     close() {
       if (sessionClosePromise) {

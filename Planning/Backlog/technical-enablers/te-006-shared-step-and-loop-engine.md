@@ -17,4 +17,4 @@ Implement one-level reusable step groups using the calling case's variable conte
 
 ## Notes
 
-The shared-step document contract, pure expansion, and preflight are implemented: plans may declare stable group IDs and cases may call them; duplicate IDs, unknown calls, nested calls, and private group-step variables are rejected. Expanded steps retain call-site and inner-step identity, and resolve values through the calling case/data-set context. Runner execution and traceable results remain separate workstreams.
+The shared-step document contract, pure expansion/preflight, and case-session execution are implemented: plans may declare stable group IDs and cases may call them; duplicate IDs, unknown calls, nested calls, and private group-step variables are rejected. Expanded steps retain call-site and inner-step identity, resolve values through the calling case/data-set context, and dispatch in order. Preparation errors, hard step errors, and soft assertion failures retain that identity. Result aggregation/serialization and protected-value handling remain separate workstreams.
