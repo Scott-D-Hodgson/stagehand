@@ -6,7 +6,7 @@ This course teaches how Stagehand describes valid plan and case documents, check
 
 - What a Stagehand document contract promises.
 - How single-document, reference, and bundle validation differ.
-- How variables and named data sets are represented and checked.
+- How variables and named data sets are represented, selected, and prepared.
 - What this package deliberately leaves to file loading and browser execution.
 
 ## Do I need this course?
@@ -20,7 +20,7 @@ If you checked any item, this course is relevant.
 
 ## Current boundary
 
-The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary variables, and named data-set structure. It can prepare ordinary variable references. It does not read files, select data sets, resolve protected environment values, or start a browser. The focused suite currently has 59 passing tests in the development container.
+The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary variables, and named data-set structure. It can select a case default or explicit data set from a supplied bundle collection, then prepare variable references using those selected definitions. It does not read files, hand selections to the runner, resolve protected environment values, or start a browser. The focused suite passes 62 tests in the development container with no failures or skips.
 
 ## Lessons
 

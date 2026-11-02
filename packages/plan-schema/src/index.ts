@@ -9,6 +9,7 @@ export type {
   CaseReferenceMatchResult,
 } from "./references/types.js";
 export { resolveVariable } from "./variables/resolve.js";
+export { selectCaseDataSet } from "./variables/data-set.js";
 export { prepareCase, prepareCaseStep } from "./variables/prepare.js";
 export type {
   PrepareCaseOptions,
@@ -17,6 +18,9 @@ export type {
   PrepareCaseStepResult,
   ResolveVariableOptions,
   ScalarVariableValue,
+  NamedDataSet,
+  SelectCaseDataSetOptions,
+  SelectCaseDataSetResult,
   VariableDefinition,
   VariableResolutionResult,
 } from "./variables/types.js";

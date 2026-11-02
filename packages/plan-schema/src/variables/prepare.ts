@@ -32,6 +32,7 @@ function prepareTextValue(
     ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
     ...(options.caseVariables === undefined ? {} : { caseVariables: options.caseVariables }),
     ...(stepVariables === undefined ? {} : { stepVariables }),
+    ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
   });
   return result.resolved
     ? { prepared: true, value: String(result.value) }
@@ -140,6 +141,7 @@ export function prepareCase(options: PrepareCaseOptions): PrepareCaseResult {
       locale: options.locale,
       ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
       ...(caseVariables === undefined ? {} : { caseVariables }),
+      ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
     });
     if (!result.prepared) {
       return result;
