@@ -350,6 +350,55 @@ test("rejects invalid and duplicate named case data sets", () => {
   assert.ok(duplicate.issues.some((issue) => issue.path === "/dataSets/1/name" && issue.keyword === "duplicateDataSetName"));
 });
 
+test("accepts stable shared-step group IDs and ordinary case calls", () => {
+  const plan = readFixture("../examples/shared-step-plan.json");
+  const caseFile = readFixture("../examples/cases/shared-step-call.json");
+  assert.deepEqual(validatePlan(plan), { valid: true });
+  assert.deepEqual(validateCase(caseFile), { valid: true });
+  assert.deepEqual(validatePlanBundle(plan, [caseFile]), { valid: true });
+});
+
+test("rejects duplicate or private shared-step group definitions", () => {
+  const duplicate = validatePlan({
+    ...planWithReferences(),
+    sharedStepGroups: [
+      { id: "sign-in", steps: [] },
+      { id: "sign-in", steps: [] },
+    ],
+  });
+  assert.equal(duplicate.valid, false);
+  assert.ok(duplicate.issues.some((issue) => issue.path === "/sharedStepGroups/1/id" && issue.keyword === "duplicateSharedStepGroupId"));
+  const privateVariables = validatePlan({
+    ...planWithReferences(),
+    sharedStepGroups: [{
+      id: "sign-in",
+      steps: [{ action: "type", variables: { email: { default: "private@example.test" } } }],
+    }],
+  });
+  assert.equal(privateVariables.valid, false);
+  assert.ok(privateVariables.issues.some((issue) => issue.path === "/sharedStepGroups/0/steps/0/variables" && issue.keyword === "sharedStepVariables"));
+});
+
+test("rejects unknown and nested shared-step group calls", () => {
+  const nested = validatePlan({
+    ...planWithReferences(),
+    sharedStepGroups: [{
+      id: "sign-in",
+      steps: [{ action: "callSharedSteps", id: "another-group" }],
+    }],
+  });
+  assert.equal(nested.valid, false);
+  assert.ok(nested.issues.some((issue) => issue.path === "/sharedStepGroups/0/steps/0/action" && issue.keyword === "nestedSharedStepCall"));
+  const plan = { ...planWithReferences("cases/sign-in.json"), sharedStepGroups: [{ id: "sign-in", steps: [] }] };
+  const unknown = validatePlanBundle(plan, [{
+    schemaVersion: 1,
+    id: "sign-in-case",
+    steps: [{ action: "callSharedSteps", id: "missing" }],
+  }]);
+  assert.equal(unknown.valid, false);
+  assert.ok(unknown.issues.some((issue) => issue.path === "/caseFiles/0/steps/0/id" && issue.keyword === "unknownSharedStepGroup"));
+});
+
 test("selects a case default or explicit named data set without changing the case", () => {
   const dataSets = [
     { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } }, note: { default: "" } } },

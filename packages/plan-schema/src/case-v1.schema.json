@@ -25,7 +25,8 @@
           { "$ref": "#/$defs/selectOptionStep" },
           { "$ref": "#/$defs/assertTextStep" },
           { "$ref": "#/$defs/assertHtmlStep" },
-          { "$ref": "#/$defs/assertValueStep" }
+          { "$ref": "#/$defs/assertValueStep" },
+          { "$ref": "#/$defs/sharedStepGroupCall" }
         ]
       }
     }
@@ -168,6 +169,15 @@
       "required": ["var"],
       "properties": {
         "var": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sharedStepGroupCall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["action", "id"],
+      "properties": {
+        "action": { "const": "callSharedSteps" },
+        "id": { "type": "string", "minLength": 1 }
       }
     },
     "textOrVariableReference": {

@@ -2,7 +2,7 @@
 
 **Status:** Proposed  
 **Priority:** Must  
-**Related stories:** ATR-015; ATR-018 is deferred beyond MVP
+**Related stories:** [ATR-015](../epics/E02-execution-engine/stories/ATR-015.md); [ATR-018](../epics/E02-execution-engine/stories/ATR-018.md) is deferred beyond MVP
 
 ## Objective
 
@@ -17,4 +17,4 @@ Implement one-level reusable step groups using the calling case's variable conte
 
 ## Notes
 
-Refine this enabler into smaller tasks if implementation reveals independent workstreams.
+The shared-step document contract is implemented: plans may declare stable group IDs and cases may call them; duplicate IDs, unknown calls, nested calls, and private group-step variables are rejected. Expansion, preparation, execution, and traceable results remain separate workstreams.
