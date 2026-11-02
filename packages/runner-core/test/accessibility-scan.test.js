@@ -59,6 +59,31 @@ test("returns raw violations and incomplete observations without applying failur
   }
 });
 
+test("redacts protected values from direct scan results without changing axe output", async () => {
+  const secret = "not-a-real-password";
+  const results = {
+    ...observations(),
+    url: `https://example.test/form?password=${secret}`,
+    violations: [{
+      id: "synthetic-rule",
+      tags: ["wcag2a"],
+      nodes: [{ html: `<input value=\"${secret}\">`, failureSummary: `Found ${secret}` }],
+    }],
+  };
+  mock.method(AxeBuilder.prototype, "analyze", async () => results);
+  const { run, session } = await createSession({}, { accessibility: { enabled: true } });
+  try {
+    const outcome = await session.scanAccessibility([secret]);
+    assert.equal(outcome.status, "completed");
+    assert.equal(outcome.results.url, "https://example.test/form?password=[REDACTED]");
+    assert.equal(outcome.results.violations[0].nodes[0].html, '<input value="[REDACTED]">');
+    assert.equal(outcome.results.violations[0].nodes[0].failureSummary, "Found [REDACTED]");
+    assert.equal(results.url, `https://example.test/form?password=${secret}`);
+  } finally {
+    await run.close();
+  }
+});
+
 for (const tags of [["wcag2a"], ["wcag2a", "wcag2aa"]]) {
   test(`applies ${tags.length} selected tags before analysis using a copied list`, async () => {
     const events = [];
@@ -166,6 +191,26 @@ test("wraps analysis rejections with their original cause instead of returning a
         return true;
       });
     }
+  } finally {
+    await run.close();
+  }
+});
+
+test("redacts protected values from direct scan errors", async () => {
+  const secret = "not-a-real-password";
+  const cause = new Error(`Axe saw ${secret}`);
+  mock.method(AxeBuilder.prototype, "analyze", async () => { throw cause; });
+  const { run, session } = await createSession({}, { accessibility: { enabled: true } });
+  try {
+    await assert.rejects(session.scanAccessibility([secret]), (error) => {
+      assert.ok(error instanceof AccessibilityScanError);
+      assert.match(error.message, /\[REDACTED\]/);
+      assert.doesNotMatch(error.message, new RegExp(secret));
+      assert.ok(error.cause instanceof Error);
+      assert.equal(error.cause.message, "Axe saw [REDACTED]");
+      assert.notEqual(error.cause, cause);
+      return true;
+    });
   } finally {
     await run.close();
   }

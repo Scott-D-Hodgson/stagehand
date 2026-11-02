@@ -14,7 +14,6 @@ import { executeCaseSteps } from "../steps/execute.js";
 import { prepareCaseForExecution } from "../steps/case.js";
 import { createAccessibilityFindingCollector } from "../accessibility/collection.js";
 import { scanAccessibility } from "../accessibility/scan.js";
-import { redactEvidence } from "@stagehand/result-model";
 
 export function createCaseBrowserSession(
   createdContext: BrowserContext,
@@ -30,8 +29,8 @@ export function createCaseBrowserSession(
     context: createdContext,
     page,
     accessibility,
-    async scanAccessibility() {
-      return scanAccessibility(page, session.accessibility);
+    async scanAccessibility(protectedValues = []) {
+      return scanAccessibility(page, session.accessibility, protectedValues);
     },
     getAccessibilityFindings() {
       return collector.getFindings();
@@ -97,11 +96,10 @@ export function createCaseBrowserSession(
         if (!session.accessibility.enabled || page.isClosed()) {
           return;
         }
-        const outcome = await session.scanAccessibility();
+        const outcome = await session.scanAccessibility(protectedValues);
         if (outcome.status === "completed") {
-          const results = redactEvidence(outcome.results, protectedValues);
-          scans.push({ caseId, stepIndex, results });
-          collector.add(results);
+          scans.push({ caseId, stepIndex, results: outcome.results });
+          collector.add(outcome.results);
         }
       }, stepIdentities, protectedValues);
     },

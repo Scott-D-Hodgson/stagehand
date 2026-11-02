@@ -25,5 +25,5 @@
 8. No. It only means axe analysis resolved; violations and incomplete observations may remain.
 9. Mapping transforms one trusted raw result without state; collection accumulates mapped findings for a caller-owned case history.
 10. No. The suite uses doubles; successful real-browser assessments remain deferred.
-11. The caller supplies an environment map; `executeCase` does not read `process.env`. It redacts returned soft failures and retained automatic accessibility findings and scan history. Direct scans remain outside that boundary.
+11. The caller supplies an environment map; `executeCase` does not read `process.env`. It redacts returned soft failures and retained automatic accessibility findings and scan history. A direct scan can redact when its caller explicitly supplies protected values.
 12. A strong answer traces before waits, click, after waits, awaited scan/mapping/collection, and only then the next step, including failure points.

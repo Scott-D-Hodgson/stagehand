@@ -21,7 +21,7 @@ Implement fixed localized input definitions, scope/data-set selection, effective
 
 ## Current gap and sequencing
 
-`result-model` provides a pure `redactEvidence` helper, plan-schema can look up an already-selected protected name from a caller-supplied map, and protected `executeCase` calls redact returned soft failures plus retained accessibility findings/scan history. Direct scan calls and general runner APIs are not a secret-safe boundary. Do not describe this as direct process-environment support or complete protected execution; integrate and verify remaining retained-output paths before broadening the API.
+`result-model` provides a pure `redactEvidence` helper, plan-schema can look up an already-selected protected name from a caller-supplied map, and protected `executeCase` calls redact returned soft failures plus retained accessibility findings/scan history. A direct scan can redact values explicitly supplied by its caller. General runner APIs remain not secret-safe by default. Do not describe this as direct process-environment support or complete protected execution; integrate and verify remaining retained-output paths before broadening the API.
 
 ## Implementation approach
 
