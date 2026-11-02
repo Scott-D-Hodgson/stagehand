@@ -6,7 +6,7 @@ This course teaches how Stagehand controls a browser session, executes validated
 
 - How one browser run manages isolated case sessions and cleanup.
 - How locators, waits, actions, assertions, and step dispatch work together.
-- How ordinary variables are prepared before case-step dispatch.
+- How variables and selected data sets are prepared before case-step dispatch.
 - How accessibility settings, scans, mapping, and collection remain separate responsibilities.
 
 ## Do I need this course?
@@ -18,7 +18,7 @@ This course teaches how Stagehand controls a browser session, executes validated
 
 ## Current boundary
 
-Runner-core manages Playwright Chromium, isolated case sessions, the current action/assertion vocabulary, automatic eligible-step scans, finding mapping/collection, and ordinary case preparation before dispatch. Full plan orchestration, result production, protected-value safety, and M6 outcome policy remain future work. The current mocked-browser suite has 134 passing tests in the development container. Actual Chromium/axe assessment tests remain deferred until Stagehand has a project-owned test site.
+Runner-core manages Playwright Chromium, isolated case sessions, the current action/assertion vocabulary, automatic eligible-step scans, finding mapping/collection, and case preparation with optional selected data sets before dispatch. Full plan orchestration, result production, protected-value safety, and M6 outcome policy remain future work. The mocked-browser suite passes 137 tests in the development container with no failures or skips. Actual Chromium/axe assessment tests remain deferred until Stagehand has a project-owned test site.
 
 ## Lessons
 

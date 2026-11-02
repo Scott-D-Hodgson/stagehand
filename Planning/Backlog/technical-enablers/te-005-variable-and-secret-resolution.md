@@ -25,4 +25,4 @@ Current runner-core exposes original raw scan results and does not implement thi
 
 ## Implementation approach
 
-Keep the v1 contracts while M5 is in progress. Variable definitions and references in the agreed fields, ordinary resolution, and pure per-case data-set selection are implemented. Next hand the selected definitions to the runner, then build shared steps and protected values in focused PRs. Define only the details needed by the active slice and record its tests and remaining limits.
+Keep the v1 contracts while M5 is in progress. Variable definitions and references in the agreed fields, ordinary resolution, pure per-case data-set selection, and case-session runner hand-off are implemented. Next build shared steps, then protected values in focused PRs. Full orchestration must still move effective preflight ahead of browser startup. Define only the details needed by the active slice and record its tests and remaining limits.
