@@ -11,7 +11,8 @@
 9. What is the difference between mapping and collecting accessibility findings?
 10. Do 137 passing mocked-browser tests prove actual Chromium/axe assessment behaviour?
 11. How does `executeCase` receive a protected environment value, and which evidence does it redact for that call?
-12. Practical task: trace a click step with after-waits and enabled scanning from dispatch to the next step.
+12. What does `prepareRunForExecution` do, and what deliberately does it not do?
+13. Practical task: trace a click step with after-waits and enabled scanning from dispatch to the next step.
 
 ## Answer key
 
@@ -26,4 +27,5 @@
 9. Mapping transforms one trusted raw result without state; collection accumulates mapped findings for a caller-owned case history.
 10. No. The suite uses doubles; successful real-browser assessments remain deferred.
 11. The caller supplies an environment map; `executeCase` does not read `process.env`. It redacts returned soft failures and retained automatic accessibility findings and scan history. A direct scan can redact when its caller explicitly supplies protected values.
-12. A strong answer traces before waits, click, after waits, awaited scan/mapping/collection, and only then the next step, including failure points.
+12. It prepares a caller-supplied list of cases using fixed inputs and returns detached prepared steps. It does not launch a browser, execute a step, read `process.env`, or provide full plan orchestration.
+13. A strong answer traces before waits, click, after waits, awaited scan/mapping/collection, and only then the next step, including failure points.

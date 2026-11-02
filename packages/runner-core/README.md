@@ -10,6 +10,8 @@ The `assertValue` slice builds and passes all 81 runner-core tests locally on Wi
 
 `executeCase({ case, planVariables?, dataSets?, selectedDataSet?, sharedStepGroups?, environment? })` prepares a parsed case's variable references before dispatching any of its steps. When given a validated bundle data-set collection, it selects the case default or an explicit per-case `selectedDataSet`; when given shared groups, it expands `callSharedSteps` markers into ordinary detached steps. The optional `environment` is a caller-supplied map, not `process.env`: it resolves only selected protected `{ "env": "NAME" }` values. An empty own value is supplied; missing values stop preparation without dispatching a step. Resolved protected values reach browser actions, but returned soft assertion failures and accessibility findings/scan history are redacted. Hard execution errors use a redacted cause when protected values are involved. This is a case-session boundary, so the browser context has already been created. Full plan orchestration, direct process-environment access, CLI support, and result production remain future work. The earlier runner-core command passed 137 mocked-browser tests in the development container; record the updated result for protected runner integration before merge.
 
+`prepareRunForExecution({ cases, locale, planVariables?, dataSets?, sharedStepGroups?, environment? })` applies those same preparation rules to a caller-supplied list of cases and returns their detached prepared steps. It does not launch or receive a browser session, execute a step, or read `process.env`. A future plan runner can call it before browser startup.
+
 Build and test from the repository root:
 
 ```sh
