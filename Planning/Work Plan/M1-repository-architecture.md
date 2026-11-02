@@ -29,4 +29,4 @@
 
 ## Learning reference
 
-[Monorepo structure and package boundaries](../../Learning%20Plan/Phase%201/01-monorepo-structure-and-package-boundaries.md)
+[Package architecture](../../Learning%20Plan/Phase%201/Lessons/02-package-architecture.md)

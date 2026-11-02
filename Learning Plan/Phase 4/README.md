@@ -1,9 +1,33 @@
-# Phase 4 learning plan
+# Course: Phase 4 — Results, integrations, and adoption
 
-These lessons prepare the developer to deliver [Roadmap Phase 4](../../Planning/Roadmap/Phase-4-reporting-integrations-and-adoption/README.md), completing the MVP's results, Azure DevOps pipeline example, and adoption materials.
+Phase 4 turns execution output into trustworthy artifacts, integrations, guidance, and release-ready adoption material.
 
-1. [Versioned JSON results and accessibility findings](01-results-and-accessibility.md)
-2. [Azure Pipelines and artifact-based integration](02-azure-pipelines-and-artifacts.md)
-3. [Hugo documentation and end-to-end adoption](03-documentation-and-adoption.md)
+## In this phase you will learn
 
-Read alongside [Epic E03](../../Planning/Backlog/epics/E03-results-and-reporting/README.md), [Epic E06](../../Planning/Backlog/epics/E06-integrations/README.md), and [Epic E07](../../Planning/Backlog/epics/E07-documentation/README.md). JUnit conversion, HTML reports, and screenshots are future candidates, not Phase 4 MVP requirements.
+- How complete result documents and accessibility evidence are produced.
+- How JSON artifacts move through automation and Azure Pipelines.
+- How diagnostics, security guidance, documentation, and release review support responsible use.
+
+## Do I need this phase?
+
+- [ ] I am producing or consuming Stagehand results.
+- [ ] I am integrating Stagehand into Azure Pipelines.
+- [ ] I am preparing diagnostics, security guidance, documentation, or releases.
+
+## Prerequisites
+
+Complete the Phase 1 result-contract lesson and the Phase 3 automation lessons first.
+
+## Lessons
+
+1. [Producing complete results](Lessons/01-result-production.md)
+2. [Accessibility interpretation](Lessons/02-accessibility-results.md)
+3. [JSON artifacts](Lessons/03-json-artifacts.md)
+4. [Azure Pipelines](Lessons/04-azure-pipelines.md)
+5. [Diagnostics](Lessons/05-diagnostics.md)
+6. [Security and responsible execution](Lessons/06-security.md)
+7. [User and contributor documentation](Lessons/07-documentation.md)
+8. [Adoption readiness](Lessons/08-adoption.md)
+9. [Phase integration review](Lessons/09-integration-review.md)
+
+Finish with the [Phase 4 skill check](quiz.md).

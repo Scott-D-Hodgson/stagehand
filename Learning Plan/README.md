@@ -8,27 +8,25 @@ The roadmap describes proposed work, not settled implementation. Treat examples 
 
 ## Learning sequence
 
-The learning materials are grouped by the milestone they support:
+The learning materials are grouped into courses by the milestone or package they support:
 
-- [Phase 1 learning plan](Phase%201/README.md): includes the M0 GitHub bootstrap lesson followed by lessons on monorepo structure, development setup, plan/result contracts, browser behaviour, data and reusable steps, and execution policies.
-- [Phase 2 learning plan](Phase%202/README.md): controlled Vue authoring, plan editing and validation, and local-first file workflows.
-- [Phase 3 learning plan](Phase%203/README.md): Playwright execution, parallel case lifecycle, and CLI configuration and behaviour.
-- [Phase 4 learning plan](Phase%204/README.md): result contracts and accessibility, Azure DevOps automation, and documentation and adoption.
-- [Package learning plans](Packages/README.md): focused guides for understanding the implementation and checks inside each reusable package; currently includes [`plan-schema`](Packages/plan-schema/README.md), [`plan-engine`](Packages/plan-engine/README.md), and [`result-model`](Packages/result-model/README.md).
+- [Phase 1 course](Phase%201/README.md): repository foundations, shared contracts, current runner building blocks, data and reuse, and execution policy.
+- [Phase 2 course](Phase%202/README.md): controlled Vue authoring, validation feedback, and local-first file workflows.
+- [Phase 3 course](Phase%203/README.md): full-plan execution, case lifecycle, CLI configuration, and automation behaviour.
+- [Phase 4 course](Phase%204/README.md): results and accessibility, Azure Pipelines, diagnostics, documentation, and adoption.
+- [Package courses](Packages/README.md): short, single-subject lessons and final skill checks for [`plan-schema`](Packages/plan-schema/README.md), [`plan-engine`](Packages/plan-engine/README.md), [`result-model`](Packages/result-model/README.md), and [`runner-core`](Packages/runner-core/README.md).
 - [Acronyms](acronyms.md) - abbreviations used across the Learning Plan.
 
-## How to use each lesson
+## How to use each course
 
-Read the concepts and Stagehand examples, complete the exercise, and check the success criteria. Keep a short decision log for unresolved choices. Across the phases, the goal is to build the knowledge to create understandable contracts, a usable authoring experience, predictable execution, and a workflow people can adopt.
+Use the course checklist to decide whether it applies to your work. Read its lessons in order, complete each exercise, check the readiness criteria, and finish with the skill-testing quiz. Keep a short decision log for unresolved choices.
 
 ## Suggested checkpoints
 
-- **After Phase 1 lesson 0:** explain the path from an existing local repository to a PR-protected GitHub `main` branch, the manual solo self-review process, and why automated author-sensitive enforcement is deferred. M0 is recorded complete, including a tested PR-based workflow.
-- **After Phase 1 lesson 1:** explain the accepted npm workspace design, TypeScript default and shared compiler setup, the plan-schema contract, the plan-engine Node loader and source fingerprint, package responsibilities, dependency directions, lockstep versioning, and which implementation work remains.
-- **After Phase 1 lesson 2:** explain how a contributor gets a repeatable, appropriately restricted development environment.
-- **After Phase 1 lessons 3–5:** walk through a small plan from JSON input to validated, unambiguous execution instructions.
-- **After Phase 1 lesson 6:** explain how validation errors, test failures, and runner failures differ, and what execution does after each.
-- **Phase 1 readiness:** the open decisions are recorded, contracts can be reviewed without implementation assumptions, and examples demonstrate intended behaviour.
+- **After Phase 1 lessons 1–3:** explain the repository workflow, package boundaries, and repeatable development environment.
+- **After Phase 1 lessons 4–9:** trace a small plan from validated contracts through loading, browser setup, actions, assertions, and accessibility checks.
+- **After Phase 1 lessons 10–12:** explain how fixed inputs and reusable steps fit with validation and execution policy.
+- **Phase 1 readiness:** complete the integration review and skill check, and distinguish implemented building blocks from later orchestration work.
 - **Phase 2 readiness:** a non-technical tester can author and validate a plan in the browser editor and safely export it.
 - **Phase 3 readiness:** a plan can be executed predictably from the CLI with isolated cases, useful JSON output, and documented exit behaviour.
 - **Phase 4 readiness:** results can be retained in Azure Pipelines and a new user can follow the published documentation to author and run an example.

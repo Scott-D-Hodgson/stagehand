@@ -27,4 +27,4 @@
 
 ## Learning reference
 
-[Error model and execution policies](../../Learning%20Plan/Phase%201/06-error-model-and-execution-policies.md)
+[Errors and execution policy](../../Learning%20Plan/Phase%201/Lessons/12-errors-policy.md)
