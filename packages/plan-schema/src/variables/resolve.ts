@@ -26,10 +26,11 @@ export function resolveVariable(options: ResolveVariableOptions): VariableResolu
     };
   }
   const scopes: Array<[
-    "step" | "case" | "plan",
+    "step" | "dataSet" | "case" | "plan",
     Readonly<Record<string, VariableDefinition>> | undefined,
   ]> = [
     ["step", options.stepVariables],
+    ["dataSet", options.dataSetVariables],
     ["case", options.caseVariables],
     ["plan", options.planVariables],
   ];
@@ -44,6 +45,8 @@ export function resolveVariable(options: ResolveVariableOptions): VariableResolu
   return {
     resolved: false,
     reason: "missingVariable",
-    message: `No variable named "${options.name}" is defined in step, case, or plan scope.`,
+    message: options.dataSetVariables === undefined
+      ? `No variable named "${options.name}" is defined in step, case, or plan scope.`
+      : `No variable named "${options.name}" is defined in step, selected data set, case, or plan scope.`,
   };
 }

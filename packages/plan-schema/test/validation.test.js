@@ -8,6 +8,7 @@ import {
   prepareCase,
   prepareCaseStep,
   resolveVariable,
+  selectCaseDataSet,
   validateCase,
   validatePlan,
   validatePlanBundle,
@@ -349,6 +350,47 @@ test("rejects invalid and duplicate named case data sets", () => {
   assert.ok(duplicate.issues.some((issue) => issue.path === "/dataSets/1/name" && issue.keyword === "duplicateDataSetName"));
 });
 
+test("selects a case default or explicit named data set without changing the case", () => {
+  const dataSets = [
+    { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } }, note: { default: "" } } },
+    { name: "empty", variables: {} },
+  ];
+  const caseFile = { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] };
+  assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets }), {
+    selected: true,
+    name: "canada",
+    source: "caseDefault",
+    variables: dataSets[0].variables,
+  });
+  assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets, selectedDataSet: "empty" }), {
+    selected: true,
+    name: "empty",
+    source: "selected",
+    variables: {},
+  });
+  assert.deepEqual(selectCaseDataSet({ case: { schemaVersion: 1, id: "no-default", steps: [] }, dataSets }), {
+    selected: true,
+  });
+  assert.deepEqual(caseFile, { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] });
+  assert.deepEqual(resolveVariable({
+    name: "note",
+    locale: "en-CA",
+    dataSetVariables: dataSets[0].variables,
+  }), { resolved: true, value: "", source: "dataSet" });
+});
+
+test("rejects an unknown selected data set with a clear preflight error", () => {
+  assert.deepEqual(selectCaseDataSet({
+    case: { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    dataSets: [{ name: "canada", variables: {} }],
+    selectedDataSet: "missing",
+  }), {
+    selected: false,
+    reason: "unknownDataSet",
+    message: "No data set named \"missing\" is available for this case.",
+  });
+});
+
 test("resolves variables from the narrowest scope without merging locale variants", () => {
   const result = resolveVariable({
     name: "greeting",
@@ -378,6 +420,19 @@ test("resolves variables from the narrowest scope without merging locale variant
     locale: "fr-CA",
     planVariables: { enabled: { default: true } },
   }), { resolved: true, value: true, source: "plan" });
+  assert.deepEqual(resolveVariable({
+    name: "greeting",
+    locale: "fr-CA",
+    planVariables: { greeting: { default: "Plan" } },
+    caseVariables: { greeting: { default: "Case" } },
+    dataSetVariables: { greeting: { default: "Data set", locales: { "fr-CA": "Data-set French" } } },
+  }), { resolved: true, value: "Data-set French", source: "dataSet" });
+  assert.deepEqual(resolveVariable({
+    name: "greeting",
+    locale: "fr-CA",
+    stepVariables: { greeting: { default: "Step" } },
+    dataSetVariables: { greeting: { default: "Data set" } },
+  }), { resolved: true, value: "Step", source: "step" });
 });
 
 test("uses the selected definition default when its locale variant is absent", () => {
@@ -533,6 +588,32 @@ test("prepares every case step before runner integration", () => {
   }
   assert.equal(result.case.steps[0].url, "https://example.invalid");
   assert.equal(result.case.steps[1].value, "step@example.invalid");
+});
+
+test("prepares a case with selected data-set values before browser work", () => {
+  const selection = selectCaseDataSet({
+    case: { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
+  });
+  assert.equal(selection.selected, true);
+  if (!selection.selected) {
+    return;
+  }
+  const prepared = prepareCase({
+    case: {
+      schemaVersion: 1,
+      id: "sign-in",
+      variables: { email: { default: "case@example.test" } },
+      steps: [{ action: "fill", locator: { label: "Email" }, value: { var: "email" } }],
+    },
+    locale: "fr-CA",
+    dataSetVariables: selection.variables,
+  });
+  assert.equal(prepared.prepared, true);
+  if (!prepared.prepared) {
+    return;
+  }
+  assert.equal(prepared.case.steps[0].value, "canada-fr@example.test");
 });
 
 test("reports the first unresolved reference and revalidates prepared values", () => {

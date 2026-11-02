@@ -7,7 +7,7 @@ Use the package source and tests when needed. Answer in your own words.
 3. Why can reference matching not prove filesystem containment?
 4. Name two checks that require a parsed bundle.
 5. A case definition overrides a plan definition but omits its `fr-CA` value. Is the plan's `fr-CA` value merged in?
-6. What remains unimplemented after a data-set document passes validation?
+6. How does a case choose a data set, and what remains unimplemented afterward?
 7. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
 
 ## Answer key
@@ -17,5 +17,5 @@ Use the package source and tests when needed. Answer in your own words.
 3. A link can redirect the real path; only filesystem-aware canonical resolution can check the target.
 4. Examples include case count, unique case IDs, plan-wide unique data-set names, and known default data-set names.
 5. No. The narrower definition replaces the complete broader definition, then falls back to its own default.
-6. Selection, precedence application, runtime override selection, and runner integration remain future work.
+6. `selectCaseDataSet` uses an explicit per-case name when supplied, otherwise the case default; the selected definitions sit below step variables and above case/plan definitions. Runner hand-off and runtime application remain future work.
 7. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.
