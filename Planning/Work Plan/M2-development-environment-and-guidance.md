@@ -38,4 +38,4 @@
 
 ## Learning reference
 
-[Development container and contributor/agent guidance](../../Learning%20Plan/Phase%201/02-development-container-and-contributor-guidance.md)
+[Development environment](../../Learning%20Plan/Phase%201/Lessons/03-development-environment.md)

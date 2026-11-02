@@ -137,7 +137,7 @@
 
 ## Learning reference
 
-[Browser configuration, action vocabulary, and assertion semantics](../../Learning%20Plan/Phase%201/04-browser-actions-and-assertions.md)
+[Page interactions](../../Learning%20Plan/Phase%201/Lessons/08-page-interactions.md) and [assertions and accessibility](../../Learning%20Plan/Phase%201/Lessons/09-assertions-accessibility.md)
 
 ## Deferred Chromium/axe verification
 

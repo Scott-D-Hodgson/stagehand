@@ -63,4 +63,4 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 
 ## Learning reference
 
-[Variable scopes, data sets, shared steps, and protected values](../../Learning%20Plan/Phase%201/05-variables-data-sets-shared-steps-and-loops.md)
+[Variables and data sets](../../Learning%20Plan/Phase%201/Lessons/10-variables-data-sets.md) and [shared steps](../../Learning%20Plan/Phase%201/Lessons/11-shared-steps.md)

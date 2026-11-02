@@ -64,4 +64,4 @@ M3 may establish outcome names and the fields needed to represent them, but it d
 
 ## Learning reference
 
-[Versioned test-plan and result schemas](../../Learning%20Plan/Phase%201/03-versioned-test-plan-and-result-schemas.md)
+[Plan and case contracts](../../Learning%20Plan/Phase%201/Lessons/04-plan-case-contracts.md) and [result contracts](../../Learning%20Plan/Phase%201/Lessons/05-result-contracts.md)

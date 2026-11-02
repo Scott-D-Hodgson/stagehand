@@ -1,13 +1,37 @@
-# Phase 1 learning plan
+# Course: Phase 1 — Contracts and execution foundations
 
-These lessons prepare the developer for M0 and [Roadmap Phase 1](../../Planning/Roadmap/Phase-1-contracts-and-development-foundation/README.md). M0 is the repository bootstrap milestone that comes first; then work through the Phase 1 lessons in order, since later lessons build on the contracts and architecture introduced earlier.
+Phase 1 builds the dependable base that later editor, CLI, and reporting work rely on.
 
-0. [GitHub repository bootstrap and PR governance](00-github-repository-bootstrap-and-pr-governance.md)
-1. [Monorepo structure and package boundaries](01-monorepo-structure-and-package-boundaries.md)
-2. [Development container and contributor/agent guidance](02-development-container-and-contributor-guidance.md)
-3. [Versioned test-plan and result schemas](03-versioned-test-plan-and-result-schemas.md)
-4. [Browser configuration, action vocabulary, and assertion semantics](04-browser-actions-and-assertions.md)
-5. [Variable scopes, data sets, shared steps, and protected values](05-variables-data-sets-shared-steps-and-loops.md)
-6. [Error model and execution policies](06-error-model-and-execution-policies.md)
+## In this phase you will learn
 
-The lessons are AI-generated from the evolving Planning materials. Treat them as a learning guide; confirm current Stagehand decisions against the backlog, roadmap, and work plan. TypeScript is the default for new implementation code; plan-schema, plan-engine, and the result-model schema and API are the current code footprint covered by these lessons. Each lesson includes a self-assessment, practical exercise, success criteria, references, and a reinforcement quiz.
+- How Stagehand changes are governed and organized.
+- How plans, cases, results, browser work, and reusable inputs fit together.
+- How failures and integration boundaries are made explicit.
+
+## Do I need this phase?
+
+- [ ] I am contributing implementation code or reviewing a Phase 1 PR.
+- [ ] I need to understand Stagehand's core contracts and package boundaries.
+- [ ] I am working on browser execution, variables, shared steps, or error policy.
+
+## Prerequisites
+
+Basic familiarity with Git, JSON, and TypeScript is helpful but not required; technical terms are introduced in the lessons.
+
+## Lessons
+
+1. [Repository collaboration](Lessons/01-repository-collaboration.md)
+2. [Package architecture](Lessons/02-package-architecture.md)
+3. [Development environment](Lessons/03-development-environment.md)
+4. [Plan and case contracts](Lessons/04-plan-case-contracts.md)
+5. [Result contracts](Lessons/05-result-contracts.md)
+6. [Plan loading and source identity](Lessons/06-plan-loading.md)
+7. [Browser lifecycle and isolation](Lessons/07-browser-lifecycle.md)
+8. [Locators, waits, and actions](Lessons/08-page-interactions.md)
+9. [Assertions and accessibility](Lessons/09-assertions-accessibility.md)
+10. [Variables and data sets](Lessons/10-variables-data-sets.md)
+11. [Shared steps](Lessons/11-shared-steps.md)
+12. [Errors and execution policy](Lessons/12-errors-policy.md)
+13. [Phase integration review](Lessons/13-integration-review.md)
+
+Finish with the [Phase 1 skill check](quiz.md).
