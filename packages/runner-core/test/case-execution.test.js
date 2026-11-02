@@ -77,6 +77,90 @@ test("uses plan variables when the case does not define the referenced name", as
   }
 });
 
+test("prepares case steps with the selected data-set values", async () => {
+  let typedText;
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async pressSequentially(text) { typedText = text; },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } }, { locale: "fr-CA" });
+  try {
+    await session.executeCase({
+      case: {
+        schemaVersion: 1,
+        id: "sign-in",
+        defaultDataSet: "canada",
+        variables: { email: { default: "case@example.test" } },
+        steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
+      },
+      dataSets: [
+        { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } },
+      ],
+    });
+    assert.equal(typedText, "canada-fr@example.test");
+  } finally {
+    await run.close();
+  }
+});
+
+test("keeps selected data sets isolated between executeCase calls", async () => {
+  const typed = [];
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async pressSequentially(text) { typed.push(text); },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  const caseFile = {
+    schemaVersion: 1,
+    id: "sign-in",
+    steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
+  };
+  const dataSets = [
+    { name: "first", variables: { email: { default: "first@example.test" } } },
+    { name: "second", variables: { email: { default: "second@example.test" } } },
+  ];
+  try {
+    await session.executeCase({ case: caseFile, dataSets, selectedDataSet: "first" });
+    await session.executeCase({ case: caseFile, dataSets, selectedDataSet: "second" });
+    assert.deepEqual(typed, ["first@example.test", "second@example.test"]);
+  } finally {
+    await run.close();
+  }
+});
+
+test("stops before dispatch when the selected data set is unknown", async () => {
+  let typed = false;
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async pressSequentially() { typed = true; },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  try {
+    await assert.rejects(
+      session.executeCase({
+        case: {
+          schemaVersion: 1,
+          id: "sign-in",
+          steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
+        },
+        dataSets: [],
+        selectedDataSet: "missing",
+      }),
+      (error) => error instanceof CasePreparationError
+        && error.caseId === "sign-in"
+        && error.path === "/dataSetSelection"
+        && error.reason === "unknownDataSet"
+        && error.message.includes('No data set named "missing"'),
+    );
+    assert.equal(typed, false);
+  } finally {
+    await run.close();
+  }
+});
+
 test("stops before dispatch when ordinary case preparation fails", async () => {
   let navigated = false;
   const { run, session } = await createSession({

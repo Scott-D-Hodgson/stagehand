@@ -6,10 +6,10 @@
 4. How do `type` and `fill` differ?
 5. Can one `assertValue` step return two soft failures?
 6. What information does `StepExecutionError` preserve?
-7. Why does a later missing variable prevent an earlier case step from running through `executeCase`?
+7. Why does a later missing variable or an unknown selected data set prevent an earlier case step from running through `executeCase`?
 8. Does `completed` accessibility scanning mean the page passed?
 9. What is the difference between mapping and collecting accessibility findings?
-10. Do 134 passing mocked-browser tests prove actual Chromium/axe assessment behaviour?
+10. Do 137 passing mocked-browser tests prove actual Chromium/axe assessment behaviour?
 11. Practical task: trace a click step with after-waits and enabled scanning from dispatch to the next step.
 
 ## Answer key

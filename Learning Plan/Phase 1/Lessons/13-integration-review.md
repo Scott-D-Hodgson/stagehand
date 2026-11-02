@@ -13,7 +13,7 @@ flowchart LR
     O --> R[Future complete result]
 ```
 
-Several pieces remain planned: full orchestration, data-set runner hand-off, shared steps, protected values, and M6 policy. A coherent foundation states these gaps plainly.
+Several pieces remain planned: full orchestration before browser startup, shared steps, protected values, and M6 policy. A coherent foundation states these gaps plainly.
 
 ## Try it
 
