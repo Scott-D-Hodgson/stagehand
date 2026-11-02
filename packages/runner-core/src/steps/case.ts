@@ -13,6 +13,7 @@ export interface CaseExecutionOptions {
   dataSets?: readonly NamedDataSet[];
   selectedDataSet?: string;
   sharedStepGroups?: readonly SharedStepGroup[];
+  environment?: Readonly<Record<string, string | undefined>>;
 }
 
 export interface StepExecutionIdentity {
@@ -66,6 +67,7 @@ export interface PreparedCaseExecution {
   caseId: string;
   steps: readonly ExecutableStep[];
   stepIdentities: readonly StepExecutionIdentity[];
+  protectedValues: readonly string[];
 }
 
 function getCaseId(value: Readonly<Record<string, unknown>>): string {
@@ -93,6 +95,7 @@ export function prepareCaseForExecution(
     case: options.case,
     locale,
     sharedStepGroups: options.sharedStepGroups ?? [],
+    ...(options.environment === undefined ? {} : { environment: options.environment }),
     ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
     ...(selection.variables === undefined ? {} : { dataSetVariables: selection.variables }),
   });
@@ -116,6 +119,7 @@ export function prepareCaseForExecution(
   return {
     caseId: getCaseId(prepared.case),
     steps: prepared.case.steps as ExecutableStep[],
+    protectedValues: prepared.protectedValues ?? [],
     stepIdentities: prepared.steps.map((step) => ({
       caseStepIndex: step.caseStepIndex,
       ...(step.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: step.sharedStepGroupId }),

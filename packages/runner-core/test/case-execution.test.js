@@ -54,6 +54,38 @@ test("prepares ordinary case variables before dispatching case steps", async () 
   }
 });
 
+test("uses injected protected values for case execution and redacts soft failure evidence", async () => {
+  const typed = [];
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async pressSequentially(value) { typed.push(value); },
+    async innerText() { return "Actual not-a-real-password"; },
+  };
+  const { run, session } = await createSession({ locator() { return locator; } });
+  try {
+    const failures = await session.executeCase({
+      case: {
+        schemaVersion: 1,
+        id: "protected-case",
+        variables: { password: { default: { env: "TEST_PASSWORD" } } },
+        steps: [
+          { action: "type", locator: { css: "#password" }, text: { var: "password" } },
+          { action: "assertText", locator: { css: "#message" }, expected: { default: { var: "password" } }, soft: true },
+        ],
+      },
+      environment: { TEST_PASSWORD: "not-a-real-password" },
+    });
+    assert.deepEqual(typed, ["not-a-real-password"]);
+    assert.equal(failures.length, 1);
+    assert.equal(failures[0].expected, "[REDACTED]");
+    assert.equal(failures[0].actual, "Actual [REDACTED]");
+    assert.match(failures[0].message, /\[REDACTED\]/);
+  } finally {
+    await run.close();
+  }
+});
+
 test("uses plan variables when the case does not define the referenced name", async () => {
   let typedText;
   const locator = {

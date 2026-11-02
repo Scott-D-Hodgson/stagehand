@@ -14,6 +14,7 @@ import { executeCaseSteps } from "../steps/execute.js";
 import { prepareCaseForExecution } from "../steps/case.js";
 import { createAccessibilityFindingCollector } from "../accessibility/collection.js";
 import { scanAccessibility } from "../accessibility/scan.js";
+import { redactEvidence } from "@stagehand/result-model";
 
 export function createCaseBrowserSession(
   createdContext: BrowserContext,
@@ -91,21 +92,22 @@ export function createCaseBrowserSession(
     async navigate(url, options = {}) {
       return executeNavigation(page, url, options);
     },
-    async executeSteps(caseId, steps, stepIdentities) {
+    async executeSteps(caseId, steps, stepIdentities, protectedValues = []) {
       return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA", async (stepIndex) => {
         if (!session.accessibility.enabled || page.isClosed()) {
           return;
         }
         const outcome = await session.scanAccessibility();
         if (outcome.status === "completed") {
-          scans.push({ caseId, stepIndex, results: outcome.results });
-          collector.add(outcome.results);
+          const results = redactEvidence(outcome.results, protectedValues);
+          scans.push({ caseId, stepIndex, results });
+          collector.add(results);
         }
-      }, stepIdentities);
+      }, stepIdentities, protectedValues);
     },
     async executeCase(options) {
       const prepared = prepareCaseForExecution(options, settings.locale ?? "en-CA");
-      return session.executeSteps(prepared.caseId, prepared.steps, prepared.stepIdentities);
+      return session.executeSteps(prepared.caseId, prepared.steps, prepared.stepIdentities, prepared.protectedValues);
     },
     close() {
       if (sessionClosePromise) {

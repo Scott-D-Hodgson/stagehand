@@ -1,6 +1,7 @@
 import { escapeJsonPointerSegment, isRecord } from "../json.js";
 import { validateCase } from "../validation/case.js";
 import { resolveVariable } from "./resolve.js";
+import { resolveProtectedEnvironmentValue } from "./environment.js";
 import type {
   PrepareCaseOptions,
   PrepareCaseResult,
@@ -11,7 +12,7 @@ import type {
 } from "./types.js";
 
 type PreparedValueResult =
-  | { prepared: true; value: unknown }
+  | { prepared: true; value: unknown; protectedValues?: string[] }
   | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 function isVariableReference(value: unknown): value is { var: string } {
@@ -43,6 +44,21 @@ function prepareTextValue(
     return { prepared: false, path, reason: result.reason, message: result.message };
   }
   if (isProtectedVariableValue(result.value)) {
+    if (options.environment !== undefined) {
+      const environmentResult = resolveProtectedEnvironmentValue({
+        value: result.value,
+        environment: options.environment,
+      });
+      return environmentResult.resolved
+        ? { prepared: true, value: environmentResult.value, protectedValues: [environmentResult.value] }
+        : {
+            prepared: false,
+            path,
+            reason: "unresolvedProtectedValue",
+            message: environmentResult.message,
+            environmentVariable: environmentResult.environmentVariable,
+          };
+    }
     return {
       prepared: false,
       path,
@@ -84,7 +100,7 @@ function prepareExpectedValue(
   }
   const result = prepareTextValue(selected, selectedPath, options, stepVariables);
   return result.prepared
-    ? { prepared: true, value: { default: result.value } }
+    ? { prepared: true, value: { default: result.value }, ...(result.protectedValues === undefined ? {} : { protectedValues: result.protectedValues }) }
     : result;
 }
 
@@ -94,6 +110,7 @@ export function prepareCaseStep(options: PrepareCaseStepOptions): PrepareCaseSte
     ? options.step.variables as Readonly<Record<string, VariableDefinition>>
     : undefined;
   const path = `/steps/${options.stepIndex}`;
+  const protectedValues: string[] = [];
   const action = options.step.action;
   const fields = action === "navigate"
     ? ["url"]
@@ -113,6 +130,7 @@ export function prepareCaseStep(options: PrepareCaseStepOptions): PrepareCaseSte
       return result;
     }
     prepared[field] = result.value;
+    protectedValues.push(...(result.protectedValues ?? []));
   }
   for (const field of ["expected", "associatedLabel"]) {
     const expected = options.step[field];
@@ -124,8 +142,9 @@ export function prepareCaseStep(options: PrepareCaseStepOptions): PrepareCaseSte
       return result;
     }
     prepared[field] = result.value;
+    protectedValues.push(...(result.protectedValues ?? []));
   }
-  return { prepared: true, step: prepared };
+  return { prepared: true, step: prepared, ...(protectedValues.length === 0 ? {} : { protectedValues }) };
 }
 
 export function prepareCase(options: PrepareCaseOptions): PrepareCaseResult {
@@ -141,6 +160,7 @@ export function prepareCase(options: PrepareCaseOptions): PrepareCaseResult {
   const caseVariables = isRecord(options.case.variables)
     ? options.case.variables as Readonly<Record<string, VariableDefinition>>
     : undefined;
+  const protectedValues: string[] = [];
   for (const [stepIndex, step] of prepared.steps.entries()) {
     if (!isRecord(step)) {
       return {
@@ -154,6 +174,7 @@ export function prepareCase(options: PrepareCaseOptions): PrepareCaseResult {
       step,
       stepIndex,
       locale: options.locale,
+      ...(options.environment === undefined ? {} : { environment: options.environment }),
       ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
       ...(caseVariables === undefined ? {} : { caseVariables }),
       ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
@@ -162,10 +183,11 @@ export function prepareCase(options: PrepareCaseOptions): PrepareCaseResult {
       return result;
     }
     prepared.steps[stepIndex] = result.step;
+    protectedValues.push(...(result.protectedValues ?? []));
   }
   const validation = validateCase(prepared);
   return validation.valid
-    ? { prepared: true, case: prepared }
+    ? { prepared: true, case: prepared, ...(protectedValues.length === 0 ? {} : { protectedValues: [...new Set(protectedValues)] }) }
     : {
         prepared: false,
         path: "/",
