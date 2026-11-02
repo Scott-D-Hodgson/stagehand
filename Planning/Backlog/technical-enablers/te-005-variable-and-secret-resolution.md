@@ -21,8 +21,8 @@ Implement fixed localized input definitions, scope/data-set selection, effective
 
 ## Current gap and sequencing
 
-`result-model` now provides a pure `redactEvidence` helper for detached JSON-like evidence, but runner-core still exposes original raw scan results and does not use it. Pure schema/resolver slices must not be described as enabling safe secret execution. Integrate and verify the helper at the retained-output boundary before enabling protected preflight and execution. Necessary raw values stay private to execution.
+`result-model` now provides a pure `redactEvidence` helper for detached JSON-like evidence, and plan-schema can look up an already-selected protected name from a caller-supplied map. Runner-core still exposes original raw scan results and does not use either helper. Pure schema/resolver slices must not be described as enabling safe secret execution. Integrate and verify the helpers at the retained-output boundary before enabling protected preflight and execution. Necessary raw values stay private to execution.
 
 ## Implementation approach
 
-Keep the v1 contracts while M5 is in progress. Variable definitions/references, ordinary resolution, pure per-case data-set selection, case-session runner hand-off, shared-step execution, and the pure evidence-redaction foundation are implemented. Next integrate protected environment-value preflight and the retained-output boundary in focused PRs. Full orchestration must still move effective preflight ahead of browser startup. Define only the details needed by the active slice and record its tests and remaining limits.
+Keep the v1 contracts while M5 is in progress. Variable definitions/references, ordinary resolution, pure per-case data-set selection, case-session runner hand-off, shared-step execution, the pure evidence-redaction foundation, and injected-map protected-value lookup are implemented. Next integrate protected values at the runner boundary and retained-output boundary in focused PRs. Full orchestration must still move effective preflight ahead of browser startup. Define only the details needed by the active slice and record its tests and remaining limits.

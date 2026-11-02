@@ -8,6 +8,15 @@ export interface ProtectedVariableValue {
 
 export type VariableValue = ScalarVariableValue | ProtectedVariableValue;
 
+export interface ResolveProtectedEnvironmentValueOptions {
+  value: ProtectedVariableValue;
+  environment: Readonly<Record<string, string | undefined>>;
+}
+
+export type ResolveProtectedEnvironmentValueResult =
+  | { resolved: true; value: string; environmentVariable: string }
+  | { resolved: false; reason: "missingEnvironmentVariable"; environmentVariable: string; message: string };
+
 export interface VariableDefinition {
   default: VariableValue;
   locales?: Readonly<Record<string, VariableValue>>;

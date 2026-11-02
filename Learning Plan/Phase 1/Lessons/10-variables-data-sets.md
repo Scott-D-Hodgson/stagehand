@@ -4,7 +4,7 @@
 
 Variables have case-sensitive names, scalar defaults, and optional same-type locale values. Narrower scope replaces broader scope: step, selected data set, case, then plan. Whole-field `{ "var": "name" }` references keep ordinary text literal.
 
-Cases can declare named data sets and a default name. `runner-core` now accepts the validated data-set collection and an optional per-case selection at its case-session boundary. It chooses the explicit name or default, rejects an unknown name before dispatch, and prepares selected definitions before case steps run. Full orchestration must still move this preflight ahead of browser startup. Text definitions may use protected `{ "env": "NAME" }` references, but current preparation stops safely before lookup or execution. Protected environment values still require lookup and safe redaction integration before execution.
+Cases can declare named data sets and a default name. `runner-core` now accepts the validated data-set collection and an optional per-case selection at its case-session boundary. It chooses the explicit name or default, rejects an unknown name before dispatch, and prepares selected definitions before case steps run. Full orchestration must still move this preflight ahead of browser startup. Text definitions may use protected `{ "env": "NAME" }` references. Plan-schema can look up an already-selected name from a supplied map, but it does not read `process.env`; preparation and runner execution still stop before using the value. Protected environment values still require runner and safe-redaction integration before execution.
 
 ## Try it
 
