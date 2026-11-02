@@ -12,7 +12,7 @@ The package now checks the map, not the journey: IDs must be unique, every case 
 
 Think of the group as a bookmarked page in a manual. A case may open that page, but the bookmarked page cannot open another bookmark and cannot bring its own private input form.
 
-Expansion and execution are later work. This slice does not yet validate ordinary steps inside a group as executable steps, insert them into a case, or run them in a browser.
+The following lesson expands and prepares these calls. Browser execution remains later work. This contract lesson does not itself insert steps into a case or run them in a browser.
 
 ## Try it
 

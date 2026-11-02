@@ -11,11 +11,17 @@ export type {
 export { resolveVariable } from "./variables/resolve.js";
 export { selectCaseDataSet } from "./variables/data-set.js";
 export { prepareCase, prepareCaseStep } from "./variables/prepare.js";
+export { expandCaseSharedSteps, prepareCaseSharedSteps } from "./variables/shared-steps.js";
 export type {
   PrepareCaseOptions,
   PrepareCaseResult,
   PrepareCaseStepOptions,
   PrepareCaseStepResult,
+  PrepareCaseSharedStepsOptions,
+  PrepareCaseSharedStepsResult,
+  ExpandCaseSharedStepsOptions,
+  ExpandCaseSharedStepsResult,
+  ExpandedCaseStep,
   ResolveVariableOptions,
   ScalarVariableValue,
   NamedDataSet,
@@ -23,4 +29,5 @@ export type {
   SelectCaseDataSetResult,
   VariableDefinition,
   VariableResolutionResult,
+  SharedStepGroup,
 } from "./variables/types.js";

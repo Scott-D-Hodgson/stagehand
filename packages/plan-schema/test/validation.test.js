@@ -3,9 +3,11 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 import {
   caseSchemaV1,
+  expandCaseSharedSteps,
   matchCaseReferences,
   planSchemaV1,
   prepareCase,
+  prepareCaseSharedSteps,
   prepareCaseStep,
   resolveVariable,
   selectCaseDataSet,
@@ -397,6 +399,93 @@ test("rejects unknown and nested shared-step group calls", () => {
   }]);
   assert.equal(unknown.valid, false);
   assert.ok(unknown.issues.some((issue) => issue.path === "/caseFiles/0/steps/0/id" && issue.keyword === "unknownSharedStepGroup"));
+});
+
+test("expands shared-step calls in authored order with caller and inner-step identity", () => {
+  const result = expandCaseSharedSteps({
+    case: {
+      schemaVersion: 1,
+      id: "checkout",
+      steps: [
+        { action: "navigate", url: "https://example.test/start" },
+        { action: "callSharedSteps", id: "sign-in" },
+        { action: "click", locator: { css: "#continue" } },
+      ],
+    },
+    sharedStepGroups: [{
+      id: "sign-in",
+      steps: [
+        { action: "navigate", url: "https://example.test/sign-in" },
+        { action: "type", locator: { css: "#email" }, text: { var: "email" } },
+      ],
+    }],
+  });
+  assert.equal(result.expanded, true);
+  if (!result.expanded) {
+    return;
+  }
+  assert.deepEqual(result.steps.map((step) => ({
+    action: step.step.action,
+    caseStepIndex: step.caseStepIndex,
+    sharedStepGroupId: step.sharedStepGroupId,
+    sharedStepIndex: step.sharedStepIndex,
+  })), [
+    { action: "navigate", caseStepIndex: 0, sharedStepGroupId: undefined, sharedStepIndex: undefined },
+    { action: "navigate", caseStepIndex: 1, sharedStepGroupId: "sign-in", sharedStepIndex: 0 },
+    { action: "type", caseStepIndex: 1, sharedStepGroupId: "sign-in", sharedStepIndex: 1 },
+    { action: "click", caseStepIndex: 2, sharedStepGroupId: undefined, sharedStepIndex: undefined },
+  ]);
+});
+
+test("prepares expanded shared steps with the calling case and selected data-set context", () => {
+  const result = prepareCaseSharedSteps({
+    case: {
+      schemaVersion: 1,
+      id: "sign-in",
+      variables: { email: { default: "case@example.test" } },
+      steps: [{ action: "callSharedSteps", id: "sign-in" }],
+    },
+    sharedStepGroups: [{
+      id: "sign-in",
+      steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
+    }],
+    locale: "fr-CA",
+    dataSetVariables: { email: { default: "data@example.test", locales: { "fr-CA": "data-fr@example.test" } } },
+  });
+  assert.equal(result.prepared, true);
+  if (!result.prepared) {
+    return;
+  }
+  assert.equal(result.case.steps.length, 1);
+  assert.equal(result.case.steps[0].text, "data-fr@example.test");
+  assert.deepEqual(result.steps[0], {
+    caseStepIndex: 0,
+    sharedStepGroupId: "sign-in",
+    sharedStepGroupIndex: 0,
+    sharedStepIndex: 0,
+    step: { action: "type", locator: { css: "#email" }, text: "data-fr@example.test" },
+  });
+});
+
+test("reports unknown and nested shared-step calls without starting execution", () => {
+  assert.deepEqual(expandCaseSharedSteps({
+    case: { schemaVersion: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "missing" }] },
+    sharedStepGroups: [],
+  }), {
+    expanded: false,
+    path: "/steps/0/id",
+    reason: "unknownSharedStepGroup",
+    message: "No shared-step group named \"missing\" is available in this plan.",
+  });
+  assert.deepEqual(expandCaseSharedSteps({
+    case: { schemaVersion: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "outer" }] },
+    sharedStepGroups: [{ id: "outer", steps: [{ action: "callSharedSteps", id: "inner" }] }],
+  }), {
+    expanded: false,
+    path: "/sharedStepGroups/0/steps/0/action",
+    reason: "nestedSharedStepCall",
+    message: "A shared-step group cannot call another shared-step group.",
+  });
 });
 
 test("selects a case default or explicit named data set without changing the case", () => {
