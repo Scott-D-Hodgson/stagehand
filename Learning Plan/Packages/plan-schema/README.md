@@ -20,7 +20,7 @@ If you checked any item, this course is relevant.
 
 ## Current boundary
 
-The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary and protected variable definitions, named data-set structure, and shared-step group/call relationships. It can select a case default or explicit data set, expand shared-step calls with source identity, then prepare variable references using the calling case's selected context. A selected protected `{ "env": "NAME" }` reference remains protected until a caller uses the pure, injected-map lookup helper; preparation still stops before browser dispatch. The package does not read files, execute shared steps, read `process.env`, or start a browser. The focused suite passed 65 tests in the development container before the shared-step expansion slice; record its updated result before merging.
+The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary and protected variable definitions, named data-set structure, and shared-step group/call relationships. It can select a case default or explicit data set, expand shared-step calls with source identity, then prepare variable references using the calling case's selected context. A selected protected `{ "env": "NAME" }` reference remains protected until a caller supplies an injected-map lookup; preparation can then replace the effective value and return it for a caller-owned redaction boundary. The package does not read files, execute shared steps, read `process.env`, or start a browser. The focused suite passed 65 tests in the development container before the shared-step expansion slice; record its updated result before merging.
 
 ## Lessons
 

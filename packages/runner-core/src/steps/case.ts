@@ -16,6 +16,20 @@ export interface CaseExecutionOptions {
   environment?: Readonly<Record<string, string | undefined>>;
 }
 
+export interface RunCaseSelection {
+  case: Readonly<Record<string, unknown>>;
+  selectedDataSet?: string;
+}
+
+export interface RunPreparationOptions {
+  cases: readonly RunCaseSelection[];
+  locale: string;
+  planVariables?: Readonly<Record<string, VariableDefinition>>;
+  dataSets?: readonly NamedDataSet[];
+  sharedStepGroups?: readonly SharedStepGroup[];
+  environment?: Readonly<Record<string, string | undefined>>;
+}
+
 export interface StepExecutionIdentity {
   caseStepIndex: number;
   sharedStepGroupId?: string;
@@ -68,6 +82,10 @@ export interface PreparedCaseExecution {
   steps: readonly ExecutableStep[];
   stepIdentities: readonly StepExecutionIdentity[];
   protectedValues: readonly string[];
+}
+
+export interface PreparedRunExecution {
+  cases: readonly PreparedCaseExecution[];
 }
 
 function getCaseId(value: Readonly<Record<string, unknown>>): string {
@@ -125,5 +143,18 @@ export function prepareCaseForExecution(
       ...(step.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: step.sharedStepGroupId }),
       ...(step.sharedStepIndex === undefined ? {} : { sharedStepIndex: step.sharedStepIndex }),
     })),
+  };
+}
+
+export function prepareRunForExecution(options: RunPreparationOptions): PreparedRunExecution {
+  return {
+    cases: options.cases.map((selection) => prepareCaseForExecution({
+      case: selection.case,
+      ...(selection.selectedDataSet === undefined ? {} : { selectedDataSet: selection.selectedDataSet }),
+      ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
+      ...(options.dataSets === undefined ? {} : { dataSets: options.dataSets }),
+      ...(options.sharedStepGroups === undefined ? {} : { sharedStepGroups: options.sharedStepGroups }),
+      ...(options.environment === undefined ? {} : { environment: options.environment }),
+    }, options.locale)),
   };
 }
