@@ -2,7 +2,7 @@
 
 **Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Variable schema foundations and pure ordinary-input preflight are implemented; remaining incremental slices pending
+**Status:** Variable schema foundations, ordinary-input preflight, and data-set structure/validation are implemented; remaining incremental slices pending
 
 ## Objective
 
@@ -47,7 +47,7 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 | 1a. Step-variable schema foundation | Implemented: ordinary v1 case steps now accept the same variable-definition shape, including locale-key checks. Definitions remain unresolved. |
 | 2. Variable references | Implemented: v1 case schema support for whole-field `{ "var": "name" }` references in `navigate.url`, interaction inputs, and assertion expected/associated-label values. Locators, waits, and settings remain literal; variables remain unresolved at runtime. |
 | 3. Ordinary variable resolution | Implemented at the case-session boundary: `resolveVariable` selects an ordinary scalar from step, case, or plan scope, replaces whole definitions, selects locale/default values, preserves types, and reports missing names. `prepareCaseStep` creates detached steps, and `prepareCase` prepares every step, reports the first missing-reference field, and validates the detached case. Runner-core `executeCase` prepares before dispatching any case step and reports preparation failures without dispatching a step. Full pre-browser-startup orchestration remains later work. |
-| 4. Named data sets | Add per-case data-set declarations and selection, with duplicate/unknown-name checks and the accepted precedence. No run-wide selection or iteration. |
+| 4. Named data sets | Partially implemented: v1 cases may contribute named `dataSets` containing scalar variable definitions and identify a `defaultDataSet`. Case validation rejects duplicate names in one case; bundle validation rejects duplicate names across cases and unknown default names. Selection, precedence, and runner application remain later work. No run-wide selection or iteration. |
 | 5. Shared-step validation and execution | Add one-level shared groups, then execute them in the calling case context with focused ordering and traceability tests. |
 | 6. Protected environment values and safe evidence | Add effective environment lookup and the required redaction boundary for logs, errors, assertion evidence, and axe evidence before enabling protected execution. |
 | 7. M5 verification and close-out | Run applicable package checks and current CI, reconcile contracts/examples/learning, review retained evidence, and record what is verified. Keep deferred Chromium/axe tests and M6 policy separate. |

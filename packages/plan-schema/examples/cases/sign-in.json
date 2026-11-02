@@ -14,5 +14,19 @@
       }
     }
   },
+  "dataSets": [
+    {
+      "name": "sign-in-default",
+      "variables": {
+        "submitLabel": {
+          "default": "Sign in",
+          "locales": {
+            "fr-CA": "Se connecter"
+          }
+        }
+      }
+    }
+  ],
+  "defaultDataSet": "sign-in-default",
   "steps": []
 }

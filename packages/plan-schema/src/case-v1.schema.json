@@ -9,6 +9,11 @@
     "id": { "type": "string", "minLength": 1 },
     "settings": { "$ref": "#/$defs/caseSettings" },
     "variables": { "$ref": "#/$defs/variables" },
+    "dataSets": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dataSet" }
+    },
+    "defaultDataSet": { "type": "string", "minLength": 1 },
     "steps": {
       "type": "array",
       "items": {
@@ -30,6 +35,15 @@
       "type": "object",
       "propertyNames": { "minLength": 1 },
       "additionalProperties": { "$ref": "#/$defs/variableDefinition" }
+    },
+    "dataSet": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "variables"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "variables": { "$ref": "#/$defs/variables" }
+      }
     },
     "variableDefinition": {
       "oneOf": [

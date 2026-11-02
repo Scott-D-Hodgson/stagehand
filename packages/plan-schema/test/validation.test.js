@@ -305,6 +305,50 @@ test("rejects invalid and duplicate canonical locale keys in variable definition
   }
 });
 
+test("accepts named case data sets with scalar variable definitions", () => {
+  const result = validateCase({
+    schemaVersion: 1,
+    id: "data-set-case",
+    variables: { email: { default: "case@example.test" } },
+    dataSets: [
+      {
+        name: "standard",
+        variables: {
+          email: { default: "standard@example.test", locales: { "fr-CA": "standard-fr@example.test" } },
+          attempts: { default: 3 },
+          enabled: { default: true },
+        },
+      },
+      { name: "empty", variables: {} },
+    ],
+    defaultDataSet: "standard",
+    steps: [],
+  });
+  assert.deepEqual(result, { valid: true });
+});
+
+test("rejects invalid and duplicate named case data sets", () => {
+  const baseCase = { schemaVersion: 1, id: "data-set-case", steps: [] };
+  const invalidDataSets = [
+    [{ name: "standard" }],
+    [{ name: "", variables: {} }],
+    [{ name: "standard", variables: { email: { default: ["not scalar"] } } }],
+    [{ name: "standard", variables: { email: { default: "Email", locales: { "en-us": "Email", "en-US": "Email" } } } }],
+  ];
+  for (const dataSets of invalidDataSets) {
+    assert.equal(validateCase({ ...baseCase, dataSets }).valid, false);
+  }
+  const duplicate = validateCase({
+    ...baseCase,
+    dataSets: [
+      { name: "standard", variables: {} },
+      { name: "standard", variables: {} },
+    ],
+  });
+  assert.equal(duplicate.valid, false);
+  assert.ok(duplicate.issues.some((issue) => issue.path === "/dataSets/1/name" && issue.keyword === "duplicateDataSetName"));
+});
+
 test("resolves variables from the narrowest scope without merging locale variants", () => {
   const result = resolveVariable({
     name: "greeting",
@@ -860,6 +904,33 @@ test("requires one parsed case for each plan reference", () => {
       (issue) => issue.path === "/caseFiles" && issue.keyword === "caseCount",
     ),
   );
+});
+
+test("rejects duplicate data-set names and unknown default selections in a plan bundle", () => {
+  const plan = planWithReferences("cases/first.json", "cases/second.json");
+  const firstCase = {
+    schemaVersion: 1,
+    id: "first",
+    dataSets: [{ name: "standard", variables: {} }],
+    steps: [],
+  };
+  const duplicateName = validatePlanBundle(plan, [
+    firstCase,
+    {
+      schemaVersion: 1,
+      id: "second",
+      dataSets: [{ name: "standard", variables: {} }],
+      steps: [],
+    },
+  ]);
+  assert.equal(duplicateName.valid, false);
+  assert.ok(duplicateName.issues.some((issue) => issue.path === "/caseFiles/1/dataSets/0/name" && issue.keyword === "duplicateDataSetName"));
+  const unknownDefault = validatePlanBundle(plan, [
+    firstCase,
+    { schemaVersion: 1, id: "second", defaultDataSet: "missing", steps: [] },
+  ]);
+  assert.equal(unknownDefault.valid, false);
+  assert.ok(unknownDefault.issues.some((issue) => issue.path === "/caseFiles/1/defaultDataSet" && issue.keyword === "unknownDataSet"));
 });
 
 test("accepts known axe tags, empty lists, and omitted lists at plan and case scope", () => {
