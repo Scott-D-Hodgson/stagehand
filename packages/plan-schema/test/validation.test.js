@@ -272,7 +272,7 @@ test("accepts protected environment references only for text variable definition
     { password: { default: { env: "" } } },
     { password: { default: { env: "TEST_PASSWORD", extra: true } } },
     { password: { default: {} } },
-    { attempts: { default: { env: "TEST_ATTEMPTS" } } },
+    { attempts: { default: 3, locales: { "fr-CA": { env: "TEST_ATTEMPTS" } } } },
     { enabled: { default: true, locales: { "fr-CA": { env: "TEST_ENABLED" } } } },
   ]) {
     assert.equal(validatePlan({ ...planWithReferences(), variables: invalid }).valid, false);
