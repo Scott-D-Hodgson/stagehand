@@ -2,7 +2,7 @@
 
 **Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Variable schema foundations, ordinary-input preflight, data-set structure/validation, pure data-set selection, and runner hand-off are implemented; later slices remain pending
+**Status:** Variable schema foundations, ordinary-input preflight, data-set structure/validation, runner hand-off, and shared-step document validation are implemented; expansion and later slices remain pending
 
 ## Objective
 
@@ -48,7 +48,7 @@ This is a proposed implementation sequence for small reviewable slices, not comp
 | 2. Variable references | Implemented: v1 case schema support for whole-field `{ "var": "name" }` references in `navigate.url`, interaction inputs, and assertion expected/associated-label values. Locators, waits, and settings remain literal; variables remain unresolved at runtime. |
 | 3. Ordinary variable resolution | Implemented at the case-session boundary: `resolveVariable` selects an ordinary scalar from step, case, or plan scope, replaces whole definitions, selects locale/default values, preserves types, and reports missing names. `prepareCaseStep` creates detached steps, and `prepareCase` prepares every step, reports the first missing-reference field, and validates the detached case. Runner-core `executeCase` prepares before dispatching any case step and reports preparation failures without dispatching a step. Full pre-browser-startup orchestration remains later work. |
 | 4. Named data sets | Partially implemented: v1 cases may contribute named `dataSets` containing scalar variable definitions and identify a `defaultDataSet`. Case validation rejects duplicate names in one case; bundle validation rejects duplicate names across cases and unknown default names. `selectCaseDataSet` selects the case default or an explicit per-case name from a supplied bundle collection and rejects unknown names. `runner-core` now accepts that collection and optional selection at its case-session `executeCase` boundary, preparing selected definitions before dispatch. Step definitions remain narrower than selected data-set definitions, which override case definitions. The focused plan-schema suite passes 62 tests and runner-core passes 137 mocked-browser tests in the development container, both with no failures or skips. No run-wide selection or iteration. |
-| 5. Shared-step validation and execution | Add one-level shared groups, then execute them in the calling case context with focused ordering and traceability tests. |
+| 5. Shared-step validation and execution | Partially implemented: plans may declare stable `sharedStepGroups`; cases may call them with `callSharedSteps`. Validation rejects duplicate IDs, unknown calls, nested group calls, and private group-step variable definitions. The focused plan-schema suite passes 65 tests in the development container with no failures or skips. Expansion, ordinary-step validation within groups, preparation, execution, and traceability remain later work. |
 | 6. Protected environment values and safe evidence | Add effective environment lookup and the required redaction boundary for logs, errors, assertion evidence, and axe evidence before enabling protected execution. |
 | 7. M5 verification and close-out | Run applicable package checks and current CI, reconcile contracts/examples/learning, review retained evidence, and record what is verified. Keep deferred Chromium/axe tests and M6 policy separate. |
 

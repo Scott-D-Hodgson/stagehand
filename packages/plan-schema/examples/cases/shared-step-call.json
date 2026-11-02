@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "shared-step-call",
+  "steps": [
+    {
+      "action": "callSharedSteps",
+      "id": "sign-in"
+    }
+  ]
+}

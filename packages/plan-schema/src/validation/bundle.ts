@@ -7,6 +7,10 @@ interface ValidatedCaseDataSets {
   defaultDataSet?: string;
 }
 
+interface ValidatedPlanSharedStepGroups {
+  sharedStepGroups?: Array<{ id: string }>;
+}
+
 export function validatePlanBundle(input: unknown, parsedCases: readonly unknown[]): ValidationResult {
   const planResult = validatePlan(input);
   if (!planResult.valid) {
@@ -19,7 +23,7 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
       message: "Parsed cases must be supplied as an array in plan reference order.",
     }] };
   }
-  const plan = input as { cases: Array<{ path: string }> };
+  const plan = input as { cases: Array<{ path: string }> } & ValidatedPlanSharedStepGroups;
   if (parsedCases.length !== plan.cases.length) {
     return { valid: false, issues: [{
       path: "/caseFiles",
@@ -30,6 +34,9 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
   const issues: ValidationIssue[] = [];
   const caseIds = new Map<string, number>();
   const dataSetNames = new Map<string, { caseIndex: number; dataSetIndex: number }>();
+  const sharedStepGroupIds = new Set(
+    (plan.sharedStepGroups ?? []).map((group) => group.id),
+  );
   const validatedCases: Array<{ caseIndex: number; dataSets: ValidatedCaseDataSets }> = [];
   for (const [caseIndex, caseFile] of parsedCases.entries()) {
     const caseResult = validateCase(caseFile);
@@ -52,6 +59,24 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
     }
     caseIds.set(caseId, caseIndex);
     validatedCases.push({ caseIndex, dataSets: caseFile as ValidatedCaseDataSets });
+    const steps = (caseFile as { steps: Array<unknown> }).steps;
+    for (const [stepIndex, step] of steps.entries()) {
+      if (
+        typeof step === "object"
+        && step !== null
+        && !Array.isArray(step)
+        && (step as { action?: unknown }).action === "callSharedSteps"
+        && typeof (step as { id?: unknown }).id === "string"
+        && !sharedStepGroupIds.has((step as { id: string }).id)
+      ) {
+        const sharedStepGroupId = (step as { id: string }).id;
+        issues.push({
+          path: `/caseFiles/${caseIndex}/steps/${stepIndex}/id`,
+          keyword: "unknownSharedStepGroup",
+          message: `No shared-step group named "${sharedStepGroupId}" is available in this plan.`,
+        });
+      }
+    }
   }
   for (const { caseIndex, dataSets } of validatedCases) {
     for (const [dataSetIndex, dataSet] of (dataSets.dataSets ?? []).entries()) {

@@ -9,6 +9,10 @@
     "id": { "type": "string", "minLength": 1 },
     "defaults": { "$ref": "#/$defs/planDefaults" },
     "variables": { "$ref": "#/$defs/variables" },
+    "sharedStepGroups": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/sharedStepGroup" }
+    },
     "cases": {
       "type": "array",
       "items": {
@@ -27,6 +31,18 @@
     }
   },
   "$defs": {
+    "sharedStepGroup": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "steps"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "steps": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
     "variables": {
       "type": "object",
       "propertyNames": { "minLength": 1 },
