@@ -2,6 +2,9 @@
 
 > “How does Stagehand find one target and interact with it predictably?” — Wade “Wait-and-Work” Wilson, Developer
 
+[← Previous: browser lifecycle](07-browser-lifecycle.md) · [Phase outline](../README.md) · [Next: assertions accessibility →](09-assertions-accessibility.md)
+
+
 Locators identify one role, label, CSS, or XPath target. Multiple matches fail; missing targets retry within a bounded timeout. Wait lists run in order before or after interactions.
 
 Current actions navigate, click, type characters, fill fields, and select one option. Locator lookup and the browser operation share a timeout. Scrolling is normally automatic but can be disabled.
@@ -15,3 +18,4 @@ Trace a click with a before locator wait and an after network-idle wait. Mark ev
 - You can explain unique locator resolution.
 - You can distinguish type, fill, and option selection.
 
+[← Previous: browser lifecycle](07-browser-lifecycle.md) · [Phase outline](../README.md) · [Next: assertions accessibility →](09-assertions-accessibility.md)

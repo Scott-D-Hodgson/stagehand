@@ -7,14 +7,14 @@ import { loadPlanFile } from "@stagehand/plan-engine";
 
 function planWithReferences(...paths) {
   return {
-    schemaVersion: 1,
+    version: 1,
     id: "loader-test-plan",
     cases: paths.map((path) => ({ path })),
   };
 }
 
 function caseWithId(id) {
-  return { schemaVersion: 1, id, steps: [] };
+  return { version: 1, id, steps: [] };
 }
 
 async function writeJson(path, value) {
@@ -93,7 +93,7 @@ test("returns the sha256-v1 fingerprint for the exact plan and case bytes", asyn
   }
   assert.deepEqual(first.fingerprint, {
     algorithm: "sha256-v1",
-    digest: "d54d1ad81a2f6e785e82b002d6be53227b12765df95ce5cd3f5a03730b30ad1c",
+    digest: "d86f6b988c6fd67df61cd41b7894ae214f71506fbc340ebd22f22c68bf1e16ce",
   });
   assert.deepEqual(repeated.fingerprint, first.fingerprint);
 });
@@ -157,7 +157,7 @@ test("fingerprint case contents in plan-reference order", async (t) => {
   );
   assert.equal(
     reverse.fingerprint.digest,
-    "c15da818e5e15bdaa47452f33325592a921ed02140328f1e997dd94899dd69d8",
+    "f58b4cf67a9e8b4174ad35d3a2badff3a735371928054824e1646a6c24f044b8",
   );
   assert.notEqual(reverse.fingerprint.digest, forward.fingerprint.digest);
 });

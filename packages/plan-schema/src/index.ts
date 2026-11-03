@@ -9,7 +9,7 @@ export type {
   CaseReferenceMatchResult,
 } from "./references/types.js";
 export { resolveVariable } from "./variables/resolve.js";
-export { resolveProtectedEnvironmentValue } from "./variables/environment.js";
+export { resolveEnvironmentValue } from "./variables/environment.js";
 export { selectCaseDataSet } from "./variables/data-set.js";
 export { prepareCase, prepareCaseStep } from "./variables/prepare.js";
 export { expandCaseSharedSteps, prepareCaseSharedSteps } from "./variables/shared-steps.js";
@@ -26,13 +26,13 @@ export type {
   ResolveVariableOptions,
   ScalarVariableValue,
   ProtectedVariableValue,
-  ResolveProtectedEnvironmentValueOptions,
-  ResolveProtectedEnvironmentValueResult,
+  ResolveEnvironmentValueOptions,
+  ResolveEnvironmentValueResult,
   VariableValue,
   NamedDataSet,
   SelectCaseDataSetOptions,
   SelectCaseDataSetResult,
   VariableDefinition,
   VariableResolutionResult,
-  SharedStepGroup,
+  SharedSteps,
 } from "./variables/types.js";

@@ -2,6 +2,9 @@
 
 > “Do the result, pipeline, guidance, and safeguards tell one consistent story?” — Ruby “Release Reviewer” Rivera, Developer
 
+[← Previous: adoption](08-adoption.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)
+
+
 Release review checks the whole chain: execution produces a valid result, automation preserves it, diagnostics explain it, redaction protects it, and documentation describes only verified behaviour.
 
 Deferred work stays visible. For example, real Chromium axe testing remains deferred until the project has a suitable test site.
@@ -13,3 +16,5 @@ Trace one failed accessibility run from execution through its published artifact
 ## You are ready when
 
 You can approve or stop a release using traceable evidence rather than assumptions.
+
+[← Previous: adoption](08-adoption.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)

@@ -2,6 +2,9 @@
 
 > “If a test fails and cleanup also fails, which problem do we report?” — Frank “Failure Foreman” Frost, Developer
 
+[← Previous: cancellation](05-cancellation.md) · [Phase outline](../README.md) · [Next: cli commands →](07-cli-commands.md)
+
+
 The failure that caused execution to stop is the **primary failure**. Cleanup problems are secondary evidence. They matter, but must not erase the original cause.
 
 Cleanup should be safe to attempt even after partial setup. Think of closing a workshop after an accident: preserve the incident report, then record any trouble locking up.
@@ -13,3 +16,5 @@ Write an outcome for an assertion failure followed by a browser-close failure. I
 ## You are ready when
 
 You can preserve the real cause while still recording cleanup problems.
+
+[← Previous: cancellation](05-cancellation.md) · [Phase outline](../README.md) · [Next: cli commands →](07-cli-commands.md)

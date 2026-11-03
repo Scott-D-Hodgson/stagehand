@@ -2,6 +2,9 @@
 
 > “How can the editor make variables and reusable steps understandable without hiding their rules?” — Daisy “Data Designer” Dean, Developer
 
+[← Previous: validation feedback](04-validation-feedback.md) · [Phase outline](../README.md) · [Next: local files →](06-local-files.md)
+
+
 Variables, data sets, locale variants, and shared steps connect information from different parts of a plan. The editor should show those connections and prevent invalid references before export.
 
 Progressive disclosure can keep simple plans simple: show advanced controls only when a person needs them, while still producing the same shared JSON contracts.
@@ -15,3 +18,5 @@ Sketch a variable editor that shows a default value, optional locale variants, a
 ## You are ready when
 
 You can make connected plan features visible without inventing a second contract or implying deferred features exist.
+
+[← Previous: validation feedback](04-validation-feedback.md) · [Phase outline](../README.md) · [Next: local files →](06-local-files.md)

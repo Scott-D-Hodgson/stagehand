@@ -10,7 +10,7 @@
 - [x] Review [TE-001](../Backlog/technical-enablers/te-001-versioned-plan-and-result-schemas.md), [ATR-001](../Backlog/epics/E01-plan-definition/stories/ATR-001.md), [ATR-002](../Backlog/epics/E01-plan-definition/stories/ATR-002.md), and [ADR-003](../Backlog/decisions/ADR-003-versioned-plan-contract.md).
 - [x] Define the versioning policy and implementation arrangement for the accepted shared schemas.
   - [x] Select JSON Schema Draft 2020-12 and distinguish its `$schema` dialect URI from Stagehand contract versions.
-  - [x] Use independent integer `schemaVersion` fields for plan and case documents, each initially `1`.
+  - [x] Use independent integer `version` fields for plan and case documents, each initially `1`.
   - [x] Keep JSON Schema documents as JSON data and use TypeScript for package implementation code.
   - [x] Add initial synchronous `validatePlan` and `validateCase` helpers to `@stagehand/plan-schema`, using Ajv's Draft 2020-12 validator and returning structured issues for invalid input. Node's built-in tests verify valid examples, invalid inputs, non-throwing results, and imports through the public package entry point; M4/M5 own fixtures for action and data semantics.
   - [x] Use a versioned JSON Schema as the normative validation contract for emitted result JSON.

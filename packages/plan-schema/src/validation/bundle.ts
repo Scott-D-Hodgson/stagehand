@@ -3,12 +3,11 @@ import { validatePlan } from "./plan.js";
 import type { ValidationIssue, ValidationResult } from "./types.js";
 
 interface ValidatedCaseDataSets {
-  dataSets?: Array<{ name: string }>;
-  defaultDataSet?: string;
+  dataSets?: Record<string, unknown>;
 }
 
-interface ValidatedPlanSharedStepGroups {
-  sharedStepGroups?: Array<{ id: string }>;
+interface ValidatedPlanSharedSteps {
+  sharedSteps?: Record<string, unknown>;
 }
 
 export function validatePlanBundle(input: unknown, parsedCases: readonly unknown[]): ValidationResult {
@@ -23,7 +22,7 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
       message: "Parsed cases must be supplied as an array in plan reference order.",
     }] };
   }
-  const plan = input as { cases: Array<{ path: string }> } & ValidatedPlanSharedStepGroups;
+  const plan = input as { cases: Array<{ path: string }> } & ValidatedPlanSharedSteps;
   if (parsedCases.length !== plan.cases.length) {
     return { valid: false, issues: [{
       path: "/caseFiles",
@@ -33,10 +32,8 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
   }
   const issues: ValidationIssue[] = [];
   const caseIds = new Map<string, number>();
-  const dataSetNames = new Map<string, { caseIndex: number; dataSetIndex: number }>();
-  const sharedStepGroupIds = new Set(
-    (plan.sharedStepGroups ?? []).map((group) => group.id),
-  );
+  const dataSetNames = new Map<string, number>();
+  const sharedStepIds = new Set(Object.keys(plan.sharedSteps ?? {}));
   const validatedCases: Array<{ caseIndex: number; dataSets: ValidatedCaseDataSets }> = [];
   for (const [caseIndex, caseFile] of parsedCases.entries()) {
     const caseResult = validateCase(caseFile);
@@ -65,40 +62,34 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
         typeof step === "object"
         && step !== null
         && !Array.isArray(step)
-        && (step as { action?: unknown }).action === "callSharedSteps"
+        && (step as { action?: unknown }).action === "sharedSteps"
         && typeof (step as { id?: unknown }).id === "string"
-        && !sharedStepGroupIds.has((step as { id: string }).id)
+        && !sharedStepIds.has((step as { id: string }).id)
       ) {
-        const sharedStepGroupId = (step as { id: string }).id;
+        const sharedStepId = (step as { id: string }).id;
         issues.push({
           path: `/caseFiles/${caseIndex}/steps/${stepIndex}/id`,
-          keyword: "unknownSharedStepGroup",
-          message: `No shared-step group named "${sharedStepGroupId}" is available in this plan.`,
+          keyword: "unknownSharedSteps",
+          message: `No shared steps named "${sharedStepId}" are available in this plan.`,
         });
       }
     }
   }
   for (const { caseIndex, dataSets } of validatedCases) {
-    for (const [dataSetIndex, dataSet] of (dataSets.dataSets ?? []).entries()) {
-      const earlier = dataSetNames.get(dataSet.name);
+    for (const [name] of Object.entries(dataSets.dataSets ?? {})) {
+      if (name === "default") {
+        continue;
+      }
+      const earlier = dataSetNames.get(name);
       if (earlier !== undefined) {
         issues.push({
-          path: `/caseFiles/${caseIndex}/dataSets/${dataSetIndex}/name`,
+          path: `/caseFiles/${caseIndex}/dataSets/${name}`,
           keyword: "duplicateDataSetName",
-          message: `Data-set name duplicates the name at /caseFiles/${earlier.caseIndex}/dataSets/${earlier.dataSetIndex}/name.`,
+          message: `Data-set name duplicates the name at /caseFiles/${earlier}/dataSets/${name}.`,
         });
         continue;
       }
-      dataSetNames.set(dataSet.name, { caseIndex, dataSetIndex });
-    }
-  }
-  for (const { caseIndex, dataSets } of validatedCases) {
-    if (dataSets.defaultDataSet !== undefined && !dataSetNames.has(dataSets.defaultDataSet)) {
-      issues.push({
-        path: `/caseFiles/${caseIndex}/defaultDataSet`,
-        keyword: "unknownDataSet",
-        message: `No data set named "${dataSets.defaultDataSet}" is available in this plan bundle.`,
-      });
+      dataSetNames.set(name, caseIndex);
     }
   }
   return issues.length === 0 ? { valid: true } : { valid: false, issues };

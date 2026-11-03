@@ -2,6 +2,9 @@
 
 > “How does runner-core turn a Stagehand locator into exactly one browser target?” — Larry “Locator Lookout” Lewis, Developer
 
+[← Previous: browser lifecycle](01-browser-lifecycle.md) · [Course outline](../README.md) · [Next: waits →](03-waits.md)
+
+
 The current locator forms are role, label, CSS, and XPath. Role and label names match exactly. `resolveUniqueLocator` waits for one match, fails immediately on multiple matches, and retries a missing target up to three attempts when the timeout allows.
 
 A locator is an address, not an action. Finding exactly one door does not mean Stagehand has opened it yet. Actions reuse locator resolution and then spend the remaining shared timeout on browser actionability or reading.
@@ -15,3 +18,4 @@ Follow [`locators.ts`](../../../../packages/runner-core/src/locators.ts) and its
 - You can explain exact matching and ambiguity failure.
 - You know how retry gaps fit inside the total timeout.
 
+[← Previous: browser lifecycle](01-browser-lifecycle.md) · [Course outline](../README.md) · [Next: waits →](03-waits.md)

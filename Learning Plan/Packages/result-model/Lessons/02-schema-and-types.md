@@ -2,6 +2,9 @@
 
 > “Why does the package contain both JSON Schema and TypeScript types?” — Tyler “Type Twin” Tate, Developer
 
+[← Previous: result contract](01-result-contract.md) · [Course outline](../README.md) · [Next: runtime validation →](03-runtime-validation.md)
+
+
 TypeScript checks code while developers build it. JSON Schema checks actual values at runtime, including data read from JSON. They are two safety nets at different times.
 
 Think of TypeScript as a drafting ruler used at the design desk and JSON Schema as the gauge at the receiving door. The ruler helps produce the intended shape; the gauge still checks what actually arrives.
@@ -17,3 +20,4 @@ Find one required field in the schema and its matching TypeScript property. Expl
 - You can describe compile-time versus runtime checking.
 - You know why schema and types must be reviewed together.
 
+[← Previous: result contract](01-result-contract.md) · [Course outline](../README.md) · [Next: runtime validation →](03-runtime-validation.md)

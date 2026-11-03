@@ -1,6 +1,6 @@
 # Result model
 
-This package contains the normative JSON Schema for Stagehand result documents, matching TypeScript types, a runtime validator, and one synthetic example. The schema uses JSON Schema Draft 2020-12 and Stagehand result `schemaVersion: 1`.
+This package contains the normative JSON Schema for Stagehand result documents, matching TypeScript types, a runtime validator, and one synthetic example. The schema uses JSON Schema Draft 2020-12 and Stagehand result `version: 1`.
 
 The schema describes source identity/fingerprint, timing, case counts, effective settings, steps, assertions, diagnostics, accessibility findings, and optional artifacts. It validates structure and formats; it does not produce results, calculate fingerprints, collect/deduplicate scan findings, check cross-field counts, or enforce M6 outcome policy.
 

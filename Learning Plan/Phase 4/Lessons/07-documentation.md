@@ -2,6 +2,9 @@
 
 > “What must someone know to use or change Stagehand without guessing?” — Doc “Documentation Designer” Daniels, Developer
 
+[← Previous: security](06-security.md) · [Phase outline](../README.md) · [Next: adoption →](08-adoption.md)
+
+
 User guidance explains tasks and outcomes. Contributor guidance explains architecture, conventions, checks, and decision history. Both must distinguish implemented behaviour from planned behaviour.
 
 Examples should be synthetic, small, and valid. Links should lead to the shared source rather than duplicating rules that will drift.
@@ -13,3 +16,5 @@ Outline a user page for running a plan and a contributor page for changing a sch
 ## You are ready when
 
 You can write guidance that is accurate, findable, and suited to its reader.
+
+[← Previous: security](06-security.md) · [Phase outline](../README.md) · [Next: adoption →](08-adoption.md)

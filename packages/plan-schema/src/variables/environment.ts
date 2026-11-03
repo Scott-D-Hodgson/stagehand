@@ -1,10 +1,10 @@
 import type {
   ProtectedVariableValue,
-  ResolveProtectedEnvironmentValueOptions,
-  ResolveProtectedEnvironmentValueResult,
+  ResolveEnvironmentValueOptions,
+  ResolveEnvironmentValueResult,
 } from "./types.js";
 
-function missingEnvironmentVariable(environmentVariable: string): ResolveProtectedEnvironmentValueResult {
+function missingEnvironmentVariable(environmentVariable: string): ResolveEnvironmentValueResult {
   return {
     resolved: false,
     reason: "missingEnvironmentVariable",
@@ -13,9 +13,9 @@ function missingEnvironmentVariable(environmentVariable: string): ResolveProtect
   };
 }
 
-export function resolveProtectedEnvironmentValue(
-  options: ResolveProtectedEnvironmentValueOptions,
-): ResolveProtectedEnvironmentValueResult {
+export function resolveEnvironmentValue(
+  options: ResolveEnvironmentValueOptions,
+): ResolveEnvironmentValueResult {
   const protectedValue: ProtectedVariableValue = options.value;
   if (!Object.hasOwn(options.environment, protectedValue.env)) {
     return missingEnvironmentVariable(protectedValue.env);

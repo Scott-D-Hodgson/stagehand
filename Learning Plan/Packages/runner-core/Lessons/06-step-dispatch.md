@@ -2,6 +2,9 @@
 
 > “How does runner-core execute a validated list of steps in the intended order?” — Johnny “JavaScript Junior” Jones, Developer
 
+[← Previous: assertions](05-assertions.md) · [Course outline](../README.md) · [Next: case preparation →](07-case-preparation.md)
+
+
 `executeSteps(caseId, steps)` visits the array from first to last and sends each recognized action to its handler. Interaction wait lists wrap their action. A hard failure becomes `StepExecutionError` with the case ID, zero-based step index, action, and original cause. When `executeCase` dispatches expanded shared steps, the error also identifies the calling case step and the shared group/inner step. Soft assertion failures retain the same extra identity.
 
 ```mermaid
@@ -24,3 +27,4 @@ Trace a failed second step. Identify the error's index and explain why the third
 - You can describe dispatch order and failure context.
 - You know where automatic scanning fits in the sequence.
 
+[← Previous: assertions](05-assertions.md) · [Course outline](../README.md) · [Next: case preparation →](07-case-preparation.md)

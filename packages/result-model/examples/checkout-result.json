@@ -1,8 +1,8 @@
 {
-  "schemaVersion": 1,
+  "version": 1,
   "sourcePlan": {
     "id": "checkout-plan",
-    "schemaVersion": 1,
+    "version": 1,
     "fingerprint": {
       "algorithm": "sha256-v1",
       "digest": "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"

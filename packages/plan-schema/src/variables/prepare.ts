@@ -1,7 +1,7 @@
 import { escapeJsonPointerSegment, isRecord } from "../json.js";
 import { validateCase } from "../validation/case.js";
 import { resolveVariable } from "./resolve.js";
-import { resolveProtectedEnvironmentValue } from "./environment.js";
+import { resolveEnvironmentValue } from "./environment.js";
 import type {
   PrepareCaseOptions,
   PrepareCaseResult,
@@ -45,7 +45,7 @@ function prepareTextValue(
   }
   if (isProtectedVariableValue(result.value)) {
     if (options.environment !== undefined) {
-      const environmentResult = resolveProtectedEnvironmentValue({
+      const environmentResult = resolveEnvironmentValue({
         value: result.value,
         environment: options.environment,
       });

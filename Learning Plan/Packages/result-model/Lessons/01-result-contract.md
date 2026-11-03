@@ -2,7 +2,10 @@
 
 > “What does `result-model` promise about a saved Stagehand run result?” — Rita “Result Reader” Rhodes, Developer
 
-The result v1 JSON Schema is the normative—meaning authoritative—runtime contract. It describes required run metadata, cases, indexed steps, effective settings, findings, counts, and source fingerprint shape.
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: schema and types →](02-schema-and-types.md)
+
+
+The result v1 JSON Schema is the normative—meaning authoritative—runtime contract. Every result declares `version: 1`, and its `sourcePlan` record retains the source plan's `version`. The contract describes required run metadata, cases, indexed steps, effective settings, findings, counts, and source fingerprint shape.
 
 A contract describes the container, not how every value was produced. A valid result may still contain counts or outcomes that future M6 execution policy would judge inconsistent. The validator also does not calculate the fingerprint; `plan-engine` does that while loading source files.
 
@@ -17,3 +20,4 @@ Open the synthetic result example and identify which fields describe source iden
 - You can identify the normative result artifact.
 - You can explain why structural validity is not outcome-policy correctness.
 
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: schema and types →](02-schema-and-types.md)

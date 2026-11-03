@@ -1,6 +1,10 @@
-# Lesson 3: Case references
+# Lesson 5: Case references
 
 > “How does a plan reference get matched to an available case file name?” — Riley “Reference Ranger” Reed, Developer
+
+[← Previous: validation](04-validation.md) · [Course outline](../README.md) · [Next: bundle validation →](06-bundle-validation.md)
+
+
 
 `matchCaseReferences` compares the plan's relative case paths with relative paths supplied by a caller. It normalizes repeated `/` and `.` segments, matches case-sensitively, and reports missing, ambiguous, escaping, and duplicate references.
 
@@ -8,9 +12,14 @@ The normalized path is only a matching label. It is not proof that a real file s
 
 ```mermaid
 flowchart LR
-    A[Plan reference] --> B[Normalize for matching]
-    B --> C[Match supplied relative name]
-    C --> D[plan-engine later checks the real filesystem target]
+    subgraph S[plan-schema]
+        A[Plan reference] --> B[Normalize for matching]
+        B --> C[Match supplied relative name]
+    end
+    subgraph E[plan-engine]
+        D[Check real filesystem target]
+    end
+    C --> D
 ```
 
 The first three boxes are logical matching. The final box is filesystem safety; neither replaces the other.
@@ -24,3 +33,4 @@ Compare `cases/./sign-in.json` with `cases/sign-in.json`, then compare `Cases/si
 - You can explain why matching is case-sensitive.
 - You know why normalized text cannot prove filesystem containment.
 
+[← Previous: validation](04-validation.md) · [Course outline](../README.md) · [Next: bundle validation →](06-bundle-validation.md)

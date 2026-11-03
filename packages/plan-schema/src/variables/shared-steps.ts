@@ -10,9 +10,8 @@ import type {
   VariableDefinition,
 } from "./types.js";
 
-interface IndexedSharedStepGroup {
+interface IndexedSharedSteps {
   id: string;
-  index: number;
   steps: readonly Readonly<Record<string, unknown>>[];
 }
 
@@ -22,15 +21,13 @@ function getCaseVariables(caseFile: Readonly<Record<string, unknown>>): Readonly
     : undefined;
 }
 
-function getSharedStepGroups(
-  sharedStepGroups: readonly { id: string; steps: readonly Readonly<Record<string, unknown>>[] }[],
-): Map<string, IndexedSharedStepGroup> {
-  return new Map(sharedStepGroups.map((group, index) => [group.id, { ...group, index }]));
+function getSharedSteps(sharedSteps: Readonly<Record<string, readonly Readonly<Record<string, unknown>>[]>>): Map<string, IndexedSharedSteps> {
+  return new Map(Object.entries(sharedSteps).map(([id, steps]) => [id, { id, steps }]));
 }
 
 function expansionFailure(
   path: string,
-  reason: "invalidCaseSteps" | "nestedSharedStepCall" | "unknownSharedStepGroup",
+  reason: "invalidCaseSteps" | "nestedSharedSteps" | "unknownSharedSteps",
   message: string,
 ): ExpandCaseSharedStepsResult {
   return { expanded: false, path, reason, message };
@@ -44,7 +41,7 @@ export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): Ex
       "Case steps must be an array before expanding shared-step calls.",
     );
   }
-  const groups = getSharedStepGroups(options.sharedStepGroups);
+  const groups = getSharedSteps(options.sharedSteps);
   const steps: ExpandedCaseStep[] = [];
   for (const [caseStepIndex, step] of options.case.steps.entries()) {
     if (!isRecord(step)) {
@@ -54,14 +51,14 @@ export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): Ex
         "Case steps must be objects before expanding shared-step calls.",
       );
     }
-    if (step.action !== "callSharedSteps") {
+    if (step.action !== "sharedSteps") {
       steps.push({ caseStepIndex, step: structuredClone(step) });
       continue;
     }
     if (typeof step.id !== "string") {
       return expansionFailure(
         `/steps/${caseStepIndex}/id`,
-        "unknownSharedStepGroup",
+        "unknownSharedSteps",
         "A shared-step call must name a shared-step group.",
       );
     }
@@ -69,22 +66,21 @@ export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): Ex
     if (group === undefined) {
       return expansionFailure(
         `/steps/${caseStepIndex}/id`,
-        "unknownSharedStepGroup",
-        `No shared-step group named "${step.id}" is available in this plan.`,
+        "unknownSharedSteps",
+        `No shared steps named "${step.id}" are available in this plan.`,
       );
     }
     for (const [sharedStepIndex, sharedStep] of group.steps.entries()) {
-      if (sharedStep.action === "callSharedSteps") {
+      if (sharedStep.action === "sharedSteps") {
         return expansionFailure(
-          `/sharedStepGroups/${group.index}/steps/${sharedStepIndex}/action`,
-          "nestedSharedStepCall",
-          "A shared-step group cannot call another shared-step group.",
+          `/sharedSteps/${group.id}/${sharedStepIndex}/action`,
+          "nestedSharedSteps",
+          "Shared steps cannot call other shared steps.",
         );
       }
       steps.push({
         caseStepIndex,
-        sharedStepGroupId: group.id,
-        sharedStepGroupIndex: group.index,
+        sharedStepId: group.id,
         sharedStepIndex,
         step: structuredClone(sharedStep),
       });
@@ -94,9 +90,9 @@ export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): Ex
 }
 
 function getSourcePath(expandedStep: ExpandedCaseStep): string {
-  return expandedStep.sharedStepGroupId === undefined
+  return expandedStep.sharedStepId === undefined
     ? `/steps/${expandedStep.caseStepIndex}`
-    : `/sharedStepGroups/${expandedStep.sharedStepGroupIndex ?? 0}/steps/${expandedStep.sharedStepIndex ?? 0}`;
+    : `/sharedSteps/${expandedStep.sharedStepId}/${expandedStep.sharedStepIndex ?? 0}`;
 }
 
 function prepareFailurePath(expandedStep: ExpandedCaseStep, path: string): string {
@@ -134,7 +130,7 @@ export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): 
         message: result.message,
         caseStepIndex: expandedStep.caseStepIndex,
         ...(result.environmentVariable === undefined ? {} : { environmentVariable: result.environmentVariable }),
-        ...(expandedStep.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: expandedStep.sharedStepGroupId }),
+        ...(expandedStep.sharedStepId === undefined ? {} : { sharedStepId: expandedStep.sharedStepId }),
         ...(expandedStep.sharedStepIndex === undefined ? {} : { sharedStepIndex: expandedStep.sharedStepIndex }),
       };
     }

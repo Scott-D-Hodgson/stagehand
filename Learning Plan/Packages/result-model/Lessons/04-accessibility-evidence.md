@@ -2,15 +2,22 @@
 
 > “What accessibility information can a result retain without storing every raw axe detail?” — Avery “Accessibility Archivist” Ames, Developer
 
+[← Previous: runtime validation](03-runtime-validation.md) · [Course outline](../README.md) · [Next: policy boundary →](05-policy-boundary.md)
+
+
 Every case records effective accessibility settings: `enabled`, `failOnViolation`, and resolved `tags`. This records assessment scope even when no findings exist. Finding tags describe the reported rule; they are not the same as the configured scope.
 
 Each finding retains its URL, rule information, affected nodes, and a node count. Nodes retain selected evidence: HTML, structured target paths, related nodes, and optional impact, failure summary, and XPath. Structured target arrays preserve frame and shadow-DOM boundaries.
 
 ```mermaid
 flowchart LR
-    A[Raw axe observation] --> M[runner-core mapper]
-    M --> F[Result finding shape]
-    F --> V[result-model validation]
+    subgraph R[runner-core]
+        A[Raw axe observation] --> M[Map selected evidence]
+    end
+    subgraph V[result-model]
+        F[Result finding shape] --> X[Validate shape]
+    end
+    M --> F
 ```
 
 The mapper selects and transforms evidence; this package validates the resulting shape. A valid result does not prove the scan itself was complete.
@@ -24,3 +31,4 @@ Compare configured tags with one finding's tags. Explain why both must be retain
 - You can distinguish assessment scope from rule tags.
 - You can name the selected node evidence and explain structured targets.
 
+[← Previous: runtime validation](03-runtime-validation.md) · [Course outline](../README.md) · [Next: policy boundary →](05-policy-boundary.md)

@@ -36,7 +36,7 @@ test("prepares ordinary case variables before dispatching case steps", async () 
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         variables: {
           address: { default: "https://default.example.test", locales: { "fr-CA": "https://bonjour.example.test" } },
@@ -66,7 +66,7 @@ test("uses injected protected values for case execution and redacts soft failure
   try {
     const failures = await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "protected-case",
         variables: { password: { default: { env: "TEST_PASSWORD" } } },
         steps: [
@@ -97,7 +97,7 @@ test("uses plan variables when the case does not define the referenced name", as
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
       },
@@ -120,15 +120,16 @@ test("prepares case steps with the selected data-set values", async () => {
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
-        defaultDataSet: "canada",
+        dataSets: { default: {} },
         variables: { email: { default: "case@example.test" } },
         steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
       },
       dataSets: [
         { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } },
       ],
+      selectedDataSet: "canada",
     });
     assert.equal(typedText, "canada-fr@example.test");
   } finally {
@@ -150,20 +151,18 @@ test("expands and dispatches shared steps using the calling case data set", asyn
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "checkout",
-        defaultDataSet: "canada",
+        dataSets: { default: {} },
         steps: [
           { action: "navigate", url: "https://example.test/start" },
-          { action: "callSharedSteps", id: "sign-in" },
+          { action: "sharedSteps", id: "sign-in" },
           { action: "navigate", url: "https://example.test/complete" },
         ],
       },
       dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
-      sharedStepGroups: [{
-        id: "sign-in",
-        steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
-      }],
+      selectedDataSet: "canada",
+      sharedSteps: { "sign-in": [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }] },
     });
     assert.deepEqual(events, [
       "navigate:https://example.test/start",
@@ -183,20 +182,17 @@ test("retains shared-step identity when an expanded step fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "checkout",
-          steps: [{ action: "callSharedSteps", id: "sign-in" }],
+          steps: [{ action: "sharedSteps", id: "sign-in" }],
         },
-        sharedStepGroups: [{
-          id: "sign-in",
-          steps: [{ action: "navigate", url: "https://example.test/sign-in" }],
-        }],
+        sharedSteps: { "sign-in": [{ action: "navigate", url: "https://example.test/sign-in" }] },
       }),
       (error) => error instanceof StepExecutionError
         && error.caseId === "checkout"
         && error.stepIndex === 0
         && error.caseStepIndex === 0
-        && error.sharedStepGroupId === "sign-in"
+        && error.sharedStepId === "sign-in"
         && error.sharedStepIndex === 0,
     );
   } finally {
@@ -214,19 +210,16 @@ test("retains shared-step identity on a soft assertion failure", async () => {
   try {
     const failures = await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "checkout",
-        steps: [{ action: "callSharedSteps", id: "sign-in" }],
+        steps: [{ action: "sharedSteps", id: "sign-in" }],
       },
-      sharedStepGroups: [{
-        id: "sign-in",
-        steps: [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" }, soft: true }],
-      }],
+      sharedSteps: { "sign-in": [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" }, soft: true }] },
     });
-    assert.deepEqual(failures.map(({ caseId, stepIndex, caseStepIndex, sharedStepGroupId, sharedStepIndex }) => ({
-      caseId, stepIndex, caseStepIndex, sharedStepGroupId, sharedStepIndex,
+    assert.deepEqual(failures.map(({ caseId, stepIndex, caseStepIndex, sharedStepId, sharedStepIndex }) => ({
+      caseId, stepIndex, caseStepIndex, sharedStepId, sharedStepIndex,
     })), [{
-      caseId: "checkout", stepIndex: 0, caseStepIndex: 0, sharedStepGroupId: "sign-in", sharedStepIndex: 0,
+      caseId: "checkout", stepIndex: 0, caseStepIndex: 0, sharedStepId: "sign-in", sharedStepIndex: 0,
     }]);
   } finally {
     await run.close();
@@ -239,19 +232,16 @@ test("retains shared-step identity when preparation fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "checkout",
-          steps: [{ action: "callSharedSteps", id: "sign-in" }],
+          steps: [{ action: "sharedSteps", id: "sign-in" }],
         },
-        sharedStepGroups: [{
-          id: "sign-in",
-          steps: [{ action: "type", locator: { css: "#email" }, text: { var: "missing" } }],
-        }],
+        sharedSteps: { "sign-in": [{ action: "type", locator: { css: "#email" }, text: { var: "missing" } }] },
       }),
       (error) => error instanceof CasePreparationError
-        && error.path === "/sharedStepGroups/0/steps/0/text"
+        && error.path === "/sharedSteps/sign-in/0/text"
         && error.caseStepIndex === 0
-        && error.sharedStepGroupId === "sign-in"
+        && error.sharedStepId === "sign-in"
         && error.sharedStepIndex === 0,
     );
   } finally {
@@ -268,7 +258,7 @@ test("keeps selected data sets isolated between executeCase calls", async () => 
   };
   const { run, session } = await createSession({ locator() { return locator; } });
   const caseFile = {
-    schemaVersion: 1,
+    version: 1,
     id: "sign-in",
     steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
   };
@@ -297,7 +287,7 @@ test("stops before dispatch when the selected data set is unknown", async () => 
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
         },
@@ -325,7 +315,7 @@ test("stops before dispatch when ordinary case preparation fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           steps: [
             { action: "navigate", url: "https://example.test/start" },
