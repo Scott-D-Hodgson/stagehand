@@ -9,6 +9,16 @@ An error model preserves what failed, where it failed, and the original cause. E
 
 M6 owns timeout, cancellation, cleanup, status mapping, aggregation, and preservation of primary/secondary failures. Cleanup errors must not erase the original failure. The initial policy lets independent cases continue after a hard case failure, keeps accessibility findings non-blocking even when they fail the case, and gives run outcomes this order: `error`, `cancelled`, `failed`, then `passed`. Early execution stays sequential. A future coordinator will receive cancellation through an `AbortSignal`, which is JavaScript's standard way to request that work stop.
 
+| Situation | Case effect | Run effect |
+| --- | --- | --- |
+| Soft assertion | Continue steps; case fails. | `failed` unless a higher outcome occurs. |
+| Hard assertion | Stop the case; later independent cases continue. | `failed` unless a higher outcome occurs. |
+| Configured accessibility finding | Continue steps; case fails. | `failed` unless a higher outcome occurs. |
+| Browser, axe, cleanup, or output error | Stop affected work safely. | `error`. |
+| Cancellation before a new case | Do not start that case or later cases. | `cancelled` unless an error occurred. |
+
+If cleanup adds a second problem after an earlier failure, the first failure stays visible as the primary cause. The cleanup problem is retained as secondary context rather than overwriting it.
+
 ```mermaid
 flowchart TD
     F[Case fact] --> C{Category}
