@@ -9,6 +9,7 @@
 7. Why must a cleanup failure not replace the primary execution failure?
 8. How does a configured accessibility finding differ from an axe scan execution error?
 9. What is the M6 run-outcome precedence?
+10. What does `determineCaseOutcome` deliberately not do?
 
 ## Answer key
 
@@ -21,3 +22,4 @@
 7. The primary failure explains why execution failed; cleanup trouble is separate secondary evidence.
 8. A configured finding can fail a case while eligible steps continue; a scan execution error is an operational error and stops affected work safely.
 9. `error`, then `cancelled`, then `failed`, then `passed`.
+10. It does not execute a browser, aggregate run outcomes, or create result JSON.

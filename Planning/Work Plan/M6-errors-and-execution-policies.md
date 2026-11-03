@@ -43,7 +43,7 @@ Run aggregation uses this fixed precedence: `error` > `cancelled` > `failed` > `
 - [x] Review [TE-004](../Backlog/technical-enablers/te-004-execution-context-and-failure-policy.md) and related plan/execution stories.
 - [ ] Define error categories that distinguish plan loading/validation, test assertion, browser/action, runner/infrastructure, cleanup, and report-output failures as needed.
 - [x] Record the detailed decision table for each category and continuation scope, using the accepted initial policy as its baseline.
-- [ ] Define precise case-status mappings for hard failures, soft failures, accessibility findings, and runner failures.
+- [x] Define precise case-status mappings for hard failures, soft failures, accessibility findings, runner failures, and cancellation in the pure `determineCaseOutcome` helper.
 - [ ] Define run-status aggregation details from case outcomes, including runs with no cases started and partial cancellation. Use the accepted precedence of `error`, then `cancelled`, then `failed`, then `passed`. Keep the result field shape in M3 and the underlying action/assertion configuration in M4/M5.
 - [ ] Specify diagnostic fields, stable IDs, safe context, and rules that prevent secrets from appearing.
 - [ ] Define CLI/result signaling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
