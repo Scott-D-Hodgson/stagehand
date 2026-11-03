@@ -6,6 +6,25 @@ The accepted MVP direction is one-level shared groups with stable IDs. A plan ca
 
 Think of a shared group as a reusable scene inserted into the caller's script, not a separate program. Diagnostics retain both the call site and inner-step identity for preparation errors, hard step errors, and soft assertion failures. Result aggregation and serialization of that identity are later M6 work.
 
+```mermaid
+flowchart LR
+    subgraph S[plan-schema]
+        C[Case marker] --> G[Shared group]
+        G --> E[Expanded detached steps]
+        E --> P[Prepare with caller values]
+        C --> I[Call-site identity]
+        G --> J[Inner-step identity]
+    end
+    subgraph R[runner-core]
+        X[Dispatch prepared steps]
+    end
+    P --> X
+    I --> X
+    J --> X
+```
+
+The group contributes reusable steps, but the case remains the owner of the values and the error trail.
+
 ## Try it
 
 Sketch one case calling a sign-in group. Mark the caller context and the identity needed if the group's second step fails.

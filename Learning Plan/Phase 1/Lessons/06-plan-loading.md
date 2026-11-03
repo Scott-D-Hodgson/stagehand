@@ -6,9 +6,15 @@
 
 ```mermaid
 flowchart LR
-    P[Plan path] --> L[Safe loading]
-    L --> B[Validated bundle]
-    L --> F[Source fingerprint]
+    P[Plan path] --> R
+    subgraph E[plan-engine]
+        R[Read and parse referenced files] --> F[Calculate source fingerprint]
+    end
+    subgraph S[plan-schema]
+        V[Validate parsed bundle]
+    end
+    R --> V
+    V --> B[Validated bundle]
 ```
 
 The fingerprint changes when source bytes change, even if the parsed JSON meaning stays the same. Loading does not execute steps.

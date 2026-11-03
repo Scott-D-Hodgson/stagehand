@@ -108,10 +108,10 @@ test("redacts supplied raw scan records without needing to understand their shap
 
 test("returns a schema issue for an unsupported result version", () => {
   const result = exampleResult();
-  result.schemaVersion = 2;
+  result.version = 2;
   const validation = validateResult(result);
   assert.equal(validation.valid, false);
-  assert.ok(validation.issues.some((issue) => issue.path === "/schemaVersion"));
+  assert.ok(validation.issues.some((issue) => issue.path === "/version"));
 });
 
 test("rejects a malformed fingerprint digest", () => {

@@ -1,6 +1,6 @@
 # Plan schema
 
-This package publishes the initial versioned JSON Schema definitions and runtime schema validators for Stagehand plans and case files. The schemas use JSON Schema Draft 2020-12; each document's integer `schemaVersion` is Stagehand's own contract version.
+This package publishes the initial versioned JSON Schema definitions and runtime schema validators for Stagehand plans and case files. The schemas use JSON Schema Draft 2020-12; each document's integer `version` is Stagehand's own contract version.
 
 Import the schemas from the package's single public entry point:
 

@@ -6,10 +6,18 @@
 
 ```mermaid
 flowchart LR
-    P[Read plan] --> V[Validate plan]
-    V --> M[Match references]
-    M --> C[Read and parse referenced cases]
-    C --> B[Validate bundle]
+    subgraph E[plan-engine]
+        RP[Read plan] --> PP[Parse plan]
+        RC[Read referenced cases] --> PC[Parse referenced cases]
+    end
+    subgraph S[plan-schema]
+        VP[Validate plan] --> MR[Match case references]
+        VB[Validate parsed bundle]
+    end
+    PP --> VP
+    VP --> VB
+    MR --> RC
+    PC --> VB
 ```
 
 Unreferenced files are not read. Successful loading means the source is ready for later work; no browser steps have run.

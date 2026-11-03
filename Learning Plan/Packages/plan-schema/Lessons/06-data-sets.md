@@ -17,7 +17,23 @@ Case validation rejects malformed definitions and duplicate names inside one cas
 
 `selectCaseDataSet` takes one case, the validated bundle's named data-set collection, and optionally an explicit selection for that case. It uses the explicit name when supplied; otherwise it uses `defaultDataSet`. An unknown name returns a clear failure before browser work begins. The selected definitions sit below step variables but above same-named case and plan variables during pure resolution and preparation.
 
-The helper only calculates the selected definitions. `runner-core` does not receive or apply a selection yet.
+The helper only calculates the selected definitions. Runner-core receives the validated collection and optional per-case selection at its `executeCase` boundary; a browser-free run-preparation helper can apply the same selection before browser startup.
+
+```mermaid
+flowchart LR
+    subgraph S[plan-schema]
+        C[Case default or explicit selection] --> X[selectCaseDataSet]
+        D[Validated named data sets] --> X
+        X --> V[Selected variable definitions]
+        V --> P[Prepare detached steps]
+    end
+    subgraph R[runner-core]
+        E[Execute prepared case]
+    end
+    P --> E
+```
+
+Selection chooses values; it does not itself start a browser or execute a case.
 
 ## Try it
 

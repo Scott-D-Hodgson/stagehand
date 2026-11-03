@@ -10,6 +10,25 @@ This is a case-session boundary. Chromium and the session already exist, so full
 
 `prepareRunForExecution` is the smaller bridge toward that future boundary. It takes a caller-selected list of cases plus the same locale, data-set, shared-step, and environment inputs, then returns all prepared cases without opening or receiving a browser session. It does not make a run happen; a later plan runner must call it before launching Chromium.
 
+```mermaid
+flowchart LR
+    subgraph R[runner-core]
+        I[Selected cases and fixed inputs] --> P[prepareRunForExecution]
+        D[Prepared case list]
+        E[CasePreparationError]
+        B[Launch Chromium later]
+    end
+    subgraph S[plan-schema]
+        X[Select data set, expand shared steps, and prepare]
+    end
+    P --> X
+    X -->|all prepared| D
+    X -->|missing or invalid input| E
+    D -. future coordinator .-> B
+```
+
+This helper is a gate before the browser, not the browser runner itself. It either returns every prepared case or reports the first preparation problem.
+
 ## Try it
 
 Place a valid navigation step before a later missing variable. Then replace the missing-variable case with an unknown selected data-set name. Explain why navigation still does not occur in either case.

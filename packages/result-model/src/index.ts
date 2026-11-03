@@ -13,7 +13,7 @@ export interface ResultFingerprint {
 
 export interface ResultSourcePlan {
   id: string;
-  schemaVersion: number;
+  version: number;
   fingerprint: ResultFingerprint;
 }
 
@@ -113,7 +113,7 @@ export interface ResultCaseCounts {
 }
 
 export interface StagehandResultV1 {
-  schemaVersion: 1;
+  version: 1;
   sourcePlan: ResultSourcePlan;
   run: {
     outcome: ResultOutcome;

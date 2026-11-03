@@ -8,6 +8,18 @@
 
 Automatic scans use the same operation after eligible dispatched steps. `failOnViolation` does not yet decide case/run status; that belongs to M6.
 
+```mermaid
+flowchart LR
+    S[Effective accessibility settings] --> E{Scanning enabled?}
+    E -->|no| D[disabled outcome]
+    E -->|yes| A[axe analyses page]
+    A --> C[completed observations]
+    A --> X[AccessibilityScanError]
+    V[Optional protected values] --> C
+```
+
+The scan reports what axe observed; it does not by itself say whether the case passed. When callers provide protected values, the completed observations and scan errors are redacted before they are returned.
+
 ## Try it
 
 Resolve plan `{ enabled: true, failOnViolation: true, tags: ["wcag2a"] }` with case `{ enabled: false, tags: [] }`.

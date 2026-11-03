@@ -6,7 +6,23 @@
 
 Think of it as a careful editor making a photocopy for sharing: the editor blacks out a known value but leaves the rest of the page readable. It does not guess which values are secret, read environment variables, or change the original evidence.
 
-This is only a foundation. Runner-core still exposes raw scan history, so protected values are not yet safe to use in execution. A later M5 slice will supply effective protected values to this helper and prevent unredacted retained output.
+Runner-core now supplies effective protected values when `executeCase` retains soft-failure and automatic scan evidence, and direct scans can receive caller-supplied protected values. This helper remains only the redaction mechanism: it does not identify secrets or make every runner API safe by default.
+
+```mermaid
+flowchart LR
+    subgraph R[runner-core caller]
+        O[Original evidence stays private]
+        V[Known non-empty protected values]
+    end
+    subgraph M[result-model]
+        X[redactEvidence makes detached copy]
+    end
+    O --> X
+    V --> X
+    X --> S[Shareable redacted evidence]
+```
+
+The original and shareable copies are deliberately separate. That lets execution use the real value while retained evidence hides it.
 
 ## Try it
 

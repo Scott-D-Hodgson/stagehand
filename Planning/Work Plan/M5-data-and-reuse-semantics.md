@@ -2,7 +2,7 @@
 
 **Estimate:** 3-5 person-days
 **Depends on:** M3 and M4
-**Status:** Variable schema foundations, ordinary-input preflight, data-set structure/validation, runner hand-off, shared-step execution, and caller-supplied protected-value execution/redaction are implemented; later protected-value integration remains pending
+**Status:** Complete for the current M5 slices: variable/data-set/shared-step contracts and preparation, caller-supplied protected-value execution, and tested redaction boundaries are implemented. End-to-end plan-run orchestration, direct process-environment/CLI integration, and result production are deferred to later work.
 
 ## Objective
 
@@ -33,7 +33,7 @@ Also defer lists/nested-object values, interpolation, run-wide data-set selectio
 
 ## Versioning and implementation approach
 
-M5 extends the existing v1 plan, case, and result contracts. Their `schemaVersion` fields remain `1` while the milestone is in progress; they are evolving project artifacts, not frozen releases. A milestone release can make a deliberate versioning decision once the complete contract is known. Do not claim that a planned field is currently supported until its schema, runtime behaviour, and focused tests are in place.
+M5 extends the existing v1 plan, case, and result contracts. Their `version` fields remain `1` while the milestone is in progress; they are evolving project artifacts, not frozen releases. A milestone release can make a deliberate versioning decision once the complete contract is known. Do not claim that a planned field is currently supported until its schema, runtime behaviour, and focused tests are in place.
 
 Build one small, observable capability at a time. Each PR should state what it adds, what remains unsupported, and the focused checks that cover it. Details that become necessary during a slice should be decided narrowly in that PR rather than pre-designed for all of M5.
 

@@ -22,6 +22,22 @@ If you checked any item, this course is relevant.
 
 The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary and protected variable definitions, named data-set structure, and shared-step group/call relationships. It can select a case default or explicit data set, expand shared-step calls with source identity, then prepare variable references using the calling case's selected context. A selected protected `{ "env": "NAME" }` reference remains protected until a caller supplies an injected-map lookup; preparation can then replace the effective value and return it for a caller-owned redaction boundary. The package does not read files, execute shared steps, read `process.env`, or start a browser. The focused suite passed 65 tests in the development container before the shared-step expansion slice; record its updated result before merging.
 
+```mermaid
+flowchart LR
+    subgraph E[plan-engine]
+        A[Parsed plan and cases]
+    end
+    subgraph S[plan-schema]
+        V[Validate and select inputs] --> P[Prepare detached steps]
+    end
+    A --> V
+    M[Caller-supplied environment map] --> P
+    P --> B[Prepared case]
+    B --> R[runner-core]
+```
+
+The package is the rules desk between authored JSON and browser execution. It receives parsed values and optional selected environment values; it never reads files or starts a browser itself.
+
 ## Lessons
 
 1. [Contracts](Lessons/01-contracts.md)

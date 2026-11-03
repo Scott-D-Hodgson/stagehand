@@ -8,6 +8,24 @@ A step refers to a value with a whole-field object such as `{ "var": "email" }`.
 
 Think of scope as stacked instruction cards: use the topmost card that names the value, then read only that card.
 
+```mermaid
+flowchart TD
+    R[Variable reference] --> S{Where is it defined?}
+    S -->|step| T[Step]
+    S -->|selected data set| D[Selected data set]
+    S -->|case| C[Case]
+    S -->|plan| P[Plan]
+    T --> L[Choose locale value or default]
+    D --> L
+    C --> L
+    P --> L[Choose locale value or default]
+    L --> X[Prepare detached step]
+    E[Protected environment reference] --> M[Caller-supplied map]
+    M --> X
+```
+
+Read the scope boxes from top to bottom: the first definition found wins completely. The protected-value branch is separate because only a caller can supply its text.
+
 ## Try it
 
 Define `greeting` at plan and case scope with different locale maps. Predict the value for `fr-CA` when the case definition has no `fr-CA` entry.

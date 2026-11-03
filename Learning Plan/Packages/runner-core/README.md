@@ -20,6 +20,25 @@ This course teaches how Stagehand controls a browser session, executes validated
 
 Runner-core manages Playwright Chromium, isolated case sessions, the current action/assertion vocabulary, automatic eligible-step scans, finding mapping/collection, and case preparation with optional selected data sets, shared-step expansion, and an injected protected-value environment map before dispatch. Its browser-free helper can prepare a caller-supplied list of cases before startup. For protected `executeCase` calls, returned soft failures and retained automatic accessibility findings and scan history are redacted. Direct scans can also redact caller-supplied protected values. `process.env` and CLI integration, connecting preflight to full browser orchestration, result production, and M6 outcome policy remain future work. The mocked-browser suite passed 137 tests in the development container before shared-step execution; record its updated result before merge. Actual Chromium/axe assessment tests remain deferred until Stagehand has a project-owned test site.
 
+```mermaid
+flowchart LR
+    subgraph S[plan-schema]
+        P[Prepare detached steps]
+    end
+    subgraph R[runner-core]
+        D[Dispatch steps] --> B[Playwright session]
+        B --> A[Actions, assertions, and axe scans]
+        A --> E[Soft failures and accessibility evidence]
+    end
+    subgraph C[Future coordinator]
+        O[M6 policy and result production]
+    end
+    P --> D
+    E -. later .-> O
+```
+
+Runner-core owns browser work and evidence gathering. It receives prepared inputs from `plan-schema`; a later coordinator will turn those facts into final run results.
+
 ## Lessons
 
 1. [Browser lifecycle](Lessons/01-browser-lifecycle.md)

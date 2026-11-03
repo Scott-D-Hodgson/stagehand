@@ -8,12 +8,15 @@
 
 ```mermaid
 flowchart LR
-    R[Raw scans] --> M[Pure mapper]
-    M --> C[Per-case collector]
-    C --> F[Copied finding snapshot]
+    subgraph R[runner-core]
+        S[Raw scans] --> M[Pure mapper]
+        M --> C[Per-case collector]
+        C --> F[Copied finding snapshot]
+    end
+    F --> O[Future result producer]
 ```
 
-Scan history also retains raw result references and is not protected-value safe. Redaction must exist before protected environment values are allowed into execution.
+Protected `executeCase` calls redact retained automatic findings and scan history, and direct scans can redact values supplied by their caller. Other APIs still need an explicit protected-value boundary before they can be treated as secret-safe.
 
 ## Try it
 

@@ -8,6 +8,19 @@ Run settings provide locale, headless mode, viewport, time zone, and accessibili
 
 Closing a run waits for case-session setup already in progress, closes active sessions, and then closes Chromium. Cleanup belongs in `finally` blocks so it still runs after failures.
 
+```mermaid
+flowchart LR
+    R[One Chromium browser run] --> C1[Case 1 context and page]
+    R --> C2[Case 2 context and page]
+    R --> C3[Later cases]
+    C1 --> X[Close active sessions]
+    C2 --> X
+    C3 --> X
+    X --> B[Close Chromium]
+```
+
+Contexts are private rooms in the same browser building: cases share the Chromium process but not cookies or page state. Closing works in the reverse direction, from sessions back to the shared browser.
+
 ## Try it
 
 Trace [`browser/run.ts`](../../../../packages/runner-core/src/browser/run.ts). Identify what happens when shutdown starts while a context is still being created.

@@ -2,7 +2,7 @@
 
 > “How does Stagehand describe what happened without deciding every outcome rule inside the schema?” — Reese “Result Recorder” Ray, Developer
 
-The result v1 schema defines the saved JSON shape: run metadata, source identity, cases, steps, effective settings, and accessibility evidence. TypeScript types support implementation code; runtime schema validation checks actual values.
+The result v1 schema defines the saved JSON shape: `version: 1`, run metadata, source identity, cases, steps, effective settings, and accessibility evidence. TypeScript types support implementation code; runtime schema validation checks actual values.
 
 Cross-field outcome and aggregation decisions belong to M6. A schema can require `caseCounts`; it should not quietly invent how failures combine into a run status.
 

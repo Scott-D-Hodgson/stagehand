@@ -8,9 +8,13 @@ Each finding retains its URL, rule information, affected nodes, and a node count
 
 ```mermaid
 flowchart LR
-    A[Raw axe observation] --> M[runner-core mapper]
-    M --> F[Result finding shape]
-    F --> V[result-model validation]
+    subgraph R[runner-core]
+        A[Raw axe observation] --> M[Map selected evidence]
+    end
+    subgraph V[result-model]
+        F[Result finding shape] --> X[Validate shape]
+    end
+    M --> F
 ```
 
 The mapper selects and transforms evidence; this package validates the resulting shape. A valid result does not prove the scan itself was complete.

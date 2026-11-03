@@ -6,11 +6,25 @@ Integration review follows data across boundaries: authored JSON → validation 
 
 ```mermaid
 flowchart LR
-    A[Plan and cases] --> V[Validate and load]
-    V --> P[Prepare inputs]
-    P --> E[Execute steps]
-    E --> O[Collect observations]
-    O --> R[Future complete result]
+    subgraph E[plan-engine]
+        A[Read plan and cases]
+    end
+    subgraph S[plan-schema]
+        V[Validate and prepare inputs]
+    end
+    subgraph R[runner-core]
+        X[Execute steps] --> O[Collect observations]
+    end
+    subgraph C[Future coordinator]
+        Z[Apply M6 policy and assemble result]
+    end
+    subgraph M[result-model]
+        Q[Validate result shape]
+    end
+    A --> V
+    V --> X
+    O --> Z
+    Z --> Q
 ```
 
 Several pieces remain planned: full orchestration before browser startup, CLI protected-value boundaries, result production, and M6 policy. `executeCase` can use a caller-supplied protected-value map and redact returned soft failures and retained automatic accessibility evidence, without reading `process.env`; a direct scan can redact values its caller supplies. Shared steps now expand and execute at the case-session boundary, but that is not yet full result traceability. A coherent foundation states these gaps plainly.

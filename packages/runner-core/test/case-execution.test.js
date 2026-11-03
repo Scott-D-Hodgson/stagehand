@@ -36,7 +36,7 @@ test("prepares ordinary case variables before dispatching case steps", async () 
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         variables: {
           address: { default: "https://default.example.test", locales: { "fr-CA": "https://bonjour.example.test" } },
@@ -66,7 +66,7 @@ test("uses injected protected values for case execution and redacts soft failure
   try {
     const failures = await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "protected-case",
         variables: { password: { default: { env: "TEST_PASSWORD" } } },
         steps: [
@@ -97,7 +97,7 @@ test("uses plan variables when the case does not define the referenced name", as
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
       },
@@ -120,7 +120,7 @@ test("prepares case steps with the selected data-set values", async () => {
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         defaultDataSet: "canada",
         variables: { email: { default: "case@example.test" } },
@@ -150,7 +150,7 @@ test("expands and dispatches shared steps using the calling case data set", asyn
   try {
     await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "checkout",
         defaultDataSet: "canada",
         steps: [
@@ -183,7 +183,7 @@ test("retains shared-step identity when an expanded step fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "checkout",
           steps: [{ action: "callSharedSteps", id: "sign-in" }],
         },
@@ -214,7 +214,7 @@ test("retains shared-step identity on a soft assertion failure", async () => {
   try {
     const failures = await session.executeCase({
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "checkout",
         steps: [{ action: "callSharedSteps", id: "sign-in" }],
       },
@@ -239,7 +239,7 @@ test("retains shared-step identity when preparation fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "checkout",
           steps: [{ action: "callSharedSteps", id: "sign-in" }],
         },
@@ -268,7 +268,7 @@ test("keeps selected data sets isolated between executeCase calls", async () => 
   };
   const { run, session } = await createSession({ locator() { return locator; } });
   const caseFile = {
-    schemaVersion: 1,
+    version: 1,
     id: "sign-in",
     steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
   };
@@ -297,7 +297,7 @@ test("stops before dispatch when the selected data set is unknown", async () => 
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
         },
@@ -325,7 +325,7 @@ test("stops before dispatch when ordinary case preparation fails", async () => {
     await assert.rejects(
       session.executeCase({
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           steps: [
             { action: "navigate", url: "https://example.test/start" },

@@ -20,6 +20,22 @@ This course teaches how Stagehand safely loads a plan and its referenced case fi
 
 `loadPlanFile` reads one plan and only its referenced cases, validates the loaded bundle, checks path containment, and calculates `sha256-v1`. It does not interpret or run steps, start a browser, or produce a run result.
 
+```mermaid
+flowchart LR
+    A[Plan path] --> RP
+    subgraph E[plan-engine]
+        RP[Read and parse source] --> FP[Calculate source fingerprint]
+    end
+    subgraph S[plan-schema]
+        V[Validate documents and bundle]
+    end
+    RP --> V
+    V --> B[Validated bundle]
+    B -. later .-> R[runner-core]
+```
+
+`plan-engine` owns the file-side work. It asks `plan-schema` to judge document rules, then hands a validated bundle to later execution code.
+
 ## Lessons
 
 1. [Loading plans and cases](Lessons/01-loading.md)

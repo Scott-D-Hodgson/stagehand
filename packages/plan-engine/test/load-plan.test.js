@@ -7,14 +7,14 @@ import { loadPlanFile } from "@stagehand/plan-engine";
 
 function planWithReferences(...paths) {
   return {
-    schemaVersion: 1,
+    version: 1,
     id: "loader-test-plan",
     cases: paths.map((path) => ({ path })),
   };
 }
 
 function caseWithId(id) {
-  return { schemaVersion: 1, id, steps: [] };
+  return { version: 1, id, steps: [] };
 }
 
 async function writeJson(path, value) {

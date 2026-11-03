@@ -8,6 +8,18 @@ Run `npm test --workspace @stagehand/runner-core`. Before the shared-step execut
 
 Actual Chromium/axe testing remains deferred until Stagehand has a project-owned test site. Historical runs and owner-reported CI evidence must remain labelled as historical or owner-reported.
 
+```mermaid
+flowchart LR
+    A[Consumer import] --> I[src/index.ts public API]
+    I --> B[browser modules]
+    I --> S[steps, actions, assertions]
+    I --> X[accessibility modules]
+    T[Mocked tests] --> O[Orchestration evidence]
+    R[Future project-owned test site] -. needed for .-> C[Real Chromium and axe evidence]
+```
+
+The upper row shows how consumers reach supported APIs. The lower row separates what the current doubles prove from the real-browser evidence that remains deferred.
+
 ## Try it
 
 Choose one failure test. State exactly what it proves and one browser behaviour it cannot prove.

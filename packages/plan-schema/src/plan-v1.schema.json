@@ -3,9 +3,9 @@
   "title": "Stagehand plan, version 1",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "id", "cases"],
+  "required": ["version", "id", "cases"],
   "properties": {
-    "schemaVersion": { "const": 1 },
+    "version": { "const": 1 },
     "id": { "type": "string", "minLength": 1 },
     "defaults": { "$ref": "#/$defs/planDefaults" },
     "variables": { "$ref": "#/$defs/variables" },

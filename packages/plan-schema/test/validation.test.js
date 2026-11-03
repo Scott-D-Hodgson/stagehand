@@ -23,7 +23,7 @@ function readFixture(path) {
 
 function planWithReferences(...paths) {
   return {
-    schemaVersion: 1,
+    version: 1,
     id: "reference-test-plan",
     cases: paths.map((path) => ({ path })),
   };
@@ -45,7 +45,7 @@ test("accepts the full action and assertion example through the public entry poi
 });
 
 test("publishes browser defaults without inserting them into validated input", () => {
-  const plan = { schemaVersion: 1, id: "defaults-test", cases: [] };
+  const plan = { version: 1, id: "defaults-test", cases: [] };
   const originalPlan = structuredClone(plan);
   assert.equal(planSchemaV1.$defs.planDefaults.properties.locale.default, "en-CA");
   assert.equal(planSchemaV1.$defs.browserSettings.properties.type.default, "chromium");
@@ -257,7 +257,7 @@ test("accepts scalar variable definitions with optional same-type locale variant
     enabled: { default: true, locales: { "fr-CA": false } },
   };
   const plan = { ...planWithReferences(), variables };
-  const exampleCase = { schemaVersion: 1, id: "variable-test", variables, steps: [] };
+  const exampleCase = { version: 1, id: "variable-test", variables, steps: [] };
   assert.deepEqual(validatePlan(plan), { valid: true });
   assert.deepEqual(validateCase(exampleCase), { valid: true });
 });
@@ -268,7 +268,7 @@ test("accepts protected environment references only for text variable definition
     greeting: { default: "Hello", locales: { "fr-CA": { env: "TEST_GREETING_FR" } } },
   };
   assert.deepEqual(validatePlan({ ...planWithReferences(), variables }), { valid: true });
-  assert.deepEqual(validateCase({ schemaVersion: 1, id: "protected-variable-test", variables, steps: [] }), { valid: true });
+  assert.deepEqual(validateCase({ version: 1, id: "protected-variable-test", variables, steps: [] }), { valid: true });
   for (const invalid of [
     { password: { default: { env: "" } } },
     { password: { default: { env: "TEST_PASSWORD", extra: true } } },
@@ -277,7 +277,7 @@ test("accepts protected environment references only for text variable definition
     { enabled: { default: true, locales: { "fr-CA": { env: "TEST_ENABLED" } } } },
   ]) {
     assert.equal(validatePlan({ ...planWithReferences(), variables: invalid }).valid, false);
-    assert.equal(validateCase({ schemaVersion: 1, id: "protected-variable-test", variables: invalid, steps: [] }).valid, false);
+    assert.equal(validateCase({ version: 1, id: "protected-variable-test", variables: invalid, steps: [] }).valid, false);
   }
 });
 
@@ -296,7 +296,7 @@ test("rejects invalid variable definitions in plans and cases", () => {
   for (const variables of invalidVariables) {
     assert.equal(validatePlan({ ...planWithReferences(), variables }).valid, false);
     assert.equal(
-      validateCase({ schemaVersion: 1, id: "variable-test", variables, steps: [] }).valid,
+      validateCase({ version: 1, id: "variable-test", variables, steps: [] }).valid,
       false,
     );
   }
@@ -315,7 +315,7 @@ test("rejects invalid and duplicate canonical locale keys in variable definition
   for (const variables of [invalidLocale, duplicateLocale]) {
     const planResult = validatePlan({ ...planWithReferences(), variables });
     const caseResult = validateCase({
-      schemaVersion: 1,
+      version: 1,
       id: "variable-test",
       variables,
       steps: [],
@@ -330,7 +330,7 @@ test("rejects invalid and duplicate canonical locale keys in variable definition
 
 test("accepts named case data sets with scalar variable definitions", () => {
   const result = validateCase({
-    schemaVersion: 1,
+    version: 1,
     id: "data-set-case",
     variables: { email: { default: "case@example.test" } },
     dataSets: [
@@ -351,7 +351,7 @@ test("accepts named case data sets with scalar variable definitions", () => {
 });
 
 test("rejects invalid and duplicate named case data sets", () => {
-  const baseCase = { schemaVersion: 1, id: "data-set-case", steps: [] };
+  const baseCase = { version: 1, id: "data-set-case", steps: [] };
   const invalidDataSets = [
     [{ name: "standard" }],
     [{ name: "", variables: {} }],
@@ -413,7 +413,7 @@ test("rejects unknown and nested shared-step group calls", () => {
   assert.ok(nested.issues.some((issue) => issue.path === "/sharedStepGroups/0/steps/0/action" && issue.keyword === "nestedSharedStepCall"));
   const plan = { ...planWithReferences("cases/sign-in.json"), sharedStepGroups: [{ id: "sign-in", steps: [] }] };
   const unknown = validatePlanBundle(plan, [{
-    schemaVersion: 1,
+    version: 1,
     id: "sign-in-case",
     steps: [{ action: "callSharedSteps", id: "missing" }],
   }]);
@@ -424,7 +424,7 @@ test("rejects unknown and nested shared-step group calls", () => {
 test("expands shared-step calls in authored order with caller and inner-step identity", () => {
   const result = expandCaseSharedSteps({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "checkout",
       steps: [
         { action: "navigate", url: "https://example.test/start" },
@@ -460,7 +460,7 @@ test("expands shared-step calls in authored order with caller and inner-step ide
 test("prepares expanded shared steps with the calling case and selected data-set context", () => {
   const result = prepareCaseSharedSteps({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "sign-in",
       variables: { email: { default: "case@example.test" } },
       steps: [{ action: "callSharedSteps", id: "sign-in" }],
@@ -489,7 +489,7 @@ test("prepares expanded shared steps with the calling case and selected data-set
 
 test("reports unknown and nested shared-step calls without starting execution", () => {
   assert.deepEqual(expandCaseSharedSteps({
-    case: { schemaVersion: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "missing" }] },
+    case: { version: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "missing" }] },
     sharedStepGroups: [],
   }), {
     expanded: false,
@@ -498,7 +498,7 @@ test("reports unknown and nested shared-step calls without starting execution", 
     message: "No shared-step group named \"missing\" is available in this plan.",
   });
   assert.deepEqual(expandCaseSharedSteps({
-    case: { schemaVersion: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "outer" }] },
+    case: { version: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "outer" }] },
     sharedStepGroups: [{ id: "outer", steps: [{ action: "callSharedSteps", id: "inner" }] }],
   }), {
     expanded: false,
@@ -513,7 +513,7 @@ test("selects a case default or explicit named data set without changing the cas
     { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } }, note: { default: "" } } },
     { name: "empty", variables: {} },
   ];
-  const caseFile = { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] };
+  const caseFile = { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] };
   assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets }), {
     selected: true,
     name: "canada",
@@ -526,10 +526,10 @@ test("selects a case default or explicit named data set without changing the cas
     source: "selected",
     variables: {},
   });
-  assert.deepEqual(selectCaseDataSet({ case: { schemaVersion: 1, id: "no-default", steps: [] }, dataSets }), {
+  assert.deepEqual(selectCaseDataSet({ case: { version: 1, id: "no-default", steps: [] }, dataSets }), {
     selected: true,
   });
-  assert.deepEqual(caseFile, { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] });
+  assert.deepEqual(caseFile, { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] });
   assert.deepEqual(resolveVariable({
     name: "note",
     locale: "en-CA",
@@ -539,7 +539,7 @@ test("selects a case default or explicit named data set without changing the cas
 
 test("rejects an unknown selected data set with a clear preflight error", () => {
   assert.deepEqual(selectCaseDataSet({
-    case: { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    case: { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
     dataSets: [{ name: "canada", variables: {} }],
     selectedDataSet: "missing",
   }), {
@@ -620,7 +620,7 @@ test("keeps selected protected values unresolved during preparation", () => {
   });
   assert.deepEqual(prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "protected-variable-case",
       steps: [{ action: "fill", locator: { css: "#password" }, value: { var: "password" } }],
     },
@@ -637,7 +637,7 @@ test("keeps selected protected values unresolved during preparation", () => {
   });
   assert.deepEqual(prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "protected-variable-case",
       steps: [{ action: "fill", locator: { css: "#password" }, value: { var: "password" } }],
     },
@@ -649,7 +649,7 @@ test("keeps selected protected values unresolved during preparation", () => {
   }), {
     prepared: true,
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "protected-variable-case",
       steps: [{ action: "fill", locator: { css: "#password" }, value: "not-a-real-password" }],
     },
@@ -819,7 +819,7 @@ test("reports the source field for an unresolved prepared reference", () => {
 test("prepares every case step before runner integration", () => {
   const result = prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "prepared-case",
       variables: { email: { default: "case@example.invalid" } },
       steps: [
@@ -845,7 +845,7 @@ test("prepares every case step before runner integration", () => {
 
 test("prepares a case with selected data-set values before browser work", () => {
   const selection = selectCaseDataSet({
-    case: { schemaVersion: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    case: { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
     dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
   });
   assert.equal(selection.selected, true);
@@ -854,7 +854,7 @@ test("prepares a case with selected data-set values before browser work", () => 
   }
   const prepared = prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "sign-in",
       variables: { email: { default: "case@example.test" } },
       steps: [{ action: "fill", locator: { label: "Email" }, value: { var: "email" } }],
@@ -872,7 +872,7 @@ test("prepares a case with selected data-set values before browser work", () => 
 test("reports the first unresolved reference and revalidates prepared values", () => {
   const missing = prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "missing-variable",
       steps: [
         { action: "type", locator: { label: "Email" }, text: { var: "missing" } },
@@ -889,7 +889,7 @@ test("reports the first unresolved reference and revalidates prepared values", (
   });
   const invalidUrl = prepareCase({
     case: {
-      schemaVersion: 1,
+      version: 1,
       id: "invalid-url",
       steps: [{ action: "navigate", url: { var: "baseUrl" } }],
     },
@@ -1051,25 +1051,25 @@ test("rejects unsupported browser types in plan and case settings", () => {
 
 test("rejects an unsupported plan version", () => {
   const plan = readFixture("../examples/checkout-plan.json");
-  plan.schemaVersion = 2;
+  plan.version = 2;
   assert.doesNotThrow(() => validatePlan(plan));
   const result = validatePlan(plan);
   assert.equal(result.valid, false);
   assert.ok(
     result.issues.some(
-      (issue) => issue.path === "/schemaVersion" && issue.keyword === "const",
+      (issue) => issue.path === "/version" && issue.keyword === "const",
     ),
   );
 });
 
 test("rejects an unsupported case version", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
-  exampleCase.schemaVersion = 2;
+  exampleCase.version = 2;
   const result = validateCase(exampleCase);
   assert.equal(result.valid, false);
   assert.ok(
     result.issues.some(
-      (issue) => issue.path === "/schemaVersion" && issue.keyword === "const",
+      (issue) => issue.path === "/version" && issue.keyword === "const",
     ),
   );
 });
@@ -1185,7 +1185,7 @@ test("returns successful matches when another case reference is missing", () => 
 });
 
 test("returns plan schema issues before attempting reference matching", () => {
-  const invalidPlan = { schemaVersion: 1, cases: [{ path: "cases/sign-in.json" }] };
+  const invalidPlan = { version: 1, cases: [{ path: "cases/sign-in.json" }] };
   const result = matchCaseReferences(invalidPlan, ["cases/sign-in.json"]);
   assert.equal(result.valid, false);
   assert.equal(result.matches.length, 0);
@@ -1243,7 +1243,7 @@ test("requires one parsed case for each plan reference", () => {
 test("rejects duplicate data-set names and unknown default selections in a plan bundle", () => {
   const plan = planWithReferences("cases/first.json", "cases/second.json");
   const firstCase = {
-    schemaVersion: 1,
+    version: 1,
     id: "first",
     dataSets: [{ name: "standard", variables: {} }],
     steps: [],
@@ -1251,7 +1251,7 @@ test("rejects duplicate data-set names and unknown default selections in a plan 
   const duplicateName = validatePlanBundle(plan, [
     firstCase,
     {
-      schemaVersion: 1,
+      version: 1,
       id: "second",
       dataSets: [{ name: "standard", variables: {} }],
       steps: [],
@@ -1261,7 +1261,7 @@ test("rejects duplicate data-set names and unknown default selections in a plan 
   assert.ok(duplicateName.issues.some((issue) => issue.path === "/caseFiles/1/dataSets/0/name" && issue.keyword === "duplicateDataSetName"));
   const unknownDefault = validatePlanBundle(plan, [
     firstCase,
-    { schemaVersion: 1, id: "second", defaultDataSet: "missing", steps: [] },
+    { version: 1, id: "second", defaultDataSet: "missing", steps: [] },
   ]);
   assert.equal(unknownDefault.valid, false);
   assert.ok(unknownDefault.issues.some((issue) => issue.path === "/caseFiles/1/defaultDataSet" && issue.keyword === "unknownDataSet"));
@@ -1271,7 +1271,7 @@ test("accepts known axe tags, empty lists, and omitted lists at plan and case sc
   for (const tags of [undefined, [], ["wcag2a"], ["wcag2a", "wcag2aa"], ["ACT", "cat.forms", "experimental"]]) {
     const accessibility = tags === undefined ? { enabled: true } : { enabled: true, tags };
     const plan = { ...planWithReferences("case.json"), defaults: { accessibility } };
-    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility }, steps: [] };
+    const exampleCase = { version: 1, id: "tag-test", settings: { accessibility }, steps: [] };
     assert.deepEqual(validatePlan(plan), { valid: true });
     assert.deepEqual(validateCase(exampleCase), { valid: true });
   }
@@ -1280,7 +1280,7 @@ test("accepts known axe tags, empty lists, and omitted lists at plan and case sc
 test("rejects unknown and incorrectly cased axe tags at the offending array item", () => {
   for (const tag of ["wcag2aaa-typo", "WCAG2A", "wcag2a ", "", "not-a-real-tag"]) {
     const plan = { ...planWithReferences(), defaults: { accessibility: { tags: ["wcag2a", tag] } } };
-    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { tags: ["wcag2a", tag] } }, steps: [] };
+    const exampleCase = { version: 1, id: "tag-test", settings: { accessibility: { tags: ["wcag2a", tag] } }, steps: [] };
     const planResult = validatePlan(plan);
     const caseResult = validateCase(exampleCase);
     assert.equal(planResult.valid, false);
@@ -1293,7 +1293,7 @@ test("rejects unknown and incorrectly cased axe tags at the offending array item
 test("rejects non-array tag configuration and non-string tag entries", () => {
   for (const tags of [null, "wcag2a", {}, 3, [null], [3], [{}]]) {
     const plan = { ...planWithReferences(), defaults: { accessibility: { tags } } };
-    const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { tags } }, steps: [] };
+    const exampleCase = { version: 1, id: "tag-test", settings: { accessibility: { tags } }, steps: [] };
     assert.equal(validatePlan(plan).valid, false);
     assert.equal(validateCase(exampleCase).valid, false);
   }
@@ -1302,7 +1302,7 @@ test("rejects non-array tag configuration and non-string tag entries", () => {
 test("rejects repeated tags in either configuration scope", () => {
   const accessibility = { tags: ["wcag2a", "wcag2a"] };
   const planResult = validatePlan({ ...planWithReferences(), defaults: { accessibility } });
-  const caseResult = validateCase({ schemaVersion: 1, id: "tag-test", settings: { accessibility }, steps: [] });
+  const caseResult = validateCase({ version: 1, id: "tag-test", settings: { accessibility }, steps: [] });
   assert.equal(planResult.valid, false);
   assert.equal(caseResult.valid, false);
   assert.ok(planResult.issues.some((issue) => issue.keyword === "uniqueItems"));
@@ -1312,7 +1312,7 @@ test("rejects repeated tags in either configuration scope", () => {
 test("preserves omitted, replacement, and clearing case tag lists without applying inheritance", () => {
   for (const settings of [undefined, { accessibility: {} }, { accessibility: { tags: ["cat.forms"] } }, { accessibility: { tags: [] } }]) {
     const plan = { ...planWithReferences("case.json"), defaults: { accessibility: { enabled: true, tags: ["wcag2a", "wcag2aa"] } } };
-    const exampleCase = { schemaVersion: 1, id: "tag-test", steps: [], ...(settings === undefined ? {} : { settings }) };
+    const exampleCase = { version: 1, id: "tag-test", steps: [], ...(settings === undefined ? {} : { settings }) };
     const original = structuredClone({ plan, exampleCase });
     assert.deepEqual(validatePlanBundle(plan, [exampleCase]), { valid: true });
     assert.deepEqual({ plan, exampleCase }, original);
@@ -1323,7 +1323,7 @@ test("preserves omitted, replacement, and clearing case tag lists without applyi
 
 test("reports unknown case tags through bundle validation with the case-file path", () => {
   const plan = { ...planWithReferences("case.json"), defaults: { accessibility: { tags: ["wcag2a"] } } };
-  const exampleCase = { schemaVersion: 1, id: "tag-test", settings: { accessibility: { enabled: false, tags: ["misspelled-tag"] } }, steps: [] };
+  const exampleCase = { version: 1, id: "tag-test", settings: { accessibility: { enabled: false, tags: ["misspelled-tag"] } }, steps: [] };
   const result = validatePlanBundle(plan, [exampleCase]);
   assert.equal(result.valid, false);
   assert.ok(result.issues.some((issue) => issue.path === "/caseFiles/0/settings/accessibility/tags/0" && issue.keyword === "enum"));

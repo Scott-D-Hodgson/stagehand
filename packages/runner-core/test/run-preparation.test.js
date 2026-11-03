@@ -10,7 +10,7 @@ test("prepares all supplied cases without creating a browser session", () => {
     cases: [
       {
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           variables: { password: { default: { env: "TEST_PASSWORD" } } },
           steps: [{ action: "type", locator: { css: "#password" }, text: { var: "password" } }],
@@ -18,7 +18,7 @@ test("prepares all supplied cases without creating a browser session", () => {
       },
       {
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "enter-email",
           steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
         },
@@ -45,7 +45,7 @@ test("does not require an unused protected value from an unselected data set", (
     cases: [{
       selectedDataSet: "selected",
       case: {
-        schemaVersion: 1,
+        version: 1,
         id: "sign-in",
         steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
       },
@@ -60,7 +60,7 @@ test("reports a missing effective protected value before returning prepared case
       locale: "en-CA",
       cases: [{
         case: {
-          schemaVersion: 1,
+          version: 1,
           id: "sign-in",
           variables: { password: { default: { env: "TEST_PASSWORD" } } },
           steps: [{ action: "type", locator: { css: "#password" }, text: { var: "password" } }],

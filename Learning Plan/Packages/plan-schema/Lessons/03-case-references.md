@@ -8,9 +8,14 @@ The normalized path is only a matching label. It is not proof that a real file s
 
 ```mermaid
 flowchart LR
-    A[Plan reference] --> B[Normalize for matching]
-    B --> C[Match supplied relative name]
-    C --> D[plan-engine later checks the real filesystem target]
+    subgraph S[plan-schema]
+        A[Plan reference] --> B[Normalize for matching]
+        B --> C[Match supplied relative name]
+    end
+    subgraph E[plan-engine]
+        D[Check real filesystem target]
+    end
+    C --> D
 ```
 
 The first three boxes are logical matching. The final box is filesystem safety; neither replaces the other.
