@@ -2,6 +2,9 @@
 
 > “How does Stagehand pause predictably without allowing an unbounded wait?” — Wendy “Wait Watcher” Walsh, Developer
 
+[← Previous: locators](02-locators.md) · [Course outline](../README.md) · [Next: actions →](04-actions.md)
+
+
 Wait lists run in order. A wait may look for one locator, wait for `domcontentloaded` or `networkidle`, or use a fixed delay. Each item has a bounded timeout; delays are limited to 1–30,000 milliseconds.
 
 Interaction steps may have `before` and `after` lists. Think of them as a checklist around the action: finish every “before” item, perform the action, then finish every “after” item.
@@ -27,3 +30,4 @@ Create a paper sequence with a locator wait, click, fixed delay, and network-idl
 - You can state the supported wait forms.
 - You can explain ordering and timeout boundaries.
 
+[← Previous: locators](02-locators.md) · [Course outline](../README.md) · [Next: actions →](04-actions.md)

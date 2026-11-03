@@ -9,11 +9,7 @@
     "id": { "type": "string", "minLength": 1 },
     "settings": { "$ref": "#/$defs/caseSettings" },
     "variables": { "$ref": "#/$defs/variables" },
-    "dataSets": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/dataSet" }
-    },
-    "defaultDataSet": { "type": "string", "minLength": 1 },
+    "dataSets": { "$ref": "#/$defs/dataSets" },
     "steps": {
       "type": "array",
       "items": {
@@ -26,7 +22,7 @@
           { "$ref": "#/$defs/assertTextStep" },
           { "$ref": "#/$defs/assertHtmlStep" },
           { "$ref": "#/$defs/assertValueStep" },
-          { "$ref": "#/$defs/sharedStepGroupCall" }
+          { "$ref": "#/$defs/sharedStepsCall" }
         ]
       }
     }
@@ -37,14 +33,11 @@
       "propertyNames": { "minLength": 1 },
       "additionalProperties": { "$ref": "#/$defs/variableDefinition" }
     },
-    "dataSet": {
+    "dataSets": {
       "type": "object",
-      "additionalProperties": false,
-      "required": ["name", "variables"],
-      "properties": {
-        "name": { "type": "string", "minLength": 1 },
-        "variables": { "$ref": "#/$defs/variables" }
-      }
+      "required": ["default"],
+      "propertyNames": { "minLength": 1 },
+      "additionalProperties": { "$ref": "#/$defs/variables" }
     },
     "variableDefinition": {
       "oneOf": [
@@ -189,12 +182,12 @@
         "var": { "type": "string", "minLength": 1 }
       }
     },
-    "sharedStepGroupCall": {
+    "sharedStepsCall": {
       "type": "object",
       "additionalProperties": false,
       "required": ["action", "id"],
       "properties": {
-        "action": { "const": "callSharedSteps" },
+        "action": { "const": "sharedSteps" },
         "id": { "type": "string", "minLength": 1 }
       }
     },

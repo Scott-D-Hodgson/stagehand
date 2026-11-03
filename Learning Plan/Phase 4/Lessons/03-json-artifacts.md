@@ -2,6 +2,9 @@
 
 > “Which file is the official result, and how can another tool trust it?” — Jason “JSON Journeyman” Jacobs, Developer
 
+[← Previous: accessibility results](02-accessibility-results.md) · [Phase outline](../README.md) · [Next: azure pipelines →](04-azure-pipelines.md)
+
+
 The versioned JSON result is the authoritative machine-readable artifact. A consumer should validate it, check its version, and use stable identifiers rather than scraping console text.
 
 Artifacts may contain sensitive evidence. Protected values must be redacted from retained assertions and axe evidence as well as ordinary messages.
@@ -13,3 +16,5 @@ List what a result consumer should check before displaying or transforming an ar
 ## You are ready when
 
 You can treat JSON as the source artifact while protecting sensitive values in every evidence field.
+
+[← Previous: accessibility results](02-accessibility-results.md) · [Phase outline](../README.md) · [Next: azure pipelines →](04-azure-pipelines.md)

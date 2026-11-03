@@ -2,6 +2,9 @@
 
 > “How does `loadPlanFile` turn a plan path into an ordered, validated set of documents?” — Liam “Loading Learner” Lane, Developer
 
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: path safety →](02-path-safety.md)
+
+
 `plan-engine` owns Node.js file access. It reads and parses the plan, asks `plan-schema` to validate it, processes only the referenced cases, and returns either a success value or structured issues. Each loaded case retains its `caseIndex` and original reference so errors do not lose their source.
 
 ```mermaid
@@ -31,3 +34,4 @@ Add an unreferenced malformed JSON file beside a plan, then make a referenced ca
 - You can trace one reference from the plan to its parsed case.
 - You can explain why browser execution is outside this package.
 
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: path safety →](02-path-safety.md)

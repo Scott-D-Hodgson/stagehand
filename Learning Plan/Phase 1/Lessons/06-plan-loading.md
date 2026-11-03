@@ -2,6 +2,9 @@
 
 > “How are plan files loaded safely and tied to the exact source that was read?” — Lena “Loader Lookout” Liu, Developer
 
+[← Previous: result contracts](05-result-contracts.md) · [Phase outline](../README.md) · [Next: browser lifecycle →](07-browser-lifecycle.md)
+
+
 `plan-engine` reads a plan and only its referenced cases, checks real filesystem containment, validates the parsed bundle, and calculates a `sha256-v1` fingerprint from exact bytes.
 
 ```mermaid
@@ -28,3 +31,4 @@ Explain why normalized path matching and canonical filesystem containment are bo
 - You can describe the loader's output and safety boundary.
 - You can explain exact-byte fingerprinting.
 
+[← Previous: result contracts](05-result-contracts.md) · [Phase outline](../README.md) · [Next: browser lifecycle →](07-browser-lifecycle.md)

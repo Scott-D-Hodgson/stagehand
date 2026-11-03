@@ -2,6 +2,9 @@
 
 > “How do many case outcomes become one trustworthy result document?” — Rae “Result Producer” Ramirez, Developer
 
+[← Previous: phase outline](../README.md) · [Phase outline](../README.md) · [Next: accessibility results →](02-accessibility-results.md)
+
+
 Result production assembles run facts, case outcomes, timings, failures, and evidence into the shared result contract. The schema checks the document's shape; execution policy decides what the collected outcomes mean.
 
 The existing `result-model` validates result documents. Producing a complete run result is planned work.
@@ -13,3 +16,5 @@ Map a run with one passing and one failing case into the major result sections. 
 ## You are ready when
 
 You can separate result validation from the policy that aggregates execution outcomes.
+
+[← Previous: phase outline](../README.md) · [Phase outline](../README.md) · [Next: accessibility results →](02-accessibility-results.md)

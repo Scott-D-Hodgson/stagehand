@@ -2,6 +2,9 @@
 
 > “What browser changes can runner-core perform, and what safety rules surround them?” — Arlo “Action Adventurer” Archer, Developer
 
+[← Previous: waits](03-waits.md) · [Course outline](../README.md) · [Next: assertions →](05-assertions.md)
+
+
 The current actions are `navigate`, `click`, `type`, `fill`, and `selectOption`. Navigation requires an absolute HTTP/HTTPS URL. Typing enters characters sequentially; filling sets a field directly. Option selection chooses exactly one value or visible label.
 
 Interactions share their timeout between locator resolution and the browser operation. Scrolling is enabled by default. With `scrollIntoView: false`, an off-screen target fails instead of being moved automatically.
@@ -15,3 +18,4 @@ Explain when you would use `type` rather than `fill`, then trace how a 5-second 
 - You can distinguish the five action behaviours.
 - You can explain shared timeout and scrolling rules.
 
+[← Previous: waits](03-waits.md) · [Course outline](../README.md) · [Next: assertions →](05-assertions.md)

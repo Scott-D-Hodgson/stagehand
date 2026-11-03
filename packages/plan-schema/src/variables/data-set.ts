@@ -10,26 +10,32 @@ function findDataSet(dataSets: readonly NamedDataSet[], name: string): NamedData
   return dataSets.find((dataSet) => dataSet.name === name);
 }
 
-export function selectCaseDataSet(options: SelectCaseDataSetOptions): SelectCaseDataSetResult {
-  const defaultName = isRecord(options.case) && typeof options.case.defaultDataSet === "string"
-    ? options.case.defaultDataSet
-    : undefined;
-  const name = options.selectedDataSet ?? defaultName;
-  if (name === undefined) {
-    return { selected: true };
+function getDefaultVariables(caseFile: Readonly<Record<string, unknown>>): Readonly<Record<string, VariableDefinition>> | undefined {
+  if (!isRecord(caseFile.dataSets) || !isRecord(caseFile.dataSets.default)) {
+    return undefined;
   }
-  const dataSet = findDataSet(options.dataSets, name);
+  return caseFile.dataSets.default as Readonly<Record<string, VariableDefinition>>;
+}
+
+export function selectCaseDataSet(options: SelectCaseDataSetOptions): SelectCaseDataSetResult {
+  const defaultVariables = getDefaultVariables(options.case);
+  if (options.selectedDataSet === undefined) {
+    return defaultVariables === undefined
+      ? { selected: true }
+      : { selected: true, source: "default", variables: defaultVariables };
+  }
+  const dataSet = findDataSet(options.dataSets, options.selectedDataSet);
   if (dataSet === undefined) {
     return {
       selected: false,
       reason: "unknownDataSet",
-      message: `No data set named "${name}" is available for this case.`,
+      message: `No data set named "${options.selectedDataSet}" is available for this case.`,
     };
   }
   return {
     selected: true,
-    name,
-    source: options.selectedDataSet === undefined ? "caseDefault" : "selected",
-    variables: dataSet.variables as Readonly<Record<string, VariableDefinition>>,
+    name: dataSet.name,
+    source: "selected",
+    variables: { ...defaultVariables, ...dataSet.variables },
   };
 }

@@ -1,4 +1,4 @@
-import { isRecord } from "../json.js";
+import { escapeJsonPointerSegment, isRecord } from "../json.js";
 import { validateLocalizedValues, validateTimeZone, validateVariables } from "./locale.js";
 import { validateCaseSchema } from "./schemas.js";
 import type { ValidationIssue, ValidationResult } from "./types.js";
@@ -74,26 +74,12 @@ function validateCaseStepVariables(input: unknown): ValidationIssue[] {
 }
 
 function validateCaseDataSets(input: unknown): ValidationIssue[] {
-  if (!isRecord(input) || !Array.isArray(input.dataSets)) {
+  if (!isRecord(input) || !isRecord(input.dataSets)) {
     return [];
   }
   const issues: ValidationIssue[] = [];
-  const names = new Map<string, number>();
-  for (const [dataSetIndex, dataSet] of input.dataSets.entries()) {
-    if (!isRecord(dataSet) || typeof dataSet.name !== "string") {
-      continue;
-    }
-    issues.push(...validateVariables(dataSet.variables, `/dataSets/${dataSetIndex}/variables`));
-    const earlierIndex = names.get(dataSet.name);
-    if (earlierIndex !== undefined) {
-      issues.push({
-        path: `/dataSets/${dataSetIndex}/name`,
-        keyword: "duplicateDataSetName",
-        message: `Data-set name duplicates the name at /dataSets/${earlierIndex}/name.`,
-      });
-      continue;
-    }
-    names.set(dataSet.name, dataSetIndex);
+  for (const [name, variables] of Object.entries(input.dataSets)) {
+    issues.push(...validateVariables(variables, `/dataSets/${escapeJsonPointerSegment(name)}`));
   }
   return issues;
 }

@@ -8,12 +8,12 @@ export interface ProtectedVariableValue {
 
 export type VariableValue = ScalarVariableValue | ProtectedVariableValue;
 
-export interface ResolveProtectedEnvironmentValueOptions {
+export interface ResolveEnvironmentValueOptions {
   value: ProtectedVariableValue;
   environment: Readonly<Record<string, string | undefined>>;
 }
 
-export type ResolveProtectedEnvironmentValueResult =
+export type ResolveEnvironmentValueResult =
   | { resolved: true; value: string; environmentVariable: string }
   | { resolved: false; reason: "missingEnvironmentVariable"; environmentVariable: string; message: string };
 
@@ -37,7 +37,7 @@ export type SelectCaseDataSetResult =
   | {
       selected: true;
       name?: string;
-      source?: "caseDefault" | "selected";
+      source?: "default" | "selected";
       variables?: Readonly<Record<string, VariableDefinition>>;
     }
   | { selected: false; reason: "unknownDataSet"; message: string };
@@ -77,22 +77,20 @@ export interface PrepareCaseOptions {
   dataSetVariables?: Readonly<Record<string, VariableDefinition>>;
 }
 
-export interface SharedStepGroup {
-  id: string;
-  steps: readonly Readonly<Record<string, unknown>>[];
+export interface SharedSteps {
+  [id: string]: readonly Readonly<Record<string, unknown>>[];
 }
 
 export interface ExpandedCaseStep {
   caseStepIndex: number;
-  sharedStepGroupId?: string;
-  sharedStepGroupIndex?: number;
+  sharedStepId?: string;
   sharedStepIndex?: number;
   step: Record<string, unknown>;
 }
 
 export interface ExpandCaseSharedStepsOptions {
   case: Readonly<Record<string, unknown>>;
-  sharedStepGroups: readonly SharedStepGroup[];
+  sharedSteps: SharedSteps;
 }
 
 export type ExpandCaseSharedStepsResult =
@@ -100,7 +98,7 @@ export type ExpandCaseSharedStepsResult =
   | {
       expanded: false;
       path: string;
-      reason: "invalidCaseSteps" | "nestedSharedStepCall" | "unknownSharedStepGroup";
+      reason: "invalidCaseSteps" | "nestedSharedSteps" | "unknownSharedSteps";
       message: string;
     };
 
@@ -116,11 +114,11 @@ export type PrepareCaseSharedStepsResult =
   | {
       prepared: false;
       path: string;
-      reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownSharedStepGroup" | "unresolvedProtectedValue";
+      reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedSteps" | "unknownSharedSteps" | "unresolvedProtectedValue";
       message: string;
       issues?: ValidationIssue[];
       caseStepIndex?: number;
-      sharedStepGroupId?: string;
+      sharedStepId?: string;
       sharedStepIndex?: number;
       environmentVariable?: string;
     };

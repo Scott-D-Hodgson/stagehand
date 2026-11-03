@@ -2,6 +2,9 @@
 
 > “How does a Stagehand result survive after a pipeline job ends?” — Piper “Pipeline Pilot” Powell, Developer
 
+[← Previous: json artifacts](03-json-artifacts.md) · [Phase outline](../README.md) · [Next: diagnostics →](05-diagnostics.md)
+
+
 Azure Pipelines can run a command, inspect its exit code, and publish files as build artifacts. Publishing preserves the authoritative JSON result so it can be downloaded and reviewed later.
 
 Pipeline integration is planned work. A JUnit report may be useful later, but it should be derived from—not replace—the Stagehand result.
@@ -13,3 +16,5 @@ Sketch a pipeline with install, validate, run, and publish steps. Ensure publish
 ## You are ready when
 
 You can preserve results reliably without confusing pipeline status with the contents of the result document.
+
+[← Previous: json artifacts](03-json-artifacts.md) · [Phase outline](../README.md) · [Next: diagnostics →](05-diagnostics.md)

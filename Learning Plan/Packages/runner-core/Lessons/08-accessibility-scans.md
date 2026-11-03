@@ -2,6 +2,9 @@
 
 > “How does runner-core decide whether and how to ask axe to assess a page?” — Sasha “Scan Scout” Singh, Developer
 
+[← Previous: case preparation](07-case-preparation.md) · [Course outline](../README.md) · [Next: accessibility evidence →](09-accessibility-evidence.md)
+
+
 `resolveAccessibilitySettings` combines plan and case settings one field at a time. Defaults are disabled, non-failing, and no tag restriction. Omitted case fields inherit; explicit values replace them. `[]` means no tag filter, so axe uses its default rule selection.
 
 `scanAccessibility()` returns `disabled` without analysis when scanning is off, or `completed` with observations when axe resolves. **Completed does not mean passed**; violations or incomplete observations may still exist. A caller with protected values can pass them to the scan so returned observations and scan errors are redacted; axe's original output stays unchanged. Adapter rejection otherwise throws `AccessibilityScanError` with its original cause.
@@ -29,3 +32,4 @@ Resolve plan `{ enabled: true, failOnViolation: true, tags: ["wcag2a"] }` with c
 - You can distinguish disabled, completed, violations, incomplete observations, and rejection.
 - You can explain tag inheritance/replacement without implying it enables scanning.
 
+[← Previous: case preparation](07-case-preparation.md) · [Course outline](../README.md) · [Next: accessibility evidence →](09-accessibility-evidence.md)

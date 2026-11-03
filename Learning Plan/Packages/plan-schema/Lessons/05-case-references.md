@@ -1,6 +1,10 @@
-# Lesson 3: Case references
+# Lesson 5: Case references
 
 > “How does a plan reference get matched to an available case file name?” — Riley “Reference Ranger” Reed, Developer
+
+[← Previous: validation](04-validation.md) · [Course outline](../README.md) · [Next: bundle validation →](06-bundle-validation.md)
+
+
 
 `matchCaseReferences` compares the plan's relative case paths with relative paths supplied by a caller. It normalizes repeated `/` and `.` segments, matches case-sensitively, and reports missing, ambiguous, escaping, and duplicate references.
 
@@ -29,3 +33,4 @@ Compare `cases/./sign-in.json` with `cases/sign-in.json`, then compare `Cases/si
 - You can explain why matching is case-sensitive.
 - You know why normalized text cannot prove filesystem containment.
 
+[← Previous: validation](04-validation.md) · [Course outline](../README.md) · [Next: bundle validation →](06-bundle-validation.md)

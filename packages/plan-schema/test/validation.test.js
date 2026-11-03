@@ -9,7 +9,7 @@ import {
   prepareCase,
   prepareCaseSharedSteps,
   prepareCaseStep,
-  resolveProtectedEnvironmentValue,
+  resolveEnvironmentValue,
   resolveVariable,
   selectCaseDataSet,
   validateCase,
@@ -333,43 +333,33 @@ test("accepts named case data sets with scalar variable definitions", () => {
     version: 1,
     id: "data-set-case",
     variables: { email: { default: "case@example.test" } },
-    dataSets: [
-      {
-        name: "standard",
-        variables: {
+    dataSets: {
+      default: {
+        email: { default: "default@example.test" },
+      },
+      standard: {
           email: { default: "standard@example.test", locales: { "fr-CA": "standard-fr@example.test" } },
           attempts: { default: 3 },
           enabled: { default: true },
-        },
       },
-      { name: "empty", variables: {} },
-    ],
-    defaultDataSet: "standard",
+      empty: {},
+    },
     steps: [],
   });
   assert.deepEqual(result, { valid: true });
 });
 
-test("rejects invalid and duplicate named case data sets", () => {
+test("rejects invalid case data sets", () => {
   const baseCase = { version: 1, id: "data-set-case", steps: [] };
   const invalidDataSets = [
-    [{ name: "standard" }],
-    [{ name: "", variables: {} }],
-    [{ name: "standard", variables: { email: { default: ["not scalar"] } } }],
-    [{ name: "standard", variables: { email: { default: "Email", locales: { "en-us": "Email", "en-US": "Email" } } } }],
+    {},
+    { standard: {} },
+    { default: { email: { default: ["not scalar"] } } },
+    { default: { email: { default: "Email", locales: { "en-us": "Email", "en-US": "Email" } } } },
   ];
   for (const dataSets of invalidDataSets) {
     assert.equal(validateCase({ ...baseCase, dataSets }).valid, false);
   }
-  const duplicate = validateCase({
-    ...baseCase,
-    dataSets: [
-      { name: "standard", variables: {} },
-      { name: "standard", variables: {} },
-    ],
-  });
-  assert.equal(duplicate.valid, false);
-  assert.ok(duplicate.issues.some((issue) => issue.path === "/dataSets/1/name" && issue.keyword === "duplicateDataSetName"));
 });
 
 test("accepts stable shared-step group IDs and ordinary case calls", () => {
@@ -380,45 +370,30 @@ test("accepts stable shared-step group IDs and ordinary case calls", () => {
   assert.deepEqual(validatePlanBundle(plan, [caseFile]), { valid: true });
 });
 
-test("rejects duplicate or private shared-step group definitions", () => {
-  const duplicate = validatePlan({
-    ...planWithReferences(),
-    sharedStepGroups: [
-      { id: "sign-in", steps: [] },
-      { id: "sign-in", steps: [] },
-    ],
-  });
-  assert.equal(duplicate.valid, false);
-  assert.ok(duplicate.issues.some((issue) => issue.path === "/sharedStepGroups/1/id" && issue.keyword === "duplicateSharedStepGroupId"));
+test("rejects private shared-step definitions", () => {
   const privateVariables = validatePlan({
     ...planWithReferences(),
-    sharedStepGroups: [{
-      id: "sign-in",
-      steps: [{ action: "type", variables: { email: { default: "private@example.test" } } }],
-    }],
+    sharedSteps: { "sign-in": [{ action: "type", variables: { email: { default: "private@example.test" } } }] },
   });
   assert.equal(privateVariables.valid, false);
-  assert.ok(privateVariables.issues.some((issue) => issue.path === "/sharedStepGroups/0/steps/0/variables" && issue.keyword === "sharedStepVariables"));
+  assert.ok(privateVariables.issues.some((issue) => issue.path === "/sharedSteps/sign-in/0/variables" && issue.keyword === "sharedStepVariables"));
 });
 
 test("rejects unknown and nested shared-step group calls", () => {
   const nested = validatePlan({
     ...planWithReferences(),
-    sharedStepGroups: [{
-      id: "sign-in",
-      steps: [{ action: "callSharedSteps", id: "another-group" }],
-    }],
+    sharedSteps: { "sign-in": [{ action: "sharedSteps", id: "another-group" }] },
   });
   assert.equal(nested.valid, false);
-  assert.ok(nested.issues.some((issue) => issue.path === "/sharedStepGroups/0/steps/0/action" && issue.keyword === "nestedSharedStepCall"));
-  const plan = { ...planWithReferences("cases/sign-in.json"), sharedStepGroups: [{ id: "sign-in", steps: [] }] };
+  assert.ok(nested.issues.some((issue) => issue.path === "/sharedSteps/sign-in/0/action" && issue.keyword === "nestedSharedSteps"));
+  const plan = { ...planWithReferences("cases/sign-in.json"), sharedSteps: { "sign-in": [] } };
   const unknown = validatePlanBundle(plan, [{
     version: 1,
     id: "sign-in-case",
-    steps: [{ action: "callSharedSteps", id: "missing" }],
+    steps: [{ action: "sharedSteps", id: "missing" }],
   }]);
   assert.equal(unknown.valid, false);
-  assert.ok(unknown.issues.some((issue) => issue.path === "/caseFiles/0/steps/0/id" && issue.keyword === "unknownSharedStepGroup"));
+  assert.ok(unknown.issues.some((issue) => issue.path === "/caseFiles/0/steps/0/id" && issue.keyword === "unknownSharedSteps"));
 });
 
 test("expands shared-step calls in authored order with caller and inner-step identity", () => {
@@ -428,17 +403,15 @@ test("expands shared-step calls in authored order with caller and inner-step ide
       id: "checkout",
       steps: [
         { action: "navigate", url: "https://example.test/start" },
-        { action: "callSharedSteps", id: "sign-in" },
+        { action: "sharedSteps", id: "sign-in" },
         { action: "click", locator: { css: "#continue" } },
       ],
     },
-    sharedStepGroups: [{
-      id: "sign-in",
-      steps: [
+    sharedSteps: { "sign-in": [
         { action: "navigate", url: "https://example.test/sign-in" },
         { action: "type", locator: { css: "#email" }, text: { var: "email" } },
       ],
-    }],
+    },
   });
   assert.equal(result.expanded, true);
   if (!result.expanded) {
@@ -447,13 +420,13 @@ test("expands shared-step calls in authored order with caller and inner-step ide
   assert.deepEqual(result.steps.map((step) => ({
     action: step.step.action,
     caseStepIndex: step.caseStepIndex,
-    sharedStepGroupId: step.sharedStepGroupId,
+    sharedStepId: step.sharedStepId,
     sharedStepIndex: step.sharedStepIndex,
   })), [
-    { action: "navigate", caseStepIndex: 0, sharedStepGroupId: undefined, sharedStepIndex: undefined },
-    { action: "navigate", caseStepIndex: 1, sharedStepGroupId: "sign-in", sharedStepIndex: 0 },
-    { action: "type", caseStepIndex: 1, sharedStepGroupId: "sign-in", sharedStepIndex: 1 },
-    { action: "click", caseStepIndex: 2, sharedStepGroupId: undefined, sharedStepIndex: undefined },
+    { action: "navigate", caseStepIndex: 0, sharedStepId: undefined, sharedStepIndex: undefined },
+    { action: "navigate", caseStepIndex: 1, sharedStepId: "sign-in", sharedStepIndex: 0 },
+    { action: "type", caseStepIndex: 1, sharedStepId: "sign-in", sharedStepIndex: 1 },
+    { action: "click", caseStepIndex: 2, sharedStepId: undefined, sharedStepIndex: undefined },
   ]);
 });
 
@@ -463,12 +436,9 @@ test("prepares expanded shared steps with the calling case and selected data-set
       version: 1,
       id: "sign-in",
       variables: { email: { default: "case@example.test" } },
-      steps: [{ action: "callSharedSteps", id: "sign-in" }],
+      steps: [{ action: "sharedSteps", id: "sign-in" }],
     },
-    sharedStepGroups: [{
-      id: "sign-in",
-      steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
-    }],
+    sharedSteps: { "sign-in": [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }] },
     locale: "fr-CA",
     dataSetVariables: { email: { default: "data@example.test", locales: { "fr-CA": "data-fr@example.test" } } },
   });
@@ -480,8 +450,7 @@ test("prepares expanded shared steps with the calling case and selected data-set
   assert.equal(result.case.steps[0].text, "data-fr@example.test");
   assert.deepEqual(result.steps[0], {
     caseStepIndex: 0,
-    sharedStepGroupId: "sign-in",
-    sharedStepGroupIndex: 0,
+    sharedStepId: "sign-in",
     sharedStepIndex: 0,
     step: { action: "type", locator: { css: "#email" }, text: "data-fr@example.test" },
   });
@@ -489,57 +458,69 @@ test("prepares expanded shared steps with the calling case and selected data-set
 
 test("reports unknown and nested shared-step calls without starting execution", () => {
   assert.deepEqual(expandCaseSharedSteps({
-    case: { version: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "missing" }] },
-    sharedStepGroups: [],
+    case: { version: 1, id: "sign-in", steps: [{ action: "sharedSteps", id: "missing" }] },
+    sharedSteps: {},
   }), {
     expanded: false,
     path: "/steps/0/id",
-    reason: "unknownSharedStepGroup",
-    message: "No shared-step group named \"missing\" is available in this plan.",
+    reason: "unknownSharedSteps",
+    message: "No shared steps named \"missing\" are available in this plan.",
   });
   assert.deepEqual(expandCaseSharedSteps({
-    case: { version: 1, id: "sign-in", steps: [{ action: "callSharedSteps", id: "outer" }] },
-    sharedStepGroups: [{ id: "outer", steps: [{ action: "callSharedSteps", id: "inner" }] }],
+    case: { version: 1, id: "sign-in", steps: [{ action: "sharedSteps", id: "outer" }] },
+    sharedSteps: { outer: [{ action: "sharedSteps", id: "inner" }] },
   }), {
     expanded: false,
-    path: "/sharedStepGroups/0/steps/0/action",
-    reason: "nestedSharedStepCall",
-    message: "A shared-step group cannot call another shared-step group.",
+    path: "/sharedSteps/outer/0/action",
+    reason: "nestedSharedSteps",
+    message: "Shared steps cannot call other shared steps.",
   });
 });
 
-test("selects a case default or explicit named data set without changing the case", () => {
+test("selects default data and layers an explicit set without changing the case", () => {
   const dataSets = [
-    { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } }, note: { default: "" } } },
+    { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } },
     { name: "empty", variables: {} },
   ];
-  const caseFile = { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] };
+  const caseFile = {
+    version: 1,
+    id: "sign-in",
+    dataSets: { default: { email: { default: "default@example.test" }, note: { default: "default note" } } },
+    steps: [],
+  };
   assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets }), {
     selected: true,
-    name: "canada",
-    source: "caseDefault",
-    variables: dataSets[0].variables,
+    source: "default",
+    variables: caseFile.dataSets.default,
   });
-  assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets, selectedDataSet: "empty" }), {
+  assert.deepEqual(selectCaseDataSet({ case: caseFile, dataSets, selectedDataSet: "canada" }), {
     selected: true,
-    name: "empty",
+    name: "canada",
     source: "selected",
-    variables: {},
+    variables: {
+      email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } },
+      note: { default: "default note" },
+    },
   });
   assert.deepEqual(selectCaseDataSet({ case: { version: 1, id: "no-default", steps: [] }, dataSets }), {
     selected: true,
   });
-  assert.deepEqual(caseFile, { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] });
+  assert.deepEqual(caseFile, {
+    version: 1,
+    id: "sign-in",
+    dataSets: { default: { email: { default: "default@example.test" }, note: { default: "default note" } } },
+    steps: [],
+  });
   assert.deepEqual(resolveVariable({
     name: "note",
     locale: "en-CA",
-    dataSetVariables: dataSets[0].variables,
-  }), { resolved: true, value: "", source: "dataSet" });
+    dataSetVariables: { ...caseFile.dataSets.default, ...dataSets[0].variables },
+  }), { resolved: true, value: "default note", source: "dataSet" });
 });
 
 test("rejects an unknown selected data set with a clear preflight error", () => {
   assert.deepEqual(selectCaseDataSet({
-    case: { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    case: { version: 1, id: "sign-in", dataSets: { default: {} }, steps: [] },
     dataSets: [{ name: "canada", variables: {} }],
     selectedDataSet: "missing",
   }), {
@@ -664,7 +645,7 @@ test("resolves only the selected protected environment value from a supplied map
   });
   environment.TEST_PASSWORD = "not-a-real-password";
   environment.TEST_EMPTY = "";
-  assert.deepEqual(resolveProtectedEnvironmentValue({
+  assert.deepEqual(resolveEnvironmentValue({
     value: { env: "TEST_PASSWORD" },
     environment,
   }), {
@@ -672,7 +653,7 @@ test("resolves only the selected protected environment value from a supplied map
     value: "not-a-real-password",
     environmentVariable: "TEST_PASSWORD",
   });
-  assert.deepEqual(resolveProtectedEnvironmentValue({
+  assert.deepEqual(resolveEnvironmentValue({
     value: { env: "TEST_EMPTY" },
     environment,
   }), {
@@ -680,7 +661,7 @@ test("resolves only the selected protected environment value from a supplied map
     value: "",
     environmentVariable: "TEST_EMPTY",
   });
-  assert.deepEqual(resolveProtectedEnvironmentValue({
+  assert.deepEqual(resolveEnvironmentValue({
     value: { env: "MISSING_VALUE" },
     environment,
   }), {
@@ -689,7 +670,7 @@ test("resolves only the selected protected environment value from a supplied map
     environmentVariable: "MISSING_VALUE",
     message: "Required environment variable \"MISSING_VALUE\" is not available.",
   });
-  assert.deepEqual(resolveProtectedEnvironmentValue({
+  assert.deepEqual(resolveEnvironmentValue({
     value: { env: "INHERITED_VALUE" },
     environment,
   }), {
@@ -845,8 +826,9 @@ test("prepares every case step before runner integration", () => {
 
 test("prepares a case with selected data-set values before browser work", () => {
   const selection = selectCaseDataSet({
-    case: { version: 1, id: "sign-in", defaultDataSet: "canada", steps: [] },
+    case: { version: 1, id: "sign-in", dataSets: { default: {} }, steps: [] },
     dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
+    selectedDataSet: "canada",
   });
   assert.equal(selection.selected, true);
   if (!selection.selected) {
@@ -1240,12 +1222,12 @@ test("requires one parsed case for each plan reference", () => {
   );
 });
 
-test("rejects duplicate data-set names and unknown default selections in a plan bundle", () => {
+test("rejects duplicate named data sets in a plan bundle", () => {
   const plan = planWithReferences("cases/first.json", "cases/second.json");
   const firstCase = {
     version: 1,
     id: "first",
-    dataSets: [{ name: "standard", variables: {} }],
+    dataSets: { default: {}, standard: {} },
     steps: [],
   };
   const duplicateName = validatePlanBundle(plan, [
@@ -1253,18 +1235,12 @@ test("rejects duplicate data-set names and unknown default selections in a plan 
     {
       version: 1,
       id: "second",
-      dataSets: [{ name: "standard", variables: {} }],
+      dataSets: { default: {}, standard: {} },
       steps: [],
     },
   ]);
   assert.equal(duplicateName.valid, false);
-  assert.ok(duplicateName.issues.some((issue) => issue.path === "/caseFiles/1/dataSets/0/name" && issue.keyword === "duplicateDataSetName"));
-  const unknownDefault = validatePlanBundle(plan, [
-    firstCase,
-    { version: 1, id: "second", defaultDataSet: "missing", steps: [] },
-  ]);
-  assert.equal(unknownDefault.valid, false);
-  assert.ok(unknownDefault.issues.some((issue) => issue.path === "/caseFiles/1/defaultDataSet" && issue.keyword === "unknownDataSet"));
+  assert.ok(duplicateName.issues.some((issue) => issue.path === "/caseFiles/1/dataSets/standard" && issue.keyword === "duplicateDataSetName"));
 });
 
 test("accepts known axe tags, empty lists, and omitted lists at plan and case scope", () => {

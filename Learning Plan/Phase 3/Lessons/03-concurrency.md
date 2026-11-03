@@ -2,6 +2,9 @@
 
 > “How can several cases run together without turning the machine into a traffic jam?” — Parker “Parallel Planner” Pierce, Developer
 
+[← Previous: case isolation](02-case-isolation.md) · [Phase outline](../README.md) · [Next: timeouts →](04-timeouts.md)
+
+
 **Concurrency** means making progress on more than one case during the same period. A limit controls how many may be active, like a shop allowing only a safe number of customers inside.
 
 Concurrency can change completion order, so result ordering and identifiers must remain predictable even when cases finish at different times.
@@ -13,3 +16,5 @@ Schedule five cases with a concurrency limit of two. Record which cases can star
 ## You are ready when
 
 You can explain the difference between authored order, start order, and completion order.
+
+[← Previous: case isolation](02-case-isolation.md) · [Phase outline](../README.md) · [Next: timeouts →](04-timeouts.md)

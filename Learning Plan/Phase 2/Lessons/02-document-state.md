@@ -2,6 +2,9 @@
 
 > “Which information belongs in the saved plan, and which belongs only to the editor?” — Stella “State Steward” Stone, Developer
 
+[← Previous: vue foundations](01-vue-foundations.md) · [Phase outline](../README.md) · [Next: form editing →](03-form-editing.md)
+
+
 **Document state** is information that belongs in the saved Stagehand file. **Interface state** helps operate the editor but is not part of that file, such as the open panel or current cursor position.
 
 Keeping them separate is like keeping a recipe separate from the sticky note that marks your current step. Saving the sticky note into the recipe would change the document by accident.
@@ -13,3 +16,5 @@ Classify these as document or interface state: plan ID, selected tab, case refer
 ## You are ready when
 
 You can design an editor state model that preserves the validated plan while keeping temporary screen details out of exported JSON.
+
+[← Previous: vue foundations](01-vue-foundations.md) · [Phase outline](../README.md) · [Next: form editing →](03-form-editing.md)

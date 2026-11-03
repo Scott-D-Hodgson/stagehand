@@ -2,6 +2,9 @@
 
 > “How do we stop one case's cookies and page state from leaking into another?” — Cora “Context Captain” Chen, Developer
 
+[← Previous: plan orchestration](01-plan-orchestration.md) · [Phase outline](../README.md) · [Next: concurrency →](03-concurrency.md)
+
+
 An isolated browser context is like a fresh private browser profile. Each case gets its own cookies, storage, and pages, so one case cannot quietly influence the next.
 
 Isolation improves repeatability but costs resources. The runner must create and close these boundaries deliberately, including after failure.
@@ -13,3 +16,5 @@ Describe a two-case test where shared cookies would create a false pass. Then sh
 ## You are ready when
 
 You can identify what must be isolated per case and what may safely be shared for the run.
+
+[← Previous: plan orchestration](01-plan-orchestration.md) · [Phase outline](../README.md) · [Next: concurrency →](03-concurrency.md)

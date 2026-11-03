@@ -3,7 +3,7 @@
   "id": "shared-step-call",
   "steps": [
     {
-      "action": "callSharedSteps",
+      "action": "sharedSteps",
       "id": "sign-in"
     }
   ]

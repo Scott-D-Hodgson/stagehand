@@ -122,13 +122,14 @@ test("prepares case steps with the selected data-set values", async () => {
       case: {
         version: 1,
         id: "sign-in",
-        defaultDataSet: "canada",
+        dataSets: { default: {} },
         variables: { email: { default: "case@example.test" } },
         steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
       },
       dataSets: [
         { name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } },
       ],
+      selectedDataSet: "canada",
     });
     assert.equal(typedText, "canada-fr@example.test");
   } finally {
@@ -152,18 +153,16 @@ test("expands and dispatches shared steps using the calling case data set", asyn
       case: {
         version: 1,
         id: "checkout",
-        defaultDataSet: "canada",
+        dataSets: { default: {} },
         steps: [
           { action: "navigate", url: "https://example.test/start" },
-          { action: "callSharedSteps", id: "sign-in" },
+          { action: "sharedSteps", id: "sign-in" },
           { action: "navigate", url: "https://example.test/complete" },
         ],
       },
       dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
-      sharedStepGroups: [{
-        id: "sign-in",
-        steps: [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }],
-      }],
+      selectedDataSet: "canada",
+      sharedSteps: { "sign-in": [{ action: "type", locator: { css: "#email" }, text: { var: "email" } }] },
     });
     assert.deepEqual(events, [
       "navigate:https://example.test/start",
@@ -185,18 +184,15 @@ test("retains shared-step identity when an expanded step fails", async () => {
         case: {
           version: 1,
           id: "checkout",
-          steps: [{ action: "callSharedSteps", id: "sign-in" }],
+          steps: [{ action: "sharedSteps", id: "sign-in" }],
         },
-        sharedStepGroups: [{
-          id: "sign-in",
-          steps: [{ action: "navigate", url: "https://example.test/sign-in" }],
-        }],
+        sharedSteps: { "sign-in": [{ action: "navigate", url: "https://example.test/sign-in" }] },
       }),
       (error) => error instanceof StepExecutionError
         && error.caseId === "checkout"
         && error.stepIndex === 0
         && error.caseStepIndex === 0
-        && error.sharedStepGroupId === "sign-in"
+        && error.sharedStepId === "sign-in"
         && error.sharedStepIndex === 0,
     );
   } finally {
@@ -216,17 +212,14 @@ test("retains shared-step identity on a soft assertion failure", async () => {
       case: {
         version: 1,
         id: "checkout",
-        steps: [{ action: "callSharedSteps", id: "sign-in" }],
+        steps: [{ action: "sharedSteps", id: "sign-in" }],
       },
-      sharedStepGroups: [{
-        id: "sign-in",
-        steps: [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" }, soft: true }],
-      }],
+      sharedSteps: { "sign-in": [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" }, soft: true }] },
     });
-    assert.deepEqual(failures.map(({ caseId, stepIndex, caseStepIndex, sharedStepGroupId, sharedStepIndex }) => ({
-      caseId, stepIndex, caseStepIndex, sharedStepGroupId, sharedStepIndex,
+    assert.deepEqual(failures.map(({ caseId, stepIndex, caseStepIndex, sharedStepId, sharedStepIndex }) => ({
+      caseId, stepIndex, caseStepIndex, sharedStepId, sharedStepIndex,
     })), [{
-      caseId: "checkout", stepIndex: 0, caseStepIndex: 0, sharedStepGroupId: "sign-in", sharedStepIndex: 0,
+      caseId: "checkout", stepIndex: 0, caseStepIndex: 0, sharedStepId: "sign-in", sharedStepIndex: 0,
     }]);
   } finally {
     await run.close();
@@ -241,17 +234,14 @@ test("retains shared-step identity when preparation fails", async () => {
         case: {
           version: 1,
           id: "checkout",
-          steps: [{ action: "callSharedSteps", id: "sign-in" }],
+          steps: [{ action: "sharedSteps", id: "sign-in" }],
         },
-        sharedStepGroups: [{
-          id: "sign-in",
-          steps: [{ action: "type", locator: { css: "#email" }, text: { var: "missing" } }],
-        }],
+        sharedSteps: { "sign-in": [{ action: "type", locator: { css: "#email" }, text: { var: "missing" } }] },
       }),
       (error) => error instanceof CasePreparationError
-        && error.path === "/sharedStepGroups/0/steps/0/text"
+        && error.path === "/sharedSteps/sign-in/0/text"
         && error.caseStepIndex === 0
-        && error.sharedStepGroupId === "sign-in"
+        && error.sharedStepId === "sign-in"
         && error.sharedStepIndex === 0,
     );
   } finally {

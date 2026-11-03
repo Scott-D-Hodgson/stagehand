@@ -22,7 +22,7 @@ export class StepExecutionError extends Error {
   stepIndex: number;
   action: string;
   caseStepIndex?: number;
-  sharedStepGroupId?: string;
+  sharedStepId?: string;
   sharedStepIndex?: number;
   constructor(caseId: string, stepIndex: number, action: string, cause: unknown, identity?: StepExecutionIdentity) {
     const detail = cause instanceof Error ? cause.message : String(cause);
@@ -33,8 +33,8 @@ export class StepExecutionError extends Error {
     this.action = action;
     if (identity !== undefined) {
       this.caseStepIndex = identity.caseStepIndex;
-      if (identity.sharedStepGroupId !== undefined) {
-        this.sharedStepGroupId = identity.sharedStepGroupId;
+      if (identity.sharedStepId !== undefined) {
+        this.sharedStepId = identity.sharedStepId;
       }
       if (identity.sharedStepIndex !== undefined) {
         this.sharedStepIndex = identity.sharedStepIndex;
@@ -144,7 +144,7 @@ export async function executeCaseSteps(
                 stepIndex,
                 action: step.action,
                 ...(identity?.caseStepIndex === undefined ? {} : { caseStepIndex: identity.caseStepIndex }),
-                ...(identity?.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: identity.sharedStepGroupId }),
+                ...(identity?.sharedStepId === undefined ? {} : { sharedStepId: identity.sharedStepId }),
                 ...(identity?.sharedStepIndex === undefined ? {} : { sharedStepIndex: identity.sharedStepIndex }),
                 expected: expectedText,
                 ...(error instanceof StringAssertionMismatchError ? { actual: error.actual } : {}),
@@ -163,7 +163,7 @@ export async function executeCaseSteps(
                 action: step.action,
                 check: "associatedLabel",
                 ...(identity?.caseStepIndex === undefined ? {} : { caseStepIndex: identity.caseStepIndex }),
-                ...(identity?.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: identity.sharedStepGroupId }),
+                ...(identity?.sharedStepId === undefined ? {} : { sharedStepId: identity.sharedStepId }),
                 ...(identity?.sharedStepIndex === undefined ? {} : { sharedStepIndex: identity.sharedStepIndex }),
                 ...failure,
               }, protectedValues));

@@ -2,6 +2,10 @@
 
 > “What promise does `plan-schema` make about Stagehand documents?” — Connie “Contract Curious” Carter, Developer
 
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: plan schema anatomy →](02-plan-schema-anatomy.md)
+
+
+
 A **contract** is an agreed shape and meaning. It says which fields a plan or case must have, what each field may contain, and which combinations are invalid. Stagehand's plan and case contracts live in [`plan-v1.schema.json`](../../../../packages/plan-schema/src/plan-v1.schema.json) and [`case-v1.schema.json`](../../../../packages/plan-schema/src/case-v1.schema.json).
 
 Stagehand currently has one plan/case contract version: **version 1**. The `version` property identifies this version in every plan and case document. To control which versions are accepted, the schema defines the allowed value for that property; currently, only `1` is supported. The v1 contracts can still evolve while the milestone work continues. A milestone release is the point to make a deliberate compatibility/versioning decision.
@@ -56,3 +60,4 @@ Find the required top-level fields in both schemas. Then trace one `$ref` from a
 - You can connect a structural rule to the testing mistake it prevents.
 - You can explain why a valid document is not necessarily executable.
 
+[← Previous: course outline](../README.md) · [Course outline](../README.md) · [Next: plan schema anatomy →](02-plan-schema-anatomy.md)

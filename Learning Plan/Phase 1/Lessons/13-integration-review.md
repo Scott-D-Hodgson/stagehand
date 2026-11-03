@@ -2,6 +2,9 @@
 
 > “How do we know the Phase 1 pieces form one coherent foundation rather than separate demos?” — Iris “Integration Inspector” Ingram, Developer
 
+[← Previous: errors policy](12-errors-policy.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)
+
+
 Integration review follows data across boundaries: authored JSON → validation → safe loading → preparation → browser dispatch → observations → result shape. Each hand-off must preserve identity, errors, and documented scope.
 
 ```mermaid
@@ -37,3 +40,5 @@ Trace one case through the diagram and name the package responsible at each hand
 
 - You can explain the complete intended flow and current gaps.
 - You can spot a responsibility placed in the wrong package.
+
+[← Previous: errors policy](12-errors-policy.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)

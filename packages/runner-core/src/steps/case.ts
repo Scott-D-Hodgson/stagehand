@@ -2,7 +2,7 @@ import {
   prepareCaseSharedSteps,
   selectCaseDataSet,
   type NamedDataSet,
-  type SharedStepGroup,
+  type SharedSteps,
   type VariableDefinition,
 } from "@stagehand/plan-schema";
 import type { ExecutableStep } from "./types.js";
@@ -12,7 +12,7 @@ export interface CaseExecutionOptions {
   planVariables?: Readonly<Record<string, VariableDefinition>>;
   dataSets?: readonly NamedDataSet[];
   selectedDataSet?: string;
-  sharedStepGroups?: readonly SharedStepGroup[];
+  sharedSteps?: SharedSteps;
   environment?: Readonly<Record<string, string | undefined>>;
 }
 
@@ -26,29 +26,29 @@ export interface RunPreparationOptions {
   locale: string;
   planVariables?: Readonly<Record<string, VariableDefinition>>;
   dataSets?: readonly NamedDataSet[];
-  sharedStepGroups?: readonly SharedStepGroup[];
+  sharedSteps?: SharedSteps;
   environment?: Readonly<Record<string, string | undefined>>;
 }
 
 export interface StepExecutionIdentity {
   caseStepIndex: number;
-  sharedStepGroupId?: string;
+  sharedStepId?: string;
   sharedStepIndex?: number;
 }
 
 export class CasePreparationError extends Error {
   caseId: string;
   path: string;
-  reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup" | "unresolvedProtectedValue";
+  reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedSteps" | "unknownDataSet" | "unknownSharedSteps" | "unresolvedProtectedValue";
   issues?: ReadonlyArray<{ path: string; keyword: string; message: string }>;
   environmentVariable?: string;
   caseStepIndex?: number;
-  sharedStepGroupId?: string;
+  sharedStepId?: string;
   sharedStepIndex?: number;
   constructor(
     caseId: string,
     path: string,
-    reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedStepCall" | "unknownDataSet" | "unknownSharedStepGroup" | "unresolvedProtectedValue",
+    reason: "invalidCaseSteps" | "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "nestedSharedSteps" | "unknownDataSet" | "unknownSharedSteps" | "unresolvedProtectedValue",
     message: string,
     issues?: ReadonlyArray<{ path: string; keyword: string; message: string }>,
     identity?: StepExecutionIdentity,
@@ -67,8 +67,8 @@ export class CasePreparationError extends Error {
     }
     if (identity !== undefined) {
       this.caseStepIndex = identity.caseStepIndex;
-      if (identity.sharedStepGroupId !== undefined) {
-        this.sharedStepGroupId = identity.sharedStepGroupId;
+      if (identity.sharedStepId !== undefined) {
+        this.sharedStepId = identity.sharedStepId;
       }
       if (identity.sharedStepIndex !== undefined) {
         this.sharedStepIndex = identity.sharedStepIndex;
@@ -104,7 +104,7 @@ export function prepareCaseForExecution(
   if (!selection.selected) {
     throw new CasePreparationError(
       getCaseId(options.case),
-      options.selectedDataSet === undefined ? "/defaultDataSet" : "/dataSetSelection",
+      options.selectedDataSet === undefined ? "/dataSets/default" : "/dataSetSelection",
       selection.reason,
       selection.message,
     );
@@ -112,7 +112,7 @@ export function prepareCaseForExecution(
   const prepared = prepareCaseSharedSteps({
     case: options.case,
     locale,
-    sharedStepGroups: options.sharedStepGroups ?? [],
+    sharedSteps: options.sharedSteps ?? {},
     ...(options.environment === undefined ? {} : { environment: options.environment }),
     ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
     ...(selection.variables === undefined ? {} : { dataSetVariables: selection.variables }),
@@ -128,7 +128,7 @@ export function prepareCaseForExecution(
         ? undefined
         : {
             caseStepIndex: prepared.caseStepIndex,
-            ...(prepared.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: prepared.sharedStepGroupId }),
+            ...(prepared.sharedStepId === undefined ? {} : { sharedStepId: prepared.sharedStepId }),
             ...(prepared.sharedStepIndex === undefined ? {} : { sharedStepIndex: prepared.sharedStepIndex }),
           },
       prepared.environmentVariable,
@@ -140,7 +140,7 @@ export function prepareCaseForExecution(
     protectedValues: prepared.protectedValues ?? [],
     stepIdentities: prepared.steps.map((step) => ({
       caseStepIndex: step.caseStepIndex,
-      ...(step.sharedStepGroupId === undefined ? {} : { sharedStepGroupId: step.sharedStepGroupId }),
+      ...(step.sharedStepId === undefined ? {} : { sharedStepId: step.sharedStepId }),
       ...(step.sharedStepIndex === undefined ? {} : { sharedStepIndex: step.sharedStepIndex }),
     })),
   };
@@ -153,7 +153,7 @@ export function prepareRunForExecution(options: RunPreparationOptions): Prepared
       ...(selection.selectedDataSet === undefined ? {} : { selectedDataSet: selection.selectedDataSet }),
       ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
       ...(options.dataSets === undefined ? {} : { dataSets: options.dataSets }),
-      ...(options.sharedStepGroups === undefined ? {} : { sharedStepGroups: options.sharedStepGroups }),
+      ...(options.sharedSteps === undefined ? {} : { sharedSteps: options.sharedSteps }),
       ...(options.environment === undefined ? {} : { environment: options.environment }),
     }, options.locale)),
   };

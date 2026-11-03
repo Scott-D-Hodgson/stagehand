@@ -2,6 +2,9 @@
 
 > “How can a reviewer find the right runner-core code and judge what its tests prove?” — Tess “Test Tracker” Turner, Developer
 
+[← Previous: accessibility evidence](09-accessibility-evidence.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+
+
 The public [`src/index.ts`](../../../../packages/runner-core/src/index.ts) re-exports the supported API. Internals are grouped by responsibility: `browser/`, `actions/`, `steps/`, and `accessibility/`, with focused locator, wait, and assertion modules. Consumers import `@stagehand/runner-core`, not internal paths.
 
 Run `npm test --workspace @stagehand/runner-core`. Before the shared-step execution slice, the development-container suite had 137 passing tests. Record the updated result for this slice before merge. These tests use browser and axe doubles, so they verify orchestration, mapping, error handling, and cleanup logic without proving successful real Chromium/axe behaviour.
@@ -29,3 +32,4 @@ Choose one failure test. State exactly what it proves and one browser behaviour 
 - You can locate each responsibility without importing an internal subpath.
 - You can distinguish mocked verification, CI evidence, and real-browser evidence.
 
+[← Previous: accessibility evidence](09-accessibility-evidence.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)

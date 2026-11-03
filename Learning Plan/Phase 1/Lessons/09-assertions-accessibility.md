@@ -2,6 +2,9 @@
 
 > “How does Stagehand check page content and accessibility without confusing observations with outcomes?” — Asha “Assertion Auditor” Ali, Developer
 
+[← Previous: page interactions](08-page-interactions.md) · [Phase outline](../README.md) · [Next: variables data sets →](10-variables-data-sets.md)
+
+
 Text, HTML, and input-value assertions compare exact locale-selected strings. Hard failures stop a case step; recognized soft failures return diagnostics and permit continuation.
 
 Accessibility scanning is optional. Completed axe analysis may contain violations or incomplete observations, so “completed” does not mean “passed.” Runner-core maps and collects selected evidence, while M6 will decide how `failOnViolation` affects outcomes.
@@ -32,3 +35,4 @@ Compare a soft text mismatch, an axe violation, and an axe adapter rejection. Ex
 - You can explain hard versus soft assertions.
 - You can separate scan execution, findings, and outcome policy.
 
+[← Previous: page interactions](08-page-interactions.md) · [Phase outline](../README.md) · [Next: variables data sets →](10-variables-data-sets.md)

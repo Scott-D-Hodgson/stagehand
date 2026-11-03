@@ -2,6 +2,9 @@
 
 > “How does runner-core compare page content and decide whether execution continues?” — Anita “Assertion Analyst” Abbott, Developer
 
+[← Previous: actions](04-actions.md) · [Course outline](../README.md) · [Next: step dispatch →](06-step-dispatch.md)
+
+
 `assertText`, `assertHtml`, and `assertValue` compare exact, case-sensitive strings selected for the run locale. They read inner text, inner HTML, and input value respectively. The timeout covers locator resolution and the read.
 
 Assertions are hard by default: failure stops dispatch. With `soft: true`, expected mismatch, locator failure, or read timeout becomes a returned diagnostic and later steps continue. Unsafe browser errors remain hard.
@@ -31,3 +34,4 @@ Predict the outcome for a soft value mismatch plus a missing label, then repeat 
 - You can distinguish text, HTML, value, and label reads.
 - You can explain hard, soft, and unsafe failures.
 
+[← Previous: actions](04-actions.md) · [Course outline](../README.md) · [Next: step dispatch →](06-step-dispatch.md)

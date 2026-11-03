@@ -2,6 +2,9 @@
 
 > “Why is Stagehand divided into apps and reusable packages instead of one large project?” — Monica “Module Mapper” Morgan, Developer
 
+[← Previous: repository collaboration](01-repository-collaboration.md) · [Phase outline](../README.md) · [Next: development environment →](03-development-environment.md)
+
+
 A monorepo stores related apps and packages together while keeping responsibility boundaries. Apps provide user-facing entry points; packages provide reusable contracts and behaviour.
 
 The important boundary is dependency direction: shared contracts should not depend on browser or filesystem code. For example, `plan-schema` remains usable by Node and browser consumers, while `plan-engine` owns Node file access and `runner-core` owns browser execution.
@@ -37,3 +40,4 @@ Place a new filesystem containment check, JSON contract rule, and browser click 
 - You can explain why a monorepo does not mean one undivided codebase.
 - You can choose a package by responsibility rather than convenience.
 
+[← Previous: repository collaboration](01-repository-collaboration.md) · [Phase outline](../README.md) · [Next: development environment →](03-development-environment.md)

@@ -2,6 +2,9 @@
 
 > “Which result rules belong here, and which belong to execution policy?” — Polly “Policy Partitioner” Parks, Developer
 
+[← Previous: accessibility evidence](04-accessibility-evidence.md) · [Course outline](../README.md) · [Next: redaction foundation →](06-redaction-foundation.md)
+
+
 This package answers “Does this value have the agreed result shape?” It does not answer “Should these failures make the run fail?” or “Do these counts correctly summarize every case?” Those are cross-field and behavioural decisions owned by M6.
 
 Other boundaries matter too:
@@ -43,3 +46,4 @@ Classify these proposed checks: valid URI format, case counts equal actual outco
 - You can separate shape/format rules from aggregation/status policy.
 - You know that this package validates but does not produce results.
 
+[← Previous: accessibility evidence](04-accessibility-evidence.md) · [Course outline](../README.md) · [Next: redaction foundation →](06-redaction-foundation.md)

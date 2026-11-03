@@ -20,7 +20,7 @@ If you checked any item, this course is relevant.
 
 ## Current boundary
 
-The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, ordinary and protected variable definitions, named data-set structure, and shared-step group/call relationships. It can select a case default or explicit data set, expand shared-step calls with source identity, then prepare variable references using the calling case's selected context. A selected protected `{ "env": "NAME" }` reference remains protected until a caller supplies an injected-map lookup; preparation can then replace the effective value and return it for a caller-owned redaction boundary. The package does not read files, execute shared steps, read `process.env`, or start a browser. The focused suite passed 65 tests in the development container before the shared-step expansion slice; record its updated result before merging.
+The package validates v1 plan/case shapes, semantic locale/time-zone/URL rules, case references, parsed bundles, variable definitions, data sets, and shared steps. Case `dataSets.default` provides base values; a selected named set layers its changes over that base. It expands `{ "action": "sharedSteps", "id": "..." }` calls with source identity, then prepares variable references using the calling case's selected context. An `{ "env": "NAME" }` reference remains unresolved until a caller supplies an environment map; preparation returns effective values separately for caller-owned redaction. The package does not read files, execute shared steps, read `process.env`, or start a browser. The current development-container suite passes 71 tests.
 
 ```mermaid
 flowchart LR
@@ -41,12 +41,13 @@ The package is the rules desk between authored JSON and browser execution. It re
 ## Lessons
 
 1. [Contracts](Lessons/01-contracts.md)
-2. [Validation](Lessons/02-validation.md)
-3. [Case references](Lessons/03-case-references.md)
-4. [Bundle validation](Lessons/04-bundle-validation.md)
-5. [Variables](Lessons/05-variables.md)
-6. [Data sets](Lessons/06-data-sets.md)
-7. [Shared-step contracts](Lessons/07-shared-step-contracts.md)
-8. [Shared-step expansion](Lessons/08-shared-step-expansion.md)
+2. [Anatomy of the plan schema](Lessons/02-plan-schema-anatomy.md)
+3. [Anatomy of the case schema](Lessons/03-case-schema-anatomy.md)
+4. [Validation](Lessons/04-validation.md)
+5. [Case references](Lessons/05-case-references.md)
+6. [Bundle validation](Lessons/06-bundle-validation.md)
+7. [Variables](Lessons/07-variables.md)
+8. [Data sets](Lessons/08-data-sets.md)
+9. [Shared steps](Lessons/09-shared-steps.md)
 
 Finish with the [course skill check](quiz.md).

@@ -1,17 +1,14 @@
 {
   "version": 1,
   "id": "shared-step-plan",
-  "sharedStepGroups": [
-    {
-      "id": "sign-in",
-      "steps": [
+  "sharedSteps": {
+    "sign-in": [
         {
           "action": "navigate",
           "url": "https://example.test/sign-in"
         }
-      ]
-    }
-  ],
+    ]
+  },
   "cases": [
     {
       "path": "cases/shared-step-call.json"
