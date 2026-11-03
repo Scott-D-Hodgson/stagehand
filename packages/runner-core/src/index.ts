@@ -60,3 +60,5 @@ export { StepExecutionError } from "./steps/execute.js";
 export { CasePreparationError } from "./steps/case.js";
 export { prepareRunForExecution } from "./steps/case.js";
 export { startBrowserRun } from "./browser/run.js";
+export { determineCaseOutcome } from "./outcomes/case.js";
+export type { CaseOutcome, CaseOutcomeCategory, CaseOutcomeFacts } from "./outcomes/case.js";
