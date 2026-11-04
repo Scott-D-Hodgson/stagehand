@@ -93,7 +93,7 @@ At plan scope, omitted tags or `[]` mean axe defaults without a tag filter. This
 
 The [checkout plan](examples/checkout-plan.json) selects `wcag2a` and `wcag2aa`. Its sign-in case omits tags (inheritance), while the [action example](examples/cases/action-contract.json) explicitly supplies `[]` (clearing). Both cases still disable scanning. The two standalone schemas each contain the same `$defs.axeTag` inventory, collected from axe-core 4.14.0 `getRules()`, including tags on disabled rules. When upgrading the pinned engine, refresh both inventories and review the accepted tag set. Plan-schema does not load axe or Playwright at runtime.
 
-The development-container package checks currently pass: plan-schema has 71 passing tests, plan-engine has 17 passing tests, result-model has 25 passing tests, and runner-core has 147 passing tests. These are mocked/unit checks; actual Chromium/axe assessment remains deferred until Stagehand has a project-owned test site.
+The development-container package checks currently pass: plan-schema has 71 passing tests, plan-engine has 17 passing tests, result-model has 25 passing tests, and runner-core has 157 passing tests. These are mocked/unit checks; actual Chromium/axe assessment remains deferred until Stagehand has a project-owned test site.
 
 For manual inspection after installing the workspace dependencies, run this from the repository root using the installed engine:
 
