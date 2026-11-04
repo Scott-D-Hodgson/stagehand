@@ -66,3 +66,5 @@ export { summarizeRunOutcome } from "./outcomes/run.js";
 export type { RunOutcomeFacts, RunOutcomeCounts, RunOutcomeSummary } from "./outcomes/run.js";
 export { elapsedMilliseconds, startElapsedTimer, systemMonotonicClock } from "./timing.js";
 export type { ElapsedTimer, MonotonicClock } from "./timing.js";
+export { CancellationError, executeSequentially, throwIfCancelled } from "./cancellation.js";
+export { executeWithCleanup, PrimaryFailureError } from "./cleanup.js";
