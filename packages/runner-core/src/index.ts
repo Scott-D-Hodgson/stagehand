@@ -62,3 +62,5 @@ export { prepareRunForExecution } from "./steps/case.js";
 export { startBrowserRun } from "./browser/run.js";
 export { determineCaseOutcome } from "./outcomes/case.js";
 export type { CaseOutcome, CaseOutcomeCategory, CaseOutcomeFacts } from "./outcomes/case.js";
+export { summarizeRunOutcome } from "./outcomes/run.js";
+export type { RunOutcomeFacts, RunOutcomeCounts, RunOutcomeSummary } from "./outcomes/run.js";

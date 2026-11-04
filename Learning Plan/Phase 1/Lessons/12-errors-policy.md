@@ -37,6 +37,8 @@ This is the initial M6 policy, not a claim that a complete coordinator already e
 
 `runner-core` now has a small browser-free `determineCaseOutcome` helper for this decision. It receives already-known facts and returns a case status plus the category that decided it. It does not run a browser, aggregate a run, or write result JSON.
 
+`summarizeRunOutcome` then counts completed case statuses and applies the same priority to the whole run. A preflight error or cancellation before any case starts is supplied separately, because no completed case can represent it.
+
 ## Try it
 
 Classify a locator timeout, a failed cleanup, and a cancelled run. Identify the diagnostic facts and the policy decisions for each.
