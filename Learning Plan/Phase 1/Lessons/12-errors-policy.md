@@ -39,6 +39,8 @@ This is the initial M6 policy, not a claim that a complete coordinator already e
 
 `summarizeRunOutcome` then counts completed case statuses and applies the same priority to the whole run. A preflight error or cancellation before any case starts is supplied separately, because no completed case can represent it.
 
+Timing uses a monotonic clock: a steadily increasing stopwatch, rather than a calendar clock that can change. Whole-run elapsed time begins before preflight and ends after browser/session cleanup, before report writing. Active-case time begins immediately before the first step and ends when dispatch ends; it includes waits and automatic scans but excludes preparation, browser/session setup, queue time, and cleanup. The accepted active-case default is 10 minutes, but this slice only measures time; it does not enforce that limit.
+
 ## Try it
 
 Classify a locator timeout, a failed cleanup, and a cancelled run. Identify the diagnostic facts and the policy decisions for each.
