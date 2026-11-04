@@ -41,6 +41,8 @@ This is the initial M6 policy, not a claim that a complete coordinator already e
 
 Timing uses a monotonic clock: a steadily increasing stopwatch, rather than a calendar clock that can change. Whole-run elapsed time begins before preflight and ends after browser/session cleanup, before report writing. Active-case time begins immediately before the first step and ends when dispatch ends; it includes waits and automatic scans but excludes preparation, browser/session setup, queue time, and cleanup. The accepted active-case default is 10 minutes, but this slice only measures time; it does not enforce that limit.
 
+The cancellation building block checks an `AbortSignal` before starting each item of sequential work. An `AbortSignal` is a simple JavaScript stop-request flag: it says not to begin the next case, but it does not forcibly interrupt work already under way. The cleanup building block always attempts cleanup. If execution and cleanup both fail, it keeps the original failure as the primary problem and retains the cleanup failure as secondary context.
+
 ## Try it
 
 Classify a locator timeout, a failed cleanup, and a cancelled run. Identify the diagnostic facts and the policy decisions for each.
@@ -49,5 +51,6 @@ Classify a locator timeout, a failed cleanup, and a cancelled run. Identify the 
 
 - You can separate error information from outcome policy.
 - You know why independent cases may continue after a recoverable case failure.
+- You know why a cancellation request stops new work rather than erasing completed work.
 
 [← Previous: shared steps](11-shared-steps.md) · [Phase outline](../README.md) · [Next: integration review →](13-integration-review.md)
