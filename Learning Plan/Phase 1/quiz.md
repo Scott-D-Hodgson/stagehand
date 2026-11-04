@@ -10,6 +10,7 @@
 8. How does a configured accessibility finding differ from an axe scan execution error?
 9. What is the M6 run-outcome precedence?
 10. What does `determineCaseOutcome` deliberately not do?
+11. Why does `summarizeRunOutcome` receive no-start cancellation or operational failure separately from case outcomes?
 
 ## Answer key
 
@@ -23,3 +24,4 @@
 8. A configured finding can fail a case while eligible steps continue; a scan execution error is an operational error and stops affected work safely.
 9. `error`, then `cancelled`, then `failed`, then `passed`.
 10. It does not execute a browser, aggregate run outcomes, or create result JSON.
+11. No completed case exists to carry that information, but it still determines the run outcome.
