@@ -22,6 +22,7 @@ Do not turn a package course into one long `README.md`. Organize each course as:
 - Give each lesson a plain-language explanation, a connection to the current Stagehand implementation, a small practical exercise, and observable readiness criteria.
 - End the course with `quiz.md`. Make it a cumulative skill check with an answer key. Test whether the learner can explain, trace, review, and safely change the package; avoid trivia and simple copying questions. For package courses, this final skill check replaces a repeated reinforcement quiz in every lesson.
 - Keep the package's implementation README as the technical reference. Link to it instead of duplicating its full API documentation in the course.
+- Include one final **Public API anatomy** lesson for every implemented package with a public `src/index.ts`. Use separate **Functions** and **Types** tables, each with a name, plain-language purpose, inputs, and outputs where applicable. Explain standalone public values in nearby prose. Include a small import example and keep the lesson separate from private implementation details.
 
 ## Writing for the learner
 

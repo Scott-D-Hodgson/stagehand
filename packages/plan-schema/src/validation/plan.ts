@@ -3,6 +3,13 @@ import { validateLocale, validateTimeZone, validateVariables } from "./locale.js
 import { validatePlanSchema } from "./schemas.js";
 import type { ValidationIssue, ValidationResult } from "./types.js";
 
+/*
+Checks shared-step definitions in a plan.
+---
+Inputs: A plan value.
+---
+Output: Any shared-step issues.
+*/
 function validateSharedSteps(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !isRecord(input.sharedSteps)) {
     return [];
@@ -35,6 +42,13 @@ function validateSharedSteps(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks plan settings that need semantic validation.
+---
+Inputs: A plan value.
+---
+Output: Any settings issues.
+*/
 function validatePlanSettings(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !isRecord(input.defaults)) {
     return [];
@@ -49,6 +63,13 @@ function validatePlanSettings(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks a plan against schema and semantic rules.
+---
+Inputs: Any plan value.
+---
+Output: Valid confirmation or issues.
+*/
 export function validatePlan(input: unknown): ValidationResult {
   const result = validatePlanSchema(input);
   if (!result.valid) {

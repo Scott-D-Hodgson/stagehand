@@ -18,6 +18,13 @@ export class LocatorResolutionError extends Error {
   }
 }
 
+/*
+Builds a Playwright locator from one Stagehand locator.
+---
+Inputs: Page and locator definition.
+---
+Output: A Playwright locator.
+*/
 export function createLocator(page: Page, definition: LocatorDefinition): Locator {
   if ("role" in definition) {
     if (definition.name === undefined) {
@@ -37,6 +44,13 @@ export function createLocator(page: Page, definition: LocatorDefinition): Locato
   return page.locator(`xpath=${definition.xpath}`);
 }
 
+/*
+Calculates locator attempts that fit a timeout.
+---
+Inputs: Timeout in milliseconds.
+---
+Output: Number of attempts.
+*/
 function getAttemptCount(timeout: number): number {
   let attempts = MAX_LOCATOR_ATTEMPTS;
   while (attempts > 1 && attempts + (attempts - 1) * LOCATOR_RETRY_DELAY > timeout) {
@@ -45,6 +59,13 @@ function getAttemptCount(timeout: number): number {
   return attempts;
 }
 
+/*
+Waits for exactly one matching element.
+---
+Inputs: Page, locator definition, and timeout.
+---
+Output: A unique Playwright locator or error.
+*/
 export async function resolveUniqueLocator(
   page: Page,
   definition: LocatorDefinition,

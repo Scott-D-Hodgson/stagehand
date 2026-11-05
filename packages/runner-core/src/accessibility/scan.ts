@@ -11,6 +11,13 @@ export class AccessibilityScanError extends Error {
   }
 }
 
+/*
+Copies an error message with protected values hidden.
+---
+Inputs: Cause and protected values.
+---
+Output: Original or redacted cause.
+*/
 function redactCause(cause: unknown, protectedValues: readonly string[]): unknown {
   if (protectedValues.length === 0) {
     return cause;
@@ -23,6 +30,13 @@ function redactCause(cause: unknown, protectedValues: readonly string[]): unknow
   return redacted;
 }
 
+/*
+Runs axe against one page when assessment is enabled.
+---
+Inputs: Page, effective settings, and protected values.
+---
+Output: Disabled or completed scan result.
+*/
 export async function scanAccessibility(
   page: Page,
   accessibility: EffectiveAccessibilitySettings,

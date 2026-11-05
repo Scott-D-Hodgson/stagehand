@@ -3,6 +3,13 @@ import { validateLocalizedValues, validateTimeZone, validateVariables } from "./
 import { validateCaseSchema } from "./schemas.js";
 import type { ValidationIssue, ValidationResult } from "./types.js";
 
+/*
+Checks case settings that need semantic validation.
+---
+Inputs: A case value.
+---
+Output: Any settings issues.
+*/
 function validateCaseSettings(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !isRecord(input.settings) || !isRecord(input.settings.browser)) {
     return [];
@@ -10,6 +17,13 @@ function validateCaseSettings(input: unknown): ValidationIssue[] {
   return validateTimeZone(input.settings.browser.timeZone, "/settings/browser/timeZone");
 }
 
+/*
+Checks every case navigation URL.
+---
+Inputs: A case value.
+---
+Output: Any URL issues.
+*/
 function validateNavigationUrls(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !Array.isArray(input.steps)) {
     return [];
@@ -40,6 +54,13 @@ function validateNavigationUrls(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks locale keys used by case assertions.
+---
+Inputs: A case value.
+---
+Output: Any locale issues.
+*/
 function validateCaseExpectedLocales(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !Array.isArray(input.steps)) {
     return [];
@@ -60,6 +81,13 @@ function validateCaseExpectedLocales(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks variable references used by case steps.
+---
+Inputs: A case value.
+---
+Output: Any variable issues.
+*/
 function validateCaseStepVariables(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !Array.isArray(input.steps)) {
     return [];
@@ -73,6 +101,13 @@ function validateCaseStepVariables(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks case data-set values and locale keys.
+---
+Inputs: A case value.
+---
+Output: Any data-set issues.
+*/
 function validateCaseDataSets(input: unknown): ValidationIssue[] {
   if (!isRecord(input) || !isRecord(input.dataSets)) {
     return [];
@@ -84,6 +119,13 @@ function validateCaseDataSets(input: unknown): ValidationIssue[] {
   return issues;
 }
 
+/*
+Checks a case against schema and semantic rules.
+---
+Inputs: Any case value.
+---
+Output: Valid confirmation or issues.
+*/
 export function validateCase(input: unknown): ValidationResult {
   const result = validateCaseSchema(input);
   if (!result.valid) {

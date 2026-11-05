@@ -7,6 +7,7 @@
 5. Which records enter `sha256-v1`, and in what order?
 6. Does a successful load mean the test ran?
 7. Practical task: trace one outside-directory link failure from a plan reference to the returned issue.
+8. Which plan-engine export should another package call to load a plan?
 
 ## Answer key
 
@@ -17,3 +18,4 @@
 5. The plan raw bytes with label `plan`, then referenced case raw bytes in plan order with normalized relative-path labels.
 6. No. Loading, parsing, validation, containment, and fingerprinting happen before execution.
 7. A strong answer distinguishes logical matching from segment-by-segment canonical containment and identifies the original reference in the diagnostic.
+8. `loadPlanFile`; callers then check its `valid` result before using the plan, cases, or fingerprint.

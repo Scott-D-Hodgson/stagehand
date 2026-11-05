@@ -91,10 +91,24 @@ export interface PreparedRunExecution {
   cases: readonly PreparedCaseExecution[];
 }
 
+/*
+Reads a case ID or supplies a safe fallback.
+---
+Inputs: A case value.
+---
+Output: Case ID string.
+*/
 function getCaseId(value: Readonly<Record<string, unknown>>): string {
   return typeof value.id === "string" ? value.id : "unknown";
 }
 
+/*
+Prepares one case before browser work starts.
+---
+Inputs: Case options and locale.
+---
+Output: Prepared case execution data.
+*/
 export function prepareCaseForExecution(
   options: CaseExecutionOptions,
   locale: string,
@@ -149,6 +163,13 @@ export function prepareCaseForExecution(
   };
 }
 
+/*
+Prepares all selected cases before browser startup.
+---
+Inputs: Run preparation options.
+---
+Output: Prepared run data.
+*/
 export function prepareRunForExecution(options: RunPreparationOptions): PreparedRunExecution {
   return {
     cases: options.cases.map((selection) => {

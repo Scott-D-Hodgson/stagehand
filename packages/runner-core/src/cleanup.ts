@@ -9,6 +9,13 @@ export class PrimaryFailureError extends Error {
   }
 }
 
+/*
+Runs work and always attempts its cleanup.
+---
+Inputs: Async work and cleanup functions.
+---
+Output: Work output or retained failure.
+*/
 export async function executeWithCleanup<Output>(
   execute: () => Promise<Output>,
   cleanup: () => Promise<void>,

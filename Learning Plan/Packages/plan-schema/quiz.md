@@ -15,6 +15,7 @@ Use the package source and tests when needed. Answer in your own words.
 11. How does a case choose a data set, and what happens when the selected name is unknown?
 12. Why must one shared-step group not call another, and what identity does an expanded step retain?
 13. Practical task: add a synthetic invalid case test and explain the expected path and keyword before running it.
+14. Which public plan-schema functions validate a case and prepare it for execution?
 
 ## Answer key
 
@@ -31,3 +32,4 @@ Use the package source and tests when needed. Answer in your own words.
 11. Without an explicit selection, `dataSets.default` is used. A selected named set layers over it. An unknown name returns a clear pre-browser preparation failure.
 12. One-level calls avoid recursion and preserve understandable context. An expanded step retains the calling case-step index, shared-step ID, and inner-step index.
 13. A good answer predicts the exact field path and the schema or semantic rule, then confirms it through the public package import.
+14. `validateCase` checks the case; `prepareCase` prepares its selected values and steps.

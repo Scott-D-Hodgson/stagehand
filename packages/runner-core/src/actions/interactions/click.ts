@@ -7,6 +7,13 @@ export interface ClickOptions {
   scrollIntoView?: boolean;
 }
 
+/*
+Finds and clicks one page element.
+---
+Inputs: Page, locator, and click options.
+---
+Output: Completes after the click.
+*/
 export async function executeClick(
   page: Page,
   definition: LocatorDefinition,

@@ -14,6 +14,13 @@ export class WaitExecutionError extends Error {
   }
 }
 
+/*
+Chooses and checks one wait timeout.
+---
+Inputs: Optional timeout value.
+---
+Output: A positive timeout.
+*/
 function getWaitTimeout(timeout: number | undefined): number {
   const effectiveTimeout = timeout ?? DEFAULT_WAIT_TIMEOUT;
   if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
@@ -22,6 +29,13 @@ function getWaitTimeout(timeout: number | undefined): number {
   return effectiveTimeout;
 }
 
+/*
+Waits until a locator has exactly one match.
+---
+Inputs: Page, locator, and timeout.
+---
+Output: Completes when unique or throws.
+*/
 async function waitForUniqueLocator(
   page: Page,
   definition: LocatorDefinition,
@@ -50,6 +64,13 @@ async function waitForUniqueLocator(
   );
 }
 
+/*
+Runs one configured wait.
+---
+Inputs: Page and wait definition.
+---
+Output: Completes when that wait finishes.
+*/
 async function executeWaitItem(page: Page, wait: WaitDefinition): Promise<void> {
   if ("waitFor" in wait) {
     await waitForUniqueLocator(page, wait.waitFor, getWaitTimeout(wait.timeout));
@@ -83,6 +104,13 @@ async function executeWaitItem(page: Page, wait: WaitDefinition): Promise<void> 
   await page.waitForTimeout(wait.delay);
 }
 
+/*
+Runs configured waits in order.
+---
+Inputs: Page and wait definitions.
+---
+Output: Completes when all waits finish.
+*/
 export async function executeWaitList(
   page: Page,
   waits: readonly WaitDefinition[],

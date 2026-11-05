@@ -4,6 +4,13 @@ import { DEFAULT_VIEWPORT } from "../defaults.js";
 import { resolveAccessibilitySettings } from "../accessibility/settings.js";
 import { createCaseBrowserSession } from "./case-session.js";
 
+/*
+Launches Chromium and manages isolated case sessions.
+---
+Inputs: Optional browser run settings.
+---
+Output: A browser-run lifecycle object.
+*/
 export async function startBrowserRun(
   settings: BrowserRunSettings = {},
 ): Promise<BrowserRun> {
@@ -15,6 +22,14 @@ export async function startBrowserRun(
   const pendingCreations = new Set<Promise<CaseBrowserSession>>();
   let lifecycleState: "open" | "closing" | "closed" = "open";
   let runClosePromise: Promise<void> | undefined;
+
+  /*
+  Creates one isolated browser session for a case.
+  ---
+  Inputs: Case-specific settings.
+  ---
+  Output: A ready case session or setup error.
+  */
   async function createSession(caseSettings: CaseSettings): Promise<CaseBrowserSession> {
     const accessibility = resolveAccessibilitySettings(runAccessibility, caseSettings.accessibility);
     let context: BrowserContext | undefined;

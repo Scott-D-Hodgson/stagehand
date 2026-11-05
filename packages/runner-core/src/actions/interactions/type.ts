@@ -7,6 +7,13 @@ export interface TypeOptions {
   scrollIntoView?: boolean;
 }
 
+/*
+Finds a field and types text sequentially.
+---
+Inputs: Page, locator, text, and type options.
+---
+Output: Completes after typing.
+*/
 export async function executeType(
   page: Page,
   definition: LocatorDefinition,

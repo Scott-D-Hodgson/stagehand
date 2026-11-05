@@ -18,6 +18,13 @@ export interface RunOutcomeSummary {
   counts: RunOutcomeCounts;
 }
 
+/*
+Counts completed case outcomes by status.
+---
+Inputs: Case outcome list.
+---
+Output: Status counts.
+*/
 function countOutcomes(caseOutcomes: readonly ResultOutcome[]): RunOutcomeCounts {
   const counts: RunOutcomeCounts = { passed: 0, failed: 0, cancelled: 0, error: 0 };
   for (const outcome of caseOutcomes) {
@@ -26,6 +33,13 @@ function countOutcomes(caseOutcomes: readonly ResultOutcome[]): RunOutcomeCounts
   return counts;
 }
 
+/*
+Applies run-status precedence to case facts.
+---
+Inputs: Run outcome facts.
+---
+Output: Overall status and counts.
+*/
 export function summarizeRunOutcome(facts: RunOutcomeFacts): RunOutcomeSummary {
   const counts = countOutcomes(facts.caseOutcomes);
   if (facts.operationalError || counts.error > 0) {

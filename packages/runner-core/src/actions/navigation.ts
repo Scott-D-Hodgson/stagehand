@@ -8,6 +8,13 @@ export interface NavigationOptions {
   waitUntil?: NavigationWaitUntil;
 }
 
+/*
+Checks that a navigation address is absolute HTTP or HTTPS.
+---
+Inputs: A URL string.
+---
+Output: Completes when valid or throws.
+*/
 function validateNavigationUrl(url: string): void {
   if (typeof url !== "string" || !/^https?:\/\//i.test(url)) {
     throw new TypeError("Navigation URL must be an absolute HTTP or HTTPS URL with a host.");
@@ -25,6 +32,13 @@ function validateNavigationUrl(url: string): void {
   }
 }
 
+/*
+Navigates a page using Stagehand rules.
+---
+Inputs: Page, URL, and navigation options.
+---
+Output: Playwright response or nothing.
+*/
 export async function executeNavigation(
   page: Page,
   url: string,

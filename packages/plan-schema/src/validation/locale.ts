@@ -1,6 +1,13 @@
 import { escapeJsonPointerSegment, isRecord } from "../json.js";
 import type { ValidationIssue } from "./types.js";
 
+/*
+Checks one locale tag.
+---
+Inputs: Locale value and JSON Pointer path.
+---
+Output: Any locale issue.
+*/
 export function validateLocale(value: unknown, path: string): ValidationIssue[] {
   if (typeof value !== "string") {
     return [];
@@ -17,6 +24,13 @@ export function validateLocale(value: unknown, path: string): ValidationIssue[] 
   }
 }
 
+/*
+Checks one browser time-zone value.
+---
+Inputs: Time-zone value and JSON Pointer path.
+---
+Output: Any time-zone issue.
+*/
 export function validateTimeZone(value: unknown, path: string): ValidationIssue[] {
   if (typeof value !== "string") {
     return [];
@@ -33,6 +47,13 @@ export function validateTimeZone(value: unknown, path: string): ValidationIssue[
   }
 }
 
+/*
+Checks localized default and locale-specific values.
+---
+Inputs: Localized value and path.
+---
+Output: Any locale issues.
+*/
 export function validateLocalizedValues(input: unknown, path: string): ValidationIssue[] {
   if (!isRecord(input) || !isRecord(input.locales)) {
     return [];
@@ -66,6 +87,13 @@ export function validateLocalizedValues(input: unknown, path: string): Validatio
   return issues;
 }
 
+/*
+Checks a group of variable definitions.
+---
+Inputs: Variables and JSON Pointer path.
+---
+Output: Any variable issues.
+*/
 export function validateVariables(input: unknown, path: string): ValidationIssue[] {
   if (!isRecord(input)) {
     return [];

@@ -15,6 +15,13 @@ import { prepareCaseForExecution } from "../steps/case.js";
 import { createAccessibilityFindingCollector } from "../accessibility/collection.js";
 import { scanAccessibility } from "../accessibility/scan.js";
 
+/*
+Creates one isolated case-session API.
+---
+Inputs: Context, page, run settings, accessibility settings, and close callback.
+---
+Output: A case browser session.
+*/
 export function createCaseBrowserSession(
   createdContext: BrowserContext,
   page: Page,

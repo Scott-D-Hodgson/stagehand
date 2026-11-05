@@ -36,6 +36,13 @@ export type PlanFileLoadResult =
       issues: PlanLoadIssue[];
     };
 
+/*
+Turns an unknown thrown value into text for a returned load issue.
+---
+Inputs: any error value.
+---
+Output: a message string.
+*/
 function getErrorMessage(error: unknown): string {
   if (error instanceof Error) {
     return error.message;
@@ -43,6 +50,13 @@ function getErrorMessage(error: unknown): string {
   return String(error);
 }
 
+/*
+Builds one consistent plan-loading issue.
+---
+Inputs: issue location, rule, message, and optional case reference.
+---
+Output: a typed issue.
+*/
 function makeIssue(
   path: string,
   keyword: string,
@@ -55,6 +69,13 @@ function makeIssue(
   return { path, keyword, message, reference };
 }
 
+/*
+Checks whether a target is below, but not equal to, a directory.
+---
+Inputs: two resolved paths.
+---
+Output: true when contained.
+*/
 function isInsideDirectory(directoryPath: string, targetPath: string): boolean {
   const relativePath = relative(directoryPath, targetPath);
   return (
@@ -65,6 +86,13 @@ function isInsideDirectory(directoryPath: string, targetPath: string): boolean {
   );
 }
 
+/*
+Checks whether a target is a directory itself or is contained below it.
+---
+Inputs: two resolved paths.
+---
+Output: true when safe.
+*/
 function isSameOrInsideDirectory(directoryPath: string, targetPath: string): boolean {
   return (
     directoryPath === targetPath ||
@@ -72,6 +100,13 @@ function isSameOrInsideDirectory(directoryPath: string, targetPath: string): boo
   );
 }
 
+/*
+Joins a filesystem directory with the spelling from a plan reference.
+---
+Inputs: directory and slash-separated reference.
+---
+Output: a platform path.
+*/
 function joinOriginalReference(
   directoryPath: string,
   reference: string,
@@ -82,10 +117,24 @@ function joinOriginalReference(
   return `${prefix}${reference.replaceAll("/", sep)}`;
 }
 
+/*
+Normalizes a plan reference for logical matching only.
+---
+Inputs: a slash-separated reference.
+---
+Output: its normalized form.
+*/
 function normalizeAvailablePath(reference: string): string {
   return posix.normalize(reference);
 }
 
+/*
+Finds a capitalization mismatch between a plan reference and disk.
+---
+Inputs: plan directory and reference.
+---
+Output: mismatch details or nothing.
+*/
 async function findCaseMismatch(
   planDirectory: string,
   reference: string,
@@ -141,6 +190,13 @@ type CasePathResolution =
   | { valid: true; path: string }
   | { valid: false; keyword: "caseFileError" | "pathEscapesPlan"; message: string };
 
+/*
+Adds one length-prefixed byte value to a fingerprint hash.
+---
+Inputs: hash and bytes.
+---
+Output: updates the supplied hash.
+*/
 function updateLengthPrefixed(hash: Hash, value: Uint8Array): void {
   const prefix = Buffer.alloc(8);
   prefix.writeBigUInt64BE(BigInt(value.byteLength));
@@ -148,6 +204,13 @@ function updateLengthPrefixed(hash: Hash, value: Uint8Array): void {
   hash.update(value);
 }
 
+/*
+Adds one labelled source record to a fingerprint hash.
+---
+Inputs: hash, label, and raw contents.
+---
+Output: updates the supplied hash.
+*/
 function updateFingerprintRecord(
   hash: Hash,
   label: string,
@@ -157,6 +220,13 @@ function updateFingerprintRecord(
   updateLengthPrefixed(hash, contents);
 }
 
+/*
+Creates the sha256-v1 identity for loaded plan and case bytes.
+---
+Inputs: plan bytes and ordered case bytes.
+---
+Output: fingerprint metadata.
+*/
 function createSourceFingerprint(
   planContents: Uint8Array,
   caseFiles: readonly { normalizedPath: string; contents: Uint8Array }[],
@@ -169,6 +239,13 @@ function createSourceFingerprint(
   return { algorithm: "sha256-v1", digest: hash.digest("hex") };
 }
 
+/*
+Resolves a case reference segment by segment without allowing it outside the plan folder.
+---
+Inputs: plan directory and reference.
+---
+Output: safe path or issue details.
+*/
 async function resolveOriginalReference(
   planDirectory: string,
   reference: string,
@@ -222,6 +299,13 @@ async function resolveOriginalReference(
   return { valid: true, path: currentPath };
 }
 
+/*
+Adds the original plan reference to a plan-validation issue when its path identifies a case entry.
+---
+Inputs: issue and references.
+---
+Output: enriched issue.
+*/
 function addReferenceToIssue(
   issue: ValidationIssue,
   references: readonly string[],
@@ -237,6 +321,13 @@ function addReferenceToIssue(
   return { ...issue, reference };
 }
 
+/*
+Adds the original plan reference to a bundle-validation issue when its path identifies a loaded case.
+---
+Inputs: issue and references.
+---
+Output: enriched issue.
+*/
 function addReferenceToCaseIssue(
   issue: ValidationIssue,
   references: readonly string[],
@@ -252,6 +343,13 @@ function addReferenceToCaseIssue(
   return { ...issue, reference };
 }
 
+/*
+Loads, validates, and fingerprints one plan with its referenced cases.
+---
+Inputs: plan file path.
+---
+Output: validated bundle and fingerprint, or safe issues.
+*/
 export async function loadPlanFile(
   planFilePath: string,
 ): Promise<PlanFileLoadResult> {

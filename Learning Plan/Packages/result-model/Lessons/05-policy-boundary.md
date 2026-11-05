@@ -11,7 +11,7 @@ Other boundaries matter too:
 
 - `plan-engine` calculates the source fingerprint.
 - `runner-core` scans and maps accessibility observations.
-- A future result producer assembles the complete document.
+- `runner-core` assembles the in-memory document.
 - `result-model` validates the assembled shape.
 
 This division prevents a schema validator from quietly inventing execution rules.
@@ -24,7 +24,7 @@ flowchart LR
     subgraph R[runner-core]
         D[Execution facts]
     end
-    subgraph C[Future coordinator]
+    subgraph C[runner-core]
         P[M6 policy decides outcomes] --> A[Assemble JSON]
     end
     subgraph V[result-model]
@@ -35,7 +35,7 @@ flowchart LR
     A --> X
 ```
 
-The arrows show a hand-off, not current complete run behaviour. `result-model` is last in this flow because it checks the document after another component has assembled it.
+The arrows show the current in-memory hand-off. `result-model` is last in this flow because it checks the document after runner-core has assembled it.
 
 ## Try it
 

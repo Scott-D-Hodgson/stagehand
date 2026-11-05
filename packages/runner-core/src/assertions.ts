@@ -33,6 +33,13 @@ export class StringAssertionMismatchError extends Error {
   }
 }
 
+/*
+Chooses the expected string for a locale.
+---
+Inputs: Expected-value definition and locale.
+---
+Output: The effective expected string.
+*/
 export function resolveExpectedValue(expected: ExpectedValue, locale: string): string {
   if (
     typeof expected !== "object" ||
@@ -57,6 +64,13 @@ export function resolveExpectedValue(expected: ExpectedValue, locale: string): s
   return expected.default;
 }
 
+/*
+Reads and compares text, HTML, or a control value.
+---
+Inputs: Page, locator, expected value, locale, timeout, and assertion kind.
+---
+Output: Completes when equal or throws a mismatch.
+*/
 export async function executeStringAssertion(
   page: Page,
   definition: LocatorDefinition,
@@ -89,6 +103,13 @@ export async function executeStringAssertion(
   }
 }
 
+/*
+Checks the one standard label linked to a control.
+---
+Inputs: Page, locator, expected label, locale, and deadline.
+---
+Output: A soft label failure or nothing.
+*/
 export async function checkAssociatedLabel(
   page: Page,
   definition: LocatorDefinition,

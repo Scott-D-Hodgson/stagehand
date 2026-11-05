@@ -15,16 +15,37 @@ interface IndexedSharedSteps {
   steps: readonly Readonly<Record<string, unknown>>[];
 }
 
+/*
+Reads ordinary variable definitions from a case.
+---
+Inputs: A case value.
+---
+Output: Case variables or nothing.
+*/
 function getCaseVariables(caseFile: Readonly<Record<string, unknown>>): Readonly<Record<string, VariableDefinition>> | undefined {
   return isRecord(caseFile.variables)
     ? caseFile.variables as Readonly<Record<string, VariableDefinition>>
     : undefined;
 }
 
+/*
+Indexes shared-step groups by their IDs.
+---
+Inputs: Shared-step definitions.
+---
+Output: A map for fast lookup.
+*/
 function getSharedSteps(sharedSteps: Readonly<Record<string, readonly Readonly<Record<string, unknown>>[]>>): Map<string, IndexedSharedSteps> {
   return new Map(Object.entries(sharedSteps).map(([id, steps]) => [id, { id, steps }]));
 }
 
+/*
+Builds one shared-step expansion failure.
+---
+Inputs: Failure location, reason, and message.
+---
+Output: A failed expansion result.
+*/
 function expansionFailure(
   path: string,
   reason: "invalidCaseSteps" | "nestedSharedSteps" | "unknownSharedSteps",
@@ -33,6 +54,13 @@ function expansionFailure(
   return { expanded: false, path, reason, message };
 }
 
+/*
+Replaces shared-step calls with their ordinary steps.
+---
+Inputs: Case and shared-step options.
+---
+Output: Expanded steps or a failure.
+*/
 export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): ExpandCaseSharedStepsResult {
   if (!Array.isArray(options.case.steps)) {
     return expansionFailure(
@@ -89,16 +117,37 @@ export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): Ex
   return { expanded: true, steps };
 }
 
+/*
+Finds the original path for an expanded step.
+---
+Inputs: An expanded step.
+---
+Output: Its source JSON Pointer path.
+*/
 function getSourcePath(expandedStep: ExpandedCaseStep): string {
   return expandedStep.sharedStepId === undefined
     ? `/steps/${expandedStep.caseStepIndex}`
     : `/sharedSteps/${expandedStep.sharedStepId}/${expandedStep.sharedStepIndex ?? 0}`;
 }
 
+/*
+Builds the path for a failed prepared expanded step.
+---
+Inputs: An expanded step and inner path.
+---
+Output: A source JSON Pointer path.
+*/
 function prepareFailurePath(expandedStep: ExpandedCaseStep, path: string): string {
   return path.replace(/^\/steps\/\d+/, getSourcePath(expandedStep));
 }
 
+/*
+Expands shared steps and resolves their variables.
+---
+Inputs: Case-preparation options.
+---
+Output: Prepared case data or a failure.
+*/
 export function prepareCaseSharedSteps(options: PrepareCaseSharedStepsOptions): PrepareCaseSharedStepsResult {
   const expanded = expandCaseSharedSteps(options);
   if (!expanded.expanded) {

@@ -2,7 +2,7 @@
 
 > “How can a case reuse named steps while keeping its values and errors clear?” — Greta “Group Guardian” Grant, Developer
 
-[← Previous: data sets](08-data-sets.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: data sets](08-data-sets.md) · [Course outline](../README.md) · [Next: public API anatomy →](10-public-api.md)
 
 
 
@@ -58,4 +58,4 @@ Write `signIn` with two steps and place its marker between two ordinary case ste
 - You know why nested shared steps and private variables are rejected.
 - You can explain detached expansion and retained identity.
 
-[← Previous: data sets](08-data-sets.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: data sets](08-data-sets.md) · [Course outline](../README.md) · [Next: public API anatomy →](10-public-api.md)

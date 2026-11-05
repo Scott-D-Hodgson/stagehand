@@ -8,6 +8,7 @@
 6. Why are effective accessibility tags separate from finding tags?
 7. What does `redactEvidence` do, and what does it deliberately not do yet?
 8. Practical task: make one synthetic result invalid, predict its issue path, and confirm it through the public import.
+9. Which two public functions check a result and make a safe evidence copy?
 
 ## Answer key
 
@@ -19,3 +20,4 @@
 6. Effective tags record requested assessment scope even if no findings exist; finding tags describe one reported rule.
 7. It returns a detached JSON-like copy with supplied non-empty protected literals replaced in nested strings. It does not identify secrets, read environment variables, or protect existing runner histories until a later integration slice uses it.
 8. A strong answer uses a schema-owned rule, predicts a precise JSON Pointer path, and avoids adding an M6 policy rule to the validator.
+9. `validateResult` checks a result; `redactEvidence` makes a detached redacted evidence copy.
