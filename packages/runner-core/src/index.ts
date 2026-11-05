@@ -68,3 +68,5 @@ export { elapsedMilliseconds, startElapsedTimer, systemMonotonicClock } from "./
 export type { ElapsedTimer, MonotonicClock } from "./timing.js";
 export { CancellationError, executeSequentially, throwIfCancelled } from "./cancellation.js";
 export { executeWithCleanup, PrimaryFailureError } from "./cleanup.js";
+export { executePlanRun } from "./plan-run.js";
+export type { ExecutedCase, PlanRunOptions, PlanRunOutcome } from "./plan-run.js";
