@@ -20,11 +20,23 @@ export interface ResultSourcePlan {
 export interface ResultDiagnostic {
   source: string;
   severity: "info" | "warning" | "error";
-  code: string;
+  code: ResultDiagnosticCode;
   message: string;
   stepIndex?: number;
   assertionId?: string;
 }
+
+export type ResultDiagnosticCode =
+  | "preflight.preparation"
+  | "assertion.hard"
+  | "assertion.soft"
+  | "accessibility.violation"
+  | "accessibility.scan"
+  | "browser.action"
+  | "runner.infrastructure"
+  | "cleanup.failure"
+  | "result.output"
+  | "run.cancelled";
 
 export interface ResultArtifact {
   kind: string;

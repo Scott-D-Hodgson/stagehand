@@ -126,7 +126,7 @@ if (scan.status === "completed") {
 const findings = collector.getFindings();
 ```
 
-The collector accepts trusted typed axe results; it does not validate arbitrary JSON. Inputs, retained state, and returned snapshots do not share mutable arrays or objects. For manually created collectors, the caller owns case association and lifetime. Automatic dispatch uses a collector per session; full result production and M6 outcome policy remain pending.
+The collector accepts trusted typed axe results; it does not validate arbitrary JSON. Inputs, retained state, and returned snapshots do not share mutable arrays or objects. For manually created collectors, the caller owns case association and lifetime. Automatic dispatch uses a collector per session; `executePlanRun` and `createResultDocument` now apply the current M6 outcome policy and produce an in-memory result document. Report-file writing remains later work.
 
 At the collection-only slice, the local Windows build and all 117 runner-core tests passed, including eight new collection tests checked through result-model using synthetic documents. Real-browser and dev-container/CI verification remain outstanding.
 

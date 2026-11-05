@@ -47,7 +47,7 @@ function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
     return [{
       source: "preflight",
       severity: "error",
-      code: outcome.preflightError.reason,
+      code: "preflight.preparation",
       message: "Case preparation failed before browser startup.",
     }];
   }
@@ -55,7 +55,7 @@ function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
     return [{
       source: "runner",
       severity: "error",
-      code: "operationalError",
+      code: "runner.infrastructure",
       message: "The runner encountered an operational error.",
     }];
   }

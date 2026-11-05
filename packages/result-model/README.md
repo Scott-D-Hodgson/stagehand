@@ -4,13 +4,17 @@ This package contains the normative JSON Schema for Stagehand result documents, 
 
 The schema describes source identity/fingerprint, timing, case counts, effective settings, steps, assertions, diagnostics, accessibility findings, and optional artifacts. It validates structure and formats; it does not produce results, calculate fingerprints, collect/deduplicate scan findings, check cross-field counts, or enforce M6 outcome policy.
 
-The public entry point exports `resultSchemaV1`, the v1 result types, `validateResult(input)`, and `redactEvidence(evidence, protectedValues)`. The validator returns `{ valid: true }` or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. Invalid JSON values do not throw. Registered formats check UTC date-time and URI fields. Validation does not insert defaults or modify input.
+The public entry point exports `resultSchemaV1`, the v1 result types (including `ResultDiagnosticCode`), `validateResult(input)`, and `redactEvidence(evidence, protectedValues)`. The validator returns `{ valid: true }` or `{ valid: false, issues }` with JSON Pointer paths, schema keywords, and messages. Invalid JSON values do not throw. Registered formats check UTC date-time and URI fields. Validation does not insert defaults or modify input.
+
+## Diagnostic contract
+
+Every diagnostic uses one stable code: `preflight.preparation`, `assertion.hard`, `assertion.soft`, `accessibility.violation`, `accessibility.scan`, `browser.action`, `runner.infrastructure`, `cleanup.failure`, `result.output`, or `run.cancelled`. The code is the machine-readable category; the message is safe human-facing context. The schema rejects unknown codes. A case ID comes from its containing case result, and `stepIndex`, when present, is zero-based. See the [M6 diagnostic contract](../../Planning/Work%20Plan/M6-errors-and-execution-policies.md#m68-diagnostic-contract) for the safe-context rules.
 
 `redactEvidence` returns a detached copy of JSON-like evidence, replacing every supplied non-empty protected literal in strings with `[REDACTED]`. It covers nested diagnostics, assertion details, URLs, markup, selectors, summaries, tags, related nodes, and raw scan records when a future caller passes those values to it. It does not read environment variables, identify sensitive values itself, or make existing runner histories safe until the protected-value execution slice uses it.
 
 ## Accessibility contract
 
-M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Runner-core now exposes direct case-session scans returning raw axe observations. Runner-core also provides a pure violation mapper into this shared finding shape. Runner-core also provides a caller-owned per-case collector that updates accumulated counts. Automatic step cadence and session collection are implemented in runner-core; full result production remains future work. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
+M4's result-shape extension is implemented in the schema, types, example, and public-entry tests. Runner-core now exposes direct case-session scans returning raw axe observations. Runner-core also provides a pure violation mapper into this shared finding shape. Runner-core also provides a caller-owned per-case collector that updates accumulated counts. Automatic step cadence and session collection are implemented in runner-core, and its result adapter now produces validated in-memory result documents. See [ATR-019](../../Planning/Backlog/epics/E02-execution-engine/stories/ATR-019.md) and the [field mapping under TE-010](../../Planning/Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields).
 
 Every case must record `effectiveSettings.accessibility` with all three fields, even when disabled or when there are no findings:
 
@@ -20,7 +24,7 @@ Every case must record `effectiveSettings.accessibility` with all three fields, 
 | `failOnViolation` | Effective policy setting; the validator does not apply it to outcomes. |
 | `tags` | Resolved input filter. `[]` means axe defaults without a tag restriction; a non-empty list records the selected filter. |
 
-Runner-core now provides `resolveAccessibilitySettings` and per-session snapshots. A future result producer must carry those effective settings into the document; this validator does not calculate them. Omitted case tags inherit; non-empty lists replace the plan list; explicit `[]` clears it. Tags do not enable scanning. The result requires a resolved list rather than an omitted value or inserted default.
+Runner-core now provides `resolveAccessibilitySettings` and per-session snapshots. Its result adapter carries those effective settings into the document; this validator does not calculate them. Omitted case tags inherit; non-empty lists replace the plan list; explicit `[]` clears it. Tags do not enable scanning. The result requires a resolved list rather than an omitted value or inserted default.
 
 Each finding requires `url`, `ruleId`, `impact`, `description`, `help`, `helpUrl`, `affectedNodeCount`, `tags`, and `affectedNodes`. Finding `tags` describe its rule and are separate from the effective input filter. URLs use absolute URI syntax so an actual scan location such as `about:blank` can be retained. The existing count is retained; producers must calculate it consistently with collected nodes, but this validator does not compare it with array length.
 
@@ -43,4 +47,4 @@ The synthetic [checkout result](examples/checkout-result.json) demonstrates a fu
 
 ## Verification
 
-Run `npm test --workspace @stagehand/result-model` from the repository root. The build and all 22 tests passed locally on Windows for this extension. A separate TypeScript public-import check covered the new exported types and expected type errors. Dev-container/CI and real scan integration remain unverified for this slice.
+Run `npm test --workspace @stagehand/result-model` from the repository root. The earlier accessibility extension built and passed 22 tests locally on Windows. The owner verified the current development-container checks: result-model has 26 passing tests and runner-core has 170 passing mocked-browser tests. Real-browser scan integration remains unverified.

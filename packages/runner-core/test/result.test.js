@@ -83,7 +83,7 @@ test("uses a safe run diagnostic instead of an operational error message", () =>
   assert.deepEqual(result.run.diagnostics, [{
     source: "runner",
     severity: "error",
-    code: "operationalError",
+    code: "runner.infrastructure",
     message: "The runner encountered an operational error.",
   }]);
   assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));

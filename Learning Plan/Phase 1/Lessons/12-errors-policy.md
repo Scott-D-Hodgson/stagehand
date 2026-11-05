@@ -45,6 +45,8 @@ The cancellation building block checks an `AbortSignal` before starting each ite
 
 `executePlanRun` is the first coordinator. It prepares every selected case before Chromium starts, then runs prepared cases one at a time in separate browser sessions. It uses the outcome, timing, cancellation, and cleanup helpers, then returns an in-memory summary. `createResultDocument` converts that summary into a checked result document, using safe operational-error messages and a final redaction pass for supplied protected values. Neither helper writes files, offers CLI commands, interrupts an active case, or runs cases in parallel.
 
+Result diagnostics use stable codes such as `assertion.hard`, `preflight.preparation`, and `runner.infrastructure`. Think of a code as a short label a tool can depend on, while the message explains the situation to a person. A case ID and zero-based step index say where it happened. Resolved passwords, raw error stacks, local paths, and uncontrolled browser data do not belong in the result. The full list and safe-context rules are in the [M6 diagnostic contract](../../../Planning/Work%20Plan/M6-errors-and-execution-policies.md#m68-diagnostic-contract).
+
 ## Try it
 
 Classify a locator timeout, a failed cleanup, and a cancelled run. Identify the diagnostic facts and the policy decisions for each.
