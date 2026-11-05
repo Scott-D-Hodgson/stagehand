@@ -6,6 +6,7 @@ import {
   type VariableDefinition,
 } from "@stagehand/plan-schema";
 import type { ExecutableStep } from "./types.js";
+import type { CaseSettings } from "../browser/types.js";
 
 export interface CaseExecutionOptions {
   case: Readonly<Record<string, unknown>>;
@@ -19,6 +20,7 @@ export interface CaseExecutionOptions {
 export interface RunCaseSelection {
   case: Readonly<Record<string, unknown>>;
   selectedDataSet?: string;
+  settings?: CaseSettings;
 }
 
 export interface RunPreparationOptions {
@@ -82,6 +84,7 @@ export interface PreparedCaseExecution {
   steps: readonly ExecutableStep[];
   stepIdentities: readonly StepExecutionIdentity[];
   protectedValues: readonly string[];
+  settings?: CaseSettings;
 }
 
 export interface PreparedRunExecution {
@@ -148,13 +151,19 @@ export function prepareCaseForExecution(
 
 export function prepareRunForExecution(options: RunPreparationOptions): PreparedRunExecution {
   return {
-    cases: options.cases.map((selection) => prepareCaseForExecution({
-      case: selection.case,
-      ...(selection.selectedDataSet === undefined ? {} : { selectedDataSet: selection.selectedDataSet }),
-      ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
-      ...(options.dataSets === undefined ? {} : { dataSets: options.dataSets }),
-      ...(options.sharedSteps === undefined ? {} : { sharedSteps: options.sharedSteps }),
-      ...(options.environment === undefined ? {} : { environment: options.environment }),
-    }, options.locale)),
+    cases: options.cases.map((selection) => {
+      const prepared = prepareCaseForExecution({
+        case: selection.case,
+        ...(selection.selectedDataSet === undefined ? {} : { selectedDataSet: selection.selectedDataSet }),
+        ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
+        ...(options.dataSets === undefined ? {} : { dataSets: options.dataSets }),
+        ...(options.sharedSteps === undefined ? {} : { sharedSteps: options.sharedSteps }),
+        ...(options.environment === undefined ? {} : { environment: options.environment }),
+      }, options.locale);
+      return {
+        ...prepared,
+        ...(selection.settings === undefined ? {} : { settings: selection.settings }),
+      };
+    }),
   };
 }

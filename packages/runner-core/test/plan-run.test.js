@@ -1,0 +1,124 @@
+import assert from "node:assert/strict";
+import { afterEach, mock, test } from "node:test";
+import { chromium } from "playwright";
+import { executePlanRun } from "@stagehand/runner-core";
+
+afterEach(() => mock.restoreAll());
+
+function createBrowser({ onContextClose = () => {}, onNewPage = () => {}, page = {} } = {}) {
+  const contexts = [];
+  let launchCount = 0;
+  let closeCount = 0;
+  const browser = {
+    async newContext() {
+      const context = {
+        async newPage() { onNewPage(contexts.length - 1); return page; },
+        async close() { onContextClose(contexts.length - 1); },
+      };
+      contexts.push(context);
+      return context;
+    },
+    async close() { closeCount += 1; },
+  };
+  return {
+    browser,
+    contexts,
+    getLaunchCount() { return launchCount; },
+    getCloseCount() { return closeCount; },
+    launch() { launchCount += 1; return browser; },
+  };
+}
+
+function caseFile(id) {
+  return { version: 1, id, steps: [] };
+}
+
+test("prepares all cases before starting Chromium and runs them sequentially", async () => {
+  const browser = createBrowser();
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: caseFile("first") }, { case: caseFile("second") }],
+  });
+  assert.equal(browser.getLaunchCount(), 1);
+  assert.equal(browser.contexts.length, 2);
+  assert.equal(browser.getCloseCount(), 1);
+  assert.deepEqual(outcome.counts, { passed: 2, failed: 0, cancelled: 0, error: 0 });
+  assert.deepEqual(outcome.cases.map((entry) => entry.caseId), ["first", "second"]);
+  assert.equal(outcome.status, "passed");
+});
+
+test("returns a preflight error without starting Chromium", async () => {
+  const browser = createBrowser();
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{
+      case: {
+        version: 1,
+        id: "invalid",
+        steps: [{ action: "type", locator: { css: "#email" }, text: { var: "missing" } }],
+      },
+    }],
+  });
+  assert.equal(browser.getLaunchCount(), 0);
+  assert.equal(outcome.status, "error");
+  assert.equal(outcome.preflightError?.reason, "missingVariable");
+});
+
+test("stops before the next case when cancellation is requested", async () => {
+  const controller = new AbortController();
+  const browser = createBrowser({ onContextClose(index) {
+    if (index === 0) {
+      controller.abort();
+    }
+  } });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: caseFile("first") }, { case: caseFile("second") }],
+    signal: controller.signal,
+  });
+  assert.equal(browser.contexts.length, 1);
+  assert.deepEqual(outcome.counts, { passed: 1, failed: 0, cancelled: 0, error: 0 });
+  assert.equal(outcome.status, "cancelled");
+});
+
+test("records a hard assertion failure and continues to an independent case", async () => {
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async innerText() { return "Actual"; },
+  };
+  const browser = createBrowser({
+    page: {
+      locator() { return locator; },
+      async waitForTimeout() {},
+      isClosed() { return false; },
+    },
+  });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [
+      { case: { version: 1, id: "fails", steps: [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" } }] } },
+      { case: caseFile("later") },
+    ],
+  });
+  assert.deepEqual(outcome.cases.map((entry) => entry.outcome.status), ["failed", "passed"]);
+  assert.equal(outcome.status, "failed");
+});
+
+test("excludes browser session setup from active-case duration", async () => {
+  let now = 0;
+  const clock = { now() { return now; } };
+  const browser = createBrowser({ onNewPage() { now = 100; } });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: caseFile("first") }],
+    clock,
+  });
+  assert.equal(outcome.cases[0].durationMs, 0);
+  assert.equal(outcome.durationMs, 100);
+});
