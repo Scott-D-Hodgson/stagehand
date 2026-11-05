@@ -73,6 +73,14 @@ function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
       message: "The runner encountered an operational error.",
     }];
   }
+  if (outcome.status === "cancelled") {
+    return [{
+      source: "runner",
+      severity: "info",
+      code: "run.cancelled",
+      message: "Run cancellation stopped new case work.",
+    }];
+  }
   return [];
 }
 

@@ -18,7 +18,7 @@ flowchart LR
     subgraph R[runner-core]
         X[Execute steps] --> O[Collect observations]
     end
-    subgraph C[Future coordinator]
+    subgraph C[runner-core coordinator]
         Z[Apply M6 policy and assemble result]
     end
     subgraph M[result-model]
@@ -30,7 +30,7 @@ flowchart LR
     Z --> Q
 ```
 
-Several pieces remain planned: full orchestration before browser startup, CLI protected-value boundaries, result production, and M6 policy. `executeCase` can use a caller-supplied protected-value map and redact returned soft failures and retained automatic accessibility evidence, without reading `process.env`; a direct scan can redact values its caller supplies. Shared steps now expand and execute at the case-session boundary, but that is not yet full result traceability. A coherent foundation states these gaps plainly.
+Several pieces remain planned: plan-file-to-coordinator orchestration, CLI protected-value boundaries, result-file writing, and CLI exit behaviour. `executeCase` can use a caller-supplied protected-value map and redact returned soft failures and retained automatic accessibility evidence, without reading `process.env`; a direct scan can redact values its caller supplies. Shared steps now expand and execute at the case-session boundary, but that is not yet full result traceability. A coherent foundation states these gaps plainly.
 
 ## Try it
 
