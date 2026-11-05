@@ -82,7 +82,7 @@ function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnost
   return {
     source: "runner",
     severity: "error",
-    code: hardFailure ? "hardAssertion" : "operationalError",
+    code: hardFailure ? "assertion.hard" : "runner.infrastructure",
     message: hardFailure ? "A hard assertion failed." : "Case execution failed.",
     ...(stepIndex === undefined ? {} : { stepIndex }),
   };

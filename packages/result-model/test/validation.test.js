@@ -154,6 +154,36 @@ test("rejects unknown properties", () => {
   assert.ok(validation.issues.some((issue) => issue.keyword === "additionalProperties"));
 });
 
+test("accepts stable diagnostic codes and rejects unknown codes", () => {
+  const codes = [
+    "preflight.preparation",
+    "assertion.hard",
+    "assertion.soft",
+    "accessibility.violation",
+    "accessibility.scan",
+    "browser.action",
+    "runner.infrastructure",
+    "cleanup.failure",
+    "result.output",
+    "run.cancelled",
+  ];
+  for (const code of codes) {
+    const result = exampleResult();
+    result.run.diagnostics = [{
+      source: "runner",
+      severity: "error",
+      code,
+      message: "A diagnostic message.",
+    }];
+    assert.deepEqual(validateResult(result), { valid: true });
+  }
+  const result = exampleResult();
+  result.run.diagnostics = [{ source: "runner", severity: "error", code: "unexpected", message: "A diagnostic message." }];
+  const validation = validateResult(result);
+  assert.equal(validation.valid, false);
+  assert.ok(validation.issues.some((issue) => issue.path === "/run/diagnostics/0/code" && issue.keyword === "enum"));
+});
+
 test("returns an issue for non-object input without throwing", () => {
   assert.doesNotThrow(() => validateResult(null));
   const validation = validateResult(null);

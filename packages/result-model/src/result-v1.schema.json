@@ -207,7 +207,21 @@
       "properties": {
         "source": { "type": "string", "minLength": 1 },
         "severity": { "type": "string", "enum": ["info", "warning", "error"] },
-        "code": { "type": "string", "minLength": 1 },
+        "code": {
+          "type": "string",
+          "enum": [
+            "preflight.preparation",
+            "assertion.hard",
+            "assertion.soft",
+            "accessibility.violation",
+            "accessibility.scan",
+            "browser.action",
+            "runner.infrastructure",
+            "cleanup.failure",
+            "result.output",
+            "run.cancelled"
+          ]
+        },
         "message": { "type": "string", "minLength": 1 },
         "stepIndex": { "type": "integer", "minimum": 0 },
         "assertionId": { "type": "string", "minLength": 1 }
