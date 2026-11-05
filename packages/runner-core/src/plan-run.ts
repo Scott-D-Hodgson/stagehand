@@ -8,7 +8,7 @@ import type {
 import { StringAssertionMismatchError } from "./assertions.js";
 import { startBrowserRun } from "./browser/run.js";
 import type { BrowserRun, BrowserRunSettings, CaseBrowserSession } from "./browser/types.js";
-import { executeWithCleanup } from "./cleanup.js";
+import { executeWithCleanup, PrimaryFailureError } from "./cleanup.js";
 import { CancellationError } from "./cancellation.js";
 import { LocatorResolutionError } from "./locators.js";
 import { resolveAccessibilitySettings } from "./accessibility/settings.js";
@@ -59,15 +59,16 @@ Inputs: Unknown error.
 Output: True for a recognized hard assertion.
 */
 function isHardAssertionFailure(error: unknown): boolean {
-  if (!(error instanceof StepExecutionError)) {
+  const primaryError = error instanceof PrimaryFailureError ? error.primary : error;
+  if (!(primaryError instanceof StepExecutionError)) {
     return false;
   }
-  if (error.action !== "assertText" && error.action !== "assertHtml" && error.action !== "assertValue") {
+  if (primaryError.action !== "assertText" && primaryError.action !== "assertHtml" && primaryError.action !== "assertValue") {
     return false;
   }
-  return error.cause instanceof StringAssertionMismatchError
-    || error.cause instanceof LocatorResolutionError
-    || error.cause instanceof errors.TimeoutError;
+  return primaryError.cause instanceof StringAssertionMismatchError
+    || primaryError.cause instanceof LocatorResolutionError
+    || primaryError.cause instanceof errors.TimeoutError;
 }
 
 /*
@@ -78,6 +79,9 @@ Inputs: Unknown error.
 Output: True when a scan error is present.
 */
 function hasAccessibilityScanError(error: unknown): boolean {
+  if (error instanceof PrimaryFailureError) {
+    return hasAccessibilityScanError(error.primary);
+  }
   if (error instanceof AccessibilityScanError) {
     return true;
   }
@@ -118,8 +122,9 @@ Inputs: Error and hard-failure flag.
 Output: A stable diagnostic record.
 */
 function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnostic {
-  const stepIndex = error instanceof StepExecutionError ? error.stepIndex : undefined;
-  if (hasAccessibilityScanError(error)) {
+  const primaryError = error instanceof PrimaryFailureError ? error.primary : error;
+  const stepIndex = primaryError instanceof StepExecutionError ? primaryError.stepIndex : undefined;
+  if (hasAccessibilityScanError(primaryError)) {
     return {
       source: "accessibility",
       severity: "error",
@@ -133,6 +138,32 @@ function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnost
     severity: "error",
     code: hardFailure ? "assertion.hard" : "runner.infrastructure",
     message: hardFailure ? "A hard assertion failed." : "Case execution failed.",
+    ...(stepIndex === undefined ? {} : { stepIndex }),
+  };
+}
+
+/*
+Builds a safe diagnostic for cleanup after an earlier failure.
+---
+Inputs: An execution error.
+---
+Output: Cleanup diagnostic or nothing.
+*/
+function getCleanupDiagnostic(error: unknown): ResultDiagnostic | undefined {
+  if (!(error instanceof PrimaryFailureError)) {
+    return undefined;
+  }
+  const primaryHardFailure = isHardAssertionFailure(error.primary);
+  const stepIndex = error.primary instanceof StepExecutionError
+    ? error.primary.stepIndex
+    : undefined;
+  return {
+    source: "runner",
+    severity: "error",
+    code: "cleanup.failure",
+    message: primaryHardFailure
+      ? "Cleanup failed after a hard assertion failure."
+      : "Cleanup failed after a case execution error.",
     ...(stepIndex === undefined ? {} : { stepIndex }),
   };
 }
@@ -230,6 +261,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
       let hardFailure = false;
       let caseOperationalError = false;
       let caseError: unknown;
+      let cleanupDiagnostic: ResultDiagnostic | undefined;
       let session: CaseBrowserSession | undefined;
       try {
         const createdSession = await run.createCaseSession(preparedCase.settings);
@@ -265,10 +297,11 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
       } catch (error) {
         caseError = error;
         hardFailure = isHardAssertionFailure(error);
-        caseOperationalError = !hardFailure;
+        caseOperationalError = error instanceof PrimaryFailureError || !hardFailure;
+        cleanupDiagnostic = getCleanupDiagnostic(error);
         if (caseOperationalError) {
           operationalError ??= error;
-          operationalDiagnostic ??= getCaseDiagnostic(error, hardFailure);
+          operationalDiagnostic ??= cleanupDiagnostic ?? getCaseDiagnostic(error, hardFailure);
         }
       }
       if (session) {
@@ -288,7 +321,10 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
         softFailures,
         accessibilityFindings,
         effectiveSettings: getEffectiveSettings(options, session, preparedCase.settings?.accessibility),
-        diagnostics: [getCaseDiagnostic(caseError, hardFailure)],
+        diagnostics: [
+          getCaseDiagnostic(caseError, hardFailure),
+          ...(cleanupDiagnostic === undefined ? [] : [cleanupDiagnostic]),
+        ],
       });
     }
   } catch (error) {

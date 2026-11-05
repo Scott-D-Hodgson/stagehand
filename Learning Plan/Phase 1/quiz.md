@@ -34,7 +34,7 @@
 11. No completed case exists to carry that information, but it still determines the run outcome.
 12. It includes step dispatch, waits, and automatic scans; it excludes preflight, browser/session setup, queue time, and cleanup.
 13. It prevents the next item from starting when cancellation was requested; it does not interrupt an item already running.
-14. The original execution failure remains primary; the cleanup failure is retained as secondary context.
+14. The original execution diagnostic remains primary; `cleanup.failure` is retained as a separate safe secondary diagnostic.
 15. It must prepare every selected case so a preflight problem does not open a browser.
 16. It redacts supplied protected values and validates the result against the result-model contract.
 17. Tools can depend on the stable code while the human-facing message can be clearer or improve over time.
