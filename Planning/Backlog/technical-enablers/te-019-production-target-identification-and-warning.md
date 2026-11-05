@@ -5,7 +5,7 @@
 
 ## Intent
 
-After Stagehand defines what it means for a target to be production, decide whether and how the CLI/editor should identify the target and add a production-specific warning or require explicit acknowledgement before a production-target run. The MVP already displays a general, non-blocking execution warning for every run.
+After Stagehand defines what it means for a target to be production, decide whether and how the CLI/editor should identify the target and add a production-specific warning or require explicit acknowledgement before a production-target run. The planned CLI warning is general and non-blocking for every run.
 
 Production-specific identification and acknowledgement are not current MVP concerns. Until this item is prioritized, Stagehand does not claim it can identify production targets or enforce a production-specific acknowledgement gate. Operators remain responsible for authorizing the target and accepting operational consequences.
 

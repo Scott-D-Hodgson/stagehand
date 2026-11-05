@@ -18,6 +18,7 @@
 16. What does `createResultDocument` do before it returns a result?
 17. Why should a diagnostic use a stable code as well as a message?
 18. How does an accessibility finding differ from an accessibility scan error?
+19. Why should the future CLI use different exit codes for a failed test and an invalid plan?
 
 ## Answer key
 
@@ -39,3 +40,4 @@
 16. It redacts supplied protected values and validates the result against the result-model contract.
 17. Tools can depend on the stable code while the human-facing message can be clearer or improve over time.
 18. A finding may fail the case only when configured, while a scan error is an operational error because the assessment could not finish.
+19. A failed test is a completed test result, while an invalid plan means execution could not begin; scripts and people need to tell those situations apart.

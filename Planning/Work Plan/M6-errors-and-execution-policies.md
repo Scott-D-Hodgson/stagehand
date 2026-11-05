@@ -60,6 +60,20 @@ When cancellation is observed before a case starts, the coordinator does not sta
 
 Active case-step execution has a fixed 10-minute limit. The monotonic timer starts immediately before step dispatch and stops when dispatch ends, so setup and cleanup do not count. Stagehand does not forcibly interrupt a Playwright operation already in progress. Instead, after active step work finishes, a limit reached or exceeded becomes a safe `runner.infrastructure` case error; cleanup still runs and later independent cases continue.
 
+## M6.12 future CLI signalling and execution warning
+
+The CLI is not implemented. When it is, it should return one stable exit code for the final run meaning:
+
+| Exit code | Meaning | Example |
+| --- | --- | --- |
+| `0` | The run passed. | Every completed case passed. |
+| `1` | The run completed but test expectations failed. | A hard or soft assertion failed, or configured accessibility findings failed a case. |
+| `2` | The run was cancelled. | Cancellation was observed before a later case started. |
+| `3` | The runner could not start execution because its input was invalid. | Plan loading, validation, bundle validation, or preparation failed. |
+| `4` | The runner encountered an operational error. | Browser/action, accessibility-scan, cleanup, timeout, or result-output failure. |
+
+The CLI should display a non-blocking warning before every run. It should say that the operator is responsible for authorizing the target and accepting possible side effects, network egress or downloads, target limits, and costs. The warning informs; it does not ask for confirmation, detect a target environment, prove authorization, or prevent execution. Production-target identification and production-specific acknowledgement remain deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
+
 ### Worked examples
 
 - **No case starts:** bundle validation rejects an unknown shared-step ID. Chromium does not start and the run is `error`.
@@ -83,7 +97,7 @@ The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides,
 - [x] Define precise case-status mappings for hard failures, soft failures, accessibility findings, runner failures, and cancellation in the pure `determineCaseOutcome` helper.
 - [x] Define run-status aggregation details from case outcomes, including runs with no cases started and partial cancellation, in the pure `summarizeRunOutcome` helper. It uses `error`, then `cancelled`, then `failed`, then `passed`. Keep the result field shape in M3 and the underlying action/assertion configuration in M4/M5.
 - [x] Specify diagnostic fields, stable case/step identity, safe retained context, and redaction rules. Shared-step identity serialization and raw operational detail remain later work.
-- [ ] Define CLI/result signaling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
+- [x] Define CLI/result signalling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
 - [x] Define the monotonic-clock boundary for whole-run elapsed time and active-case time, with integer-millisecond durations, and add the injectable `startElapsedTimer`/`elapsedMilliseconds` foundation. Enforce the fixed 10-minute active-case limit after active step work completes. Plan/case overrides, thresholds, forced interruption, and Playwright timeout integration remain later work.
 - [x] Add browser-free cancellation and cleanup primitives: an `AbortSignal`-aware sequential-work helper stops before new work begins, and a wrapper retains an execution failure as primary when cleanup also fails. CLI interrupts, active-work interruption, browser coordination, and result serialization remain later work.
 - [x] Add `executePlanRun`, which prepares selected cases before Chromium starts, executes them sequentially in isolated sessions, applies current M6 policy/timing/cancellation helpers, and returns an in-memory outcome. CLI behaviour, active-work interruption, and concurrency remain later work.
@@ -91,7 +105,7 @@ The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides,
 - [x] Define execution-time effects of the accessibility policy established in M4: findings do not fail by default, configured findings fail a case without stopping later eligible steps, and axe execution errors produce `accessibility.scan` and follow runner error policy.
 - [x] Carry a cleanup failure through the coordinator and result adapter without replacing the primary execution diagnostic. Emit a safe `cleanup.failure` record after the primary diagnostic, and cover hard-assertion and operational-error cases.
 - [x] Record safe `run.cancelled` context in result documents and enforce the fixed active-case limit with the monotonic timer. Cover cancellation before startup, expiry, cleanup, and later-case continuation without adding forced active-work interruption.
-- [ ] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
+- [x] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 - [ ] Add a decision table, examples, and fixtures covering each error category, continuation policy, status mapping, and aggregation, including cancellation before any case starts, partial cancellation, case timeout, a runner failure before cases start, cleanup failure after an earlier failure, configured accessibility findings, axe execution failure, and report-write failure. Specify how the original cause is retained when cleanup or reporting adds a secondary failure.
 
 ## Completion evidence
