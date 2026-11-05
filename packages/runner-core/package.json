@@ -6,7 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "build": "npm run build --workspace @stagehand/plan-schema && npm run build --workspace @stagehand/result-model && tsc -p tsconfig.json",
-    "test": "npm run build && node --test test/browser-run.test.js test/locator-resolution.test.js test/wait-list.test.js test/navigate.test.js test/click.test.js test/step-execution.test.js test/case-execution.test.js test/run-preparation.test.js test/case-outcome.test.js test/run-outcome.test.js test/timing.test.js test/cancellation.test.js test/cleanup.test.js test/plan-run.test.js test/accessibility-settings.test.js test/accessibility-scan.test.js test/accessibility-mapping.test.js test/accessibility-collection.test.js test/accessibility-execution.test.js"
+    "test": "npm run build && node --test test/browser-run.test.js test/locator-resolution.test.js test/wait-list.test.js test/navigate.test.js test/click.test.js test/step-execution.test.js test/case-execution.test.js test/run-preparation.test.js test/case-outcome.test.js test/run-outcome.test.js test/timing.test.js test/cancellation.test.js test/cleanup.test.js test/plan-run.test.js test/result.test.js test/accessibility-settings.test.js test/accessibility-scan.test.js test/accessibility-mapping.test.js test/accessibility-collection.test.js test/accessibility-execution.test.js"
   },
   "exports": {
     ".": {

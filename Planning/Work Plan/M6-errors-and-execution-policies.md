@@ -10,11 +10,11 @@
 - When `failOnViolation` is enabled, accessibility findings fail the case but do not stop that case's remaining eligible steps.
 - Run-outcome precedence is `error`, then `cancelled`, then `failed`, then `passed`.
 - The first implementation runs cases sequentially. Case concurrency is deferred until timeout and cancellation behaviour is established.
-- Initial cancellation is requested through a standard JavaScript `AbortSignal` supplied to a future run coordinator. CLI interrupt handling is later work.
+- Initial cancellation is requested through a standard JavaScript `AbortSignal` supplied to the run coordinator. CLI interrupt handling is later work.
 
 ## M6.1 decision table
 
-This table sets the policy boundary for the later implementation slices. It does not claim that a run coordinator or result producer exists today.
+This table sets the policy boundary for the later implementation slices. It records the policy boundary used by the current coordinator and result adapter.
 
 | Situation | Current case | Later independent cases | Run outcome | Diagnostic rule |
 | --- | --- | --- | --- | --- |
@@ -58,6 +58,7 @@ The accepted default active-case limit is 10 minutes (600,000 milliseconds). Pla
 - [x] Define the monotonic-clock boundary for whole-run elapsed time and active-case time, with integer-millisecond durations, and add the injectable `startElapsedTimer`/`elapsedMilliseconds` foundation. The accepted 10-minute active-case limit is documented but not enforced. Plan/case overrides, thresholds, cancellation enforcement, and Playwright timeout integration remain later work.
 - [x] Add browser-free cancellation and cleanup primitives: an `AbortSignal`-aware sequential-work helper stops before new work begins, and a wrapper retains an execution failure as primary when cleanup also fails. CLI interrupts, active-work interruption, browser coordination, and result serialization remain later work.
 - [x] Add `executePlanRun`, which prepares selected cases before Chromium starts, executes them sequentially in isolated sessions, applies current M6 policy/timing/cancellation helpers, and returns an in-memory outcome. Result documents, CLI behaviour, active-work interruption, and concurrency remain later work.
+- [x] Add `createResultDocument`, which adapts a coordinator outcome into a validated result-model document with safe operational diagnostics and final-boundary redaction. Report-file writing, CLI behaviour, active-work interruption, and concurrency remain later work.
 - [ ] Define execution-time effects of the accessibility policy established in M4: findings do not fail by default, configured findings can fail a case, and axe execution errors follow runner error policy.
 - [ ] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 - [ ] Add a decision table, examples, and fixtures covering each error category, continuation policy, status mapping, and aggregation, including cancellation before any case starts, partial cancellation, case timeout, a runner failure before cases start, cleanup failure after an earlier failure, configured accessibility findings, axe execution failure, and report-write failure. Specify how the original cause is retained when cleanup or reporting adds a secondary failure.

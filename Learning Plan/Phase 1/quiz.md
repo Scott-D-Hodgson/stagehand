@@ -15,6 +15,7 @@
 13. What does an `AbortSignal` do in the current sequential-work helper?
 14. When execution and cleanup both fail, which problem is primary?
 15. What must `executePlanRun` do before starting Chromium?
+16. What does `createResultDocument` do before it returns a result?
 
 ## Answer key
 
@@ -33,3 +34,4 @@
 13. It prevents the next item from starting when cancellation was requested; it does not interrupt an item already running.
 14. The original execution failure remains primary; the cleanup failure is retained as secondary context.
 15. It must prepare every selected case so a preflight problem does not open a browser.
+16. It redacts supplied protected values and validates the result against the result-model contract.
