@@ -52,7 +52,7 @@ function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
     }];
   }
   if (outcome.operationalError !== undefined) {
-    return [{
+    return [outcome.operationalDiagnostic ?? {
       source: "runner",
       severity: "error",
       code: "runner.infrastructure",

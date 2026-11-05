@@ -12,6 +12,7 @@ import { executeWithCleanup } from "./cleanup.js";
 import { CancellationError } from "./cancellation.js";
 import { LocatorResolutionError } from "./locators.js";
 import { resolveAccessibilitySettings } from "./accessibility/settings.js";
+import { AccessibilityScanError } from "./accessibility/scan.js";
 import { determineCaseOutcome, type CaseOutcome } from "./outcomes/case.js";
 import { summarizeRunOutcome, type RunOutcomeCounts } from "./outcomes/run.js";
 import {
@@ -47,6 +48,7 @@ export interface PlanRunOutcome {
   cases: readonly ExecutedCase[];
   preflightError?: CasePreparationError;
   operationalError?: unknown;
+  operationalDiagnostic?: ResultDiagnostic;
 }
 
 function isHardAssertionFailure(error: unknown): boolean {
@@ -59,6 +61,16 @@ function isHardAssertionFailure(error: unknown): boolean {
   return error.cause instanceof StringAssertionMismatchError
     || error.cause instanceof LocatorResolutionError
     || error.cause instanceof errors.TimeoutError;
+}
+
+function hasAccessibilityScanError(error: unknown): boolean {
+  if (error instanceof AccessibilityScanError) {
+    return true;
+  }
+  if (error instanceof StepExecutionError) {
+    return hasAccessibilityScanError(error.cause);
+  }
+  return error instanceof AggregateError && error.errors.some((item) => hasAccessibilityScanError(item));
 }
 
 function getEffectiveSettings(
@@ -79,6 +91,15 @@ function getEffectiveSettings(
 
 function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnostic {
   const stepIndex = error instanceof StepExecutionError ? error.stepIndex : undefined;
+  if (hasAccessibilityScanError(error)) {
+    return {
+      source: "accessibility",
+      severity: "error",
+      code: "accessibility.scan",
+      message: "Accessibility scanning failed.",
+      ...(stepIndex === undefined ? {} : { stepIndex }),
+    };
+  }
   return {
     source: "runner",
     severity: "error",
@@ -94,6 +115,7 @@ function createOutcome(
   cancelled: boolean,
   operationalError?: unknown,
   preflightError?: CasePreparationError,
+  operationalDiagnostic?: ResultDiagnostic,
 ): PlanRunOutcome {
   const summary = summarizeRunOutcome({
     caseOutcomes: cases.map((entry) => entry.outcome.status),
@@ -107,6 +129,7 @@ function createOutcome(
     cases,
     ...(preflightError === undefined ? {} : { preflightError }),
     ...(operationalError === undefined ? {} : { operationalError }),
+    ...(operationalDiagnostic === undefined ? {} : { operationalDiagnostic }),
   };
 }
 
@@ -133,6 +156,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
   const cases: ExecutedCase[] = [];
   let cancelled = false;
   let operationalError: unknown;
+  let operationalDiagnostic: ResultDiagnostic | undefined;
   try {
     for (const preparedCase of prepared.cases) {
       if (options.signal?.aborted) {
@@ -183,6 +207,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
         caseOperationalError = !hardFailure;
         if (caseOperationalError) {
           operationalError ??= error;
+          operationalDiagnostic ??= getCaseDiagnostic(error, hardFailure);
         }
       }
       if (session) {
@@ -217,5 +242,5 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
   } catch (error) {
     operationalError ??= error;
   }
-  return createOutcome(cases, elapsedMilliseconds(timer, options.clock), cancelled, operationalError);
+  return createOutcome(cases, elapsedMilliseconds(timer, options.clock), cancelled, operationalError, undefined, operationalDiagnostic);
 }
