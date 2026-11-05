@@ -128,6 +128,67 @@ test("records a hard assertion failure and continues to an independent case", as
   assert.equal(outcome.status, "failed");
 });
 
+test("retains a hard assertion as primary when case cleanup also fails", async () => {
+  const locator = {
+    async waitFor() {},
+    async count() { return 1; },
+    async innerText() { return "Actual"; },
+  };
+  const browser = createBrowser({
+    onContextClose() { throw new Error("Synthetic cleanup failure"); },
+    page: {
+      locator() { return locator; },
+      async waitForTimeout() {},
+      isClosed() { return false; },
+    },
+  });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: { version: 1, id: "cleanup-after-assertion", steps: [{ action: "assertText", locator: { css: "h1" }, expected: { default: "Expected" } }] } }],
+  });
+  assert.equal(outcome.cases[0].outcome.status, "error");
+  assert.deepEqual(outcome.cases[0].diagnostics, [
+    {
+      source: "runner",
+      severity: "error",
+      code: "assertion.hard",
+      message: "A hard assertion failed.",
+      stepIndex: 0,
+    },
+    {
+      source: "runner",
+      severity: "error",
+      code: "cleanup.failure",
+      message: "Cleanup failed after a hard assertion failure.",
+      stepIndex: 0,
+    },
+  ]);
+  assert.equal(outcome.operationalDiagnostic?.code, "cleanup.failure");
+  assert.equal(outcome.status, "error");
+});
+
+test("retains cleanup failure after an operational case error", async () => {
+  const browser = createBrowser({
+    onContextClose() { throw new Error("Synthetic cleanup failure"); },
+    page: {
+      isClosed() { return false; },
+      async goto() { throw new Error("Synthetic navigation failure"); },
+    },
+  });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: { version: 1, id: "cleanup-after-operation", steps: [{ action: "navigate", url: "https://example.test" }] } }],
+  });
+  assert.deepEqual(outcome.cases[0].diagnostics.map((diagnostic) => diagnostic.code), [
+    "runner.infrastructure",
+    "cleanup.failure",
+  ]);
+  assert.equal(outcome.operationalDiagnostic?.code, "cleanup.failure");
+  assert.equal(outcome.status, "error");
+});
+
 test("excludes browser session setup from active-case duration", async () => {
   let now = 0;
   const clock = { now() { return now; } };

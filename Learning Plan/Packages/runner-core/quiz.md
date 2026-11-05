@@ -9,7 +9,7 @@
 7. Why does a later missing variable or an unknown selected data set prevent an earlier case step from running through `executeCase`?
 8. Does `completed` accessibility scanning mean the page passed?
 9. What is the difference between mapping and collecting accessibility findings?
-10. Do 172 passing mocked-browser tests prove actual Chromium/axe assessment behaviour?
+10. Do passing mocked-browser tests prove actual Chromium/axe assessment behaviour?
 11. How does `executeCase` receive a protected environment value, and which evidence does it redact for that call?
 12. What does `prepareRunForExecution` do, and what deliberately does it not do?
 13. Practical task: trace a click step with after-waits and enabled scanning from dispatch to the next step.

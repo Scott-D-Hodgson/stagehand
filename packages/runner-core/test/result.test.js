@@ -89,6 +89,59 @@ test("uses a safe run diagnostic instead of an operational error message", () =>
   assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));
 });
 
+test("retains safe primary and cleanup diagnostics without operational error text", () => {
+  const secret = "not-a-real-cleanup-detail";
+  const result = createResultDocument({
+    outcome: outcome({
+      status: "error",
+      counts: { passed: 0, failed: 0, cancelled: 0, error: 1 },
+      operationalError: new Error(secret),
+      operationalDiagnostic: {
+        source: "runner",
+        severity: "error",
+        code: "cleanup.failure",
+        message: "Cleanup failed after a hard assertion failure.",
+        stepIndex: 2,
+      },
+      cases: [{
+        ...outcome().cases[0],
+        outcome: { status: "error", category: "operationalError" },
+        diagnostics: [
+          {
+            source: "runner",
+            severity: "error",
+            code: "assertion.hard",
+            message: "A hard assertion failed.",
+            stepIndex: 2,
+          },
+          {
+            source: "runner",
+            severity: "error",
+            code: "cleanup.failure",
+            message: "Cleanup failed after a hard assertion failure.",
+            stepIndex: 2,
+          },
+        ],
+      }],
+    }),
+    sourcePlan: sourcePlan(),
+    startedAt: "2026-11-04T12:00:00Z",
+    endedAt: "2026-11-04T12:00:01Z",
+  });
+  assert.deepEqual(result.run.diagnostics, [{
+    source: "runner",
+    severity: "error",
+    code: "cleanup.failure",
+    message: "Cleanup failed after a hard assertion failure.",
+    stepIndex: 2,
+  }]);
+  assert.deepEqual(result.cases[0].diagnostics.map((diagnostic) => diagnostic.code), [
+    "assertion.hard",
+    "cleanup.failure",
+  ]);
+  assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));
+});
+
 test("rejects an adapter input that cannot produce a valid result", () => {
   assert.throws(
     () => createResultDocument({

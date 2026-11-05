@@ -47,4 +47,4 @@ The synthetic [checkout result](examples/checkout-result.json) demonstrates a fu
 
 ## Verification
 
-Run `npm test --workspace @stagehand/result-model` from the repository root. The earlier accessibility extension built and passed 22 tests locally on Windows. The owner verified the current development-container checks: result-model has 26 passing tests and runner-core has 172 passing mocked-browser tests. Real-browser scan integration remains unverified.
+Run `npm test --workspace @stagehand/result-model` from the repository root. The earlier accessibility extension built and passed 22 tests locally on Windows. The owner reports that current development-container test execution passed. Real-browser scan integration remains unverified.
