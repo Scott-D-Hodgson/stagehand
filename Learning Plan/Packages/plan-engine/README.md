@@ -42,5 +42,6 @@ flowchart LR
 2. [Path and link safety](Lessons/02-path-safety.md)
 3. [Bundle hand-off](Lessons/03-bundle-hand-off.md)
 4. [Source fingerprints](Lessons/04-fingerprints.md)
+5. [Public API anatomy](Lessons/05-public-api.md)
 
 Finish with the [course skill check](quiz.md).

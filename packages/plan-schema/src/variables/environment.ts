@@ -4,6 +4,13 @@ import type {
   ResolveEnvironmentValueResult,
 } from "./types.js";
 
+/*
+Builds the standard result for a missing environment value.
+---
+Inputs: An environment-variable name.
+---
+Output: A failed resolution result.
+*/
 function missingEnvironmentVariable(environmentVariable: string): ResolveEnvironmentValueResult {
   return {
     resolved: false,
@@ -13,6 +20,13 @@ function missingEnvironmentVariable(environmentVariable: string): ResolveEnviron
   };
 }
 
+/*
+Resolves one protected value from a supplied environment map.
+---
+Inputs: Environment reference options.
+---
+Output: A value or safe resolution failure.
+*/
 export function resolveEnvironmentValue(
   options: ResolveEnvironmentValueOptions,
 ): ResolveEnvironmentValueResult {

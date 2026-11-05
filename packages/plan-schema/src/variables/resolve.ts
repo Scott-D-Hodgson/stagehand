@@ -5,6 +5,13 @@ import type {
   VariableResolutionResult,
 } from "./types.js";
 
+/*
+Chooses a localized value or its default.
+---
+Inputs: Variable definition and locale.
+---
+Output: The effective variable value.
+*/
 function selectLocaleValue(definition: VariableDefinition, locale: string): VariableValue {
   for (const [localeKey, value] of Object.entries(definition.locales ?? {})) {
     if (Intl.getCanonicalLocales(localeKey)[0] === locale) {
@@ -14,6 +21,13 @@ function selectLocaleValue(definition: VariableDefinition, locale: string): Vari
   return definition.default;
 }
 
+/*
+Resolves one named variable from its allowed scopes.
+---
+Inputs: Variable-resolution options.
+---
+Output: Value metadata or a failure.
+*/
 export function resolveVariable(options: ResolveVariableOptions): VariableResolutionResult {
   let locale: string;
   try {

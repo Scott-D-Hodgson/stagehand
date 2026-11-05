@@ -11,6 +11,13 @@ export type SelectOptionSelection =
   | { value: string; label?: never }
   | { label: string; value?: never };
 
+/*
+Finds a select element and chooses one option.
+---
+Inputs: Page, locator, selection, and options.
+---
+Output: Completes after selection.
+*/
 export async function executeSelectOption(
   page: Page,
   definition: LocatorDefinition,

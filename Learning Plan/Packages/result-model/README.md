@@ -19,7 +19,7 @@ This course teaches the shape of Stagehand's saved run results and the differenc
 
 ## Current boundary
 
-The package exports the normative result v1 schema, matching TypeScript types, a runtime validator, and a pure redaction helper. It checks document shape and formats. The helper redacts supplied values from a detached JSON-like copy; it does not identify secrets or protect runner history on its own. The package does not calculate fingerprints, create results, scan pages, or decide case/run outcomes.
+The package exports the normative result v1 schema, matching TypeScript types, a runtime validator, and a pure redaction helper. It checks document shape and formats. The helper redacts supplied values from a detached JSON-like copy; it does not identify secrets or protect runner history on its own. The package does not calculate fingerprints, assemble results, scan pages, or decide case/run outcomes.
 
 ```mermaid
 flowchart LR
@@ -29,7 +29,7 @@ flowchart LR
     subgraph R[runner-core]
         D[Diagnostics and findings]
     end
-    subgraph C[Future coordinator]
+    subgraph C[runner-core]
         M[M6 outcome policy] --> A[Assemble result JSON]
     end
     subgraph V[result-model]
@@ -40,7 +40,7 @@ flowchart LR
     A --> X
 ```
 
-`result-model` is the final shape checker, not the writer or judge. Other packages supply facts; future coordination supplies outcome decisions; this package checks the assembled JSON.
+`result-model` is the final shape checker, not the writer or judge. Runner-core supplies the outcome decision and assembles the in-memory document; this package checks the assembled JSON.
 
 ## Lessons
 
@@ -50,5 +50,6 @@ flowchart LR
 4. [Accessibility evidence](Lessons/04-accessibility-evidence.md)
 5. [Structure versus execution policy](Lessons/05-policy-boundary.md)
 6. [Redaction foundation](Lessons/06-redaction-foundation.md)
+7. [Public API anatomy](Lessons/07-public-api.md)
 
 Finish with the [course skill check](quiz.md).

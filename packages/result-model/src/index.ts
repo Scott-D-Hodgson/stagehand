@@ -163,6 +163,13 @@ const validateResultV1 = ajv.compile(
   resultSchemaV1 as AnySchema,
 ) as unknown as SyncValidator;
 
+/*
+Checks an unknown value against the Stagehand result contract.
+---
+Inputs: any value.
+---
+Output: valid confirmation or structured issues.
+*/
 export function validateResult(input: unknown): ResultValidationResult {
   if (validateResultV1(input)) {
     return { valid: true };

@@ -26,6 +26,13 @@ export class ResultDocumentError extends Error {
   }
 }
 
+/*
+Groups soft assertion failures into result steps.
+---
+Inputs: One executed case.
+---
+Output: Failed step records.
+*/
 function mapSoftFailures(caseOutcome: ExecutedCase): ResultStep[] {
   const grouped = new Map<number, ResultAssertion[]>();
   for (const failure of caseOutcome.softFailures) {
@@ -42,6 +49,13 @@ function mapSoftFailures(caseOutcome: ExecutedCase): ResultStep[] {
   }));
 }
 
+/*
+Builds safe run-level diagnostics.
+---
+Inputs: A plan-run outcome.
+---
+Output: Diagnostic records.
+*/
 function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
   if (outcome.preflightError) {
     return [{
@@ -62,6 +76,13 @@ function mapRunDiagnostics(outcome: PlanRunOutcome): ResultDiagnostic[] {
   return [];
 }
 
+/*
+Builds and validates a result-model document.
+---
+Inputs: Outcome, source plan, timestamps, and protected values.
+---
+Output: A validated result document.
+*/
 export function createResultDocument(options: ResultDocumentOptions): StagehandResultV1 {
   const result: StagehandResultV1 = {
     version: 1,

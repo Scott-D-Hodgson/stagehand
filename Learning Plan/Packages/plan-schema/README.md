@@ -49,5 +49,6 @@ The package is the rules desk between authored JSON and browser execution. It re
 7. [Variables](Lessons/07-variables.md)
 8. [Data sets](Lessons/08-data-sets.md)
 9. [Shared steps](Lessons/09-shared-steps.md)
+10. [Public API anatomy](Lessons/10-public-api.md)
 
 Finish with the [course skill check](quiz.md).

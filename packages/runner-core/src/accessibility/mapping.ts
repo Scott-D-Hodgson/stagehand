@@ -7,6 +7,13 @@ import type { AccessibilityScanResults } from "./types.js";
 
 type RawAccessibilityNode = AccessibilityScanResults["violations"][number]["nodes"][number];
 
+/*
+Copies selected evidence from one axe node.
+---
+Inputs: A raw accessibility node.
+---
+Output: A result-model node.
+*/
 function mapAccessibilityNode(node: RawAccessibilityNode): ResultAccessibilityNode {
   const relatedNodes = new Map<string, ResultAccessibilityRelatedNode>();
   for (const check of [...node.any, ...node.all, ...node.none]) {
@@ -31,6 +38,13 @@ function mapAccessibilityNode(node: RawAccessibilityNode): ResultAccessibilityNo
   };
 }
 
+/*
+Maps raw axe violations into result findings.
+---
+Inputs: Trusted scan results.
+---
+Output: Selected finding records.
+*/
 export function mapAccessibilityFindings(
   results: AccessibilityScanResults,
 ): ResultAccessibilityFinding[] {

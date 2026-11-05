@@ -6,6 +6,13 @@ type RelativePathResult =
   | { valid: true; path: string }
   | { valid: false; reason: "invalidPath" | "escapesPlanDirectory" | "planDirectory" };
 
+/*
+Normalizes and checks a plan-relative case path.
+---
+Inputs: A referenced path string.
+---
+Output: A normalized path or matching issue.
+*/
 function normalizeRelativePath(path: string): RelativePathResult {
   if (
     path.length === 0 ||
@@ -34,6 +41,13 @@ function normalizeRelativePath(path: string): RelativePathResult {
     : { valid: true, path: segments.join("/") };
 }
 
+/*
+Matches plan case references to available case paths.
+---
+Inputs: A plan value and available paths.
+---
+Output: Matches or validation issues.
+*/
 export function matchCaseReferences(
   input: unknown,
   availablePaths: readonly string[],

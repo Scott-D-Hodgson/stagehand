@@ -2,6 +2,13 @@ import type { ResultAccessibilityFinding } from "@stagehand/result-model";
 import type { AccessibilityFindingCollector } from "./types.js";
 import { mapAccessibilityFindings } from "./mapping.js";
 
+/*
+Creates isolated storage for one case accessibility finding set.
+---
+Inputs: No input.
+---
+Output: A collector with add and snapshot methods.
+*/
 export function createAccessibilityFindingCollector(): AccessibilityFindingCollector {
   const findings = new Map<string, ResultAccessibilityFinding>();
   const markupByFinding = new Map<string, Set<string>>();

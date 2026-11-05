@@ -9,9 +9,9 @@
 
 Preparation covers the whole case before dispatch starts. A `CasePreparationError` retains the case ID, source path, reason, message, and shared-step identity when applicable; no step from that call is dispatched. A runtime `StepExecutionError` retains the same shared-step identity. When protected values are used, soft assertion failures and retained accessibility evidence are redacted, and hard execution errors use a redacted cause.
 
-This is a case-session boundary. Chromium and the session already exist, so full pre-browser-startup orchestration remains future work. Direct process-environment access and CLI support are not integrated.
+This is a case-session boundary. Chromium and the session already exist when `executeCase` is called. `executePlanRun` now uses the same preparation before it launches Chromium; direct process-environment access and CLI support are not integrated.
 
-`prepareRunForExecution` is the smaller bridge toward that future boundary. It takes a caller-selected list of cases plus the same locale, data-set, shared-step, and environment inputs, then returns all prepared cases without opening or receiving a browser session. It does not make a run happen; a later plan runner must call it before launching Chromium.
+`prepareRunForExecution` is the browser-free part of that boundary. It takes a caller-selected list of cases plus the same locale, data-set, shared-step, and environment inputs, then returns all prepared cases without opening or receiving a browser session. `executePlanRun` calls it before launching Chromium.
 
 ```mermaid
 flowchart LR
@@ -19,7 +19,7 @@ flowchart LR
         I[Selected cases and fixed inputs] --> P[prepareRunForExecution]
         D[Prepared case list]
         E[CasePreparationError]
-        B[Launch Chromium later]
+        B[executePlanRun launches Chromium]
     end
     subgraph S[plan-schema]
         X[Select data set, expand shared steps, and prepare]
@@ -27,7 +27,7 @@ flowchart LR
     P --> X
     X -->|all prepared| D
     X -->|missing or invalid input| E
-    D -. future coordinator .-> B
+    D --> B
 ```
 
 This helper is a gate before the browser, not the browser runner itself. It either returns every prepared case or reports the first preparation problem.

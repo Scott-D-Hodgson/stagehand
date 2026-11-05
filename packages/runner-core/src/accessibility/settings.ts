@@ -1,5 +1,12 @@
 import type { AccessibilitySettings, EffectiveAccessibilitySettings } from "./types.js";
 
+/*
+Combines plan and case accessibility settings.
+---
+Inputs: Plan and case settings.
+---
+Output: A fresh effective settings object.
+*/
 export function resolveAccessibilitySettings(
   planSettings: AccessibilitySettings = {},
   caseSettings: AccessibilitySettings = {},

@@ -10,6 +10,13 @@ interface ValidatedPlanSharedSteps {
   sharedSteps?: Record<string, unknown>;
 }
 
+/*
+Checks that a validated plan and its loaded cases agree.
+---
+Inputs: Plan value and parsed cases.
+---
+Output: Valid confirmation or issues.
+*/
 export function validatePlanBundle(input: unknown, parsedCases: readonly unknown[]): ValidationResult {
   const planResult = validatePlan(input);
   if (!planResult.valid) {

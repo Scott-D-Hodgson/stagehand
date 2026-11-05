@@ -7,6 +7,13 @@ export interface FillOptions {
   scrollIntoView?: boolean;
 }
 
+/*
+Finds a field and sets its value directly.
+---
+Inputs: Page, locator, value, and fill options.
+---
+Output: Completes after filling.
+*/
 export async function executeFill(
   page: Page,
   definition: LocatorDefinition,

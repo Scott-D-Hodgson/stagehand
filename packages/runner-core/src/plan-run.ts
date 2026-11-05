@@ -51,6 +51,13 @@ export interface PlanRunOutcome {
   operationalDiagnostic?: ResultDiagnostic;
 }
 
+/*
+Checks whether an execution error is a hard assertion failure.
+---
+Inputs: Unknown error.
+---
+Output: True for a recognized hard assertion.
+*/
 function isHardAssertionFailure(error: unknown): boolean {
   if (!(error instanceof StepExecutionError)) {
     return false;
@@ -63,6 +70,13 @@ function isHardAssertionFailure(error: unknown): boolean {
     || error.cause instanceof errors.TimeoutError;
 }
 
+/*
+Checks an error chain for an axe scan failure.
+---
+Inputs: Unknown error.
+---
+Output: True when a scan error is present.
+*/
 function hasAccessibilityScanError(error: unknown): boolean {
   if (error instanceof AccessibilityScanError) {
     return true;
@@ -73,6 +87,13 @@ function hasAccessibilityScanError(error: unknown): boolean {
   return error instanceof AggregateError && error.errors.some((item) => hasAccessibilityScanError(item));
 }
 
+/*
+Builds result settings for one executed case.
+---
+Inputs: Run options, session, and case settings.
+---
+Output: Safe effective settings.
+*/
 function getEffectiveSettings(
   options: PlanRunOptions,
   session: CaseBrowserSession | undefined,
@@ -89,6 +110,13 @@ function getEffectiveSettings(
   };
 }
 
+/*
+Builds a safe diagnostic for one failed case.
+---
+Inputs: Error and hard-failure flag.
+---
+Output: A stable diagnostic record.
+*/
 function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnostic {
   const stepIndex = error instanceof StepExecutionError ? error.stepIndex : undefined;
   if (hasAccessibilityScanError(error)) {
@@ -109,6 +137,13 @@ function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnost
   };
 }
 
+/*
+Builds the in-memory result for a whole run.
+---
+Inputs: Cases, duration, status facts, and diagnostics.
+---
+Output: A plan-run outcome.
+*/
 function createOutcome(
   cases: readonly ExecutedCase[],
   durationMs: number,
@@ -133,6 +168,13 @@ function createOutcome(
   };
 }
 
+/*
+Prepares and runs selected cases sequentially.
+---
+Inputs: Plan-run options.
+---
+Output: An in-memory run outcome.
+*/
 export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOutcome> {
   const timer = startElapsedTimer(options.clock);
   let prepared: PreparedRunExecution;

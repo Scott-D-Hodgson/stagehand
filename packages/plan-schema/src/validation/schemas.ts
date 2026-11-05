@@ -19,6 +19,13 @@ const validateCaseSchemaV1 = ajv.compile(
   caseSchemaV1 as AnySchema,
 ) as unknown as SyncValidator;
 
+/*
+Converts validator errors into Stagehand issue objects.
+---
+Inputs: Validator result and errors.
+---
+Output: A validation result.
+*/
 function toValidationResult(
   isValid: boolean,
   errors: ErrorObject[] | null | undefined,
@@ -36,10 +43,24 @@ function toValidationResult(
   };
 }
 
+/*
+Checks only the plan JSON Schema.
+---
+Inputs: Any plan value.
+---
+Output: Valid confirmation or schema issues.
+*/
 export function validatePlanSchema(input: unknown): ValidationResult {
   return toValidationResult(validatePlanSchemaV1(input), validatePlanSchemaV1.errors);
 }
 
+/*
+Checks only the case JSON Schema.
+---
+Inputs: Any case value.
+---
+Output: Valid confirmation or schema issues.
+*/
 export function validateCaseSchema(input: unknown): ValidationResult {
   return toValidationResult(validateCaseSchemaV1(input), validateCaseSchemaV1.errors);
 }

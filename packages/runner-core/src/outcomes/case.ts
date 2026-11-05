@@ -16,6 +16,13 @@ export interface CaseOutcome {
   category: CaseOutcomeCategory;
 }
 
+/*
+Applies case-status precedence to known facts.
+---
+Inputs: Case outcome facts.
+---
+Output: Case status and deciding category.
+*/
 export function determineCaseOutcome(facts: CaseOutcomeFacts): CaseOutcome {
   if (facts.operationalError) {
     return { status: "error", category: "operationalError" };
