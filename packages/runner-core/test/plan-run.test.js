@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { afterEach, mock, test } from "node:test";
+import AxeBuilder from "@axe-core/playwright";
 import { chromium } from "playwright";
 import { executePlanRun } from "@stagehand/runner-core";
 
@@ -31,6 +32,24 @@ function createBrowser({ onContextClose = () => {}, onNewPage = () => {}, page =
 
 function caseFile(id) {
   return { version: 1, id, steps: [] };
+}
+
+function accessibilityResults() {
+  return {
+    url: "https://example.test/form",
+    violations: [{
+      id: "synthetic",
+      description: "Synthetic description",
+      help: "Synthetic help",
+      helpUrl: "https://example.test/help",
+      impact: "serious",
+      tags: ["wcag2a"],
+      nodes: [{ html: "<input>", target: ["input"], any: [], all: [], none: [] }],
+    }],
+    incomplete: [],
+    passes: [],
+    inapplicable: [],
+  };
 }
 
 test("prepares all cases before starting Chromium and runs them sequentially", async () => {
@@ -121,4 +140,53 @@ test("excludes browser session setup from active-case duration", async () => {
   });
   assert.equal(outcome.cases[0].durationMs, 0);
   assert.equal(outcome.durationMs, 100);
+});
+
+test("configured accessibility findings fail a case without stopping later steps", async () => {
+  const events = [];
+  const browser = createBrowser({
+    page: {
+      isClosed() { return false; },
+      async goto(url) { events.push(url); return null; },
+    },
+  });
+  mock.method(chromium, "launch", async () => browser.launch());
+  mock.method(AxeBuilder.prototype, "analyze", async () => accessibilityResults());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    runSettings: { accessibility: { enabled: true, failOnViolation: true } },
+    cases: [{
+      case: {
+        version: 1,
+        id: "accessibility",
+        steps: [
+          { action: "navigate", url: "https://example.test/first" },
+          { action: "navigate", url: "https://example.test/second" },
+        ],
+      },
+    }],
+  });
+  assert.deepEqual(events, ["https://example.test/first", "https://example.test/second"]);
+  assert.equal(outcome.cases[0].outcome.status, "failed");
+  assert.equal(outcome.status, "failed");
+});
+
+test("records an axe scan execution error with the accessibility diagnostic code", async () => {
+  const browser = createBrowser({ page: { isClosed() { return false; }, async goto() { return null; } } });
+  mock.method(chromium, "launch", async () => browser.launch());
+  mock.method(AxeBuilder.prototype, "analyze", async () => { throw new Error("Synthetic analysis failure"); });
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    runSettings: { accessibility: { enabled: true } },
+    cases: [{ case: { version: 1, id: "accessibility", steps: [{ action: "navigate", url: "https://example.test/form" }] } }],
+  });
+  assert.equal(outcome.cases[0].outcome.status, "error");
+  assert.deepEqual(outcome.cases[0].diagnostics, [{
+    source: "accessibility",
+    severity: "error",
+    code: "accessibility.scan",
+    message: "Accessibility scanning failed.",
+    stepIndex: 0,
+  }]);
+  assert.equal(outcome.status, "error");
 });

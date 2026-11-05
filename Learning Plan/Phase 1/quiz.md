@@ -17,6 +17,7 @@
 15. What must `executePlanRun` do before starting Chromium?
 16. What does `createResultDocument` do before it returns a result?
 17. Why should a diagnostic use a stable code as well as a message?
+18. How does an accessibility finding differ from an accessibility scan error?
 
 ## Answer key
 
@@ -37,3 +38,4 @@
 15. It must prepare every selected case so a preflight problem does not open a browser.
 16. It redacts supplied protected values and validates the result against the result-model contract.
 17. Tools can depend on the stable code while the human-facing message can be clearer or improve over time.
+18. A finding may fail the case only when configured, while a scan error is an operational error because the assessment could not finish.
