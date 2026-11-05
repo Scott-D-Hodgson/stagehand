@@ -46,12 +46,12 @@ Inputs: Failure location, reason, and message.
 ---
 Output: A failed expansion result.
 */
-function expansionFailure(
-  path: string,
-  reason: "invalidCaseSteps" | "nestedSharedSteps" | "unknownSharedSteps",
-  message: string,
-): ExpandCaseSharedStepsResult {
-  return { expanded: false, path, reason, message };
+function expansionFailure(options: {
+  path: string;
+  reason: "invalidCaseSteps" | "nestedSharedSteps" | "unknownSharedSteps";
+  message: string;
+}): ExpandCaseSharedStepsResult {
+  return { expanded: false, ...options };
 }
 
 /*
@@ -63,48 +63,48 @@ Output: Expanded steps or a failure.
 */
 export function expandCaseSharedSteps(options: ExpandCaseSharedStepsOptions): ExpandCaseSharedStepsResult {
   if (!Array.isArray(options.case.steps)) {
-    return expansionFailure(
-      "/steps",
-      "invalidCaseSteps",
-      "Case steps must be an array before expanding shared-step calls.",
-    );
+    return expansionFailure({
+      path: "/steps",
+      reason: "invalidCaseSteps",
+      message: "Case steps must be an array before expanding shared-step calls.",
+    });
   }
   const groups = getSharedSteps(options.sharedSteps);
   const steps: ExpandedCaseStep[] = [];
   for (const [caseStepIndex, step] of options.case.steps.entries()) {
     if (!isRecord(step)) {
-      return expansionFailure(
-        `/steps/${caseStepIndex}`,
-        "invalidCaseSteps",
-        "Case steps must be objects before expanding shared-step calls.",
-      );
+      return expansionFailure({
+        path: `/steps/${caseStepIndex}`,
+        reason: "invalidCaseSteps",
+        message: "Case steps must be objects before expanding shared-step calls.",
+      });
     }
     if (step.action !== "sharedSteps") {
       steps.push({ caseStepIndex, step: structuredClone(step) });
       continue;
     }
     if (typeof step.id !== "string") {
-      return expansionFailure(
-        `/steps/${caseStepIndex}/id`,
-        "unknownSharedSteps",
-        "A shared-step call must name a shared-step group.",
-      );
+      return expansionFailure({
+        path: `/steps/${caseStepIndex}/id`,
+        reason: "unknownSharedSteps",
+        message: "A shared-step call must name a shared-step group.",
+      });
     }
     const group = groups.get(step.id);
     if (group === undefined) {
-      return expansionFailure(
-        `/steps/${caseStepIndex}/id`,
-        "unknownSharedSteps",
-        `No shared steps named "${step.id}" are available in this plan.`,
-      );
+      return expansionFailure({
+        path: `/steps/${caseStepIndex}/id`,
+        reason: "unknownSharedSteps",
+        message: `No shared steps named "${step.id}" are available in this plan.`,
+      });
     }
     for (const [sharedStepIndex, sharedStep] of group.steps.entries()) {
       if (sharedStep.action === "sharedSteps") {
-        return expansionFailure(
-          `/sharedSteps/${group.id}/${sharedStepIndex}/action`,
-          "nestedSharedSteps",
-          "Shared steps cannot call other shared steps.",
-        );
+        return expansionFailure({
+          path: `/sharedSteps/${group.id}/${sharedStepIndex}/action`,
+          reason: "nestedSharedSteps",
+          message: "Shared steps cannot call other shared steps.",
+        });
       }
       steps.push({
         caseStepIndex,

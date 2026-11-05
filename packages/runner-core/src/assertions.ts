@@ -71,35 +71,35 @@ Inputs: Page, locator, expected value, locale, timeout, and assertion kind.
 ---
 Output: Completes when equal or throws a mismatch.
 */
-export async function executeStringAssertion(
-  page: Page,
-  definition: LocatorDefinition,
-  expected: ExpectedValue,
-  locale: string,
-  timeout: number | undefined,
-  action: "assertText" | "assertHtml" | "assertValue",
-): Promise<void> {
-  const effectiveTimeout = timeout ?? DEFAULT_LOCATOR_TIMEOUT;
+export async function executeStringAssertion(options: {
+  page: Page;
+  definition: LocatorDefinition;
+  expected: ExpectedValue;
+  locale: string;
+  timeout: number | undefined;
+  action: "assertText" | "assertHtml" | "assertValue";
+}): Promise<void> {
+  const effectiveTimeout = options.timeout ?? DEFAULT_LOCATOR_TIMEOUT;
   if (!Number.isInteger(effectiveTimeout) || effectiveTimeout < 1) {
-    throw new RangeError(`${action} timeout must be a positive integer in milliseconds.`);
+    throw new RangeError(`${options.action} timeout must be a positive integer in milliseconds.`);
   }
-  const expectedText = resolveExpectedValue(expected, locale);
+  const expectedText = resolveExpectedValue(options.expected, options.locale);
   const deadline = performance.now() + effectiveTimeout;
-  const locator = await resolveUniqueLocator(page, definition, effectiveTimeout);
+  const locator = await resolveUniqueLocator(options.page, options.definition, effectiveTimeout);
   const remaining = Math.floor(deadline - performance.now());
   if (remaining < 1) {
     throw new errors.TimeoutError(
-      `${action} exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
+      `${options.action} exceeded its ${effectiveTimeout} millisecond timeout while resolving the locator.`,
     );
   }
   const actualValue =
-    action === "assertText"
+    options.action === "assertText"
       ? await locator.innerText({ timeout: remaining })
-      : action === "assertHtml"
+      : options.action === "assertHtml"
         ? await locator.innerHTML({ timeout: remaining })
         : await locator.inputValue({ timeout: remaining });
   if (actualValue !== expectedText) {
-    throw new StringAssertionMismatchError(action, expectedText, actualValue);
+    throw new StringAssertionMismatchError(options.action, expectedText, actualValue);
   }
 }
 
@@ -110,20 +110,20 @@ Inputs: Page, locator, expected label, locale, and deadline.
 ---
 Output: A soft label failure or nothing.
 */
-export async function checkAssociatedLabel(
-  page: Page,
-  definition: LocatorDefinition,
-  expected: ExpectedValue,
-  locale: string,
-  deadline: number,
-): Promise<AssociatedLabelFailure | undefined> {
-  const expectedText = resolveExpectedValue(expected, locale);
+export async function checkAssociatedLabel(options: {
+  page: Page;
+  definition: LocatorDefinition;
+  expected: ExpectedValue;
+  locale: string;
+  deadline: number;
+}): Promise<AssociatedLabelFailure | undefined> {
+  const expectedText = resolveExpectedValue(options.expected, options.locale);
   try {
-    const remaining = Math.floor(deadline - performance.now());
+    const remaining = Math.floor(options.deadline - performance.now());
     if (remaining < 1) {
       throw new errors.TimeoutError("Associated-label check exceeded the assertion timeout.");
     }
-    const texts = await createLocator(page, definition).evaluate((element) => {
+    const texts = await createLocator(options.page, options.definition).evaluate((element) => {
       const labels = (element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).labels;
       return Array.from(labels ?? [], (label) => label.innerText);
     }, undefined, { timeout: remaining });

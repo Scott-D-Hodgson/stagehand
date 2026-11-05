@@ -22,22 +22,26 @@ Inputs: Context, page, run settings, accessibility settings, and close callback.
 ---
 Output: A case browser session.
 */
-export function createCaseBrowserSession(
-  createdContext: BrowserContext,
-  page: Page,
-  settings: BrowserRunSettings,
-  accessibility: EffectiveAccessibilitySettings,
-  onClose: (session: CaseBrowserSession) => void,
-): CaseBrowserSession {
+export function createCaseBrowserSession(input: {
+  context: BrowserContext;
+  page: Page;
+  settings: BrowserRunSettings;
+  accessibility: EffectiveAccessibilitySettings;
+  onClose: (session: CaseBrowserSession) => void;
+}): CaseBrowserSession {
   const collector = createAccessibilityFindingCollector();
   const scans: StepAccessibilityScan[] = [];
   let sessionClosePromise: Promise<void> | undefined;
   const session: CaseBrowserSession = {
-    context: createdContext,
-    page,
-    accessibility,
+    context: input.context,
+    page: input.page,
+    accessibility: input.accessibility,
     async scanAccessibility(protectedValues = []) {
-      return scanAccessibility(page, session.accessibility, protectedValues);
+      return scanAccessibility({
+        page: input.page,
+        accessibility: session.accessibility,
+        protectedValues,
+      });
     },
     getAccessibilityFindings() {
       return collector.getFindings();
@@ -50,68 +54,89 @@ export function createCaseBrowserSession(
       if (!Number.isInteger(timeout) || timeout < 1) {
         throw new RangeError("Locator timeout must be a positive integer in milliseconds.");
       }
-      return resolveUniqueLocator(page, locator, timeout);
+      return resolveUniqueLocator(input.page, locator, timeout);
     },
     async click(locator, options = {}) {
-      await executeClick(page, locator, options);
+      await executeClick(session.page, locator, options);
     },
     async type(locator, text, options = {}) {
-      await executeType(page, locator, text, options);
+      await executeType(session.page, locator, text, options);
     },
     async fill(locator, value, options = {}) {
-      await executeFill(page, locator, value, options);
+      await executeFill(session.page, locator, value, options);
     },
     async selectOption(locator, selection, options = {}) {
-      await executeSelectOption(page, locator, selection, options);
+      await executeSelectOption(session.page, locator, selection, options);
     },
     async assertText(locator, expected, options = {}) {
-      await executeStringAssertion(
-        page,
-        locator,
+      await executeStringAssertion({
+        page: session.page,
+        definition: locator,
         expected,
-        settings.locale ?? "en-CA",
-        options.timeout,
-        "assertText",
-      );
+        locale: input.settings.locale ?? "en-CA",
+        timeout: options.timeout,
+        action: "assertText",
+      });
     },
     async assertHtml(locator, expected, options = {}) {
-      await executeStringAssertion(
-        page,
-        locator,
+      await executeStringAssertion({
+        page: session.page,
+        definition: locator,
         expected,
-        settings.locale ?? "en-CA",
-        options.timeout,
-        "assertHtml",
-      );
+        locale: input.settings.locale ?? "en-CA",
+        timeout: options.timeout,
+        action: "assertHtml",
+      });
     },
     async assertValue(locator, expected, options = {}) {
-      const locale = settings.locale ?? "en-CA";
+      const locale = input.settings.locale ?? "en-CA";
       const deadline = performance.now() + (options.timeout ?? DEFAULT_LOCATOR_TIMEOUT);
-      await executeStringAssertion(page, locator, expected, locale, options.timeout, "assertValue");
+      await executeStringAssertion({
+        page: session.page,
+        definition: locator,
+        expected,
+        locale,
+        timeout: options.timeout,
+        action: "assertValue",
+      });
       if (options.associatedLabel !== undefined) {
-        return checkAssociatedLabel(page, locator, options.associatedLabel, locale, deadline);
+        return checkAssociatedLabel({
+          page: session.page,
+          definition: locator,
+          expected: options.associatedLabel,
+          locale,
+          deadline,
+        });
       }
     },
     async runWaitList(waits) {
-      await executeWaitList(page, waits);
+      await executeWaitList(session.page, waits);
     },
     async navigate(url, options = {}) {
-      return executeNavigation(page, url, options);
+      return executeNavigation(session.page, url, options);
     },
     async executeSteps(caseId, steps, stepIdentities, protectedValues = []) {
-      return executeCaseSteps(page, caseId, steps, settings.locale ?? "en-CA", async (stepIndex) => {
-        if (!session.accessibility.enabled || page.isClosed()) {
-          return;
-        }
-        const outcome = await session.scanAccessibility(protectedValues);
-        if (outcome.status === "completed") {
-          scans.push({ caseId, stepIndex, results: outcome.results });
-          collector.add(outcome.results);
-        }
-      }, stepIdentities, protectedValues);
+      return executeCaseSteps({
+        page: session.page,
+        caseId,
+        steps,
+        locale: input.settings.locale ?? "en-CA",
+        afterStep: async (stepIndex) => {
+          if (!session.accessibility.enabled || session.page.isClosed()) {
+            return;
+          }
+          const outcome = await session.scanAccessibility(protectedValues);
+          if (outcome.status === "completed") {
+            scans.push({ caseId, stepIndex, results: outcome.results });
+            collector.add(outcome.results);
+          }
+        },
+        ...(stepIdentities === undefined ? {} : { stepIdentities }),
+        protectedValues,
+      });
     },
     async executeCase(options) {
-      const prepared = prepareCaseForExecution(options, settings.locale ?? "en-CA");
+      const prepared = prepareCaseForExecution(options, input.settings.locale ?? "en-CA");
       return session.executeSteps(prepared.caseId, prepared.steps, prepared.stepIdentities, prepared.protectedValues);
     },
     close() {
@@ -120,9 +145,9 @@ export function createCaseBrowserSession(
       }
       sessionClosePromise = (async () => {
         try {
-          await createdContext.close();
+          await input.context.close();
         } finally {
-          onClose(session);
+          input.onClose(session);
         }
       })();
       return sessionClosePromise;

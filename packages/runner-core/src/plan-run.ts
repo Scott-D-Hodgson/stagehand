@@ -144,27 +144,27 @@ Inputs: Cases, duration, status facts, and diagnostics.
 ---
 Output: A plan-run outcome.
 */
-function createOutcome(
-  cases: readonly ExecutedCase[],
-  durationMs: number,
-  cancelled: boolean,
-  operationalError?: unknown,
-  preflightError?: CasePreparationError,
-  operationalDiagnostic?: ResultDiagnostic,
-): PlanRunOutcome {
+function createOutcome(options: {
+  cases: readonly ExecutedCase[];
+  durationMs: number;
+  cancelled: boolean;
+  operationalError?: unknown;
+  preflightError?: CasePreparationError;
+  operationalDiagnostic?: ResultDiagnostic;
+}): PlanRunOutcome {
   const summary = summarizeRunOutcome({
-    caseOutcomes: cases.map((entry) => entry.outcome.status),
-    cancelled,
-    operationalError: operationalError !== undefined || preflightError !== undefined,
+    caseOutcomes: options.cases.map((entry) => entry.outcome.status),
+    cancelled: options.cancelled,
+    operationalError: options.operationalError !== undefined || options.preflightError !== undefined,
   });
   return {
     status: summary.status,
     counts: summary.counts,
-    durationMs,
-    cases,
-    ...(preflightError === undefined ? {} : { preflightError }),
-    ...(operationalError === undefined ? {} : { operationalError }),
-    ...(operationalDiagnostic === undefined ? {} : { operationalDiagnostic }),
+    durationMs: options.durationMs,
+    cases: options.cases,
+    ...(options.preflightError === undefined ? {} : { preflightError: options.preflightError }),
+    ...(options.operationalError === undefined ? {} : { operationalError: options.operationalError }),
+    ...(options.operationalDiagnostic === undefined ? {} : { operationalDiagnostic: options.operationalDiagnostic }),
   };
 }
 
@@ -182,18 +182,37 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
     prepared = prepareRunForExecution(options);
   } catch (error) {
     if (error instanceof CasePreparationError) {
-      return createOutcome([], elapsedMilliseconds(timer, options.clock), false, undefined, error);
+      return createOutcome({
+        cases: [],
+        durationMs: elapsedMilliseconds(timer, options.clock),
+        cancelled: false,
+        preflightError: error,
+      });
     }
-    return createOutcome([], elapsedMilliseconds(timer, options.clock), false, error);
+    return createOutcome({
+      cases: [],
+      durationMs: elapsedMilliseconds(timer, options.clock),
+      cancelled: false,
+      operationalError: error,
+    });
   }
   if (options.signal?.aborted) {
-    return createOutcome([], elapsedMilliseconds(timer, options.clock), true);
+    return createOutcome({
+      cases: [],
+      durationMs: elapsedMilliseconds(timer, options.clock),
+      cancelled: true,
+    });
   }
   let run: BrowserRun;
   try {
     run = await startBrowserRun({ ...options.runSettings, locale: options.locale });
   } catch (error) {
-    return createOutcome([], elapsedMilliseconds(timer, options.clock), false, error);
+    return createOutcome({
+      cases: [],
+      durationMs: elapsedMilliseconds(timer, options.clock),
+      cancelled: false,
+      operationalError: error,
+    });
   }
   const cases: ExecutedCase[] = [];
   let cancelled = false;
@@ -284,5 +303,11 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
   } catch (error) {
     operationalError ??= error;
   }
-  return createOutcome(cases, elapsedMilliseconds(timer, options.clock), cancelled, operationalError, undefined, operationalDiagnostic);
+  return createOutcome({
+    cases,
+    durationMs: elapsedMilliseconds(timer, options.clock),
+    cancelled,
+    ...(operationalError === undefined ? {} : { operationalError }),
+    ...(operationalDiagnostic === undefined ? {} : { operationalDiagnostic }),
+  });
 }
