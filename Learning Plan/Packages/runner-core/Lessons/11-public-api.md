@@ -19,6 +19,20 @@
 | `startElapsedTimer` / `elapsedMilliseconds` | Measure elapsed time with an injectable stopwatch. | Timer and optional clock. | Timer record or integer milliseconds. |
 | `executeSequentially`, `throwIfCancelled`, `executeWithCleanup` | Support sequential work, cancellation, and cleanup. | Work, signal, or cleanup functions. | Outputs or retained failures. |
 
+### Reading grouped inputs
+
+Several runner-core functions use one typed options object when they need several related inputs. The property names explain each value at the call site, and a future optional setting can be added without changing every existing call.
+
+```ts
+const outcome = await executePlanRun({
+  cases,
+  locale: "en-CA",
+  signal,
+});
+```
+
+This is useful for a growing group of settings. A small, naturally ordered pair can stay as ordinary parameters; `elapsedMilliseconds(timer, clock)` is easier to read that way.
+
 ## Types
 
 | Type or value | What it describes | Used by |

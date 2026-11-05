@@ -57,16 +57,20 @@ Inputs: issue location, rule, message, and optional case reference.
 ---
 Output: a typed issue.
 */
-function makeIssue(
-  path: string,
-  keyword: string,
-  message: string,
-  reference?: string,
-): PlanLoadIssue {
-  if (reference === undefined) {
-    return { path, keyword, message };
+function makeIssue(options: {
+  path: string;
+  keyword: string;
+  message: string;
+  reference?: string;
+}): PlanLoadIssue {
+  if (options.reference === undefined) {
+    return {
+      path: options.path,
+      keyword: options.keyword,
+      message: options.message,
+    };
   }
-  return { path, keyword, message, reference };
+  return options;
 }
 
 /*
@@ -360,11 +364,11 @@ export async function loadPlanFile(
     return {
       valid: false,
       issues: [
-        makeIssue(
-          "/plan",
-          "planFileError",
-          `Could not resolve plan file "${planFilePath}": ${getErrorMessage(error)}`,
-        ),
+        makeIssue({
+          path: "/plan",
+          keyword: "planFileError",
+          message: `Could not resolve plan file "${planFilePath}": ${getErrorMessage(error)}`,
+        }),
       ],
     };
   }
@@ -375,11 +379,11 @@ export async function loadPlanFile(
     return {
       valid: false,
       issues: [
-        makeIssue(
-          "/plan",
-          "planFileError",
-          `Could not read plan file "${planFilePath}": ${getErrorMessage(error)}`,
-        ),
+        makeIssue({
+          path: "/plan",
+          keyword: "planFileError",
+          message: `Could not read plan file "${planFilePath}": ${getErrorMessage(error)}`,
+        }),
       ],
     };
   }
@@ -390,11 +394,11 @@ export async function loadPlanFile(
     return {
       valid: false,
       issues: [
-        makeIssue(
-          "/plan",
-          "invalidJson",
-          `Plan file "${planFilePath}" is not valid JSON: ${getErrorMessage(error)}`,
-        ),
+        makeIssue({
+          path: "/plan",
+          keyword: "invalidJson",
+          message: `Plan file "${planFilePath}" is not valid JSON: ${getErrorMessage(error)}`,
+        }),
       ],
     };
   }
@@ -426,12 +430,7 @@ export async function loadPlanFile(
       return {
         valid: false,
         issues: [
-          makeIssue(
-            `/cases/${match.caseIndex}/path`,
-            "caseMismatch",
-            `Case reference segment "${caseMismatch.expected}" does not match the on-disk capitalization "${caseMismatch.actual}".`,
-            match.reference,
-          ),
+          makeIssue({ path: `/cases/${match.caseIndex}/path`, keyword: "caseMismatch", message: `Case reference segment "${caseMismatch.expected}" does not match the on-disk capitalization "${caseMismatch.actual}".`, reference: match.reference }),
         ],
       };
     }
@@ -443,12 +442,7 @@ export async function loadPlanFile(
       return {
         valid: false,
         issues: [
-          makeIssue(
-            `/cases/${match.caseIndex}/path`,
-            resolution.keyword,
-            resolution.message,
-            match.reference,
-          ),
+          makeIssue({ path: `/cases/${match.caseIndex}/path`, keyword: resolution.keyword, message: resolution.message, reference: match.reference }),
         ],
       };
     }
@@ -460,12 +454,7 @@ export async function loadPlanFile(
         return {
           valid: false,
           issues: [
-            makeIssue(
-              `/cases/${match.caseIndex}/path`,
-              "notAFile",
-              `Case reference "${match.reference}" does not point to a file.`,
-              match.reference,
-            ),
+            makeIssue({ path: `/cases/${match.caseIndex}/path`, keyword: "notAFile", message: `Case reference "${match.reference}" does not point to a file.`, reference: match.reference }),
           ],
         };
       }
@@ -474,12 +463,7 @@ export async function loadPlanFile(
       return {
         valid: false,
         issues: [
-          makeIssue(
-            `/cases/${match.caseIndex}/path`,
-            "caseFileError",
-            `Could not read case file "${match.reference}": ${getErrorMessage(error)}`,
-            match.reference,
-          ),
+          makeIssue({ path: `/cases/${match.caseIndex}/path`, keyword: "caseFileError", message: `Could not read case file "${match.reference}": ${getErrorMessage(error)}`, reference: match.reference }),
         ],
       };
     }
@@ -490,12 +474,7 @@ export async function loadPlanFile(
       return {
         valid: false,
         issues: [
-          makeIssue(
-            `/cases/${match.caseIndex}/path`,
-            "invalidJson",
-            `Case file "${match.reference}" is not valid JSON: ${getErrorMessage(error)}`,
-            match.reference,
-          ),
+          makeIssue({ path: `/cases/${match.caseIndex}/path`, keyword: "invalidJson", message: `Case file "${match.reference}" is not valid JSON: ${getErrorMessage(error)}`, reference: match.reference }),
         ],
       };
     }

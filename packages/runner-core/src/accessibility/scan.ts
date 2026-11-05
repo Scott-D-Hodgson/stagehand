@@ -37,17 +37,18 @@ Inputs: Page, effective settings, and protected values.
 ---
 Output: Disabled or completed scan result.
 */
-export async function scanAccessibility(
-  page: Page,
-  accessibility: EffectiveAccessibilitySettings,
-  protectedValues: readonly string[] = [],
-): Promise<AccessibilityScanOutcome> {
-  if (!accessibility.enabled) {
+export async function scanAccessibility(options: {
+  page: Page;
+  accessibility: EffectiveAccessibilitySettings;
+  protectedValues?: readonly string[];
+}): Promise<AccessibilityScanOutcome> {
+  const protectedValues = options.protectedValues ?? [];
+  if (!options.accessibility.enabled) {
     return { status: "disabled" };
   }
   try {
-    const builder = new AxeBuilder({ page });
-    const tags = [...accessibility.tags];
+    const builder = new AxeBuilder({ page: options.page });
+    const tags = [...options.accessibility.tags];
     if (tags.length > 0) {
       builder.withTags(tags);
     }

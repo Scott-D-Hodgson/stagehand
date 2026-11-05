@@ -44,37 +44,43 @@ Inputs: Value, path, and preparation options.
 ---
 Output: Prepared text or a failure.
 */
-function prepareTextValue(
-  value: unknown,
-  path: string,
-  options: PrepareCaseStepOptions,
-  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined,
-): PreparedValueResult {
-  if (!isVariableReference(value)) {
-    return { prepared: true, value };
+function prepareTextValue(options: {
+  value: unknown;
+  path: string;
+  preparation: PrepareCaseStepOptions;
+  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined;
+}): PreparedValueResult {
+  if (!isVariableReference(options.value)) {
+    return { prepared: true, value: options.value };
   }
   const result = resolveVariable({
-    name: value.var,
-    locale: options.locale,
-    ...(options.planVariables === undefined ? {} : { planVariables: options.planVariables }),
-    ...(options.caseVariables === undefined ? {} : { caseVariables: options.caseVariables }),
-    ...(stepVariables === undefined ? {} : { stepVariables }),
-    ...(options.dataSetVariables === undefined ? {} : { dataSetVariables: options.dataSetVariables }),
+    name: options.value.var,
+    locale: options.preparation.locale,
+    ...(options.preparation.planVariables === undefined
+      ? {}
+      : { planVariables: options.preparation.planVariables }),
+    ...(options.preparation.caseVariables === undefined
+      ? {}
+      : { caseVariables: options.preparation.caseVariables }),
+    ...(options.stepVariables === undefined ? {} : { stepVariables: options.stepVariables }),
+    ...(options.preparation.dataSetVariables === undefined
+      ? {}
+      : { dataSetVariables: options.preparation.dataSetVariables }),
   });
   if (!result.resolved) {
-    return { prepared: false, path, reason: result.reason, message: result.message };
+    return { prepared: false, path: options.path, reason: result.reason, message: result.message };
   }
   if (isProtectedVariableValue(result.value)) {
-    if (options.environment !== undefined) {
+    if (options.preparation.environment !== undefined) {
       const environmentResult = resolveEnvironmentValue({
         value: result.value,
-        environment: options.environment,
+        environment: options.preparation.environment,
       });
       return environmentResult.resolved
         ? { prepared: true, value: environmentResult.value, protectedValues: [environmentResult.value] }
         : {
             prepared: false,
-            path,
+            path: options.path,
             reason: "unresolvedProtectedValue",
             message: environmentResult.message,
             environmentVariable: environmentResult.environmentVariable,
@@ -82,7 +88,7 @@ function prepareTextValue(
     }
     return {
       prepared: false,
-      path,
+      path: options.path,
       reason: "unresolvedProtectedValue",
       message: `Protected environment variable "${result.value.env}" must be resolved before preparing execution values.`,
       environmentVariable: result.value.env,
@@ -98,35 +104,40 @@ Inputs: Expected value, path, and preparation options.
 ---
 Output: Prepared expected value or a failure.
 */
-function prepareExpectedValue(
-  expected: Record<string, unknown>,
-  path: string,
-  options: PrepareCaseStepOptions,
-  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined,
-): PreparedValueResult {
+function prepareExpectedValue(options: {
+  expected: Record<string, unknown>;
+  path: string;
+  preparation: PrepareCaseStepOptions;
+  stepVariables: Readonly<Record<string, VariableDefinition>> | undefined;
+}): PreparedValueResult {
   let canonicalLocale: string;
   try {
-    canonicalLocale = Intl.getCanonicalLocales(options.locale)[0] ?? options.locale;
+    canonicalLocale = Intl.getCanonicalLocales(options.preparation.locale)[0] ?? options.preparation.locale;
   } catch {
     return {
       prepared: false,
-      path,
+      path: options.path,
       reason: "invalidLocale",
       message: "Locale must be a well-formed BCP 47 language tag, such as en-CA.",
     };
   }
-  let selected = expected.default;
-  let selectedPath = `${path}/default`;
-  if (isRecord(expected.locales)) {
-    for (const [locale, value] of Object.entries(expected.locales)) {
+  let selected = options.expected.default;
+  let selectedPath = `${options.path}/default`;
+  if (isRecord(options.expected.locales)) {
+    for (const [locale, value] of Object.entries(options.expected.locales)) {
       if (Intl.getCanonicalLocales(locale)[0] === canonicalLocale) {
         selected = value;
-        selectedPath = `${path}/locales/${escapeJsonPointerSegment(locale)}`;
+        selectedPath = `${options.path}/locales/${escapeJsonPointerSegment(locale)}`;
         break;
       }
     }
   }
-  const result = prepareTextValue(selected, selectedPath, options, stepVariables);
+  const result = prepareTextValue({
+    value: selected,
+    path: selectedPath,
+    preparation: options.preparation,
+    stepVariables: options.stepVariables,
+  });
   return result.prepared
     ? { prepared: true, value: { default: result.value }, ...(result.protectedValues === undefined ? {} : { protectedValues: result.protectedValues }) }
     : result;
@@ -160,7 +171,12 @@ export function prepareCaseStep(options: PrepareCaseStepOptions): PrepareCaseSte
     if (!(field in options.step)) {
       continue;
     }
-    const result = prepareTextValue(options.step[field], `${path}/${field}`, options, stepVariables);
+    const result = prepareTextValue({
+      value: options.step[field],
+      path: `${path}/${field}`,
+      preparation: options,
+      stepVariables,
+    });
     if (!result.prepared) {
       return result;
     }
@@ -172,7 +188,12 @@ export function prepareCaseStep(options: PrepareCaseStepOptions): PrepareCaseSte
     if (!isRecord(expected)) {
       continue;
     }
-    const result = prepareExpectedValue(expected, `${path}/${field}`, options, stepVariables);
+    const result = prepareExpectedValue({
+      expected,
+      path: `${path}/${field}`,
+      preparation: options,
+      stepVariables,
+    });
     if (!result.prepared) {
       return result;
     }

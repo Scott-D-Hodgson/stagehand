@@ -47,8 +47,14 @@ export async function startBrowserRun(
       if (lifecycleState !== "open") {
         throw new Error("The browser run is closing or closed.");
       }
-      const session = createCaseBrowserSession(createdContext, page, settings, accessibility, (closedSession) => {
-        activeSessions.delete(closedSession);
+      const session = createCaseBrowserSession({
+        context: createdContext,
+        page,
+        settings,
+        accessibility,
+        onClose: (closedSession) => {
+          activeSessions.delete(closedSession);
+        },
       });
       activeSessions.add(session);
       return session;

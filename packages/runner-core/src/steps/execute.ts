@@ -69,58 +69,59 @@ Inputs: Page, case identity, steps, locale, scan callback, and protected values.
 ---
 Output: Soft failures or a step error.
 */
-export async function executeCaseSteps(
-  page: Page,
-  caseId: string,
-  steps: readonly ExecutableStep[],
-  locale: string,
-  afterStep: (stepIndex: number) => Promise<void>,
-  stepIdentities?: readonly StepExecutionIdentity[],
-  protectedValues: readonly string[] = [],
-): Promise<SoftAssertionFailure[]> {
-  if (!Array.isArray(steps)) {
+export async function executeCaseSteps(options: {
+  page: Page;
+  caseId: string;
+  steps: readonly ExecutableStep[];
+  locale: string;
+  afterStep: (stepIndex: number) => Promise<void>;
+  stepIdentities?: readonly StepExecutionIdentity[];
+  protectedValues?: readonly string[];
+}): Promise<SoftAssertionFailure[]> {
+  const protectedValues = options.protectedValues ?? [];
+  if (!Array.isArray(options.steps)) {
     throw new TypeError("Case steps must be an array.");
   }
   const softFailures: SoftAssertionFailure[] = [];
-  for (const [stepIndex, step] of steps.entries()) {
-    const identity = stepIdentities?.[stepIndex];
+  for (const [stepIndex, step] of options.steps.entries()) {
+    const identity = options.stepIdentities?.[stepIndex];
     const action = (step as { action?: unknown }).action;
     try {
       switch (step.action) {
         case "navigate":
-          await executeNavigation(page, step.url, {
+          await executeNavigation(options.page, step.url, {
             timeout: step.timeout,
             waitUntil: step.waitUntil,
           });
           break;
         case "click":
-          await executeWaitList(page, step.before ?? []);
-          await executeClick(page, step.locator, {
+          await executeWaitList(options.page, step.before ?? []);
+          await executeClick(options.page, step.locator, {
             timeout: step.timeout,
             scrollIntoView: step.scrollIntoView,
           });
-          await executeWaitList(page, step.after ?? []);
+          await executeWaitList(options.page, step.after ?? []);
           break;
         case "type":
-          await executeWaitList(page, step.before ?? []);
-          await executeType(page, step.locator, step.text, {
+          await executeWaitList(options.page, step.before ?? []);
+          await executeType(options.page, step.locator, step.text, {
             timeout: step.timeout,
             scrollIntoView: step.scrollIntoView,
           });
-          await executeWaitList(page, step.after ?? []);
+          await executeWaitList(options.page, step.after ?? []);
           break;
         case "fill":
-          await executeWaitList(page, step.before ?? []);
-          await executeFill(page, step.locator, step.value, {
+          await executeWaitList(options.page, step.before ?? []);
+          await executeFill(options.page, step.locator, step.value, {
             timeout: step.timeout,
             scrollIntoView: step.scrollIntoView,
           });
-          await executeWaitList(page, step.after ?? []);
+          await executeWaitList(options.page, step.after ?? []);
           break;
         case "selectOption":
-          await executeWaitList(page, step.before ?? []);
+          await executeWaitList(options.page, step.before ?? []);
           await executeSelectOption(
-            page,
+            options.page,
             step.locator,
             typeof step.value === "string"
               ? { value: step.value }
@@ -130,21 +131,21 @@ export async function executeCaseSteps(
               scrollIntoView: step.scrollIntoView,
             },
           );
-          await executeWaitList(page, step.after ?? []);
+          await executeWaitList(options.page, step.after ?? []);
           break;
         case "assertText":
         case "assertHtml":
         case "assertValue": {
           const deadline = performance.now() + (step.timeout ?? DEFAULT_LOCATOR_TIMEOUT);
           try {
-            await executeStringAssertion(
-              page,
-              step.locator,
-              step.expected,
-              locale,
-              step.timeout,
-              step.action,
-            );
+            await executeStringAssertion({
+              page: options.page,
+              definition: step.locator,
+              expected: step.expected,
+              locale: options.locale,
+              timeout: step.timeout,
+              action: step.action,
+            });
           } catch (error) {
             if (
               step.soft === true &&
@@ -152,9 +153,9 @@ export async function executeCaseSteps(
                 error instanceof LocatorResolutionError ||
                 error instanceof errors.TimeoutError)
             ) {
-              const expectedText = resolveExpectedValue(step.expected, locale);
+              const expectedText = resolveExpectedValue(step.expected, options.locale);
               softFailures.push(redactEvidence({
-                caseId,
+                caseId: options.caseId,
                 stepIndex,
                 action: step.action,
                 ...(identity?.caseStepIndex === undefined ? {} : { caseStepIndex: identity.caseStepIndex }),
@@ -169,10 +170,16 @@ export async function executeCaseSteps(
             }
           }
           if (step.action === "assertValue" && step.associatedLabel !== undefined) {
-            const failure = await checkAssociatedLabel(page, step.locator, step.associatedLabel, locale, deadline);
+            const failure = await checkAssociatedLabel({
+              page: options.page,
+              definition: step.locator,
+              expected: step.associatedLabel,
+              locale: options.locale,
+              deadline,
+            });
             if (failure) {
               softFailures.push(redactEvidence({
-                caseId,
+                caseId: options.caseId,
                 stepIndex,
                 action: step.action,
                 check: "associatedLabel",
@@ -196,17 +203,17 @@ export async function executeCaseSteps(
         (error instanceof StringAssertionMismatchError || error instanceof LocatorResolutionError || error instanceof errors.TimeoutError)
       ) {
         try {
-          await afterStep(stepIndex);
+          await options.afterStep(stepIndex);
         } catch (scanError) {
-          throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(new AggregateError([error, scanError], "Assertion and accessibility scan failed."), protectedValues), identity);
+          throw new StepExecutionError(options.caseId, stepIndex, String(action), redactCause(new AggregateError([error, scanError], "Assertion and accessibility scan failed."), protectedValues), identity);
         }
       }
-      throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
+      throw new StepExecutionError(options.caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
     }
     try {
-      await afterStep(stepIndex);
+      await options.afterStep(stepIndex);
     } catch (error) {
-      throw new StepExecutionError(caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
+      throw new StepExecutionError(options.caseId, stepIndex, String(action), redactCause(error, protectedValues), identity);
     }
   }
   return softFailures;
