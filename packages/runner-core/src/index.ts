@@ -70,3 +70,5 @@ export { CancellationError, executeSequentially, throwIfCancelled } from "./canc
 export { executeWithCleanup, PrimaryFailureError } from "./cleanup.js";
 export { executePlanRun } from "./plan-run.js";
 export type { ExecutedCase, PlanRunOptions, PlanRunOutcome } from "./plan-run.js";
+export { createResultDocument, ResultDocumentError } from "./result.js";
+export type { ResultDocumentOptions } from "./result.js";

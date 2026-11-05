@@ -33,7 +33,7 @@ flowchart TD
     R --> O[error > cancelled > failed > passed]
 ```
 
-This is the initial M6 policy. The coordinator now applies it to sequential prepared cases, but result documents, CLI behaviour, active-work interruption, and concurrency remain later work.
+This is the initial M6 policy. The coordinator now applies it to sequential prepared cases, and the adapter now makes in-memory result documents. Report files, CLI behaviour, active-work interruption, and concurrency remain later work.
 
 `runner-core` now has a small browser-free `determineCaseOutcome` helper for this decision. It receives already-known facts and returns a case status plus the category that decided it. It does not run a browser, aggregate a run, or write result JSON.
 
@@ -43,7 +43,7 @@ Timing uses a monotonic clock: a steadily increasing stopwatch, rather than a ca
 
 The cancellation building block checks an `AbortSignal` before starting each item of sequential work. An `AbortSignal` is a simple JavaScript stop-request flag: it says not to begin the next case, but it does not forcibly interrupt work already under way. The cleanup building block always attempts cleanup. If execution and cleanup both fail, it keeps the original failure as the primary problem and retains the cleanup failure as secondary context.
 
-`executePlanRun` is the first coordinator. It prepares every selected case before Chromium starts, then runs prepared cases one at a time in separate browser sessions. It uses the outcome, timing, cancellation, and cleanup helpers, then returns an in-memory summary. It does not yet make result JSON, write files, offer CLI commands, interrupt an active case, or run cases in parallel.
+`executePlanRun` is the first coordinator. It prepares every selected case before Chromium starts, then runs prepared cases one at a time in separate browser sessions. It uses the outcome, timing, cancellation, and cleanup helpers, then returns an in-memory summary. `createResultDocument` converts that summary into a checked result document, using safe operational-error messages and a final redaction pass for supplied protected values. Neither helper writes files, offers CLI commands, interrupts an active case, or runs cases in parallel.
 
 ## Try it
 

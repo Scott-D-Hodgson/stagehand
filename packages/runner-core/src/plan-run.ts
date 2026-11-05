@@ -1,11 +1,17 @@
 import { errors } from "playwright";
-import type { ResultAccessibilityFinding, ResultOutcome } from "@stagehand/result-model";
+import type {
+  ResultAccessibilityFinding,
+  ResultDiagnostic,
+  ResultEffectiveSettings,
+  ResultOutcome,
+} from "@stagehand/result-model";
 import { StringAssertionMismatchError } from "./assertions.js";
 import { startBrowserRun } from "./browser/run.js";
 import type { BrowserRun, BrowserRunSettings, CaseBrowserSession } from "./browser/types.js";
 import { executeWithCleanup } from "./cleanup.js";
 import { CancellationError } from "./cancellation.js";
 import { LocatorResolutionError } from "./locators.js";
+import { resolveAccessibilitySettings } from "./accessibility/settings.js";
 import { determineCaseOutcome, type CaseOutcome } from "./outcomes/case.js";
 import { summarizeRunOutcome, type RunOutcomeCounts } from "./outcomes/run.js";
 import {
@@ -30,6 +36,8 @@ export interface ExecutedCase {
   durationMs: number;
   softFailures: readonly SoftAssertionFailure[];
   accessibilityFindings: readonly ResultAccessibilityFinding[];
+  effectiveSettings: ResultEffectiveSettings;
+  diagnostics: readonly ResultDiagnostic[];
 }
 
 export interface PlanRunOutcome {
@@ -51,6 +59,33 @@ function isHardAssertionFailure(error: unknown): boolean {
   return error.cause instanceof StringAssertionMismatchError
     || error.cause instanceof LocatorResolutionError
     || error.cause instanceof errors.TimeoutError;
+}
+
+function getEffectiveSettings(
+  options: PlanRunOptions,
+  session: CaseBrowserSession | undefined,
+  settings: BrowserRunSettings["accessibility"] | undefined,
+): ResultEffectiveSettings {
+  const accessibility = session?.accessibility ?? resolveAccessibilitySettings(options.runSettings?.accessibility, settings);
+  return {
+    locale: options.locale,
+    accessibility: {
+      enabled: accessibility.enabled,
+      failOnViolation: accessibility.failOnViolation,
+      tags: [...accessibility.tags],
+    },
+  };
+}
+
+function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnostic {
+  const stepIndex = error instanceof StepExecutionError ? error.stepIndex : undefined;
+  return {
+    source: "runner",
+    severity: "error",
+    code: hardFailure ? "hardAssertion" : "operationalError",
+    message: hardFailure ? "A hard assertion failed." : "Case execution failed.",
+    ...(stepIndex === undefined ? {} : { stepIndex }),
+  };
 }
 
 function createOutcome(
@@ -109,6 +144,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
       let accessibilityFindings: readonly ResultAccessibilityFinding[] = [];
       let hardFailure = false;
       let caseOperationalError = false;
+      let caseError: unknown;
       let session: CaseBrowserSession | undefined;
       try {
         const createdSession = await run.createCaseSession(preparedCase.settings);
@@ -137,9 +173,12 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
           durationMs: caseTimer === undefined ? 0 : elapsedMilliseconds(caseTimer, options.clock),
           softFailures,
           accessibilityFindings,
+          effectiveSettings: getEffectiveSettings(options, createdSession, preparedCase.settings?.accessibility),
+          diagnostics: [],
         });
         continue;
       } catch (error) {
+        caseError = error;
         hardFailure = isHardAssertionFailure(error);
         caseOperationalError = !hardFailure;
         if (caseOperationalError) {
@@ -162,6 +201,8 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
         durationMs: caseTimer === undefined ? 0 : elapsedMilliseconds(caseTimer, options.clock),
         softFailures,
         accessibilityFindings,
+        effectiveSettings: getEffectiveSettings(options, session, preparedCase.settings?.accessibility),
+        diagnostics: [getCaseDiagnostic(caseError, hardFailure)],
       });
     }
   } catch (error) {
