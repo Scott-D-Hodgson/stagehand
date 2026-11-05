@@ -103,6 +103,21 @@ test("stops before the next case when cancellation is requested", async () => {
   assert.equal(outcome.status, "cancelled");
 });
 
+test("records cancellation before any case starts", async () => {
+  const controller = new AbortController();
+  controller.abort();
+  const browser = createBrowser();
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    cases: [{ case: caseFile("not-started") }],
+    signal: controller.signal,
+  });
+  assert.equal(browser.getLaunchCount(), 0);
+  assert.deepEqual(outcome.counts, { passed: 0, failed: 0, cancelled: 0, error: 0 });
+  assert.equal(outcome.status, "cancelled");
+});
+
 test("records a hard assertion failure and continues to an independent case", async () => {
   const locator = {
     async waitFor() {},
@@ -201,6 +216,38 @@ test("excludes browser session setup from active-case duration", async () => {
   });
   assert.equal(outcome.cases[0].durationMs, 0);
   assert.equal(outcome.durationMs, 100);
+});
+
+test("marks an expired active case as an error after cleanup and continues later cases", async () => {
+  let now = 0;
+  const closedContexts = [];
+  const clock = { now() { return now; } };
+  const browser = createBrowser({
+    onContextClose(index) { closedContexts.push(index); },
+    page: {
+      isClosed() { return false; },
+      async goto() { now = 600000; return null; },
+    },
+  });
+  mock.method(chromium, "launch", async () => browser.launch());
+  const outcome = await executePlanRun({
+    locale: "en-CA",
+    clock,
+    cases: [
+      { case: { version: 1, id: "expired", steps: [{ action: "navigate", url: "https://example.test/slow" }] } },
+      { case: caseFile("later") },
+    ],
+  });
+  assert.deepEqual(outcome.cases.map((entry) => entry.outcome.status), ["error", "passed"]);
+  assert.equal(outcome.cases[0].durationMs, 600000);
+  assert.deepEqual(outcome.cases[0].diagnostics, [{
+    source: "runner",
+    severity: "error",
+    code: "runner.infrastructure",
+    message: "Active case execution exceeded the 10-minute limit.",
+  }]);
+  assert.deepEqual(closedContexts, [0, 1]);
+  assert.equal(outcome.status, "error");
 });
 
 test("configured accessibility findings fail a case without stopping later steps", async () => {

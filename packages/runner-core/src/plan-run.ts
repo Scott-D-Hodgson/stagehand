@@ -51,6 +51,15 @@ export interface PlanRunOutcome {
   operationalDiagnostic?: ResultDiagnostic;
 }
 
+const ACTIVE_CASE_LIMIT_MS = 600_000;
+
+class ActiveCaseLimitError extends Error {
+  constructor() {
+    super("Active case execution exceeded the 10-minute limit.");
+    this.name = "ActiveCaseLimitError";
+  }
+}
+
 /*
 Checks whether an execution error is a hard assertion failure.
 ---
@@ -124,6 +133,14 @@ Output: A stable diagnostic record.
 function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnostic {
   const primaryError = error instanceof PrimaryFailureError ? error.primary : error;
   const stepIndex = primaryError instanceof StepExecutionError ? primaryError.stepIndex : undefined;
+  if (primaryError instanceof ActiveCaseLimitError) {
+    return {
+      source: "runner",
+      severity: "error",
+      code: "runner.infrastructure",
+      message: "Active case execution exceeded the 10-minute limit.",
+    };
+  }
   if (hasAccessibilityScanError(primaryError)) {
     return {
       source: "accessibility",
@@ -256,6 +273,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
         break;
       }
       let caseTimer: ElapsedTimer | undefined;
+      let activeDurationMs = 0;
       let softFailures: readonly SoftAssertionFailure[] = [];
       let accessibilityFindings: readonly ResultAccessibilityFinding[] = [];
       let hardFailure = false;
@@ -266,14 +284,26 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
       try {
         const createdSession = await run.createCaseSession(preparedCase.settings);
         session = createdSession;
-        caseTimer = startElapsedTimer(options.clock);
+        const activeTimer = startElapsedTimer(options.clock);
+        caseTimer = activeTimer;
         softFailures = await executeWithCleanup(
-          () => createdSession.executeSteps(
-            preparedCase.caseId,
-            preparedCase.steps,
-            preparedCase.stepIdentities,
-            preparedCase.protectedValues,
-          ),
+          async () => {
+            let failures: readonly SoftAssertionFailure[] = [];
+            try {
+              failures = await createdSession.executeSteps(
+                preparedCase.caseId,
+                preparedCase.steps,
+                preparedCase.stepIdentities,
+                preparedCase.protectedValues,
+              );
+            } finally {
+              activeDurationMs = elapsedMilliseconds(activeTimer, options.clock);
+            }
+            if (activeDurationMs >= ACTIVE_CASE_LIMIT_MS) {
+              throw new ActiveCaseLimitError();
+            }
+            return failures;
+          },
           () => createdSession.close(),
         );
         accessibilityFindings = createdSession.getAccessibilityFindings();
@@ -287,7 +317,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
             operationalError: false,
             cancelled: false,
           }),
-          durationMs: caseTimer === undefined ? 0 : elapsedMilliseconds(caseTimer, options.clock),
+          durationMs: activeDurationMs,
           softFailures,
           accessibilityFindings,
           effectiveSettings: getEffectiveSettings(options, createdSession, preparedCase.settings?.accessibility),
@@ -317,7 +347,7 @@ export async function executePlanRun(options: PlanRunOptions): Promise<PlanRunOu
           operationalError: caseOperationalError,
           cancelled: false,
         }),
-        durationMs: caseTimer === undefined ? 0 : elapsedMilliseconds(caseTimer, options.clock),
+        durationMs: activeDurationMs,
         softFailures,
         accessibilityFindings,
         effectiveSettings: getEffectiveSettings(options, session, preparedCase.settings?.accessibility),

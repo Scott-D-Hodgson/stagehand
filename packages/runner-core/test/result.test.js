@@ -89,6 +89,25 @@ test("uses a safe run diagnostic instead of an operational error message", () =>
   assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));
 });
 
+test("records a safe run cancellation diagnostic", () => {
+  const result = createResultDocument({
+    outcome: outcome({
+      status: "cancelled",
+      counts: { passed: 0, failed: 0, cancelled: 0, error: 0 },
+      cases: [],
+    }),
+    sourcePlan: sourcePlan(),
+    startedAt: "2026-11-04T12:00:00Z",
+    endedAt: "2026-11-04T12:00:01Z",
+  });
+  assert.deepEqual(result.run.diagnostics, [{
+    source: "runner",
+    severity: "info",
+    code: "run.cancelled",
+    message: "Run cancellation stopped new case work.",
+  }]);
+});
+
 test("retains safe primary and cleanup diagnostics without operational error text", () => {
   const secret = "not-a-real-cleanup-detail";
   const result = createResultDocument({

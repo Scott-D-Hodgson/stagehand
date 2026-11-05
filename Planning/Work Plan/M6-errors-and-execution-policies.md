@@ -25,7 +25,7 @@ This table sets the policy boundary for the later implementation slices. It reco
 | Axe scan execution error | Stop the affected case; case is `error`. | Continue only when the shared runner remains safe. | `error`. | Retain the scan error and step identity; do not represent it as a finding. |
 | Browser/action or runner error | Stop the affected case; case is `error`. | Continue only when the shared runner remains safe; otherwise stop the run. | `error`. | Retain the original operational cause. |
 | Plan loading, validation, bundle validation, or preparation error | No affected case starts. | Do not start any case. | `error`. | Retain the preflight issue without launching Chromium. |
-| Cancellation observed before a case starts | Do not start that case. | Do not start later cases. | `cancelled`, unless an `error` also occurred. | Record the cancellation request. Active-case interruption belongs to M6.11. |
+| Cancellation observed before a case starts | Do not start that case. | Do not start later cases. | `cancelled`, unless an `error` also occurred. | Emit safe `run.cancelled`; an active Playwright operation is not forcibly interrupted. |
 | Cleanup error | End the affected case or run safely. | Continue only if isolation remains safe. | `error`. | Preserve the earlier primary cause and retain cleanup failure as secondary context. |
 | Result/report output error | Execution has ended; do not retry browser work. | Not applicable. | `error`. | Preserve the execution outcome as context and retain the output failure as the primary reporting error. |
 
@@ -54,6 +54,12 @@ Do not retain resolved protected values, environment values, raw exception stack
 
 When case execution and its cleanup both fail, the coordinator keeps two diagnostics in order: the original execution diagnostic first, then `cleanup.failure`. The original diagnostic records the primary category, such as `assertion.hard` or `runner.infrastructure`; the cleanup diagnostic is the secondary category. The case and run are `error`. The current sequential coordinator still attempts later independent cases. The run-level diagnostic is the safe `cleanup.failure` record, while the raw primary and cleanup errors remain inside runner-core.
 
+## M6.11 cancellation and active-case limit
+
+When cancellation is observed before a case starts, the coordinator does not start that case or later cases. The result document records safe `run.cancelled` context. An earlier operational error still takes precedence over cancellation.
+
+Active case-step execution has a fixed 10-minute limit. The monotonic timer starts immediately before step dispatch and stops when dispatch ends, so setup and cleanup do not count. Stagehand does not forcibly interrupt a Playwright operation already in progress. Instead, after active step work finishes, a limit reached or exceeded becomes a safe `runner.infrastructure` case error; cleanup still runs and later independent cases continue.
+
 ### Worked examples
 
 - **No case starts:** bundle validation rejects an unknown shared-step ID. Chromium does not start and the run is `error`.
@@ -67,7 +73,7 @@ Durations are integer milliseconds measured with a monotonic clock, not wall-clo
 
 Active-case time starts immediately before the first case step is dispatched and stops when step dispatch ends, whether it passes, fails, errors, or is cancelled. It includes step waits and automatic accessibility scans. It excludes preflight, browser/context/session startup, waiting for a future concurrency slot, and cleanup.
 
-The accepted default active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides, threshold warnings, cancellation enforcement, and Playwright timeout integration remain later M6 work. `startElapsedTimer` and `elapsedMilliseconds` provide only the injectable timing foundation; they do not enforce any limit.
+The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides, threshold warnings, forced active-work interruption, and Playwright timeout integration remain later M6 work. `startElapsedTimer` and `elapsedMilliseconds` provide the injectable timing foundation used by the coordinator to enforce the limit after active step work completes.
 
 ## Tasks
 
@@ -78,12 +84,13 @@ The accepted default active-case limit is 10 minutes (600,000 milliseconds). Pla
 - [x] Define run-status aggregation details from case outcomes, including runs with no cases started and partial cancellation, in the pure `summarizeRunOutcome` helper. It uses `error`, then `cancelled`, then `failed`, then `passed`. Keep the result field shape in M3 and the underlying action/assertion configuration in M4/M5.
 - [x] Specify diagnostic fields, stable case/step identity, safe retained context, and redaction rules. Shared-step identity serialization and raw operational detail remain later work.
 - [ ] Define CLI/result signaling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
-- [x] Define the monotonic-clock boundary for whole-run elapsed time and active-case time, with integer-millisecond durations, and add the injectable `startElapsedTimer`/`elapsedMilliseconds` foundation. The accepted 10-minute active-case limit is documented but not enforced. Plan/case overrides, thresholds, cancellation enforcement, and Playwright timeout integration remain later work.
+- [x] Define the monotonic-clock boundary for whole-run elapsed time and active-case time, with integer-millisecond durations, and add the injectable `startElapsedTimer`/`elapsedMilliseconds` foundation. Enforce the fixed 10-minute active-case limit after active step work completes. Plan/case overrides, thresholds, forced interruption, and Playwright timeout integration remain later work.
 - [x] Add browser-free cancellation and cleanup primitives: an `AbortSignal`-aware sequential-work helper stops before new work begins, and a wrapper retains an execution failure as primary when cleanup also fails. CLI interrupts, active-work interruption, browser coordination, and result serialization remain later work.
 - [x] Add `executePlanRun`, which prepares selected cases before Chromium starts, executes them sequentially in isolated sessions, applies current M6 policy/timing/cancellation helpers, and returns an in-memory outcome. CLI behaviour, active-work interruption, and concurrency remain later work.
 - [x] Add `createResultDocument`, which adapts a coordinator outcome into a validated result-model document with safe operational diagnostics and final-boundary redaction. Report-file writing, CLI behaviour, active-work interruption, and concurrency remain later work.
 - [x] Define execution-time effects of the accessibility policy established in M4: findings do not fail by default, configured findings fail a case without stopping later eligible steps, and axe execution errors produce `accessibility.scan` and follow runner error policy.
 - [x] Carry a cleanup failure through the coordinator and result adapter without replacing the primary execution diagnostic. Emit a safe `cleanup.failure` record after the primary diagnostic, and cover hard-assertion and operational-error cases.
+- [x] Record safe `run.cancelled` context in result documents and enforce the fixed active-case limit with the monotonic timer. Cover cancellation before startup, expiry, cleanup, and later-case continuation without adding forced active-work interruption.
 - [ ] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 - [ ] Add a decision table, examples, and fixtures covering each error category, continuation policy, status mapping, and aggregation, including cancellation before any case starts, partial cancellation, case timeout, a runner failure before cases start, cleanup failure after an earlier failure, configured accessibility findings, axe execution failure, and report-write failure. Specify how the original cause is retained when cleanup or reporting adds a secondary failure.
 

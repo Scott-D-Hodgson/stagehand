@@ -32,8 +32,8 @@
 9. `error`, then `cancelled`, then `failed`, then `passed`.
 10. It does not execute a browser, aggregate run outcomes, or create result JSON.
 11. No completed case exists to carry that information, but it still determines the run outcome.
-12. It includes step dispatch, waits, and automatic scans; it excludes preflight, browser/session setup, queue time, and cleanup.
-13. It prevents the next item from starting when cancellation was requested; it does not interrupt an item already running.
+12. It includes step dispatch, waits, and automatic scans; it excludes preflight, browser/session setup, queue time, and cleanup. Reaching 10 minutes becomes an error after active step work finishes.
+13. It prevents the next item from starting when cancellation was requested; it does not interrupt an item already running. A cancelled result records `run.cancelled`.
 14. The original execution diagnostic remains primary; `cleanup.failure` is retained as a separate safe secondary diagnostic.
 15. It must prepare every selected case so a preflight problem does not open a browser.
 16. It redacts supplied protected values and validates the result against the result-model contract.
