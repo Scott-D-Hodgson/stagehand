@@ -11,6 +11,8 @@ The first M7 walkthrough is an executable, synthetic example. `npm run test:phas
 
 Its companion invalid-case example stops at plan-engine. It returns the schema location `/caseFiles/0/steps` and the original `cases/bad.json` reference; the mocked Chromium launch is never called. In other words, invalid input does not reach the browser hand-off. This is still a test-only connection, not a production plan-file runner.
 
+`npm run test:package-boundaries` checks a different integration concern: whether the implemented packages remain connected in the permitted direction. It confirms that plan-schema, plan-engine, result-model, and runner-core each have one public root entry point, and rejects an undeclared dependency or an import of another package's internal file. This protects the package seams; it does not replace the synthetic walkthrough or a real-browser assessment.
+
 ```mermaid
 flowchart LR
     subgraph E[plan-engine]
@@ -45,5 +47,6 @@ Trace one case through the diagram and name the package responsible at each hand
 
 - You can explain the complete intended flow and current gaps.
 - You can spot a responsibility placed in the wrong package.
+- You can distinguish a package-boundary check from a browser-execution check.
 
 [← Previous: errors policy](12-errors-policy.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)

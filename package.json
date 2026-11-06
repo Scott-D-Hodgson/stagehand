@@ -14,6 +14,7 @@
     "packages/*"
   ],
   "scripts": {
+    "test:package-boundaries": "node --test tests/package-boundaries.test.js",
     "test:phase1-integration": "npm run build --workspace @stagehand/plan-engine && npm run build --workspace @stagehand/runner-core && node --test tests/phase1-integration.test.js"
   },
   "devDependencies": {
