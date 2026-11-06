@@ -54,7 +54,7 @@ function observations() {
 
 function mapAndValidate(results) {
   const findings = mapAccessibilityFindings(results);
-  const document = JSON.parse(readFileSync(new URL("../../result-model/examples/checkout-result.json", import.meta.url), "utf8"));
+  const document = JSON.parse(readFileSync(new URL("../../../result-model/examples/checkout-result.json", import.meta.url), "utf8"));
   document.cases[0].accessibilityFindings = findings;
   assert.deepEqual(validateResult(document), { valid: true });
   return findings;

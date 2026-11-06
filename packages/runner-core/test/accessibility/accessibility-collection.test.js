@@ -14,7 +14,7 @@ function scan(nodes = [node()]) {
 
 function findings(collector) {
   const output = collector.getFindings();
-  const document = JSON.parse(readFileSync(new URL("../../result-model/examples/checkout-result.json", import.meta.url), "utf8"));
+  const document = JSON.parse(readFileSync(new URL("../../../result-model/examples/checkout-result.json", import.meta.url), "utf8"));
   document.cases[0].accessibilityFindings = output;
   assert.deepEqual(validateResult(document), { valid: true });
   for (const finding of output) assert.equal(finding.affectedNodeCount, finding.affectedNodes.length);

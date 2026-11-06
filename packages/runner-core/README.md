@@ -176,11 +176,13 @@ The public entry point is now a small explicit export list. Internal modules imp
 | [accessibility/scan.ts](src/accessibility/scan.ts) | Axe adapter execution and cause-preserving scan errors. |
 | [accessibility/mapping.ts](src/accessibility/mapping.ts) | Pure raw violation projection and related-node deduplication. |
 | [accessibility/collection.ts](src/accessibility/collection.ts) | Stateful per-case finding accumulation and copied snapshots. |
-| [cancellation.ts](src/cancellation.ts) | AbortSignal checks and generic sequential-work helper. |
-| [cleanup.ts](src/cleanup.ts) | Cleanup wrapper that retains primary and secondary failures. |
-| [plan-run.ts](src/plan-run.ts) | Sequential preparation, browser/session coordination, and in-memory run outcome. |
-| [result.ts](src/result.ts) | Validated result-document adapter and final-boundary redaction. |
+| [execution/cancellation.ts](src/execution/cancellation.ts) | AbortSignal checks and generic sequential-work helper. |
+| [execution/cleanup.ts](src/execution/cleanup.ts) | Cleanup wrapper that retains primary and secondary failures. |
+| [outcomes/](src/outcomes/) | Browser-free case and run outcome policy. |
+| [execution/timing.ts](src/execution/timing.ts) | Injected monotonic timing helpers. |
+| [execution/plan-run.ts](src/execution/plan-run.ts) | Sequential preparation, browser/session coordination, and in-memory run outcome. |
+| [execution/result.ts](src/execution/result.ts) | Validated result-document adapter and final-boundary redaction. |
 
-Run lifecycle state stays in `browser/run.ts`; session methods, findings, raw scan history, and close state stay in `browser/case-session.ts`. Dispatch controls eligible assessment timing through its existing callback, while the session callback invokes scanning and collection. The scanner itself does not choose cadence. Current action implementations were moved without introducing new shared interaction helpers.
+Run lifecycle state stays in `browser/run.ts`; session methods, findings, raw scan history, and close state stay in `browser/case-session.ts`. The `execution/` folder owns whole-run coordination, timing, cancellation, cleanup, and result adaptation. The top-level `outcomes/` folder owns browser-free case and run status policy. Tests mirror the runtime boundaries under `test/accessibility/`, `test/browser/`, `test/page/`, `test/steps/`, and `test/execution/`. Dispatch controls eligible assessment timing through its existing callback, while the session callback invokes scanning and collection. The scanner itself does not choose cadence.
 
-The structural refactor builds and passes all 131 existing runner-core tests in the running Linux dev container, with no failures or skips and no test changes. A separate TypeScript compatibility check compared all 36 original public type exports and the public runtime signatures against the original source; all eight runtime export names also match. These checks do not establish new CI or actual Chromium/axe verification.
+This structure-only refactor changes internal file locations and test paths, not public exports or runner behaviour. Run the package suite after a move to verify the updated paths. The public package entry point remains the supported import boundary; these checks do not establish new CI or actual Chromium/axe verification.
