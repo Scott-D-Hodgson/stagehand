@@ -7,7 +7,7 @@
 
 - [x] Walk through one complete synthetic plan from JSON file to validated execution instructions and representative result data. The root-level `test:phase1-integration` command loads a plan/case through plan-engine, passes the loaded case to runner-core with a mocked browser, and validates the resulting in-memory document through result-model. The owner reported that it passed in the development container.
 - [x] Confirm an invalid referenced case reports an actionable source path/reference before browser hand-off. The `test:phase1-integration` invalid-case fixture retains `/caseFiles/0/steps` and `cases/bad.json`; its Chromium launch mock remains unused. The owner reported that it passed in the development container.
-- [ ] Check that schema, examples, action/configuration rules, data/reuse semantics, and error policies agree.
+- [x] Check that current plan/case/result examples, package documentation, Phase 1 lessons, action/configuration rules, data/reuse semantics, and error policies agree. Corrected stale statements about automatic scans and pre-browser run preparation; plan-file-to-runner orchestration, CLI integration, report-file writing, and real Chromium/axe coverage remain deferred.
 - [ ] Validate the plan/result fixtures and documentation using the repository's available checks.
 - [ ] Review package boundaries and confirm contracts are owned in suitable packages with no circular dependency.
 - [ ] Verify a fresh contributor setup using the documented path and confirm CI covers the agreed baseline.
@@ -35,3 +35,7 @@ It proves the current package hand-offs with a mocked browser. It does not add p
 ## M7.2 preflight and source-location walkthrough
 
 The companion invalid-case fixture shows the negative path. Plan-engine returns the case-schema location and original reference before the test passes anything to runner-core. Its browser-launch mock remains unused. This demonstrates the current package boundary; it does not claim that an unimplemented production orchestrator accepts a plan file directly.
+
+## M7.3 contract and example concordance
+
+The current examples use the v1 `version` property, `dataSets.default`, `sharedSteps`, supported action names, and result-model effective accessibility settings. The review confirmed that package and Phase 1 documentation distinguish direct scans from automatic eligible-step scans, and current caller-supplied run preparation from the still-deferred plan-file-to-runner path.
