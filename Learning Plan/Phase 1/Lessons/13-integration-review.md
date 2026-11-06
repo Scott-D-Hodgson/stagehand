@@ -9,6 +9,8 @@ Integration review follows data across boundaries: authored JSON → validation 
 
 The first M7 walkthrough is an executable, synthetic example. `npm run test:phase1-integration` loads a plan file and case with `plan-engine`, passes the loaded case to `runner-core` with a mocked browser, then checks the final in-memory result with `result-model`. It uses public package interfaces, so it reveals a broken hand-off without creating a production dependency between those packages.
 
+Its companion invalid-case example stops at plan-engine. It returns the schema location `/caseFiles/0/steps` and the original `cases/bad.json` reference; the mocked Chromium launch is never called. In other words, invalid input does not reach the browser hand-off. This is still a test-only connection, not a production plan-file runner.
+
 ```mermaid
 flowchart LR
     subgraph E[plan-engine]
@@ -28,6 +30,7 @@ flowchart LR
     end
     A --> V
     V --> X
+    V -->|invalid input| F[Return source issue]
     O --> Z
     Z --> Q
 ```

@@ -65,3 +65,34 @@ test("walks a synthetic plan from file loading through a validated result", asyn
   assert.deepEqual(validateResult(result), { valid: true });
   assert.equal(result.cases[0]?.id, "home");
 });
+
+test("stops an invalid case before browser hand-off and keeps its source reference", async (t) => {
+  const directory = await mkdtemp(join(tmpdir(), "stagehand-phase1-"));
+  t.after(async () => rm(directory, { recursive: true, force: true }));
+  await writeFile(join(directory, "plan.json"), JSON.stringify({
+    version: 1,
+    id: "phase1-invalid-case",
+    cases: [{ path: "cases/bad.json" }],
+  }), "utf8");
+  await mkdir(join(directory, "cases"));
+  await writeFile(join(directory, "cases", "bad.json"), JSON.stringify({
+    version: 1,
+    id: "bad",
+    steps: null,
+  }), "utf8");
+  let launchCount = 0;
+  mock.method(chromium, "launch", async () => {
+    launchCount += 1;
+    throw new Error("Chromium must not start for invalid input.");
+  });
+  const loaded = await loadPlanFile(join(directory, "plan.json"));
+  assert.equal(loaded.valid, false);
+  if (loaded.valid) {
+    return;
+  }
+  assert.ok(loaded.issues.some((issue) => (
+    issue.path === "/caseFiles/0/steps"
+    && issue.reference === "cases/bad.json"
+  )));
+  assert.equal(launchCount, 0);
+});
