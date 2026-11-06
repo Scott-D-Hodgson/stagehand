@@ -89,6 +89,33 @@ test("uses a safe run diagnostic instead of an operational error message", () =>
   assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));
 });
 
+test("retains a safe result-output diagnostic after execution", () => {
+  const secret = "not-a-real-output-detail";
+  const result = createResultDocument({
+    outcome: outcome({
+      status: "error",
+      counts: { passed: 0, failed: 1, cancelled: 0, error: 0 },
+      operationalError: new Error(secret),
+      operationalDiagnostic: {
+        source: "runner",
+        severity: "error",
+        code: "result.output",
+        message: "Result output failed after execution.",
+      },
+    }),
+    sourcePlan: sourcePlan(),
+    startedAt: "2026-11-04T12:00:00Z",
+    endedAt: "2026-11-04T12:00:01Z",
+  });
+  assert.deepEqual(result.run.diagnostics, [{
+    source: "runner",
+    severity: "error",
+    code: "result.output",
+    message: "Result output failed after execution.",
+  }]);
+  assert.doesNotMatch(JSON.stringify(result), new RegExp(secret));
+});
+
 test("records a safe run cancellation diagnostic", () => {
   const result = createResultDocument({
     outcome: outcome({

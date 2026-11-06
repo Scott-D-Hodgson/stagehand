@@ -183,9 +183,13 @@ test("retains a hard assertion as primary when case cleanup also fails", async (
   assert.equal(outcome.status, "error");
 });
 
-test("retains cleanup failure after an operational case error", async () => {
+test("records a browser action failure and continues to an independent case", async () => {
   const browser = createBrowser({
-    onContextClose() { throw new Error("Synthetic cleanup failure"); },
+    onContextClose(index) {
+      if (index === 0) {
+        throw new Error("Synthetic cleanup failure");
+      }
+    },
     page: {
       isClosed() { return false; },
       async goto() { throw new Error("Synthetic navigation failure"); },
@@ -194,12 +198,16 @@ test("retains cleanup failure after an operational case error", async () => {
   mock.method(chromium, "launch", async () => browser.launch());
   const outcome = await executePlanRun({
     locale: "en-CA",
-    cases: [{ case: { version: 1, id: "cleanup-after-operation", steps: [{ action: "navigate", url: "https://example.test" }] } }],
+    cases: [
+      { case: { version: 1, id: "cleanup-after-operation", steps: [{ action: "navigate", url: "https://example.test" }] } },
+      { case: caseFile("later") },
+    ],
   });
   assert.deepEqual(outcome.cases[0].diagnostics.map((diagnostic) => diagnostic.code), [
-    "runner.infrastructure",
+    "browser.action",
     "cleanup.failure",
   ]);
+  assert.deepEqual(outcome.cases.map((entry) => entry.outcome.status), ["error", "passed"]);
   assert.equal(outcome.operationalDiagnostic?.code, "cleanup.failure");
   assert.equal(outcome.status, "error");
 });

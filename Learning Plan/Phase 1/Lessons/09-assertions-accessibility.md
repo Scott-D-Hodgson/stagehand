@@ -7,7 +7,7 @@
 
 Text, HTML, and input-value assertions compare exact locale-selected strings. Hard failures stop a case step; recognized soft failures return diagnostics and permit continuation.
 
-Accessibility scanning is optional. Completed axe analysis may contain violations or incomplete observations, so “completed” does not mean “passed.” Runner-core maps and collects selected evidence, while M6 will decide how `failOnViolation` affects outcomes.
+Accessibility scanning is optional. Completed axe analysis may contain violations or incomplete observations, so “completed” does not mean “passed.” Runner-core maps and collects selected evidence, and M6 applies `failOnViolation` when it determines case and run outcomes.
 
 ```mermaid
 flowchart LR
@@ -17,14 +17,14 @@ flowchart LR
         H -->|soft mismatch| D[Collect diagnostic and continue]
         S[axe scan] --> O[Observations and findings]
     end
-    subgraph C[Future M6 coordinator]
+    subgraph C[runner-core coordinator]
         P[Decide case and run outcome]
     end
     D --> P
     O --> P
 ```
 
-Assertions and scans produce different kinds of facts. M6 policy will decide how those facts affect the final case and run status.
+Assertions and scans produce different kinds of facts. M6 policy decides how those facts affect the final case and run status.
 
 ## Try it
 

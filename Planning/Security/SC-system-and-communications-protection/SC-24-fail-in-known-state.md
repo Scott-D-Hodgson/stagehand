@@ -32,7 +32,7 @@ None listed.
 
 ## Current repository context
 
-Dispatch stops on hard failures, returns recognized soft assertion failures while continuing, and preserves step context. Enabled scans run after eligible completed steps and recognized assertion failures; simultaneous assertion/scan failures retain both errors. M6 case/run status and continuation policy remain pending; no target-side rollback or crash recovery is implemented.
+Dispatch stops on hard failures, returns recognized soft assertion failures while continuing, and preserves step context. Enabled scans run after eligible completed steps and recognized assertion failures; simultaneous assertion/scan failures retain both errors. M6 applies case/run status and continuation policy; target-side rollback and crash recovery are not implemented.
 
 Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
 

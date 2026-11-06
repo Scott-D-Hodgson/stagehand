@@ -150,6 +150,15 @@ function getCaseDiagnostic(error: unknown, hardFailure: boolean): ResultDiagnost
       ...(stepIndex === undefined ? {} : { stepIndex }),
     };
   }
+  if (primaryError instanceof StepExecutionError && !hardFailure) {
+    return {
+      source: "runner",
+      severity: "error",
+      code: "browser.action",
+      message: "Browser action failed.",
+      stepIndex: primaryError.stepIndex,
+    };
+  }
   return {
     source: "runner",
     severity: "error",
