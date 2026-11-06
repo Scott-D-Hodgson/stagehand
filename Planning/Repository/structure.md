@@ -1,6 +1,6 @@
 # Proposed monorepo footprint
 
-This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. Plan-schema validates plans/cases, selects named data sets, and expands/prepares one-level shared steps with caller/inner-step identity. Runner-core dispatches those prepared shared steps at its case-session boundary and keeps that identity on preparation, hard-step, and soft-assertion failures; its browser-free `prepareRunForExecution` helper can prepare caller-supplied cases before startup. Full plan orchestration and result production remain future work. Plan-engine loads plans and referenced cases, enforces filesystem containment, validates parsed bundles, and calculates a source fingerprint. Result-model provides a normative v1 result schema, types, runtime validation, tests, and an example. Runner-core also provides Playwright Chromium lifecycle, isolated case contexts/pages, locators, waits, actions, assertions, and accessibility scan/collection. The earlier development-container runner-core command passed 137 mocked-browser tests; updated shared-step execution verification is pending. Mocked checks do not establish real-browser accessibility behaviour, which remains outstanding.
+This file records Stagehand's proposed repository layout and distinguishes it from the current implementation. The root npm workspace, shared TypeScript configuration, dev container, and application/package workspaces exist. Plan-schema validates plans/cases, selects named data sets, and expands/prepares one-level shared steps with caller/inner-step identity. Runner-core dispatches those prepared shared steps at its case-session boundary and keeps that identity on preparation, hard-step, and soft-assertion failures; its browser-free `prepareRunForExecution` helper can prepare caller-supplied cases before startup. `executePlanRun` coordinates those prepared cases and `createResultDocument` creates an in-memory validated result; full plan-file-to-coordinator orchestration and report-file writing remain future work. Plan-engine loads plans and referenced cases, enforces filesystem containment, validates parsed bundles, and calculates a source fingerprint. Result-model provides a normative v1 result schema, types, runtime validation, tests, and an example. Runner-core also provides Playwright Chromium lifecycle, isolated case contexts/pages, locators, waits, actions, assertions, and accessibility scan/collection. The owner reported that the reorganized runner-core suite passed in the development container. Mocked checks do not establish real-browser accessibility behaviour, which remains outstanding.
 
 ```text
 stagehand/
@@ -64,17 +64,13 @@ stagehand/
 │   │   │       ├── scan.ts
 │   │   │       ├── mapping.ts
 │   │   │       └── collection.ts
-│   │   ├── test/browser-run.test.js
-│   │   ├── test/locator-resolution.test.js
-│   │   ├── test/wait-list.test.js
-│   │   ├── test/navigate.test.js
-│   │   ├── test/click.test.js
-│   │   ├── test/step-execution.test.js # public-entry dispatcher coverage
-│   │   ├── test/accessibility-settings.test.js
-│   │   ├── test/accessibility-scan.test.js
-│   │   ├── test/accessibility-mapping.test.js
-│   │   ├── test/accessibility-collection.test.js
-│   │   ├── test/accessibility-execution.test.js
+│   │   │   ├── execution/             # run coordination, timing, cleanup, cancellation, and result adaptation
+│   │   │   └── outcomes/              # browser-free case and run status policy
+│   │   ├── test/accessibility/       # axe configuration, scanning, mapping, collection, and dispatch
+│   │   ├── test/browser/             # Chromium-run lifecycle
+│   │   ├── test/page/                # locators, waits, navigation, and interactions
+│   │   ├── test/steps/               # step dispatch and preparation
+│   │   └── test/execution/           # outcomes, timing, cancellation, cleanup, run coordination, and results
 │   │   └── tsconfig.json
 │   ├── plan-schema/          # plan/case schemas, validators, reference matcher, and parsed-bundle checks
 │   │   ├── src/

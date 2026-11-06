@@ -5,24 +5,24 @@ import type {
   ResultEffectiveSettings,
   ResultOutcome,
 } from "@stagehand/result-model";
-import { StringAssertionMismatchError } from "./assertions.js";
-import { startBrowserRun } from "./browser/run.js";
-import type { BrowserRun, BrowserRunSettings, CaseBrowserSession } from "./browser/types.js";
+import { StringAssertionMismatchError } from "../assertions.js";
+import { startBrowserRun } from "../browser/run.js";
+import type { BrowserRun, BrowserRunSettings, CaseBrowserSession } from "../browser/types.js";
 import { executeWithCleanup, PrimaryFailureError } from "./cleanup.js";
 import { CancellationError } from "./cancellation.js";
-import { LocatorResolutionError } from "./locators.js";
-import { resolveAccessibilitySettings } from "./accessibility/settings.js";
-import { AccessibilityScanError } from "./accessibility/scan.js";
-import { determineCaseOutcome, type CaseOutcome } from "./outcomes/case.js";
-import { summarizeRunOutcome, type RunOutcomeCounts } from "./outcomes/run.js";
+import { LocatorResolutionError } from "../locators.js";
+import { resolveAccessibilitySettings } from "../accessibility/settings.js";
+import { AccessibilityScanError } from "../accessibility/scan.js";
+import { determineCaseOutcome, type CaseOutcome } from "../outcomes/case.js";
+import { summarizeRunOutcome, type RunOutcomeCounts } from "../outcomes/run.js";
 import {
   CasePreparationError,
   prepareRunForExecution,
   type PreparedRunExecution,
   type RunPreparationOptions,
-} from "./steps/case.js";
-import { StepExecutionError } from "./steps/execute.js";
-import type { SoftAssertionFailure } from "./steps/types.js";
+} from "../steps/case.js";
+import { StepExecutionError } from "../steps/execute.js";
+import type { SoftAssertionFailure } from "../steps/types.js";
 import { elapsedMilliseconds, startElapsedTimer, type ElapsedTimer, type MonotonicClock } from "./timing.js";
 
 export interface PlanRunOptions extends RunPreparationOptions {

@@ -5,7 +5,7 @@
 [← Previous: accessibility evidence](09-accessibility-evidence.md) · [Course outline](../README.md) · [Next: public API anatomy →](11-public-api.md)
 
 
-The public [`src/index.ts`](../../../../packages/runner-core/src/index.ts) re-exports the supported API. Internals are grouped by responsibility: `browser/`, `actions/`, `steps/`, and `accessibility/`, with focused locator, wait, and assertion modules. Consumers import `@stagehand/runner-core`, not internal paths.
+The public [`src/index.ts`](../../../../packages/runner-core/src/index.ts) re-exports the supported API. Internals are grouped by responsibility: `browser/`, `actions/`, `steps/`, `accessibility/`, `execution/`, and `outcomes/`. The `execution/` folder holds whole-run coordination, timing, cancellation, cleanup, and result adaptation. The browser-free `outcomes/` folder decides case and run status. Tests mirror the runtime layout: `test/accessibility/`, `test/browser/`, `test/page/`, `test/steps/`, and `test/execution/`. Consumers import `@stagehand/runner-core`, not internal paths.
 
 Run `npm test --workspace @stagehand/runner-core`. The owner reports that current development-container test execution passed. These tests use browser and axe doubles, so they verify orchestration, mapping, error handling, and cleanup logic without proving successful real Chromium/axe behaviour.
 
@@ -17,6 +17,10 @@ flowchart LR
     I --> B[browser modules]
     I --> S[steps, actions, assertions]
     I --> X[accessibility modules]
+    I --> E[execution coordination]
+    I --> U[outcome policy]
+    E --> B
+    E --> U
     T[Mocked tests] --> O[Orchestration evidence]
     R[Future project-owned test site] -. needed for .-> C[Real Chromium and axe evidence]
 ```
