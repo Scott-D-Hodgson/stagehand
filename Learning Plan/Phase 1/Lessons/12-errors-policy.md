@@ -49,6 +49,8 @@ The future CLI will turn that result meaning into a process exit code. `0` means
 
 Result diagnostics use stable codes such as `assertion.hard`, `preflight.preparation`, and `runner.infrastructure`. Think of a code as a short label a tool can depend on, while the message explains the situation to a person. A case ID and zero-based step index say where it happened. Resolved passwords, raw error stacks, local paths, and uncontrolled browser data do not belong in the result. The full list and safe-context rules are in the [M6 diagnostic contract](../../../Planning/Work%20Plan/M6-errors-and-execution-policies.md#m68-diagnostic-contract).
 
+The M6 fixture matrix uses small mocked examples to check these policy decisions together. For example, a failed browser step is recorded as `browser.action`, while a cleanup failure after it is a second `cleanup.failure` diagnostic; a later independent case can still run. A result-output fixture checks that `result.output` is safe and does not expose raw error detail. These are policy tests, not report-file writing or real-browser accessibility tests.
+
 Accessibility has two distinct outcomes. A finding is information about the page; it fails the case only when `failOnViolation` is enabled, and later eligible steps still run. A scan execution error means Stagehand could not complete the assessment, so it is an `accessibility.scan` operational error instead.
 
 ## Try it

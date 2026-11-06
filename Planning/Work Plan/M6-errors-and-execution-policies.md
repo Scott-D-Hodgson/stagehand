@@ -3,6 +3,7 @@
 **Estimate:** 2–4 person-days  
 **Depends on:** M3–M5  
 **Roadmap item:** Error model and execution policies
+**Status:** Complete
 
 ## Accepted initial policy decisions
 
@@ -74,6 +75,23 @@ The CLI is not implemented. When it is, it should return one stable exit code fo
 
 The CLI should display a non-blocking warning before every run. It should say that the operator is responsible for authorizing the target and accepting possible side effects, network egress or downloads, target limits, and costs. The warning informs; it does not ask for confirmation, detect a target environment, prove authorization, or prevent execution. Production-target identification and production-specific acknowledgement remain deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 
+## M6.13 fixture matrix
+
+The focused runner-core tests below provide the current policy fixtures. They use mocked browser and axe behaviour; they do not provide real Chromium or live axe coverage. A `result.output` fixture verifies the result adapter preserves a safe output diagnostic after execution. It does not add report-file writing.
+
+| Policy category | Fixture | Expected policy evidence |
+| --- | --- | --- |
+| Preflight | `plan-run.test.js`: `returns a preflight error without starting Chromium` | No browser launch; run is `error`. |
+| Hard assertion | `plan-run.test.js`: `records a hard assertion failure and continues to an independent case` | Affected case fails; later case runs. |
+| Soft assertion | `case-outcome.test.js`: `fails for soft and hard assertion failures` | Soft failure produces `failed`. |
+| Accessibility findings | `case-outcome.test.js` and `plan-run.test.js`: configured-finding fixtures | Unconfigured findings pass; configured findings fail but later steps run. |
+| Axe scan error | `plan-run.test.js`: `records an axe scan execution error with the accessibility diagnostic code` | Case and run are `error`; code is `accessibility.scan`. |
+| Browser action and cleanup | `plan-run.test.js`: `records a browser action failure and continues to an independent case` | Code is `browser.action`; cleanup is secondary; later case runs. |
+| Cancellation | `plan-run.test.js`: cancellation fixtures | New case work stops; cancellation loses to an earlier error. |
+| Active-case limit | `plan-run.test.js`: `marks an expired active case as an error after cleanup and continues later cases` | Expired case is `error`; later case runs. |
+| Result output | `result.test.js`: `retains a safe result-output diagnostic after execution` | Code is `result.output`; raw operational detail is absent. |
+| Result redaction | `result.test.js`: redaction fixtures | Supplied protected values are redacted at the result boundary. |
+
 ### Worked examples
 
 - **No case starts:** bundle validation rejects an unknown shared-step ID. Chromium does not start and the run is `error`.
@@ -87,7 +105,7 @@ Durations are integer milliseconds measured with a monotonic clock, not wall-clo
 
 Active-case time starts immediately before the first case step is dispatched and stops when step dispatch ends, whether it passes, fails, errors, or is cancelled. It includes step waits and automatic accessibility scans. It excludes preflight, browser/context/session startup, waiting for a future concurrency slot, and cleanup.
 
-The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides, threshold warnings, forced active-work interruption, and Playwright timeout integration remain later M6 work. `startElapsedTimer` and `elapsedMilliseconds` provide the injectable timing foundation used by the coordinator to enforce the limit after active step work completes.
+The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides, threshold warnings, forced active-work interruption, and Playwright timeout integration remain later work. `startElapsedTimer` and `elapsedMilliseconds` provide the injectable timing foundation used by the coordinator to enforce the limit after active step work completes.
 
 ## Tasks
 
@@ -106,7 +124,7 @@ The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides,
 - [x] Carry a cleanup failure through the coordinator and result adapter without replacing the primary execution diagnostic. Emit a safe `cleanup.failure` record after the primary diagnostic, and cover hard-assertion and operational-error cases.
 - [x] Record safe `run.cancelled` context in result documents and enforce the fixed active-case limit with the monotonic timer. Cover cancellation before startup, expiry, cleanup, and later-case continuation without adding forced active-work interruption.
 - [x] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
-- [ ] Add a decision table, examples, and fixtures covering each error category, continuation policy, status mapping, and aggregation, including cancellation before any case starts, partial cancellation, case timeout, a runner failure before cases start, cleanup failure after an earlier failure, configured accessibility findings, axe execution failure, and report-write failure. Specify how the original cause is retained when cleanup or reporting adds a secondary failure.
+- [x] Verify the M6.13 fixture matrix in the development container. The owner reported that test execution passed after the browser-action diagnostic correction. The matrix covers each current error category, continuation policy, status mapping, aggregation, safe redaction, and retained primary/secondary diagnostic. Real Chromium/axe and report-file coverage remain later work.
 
 ## Completion evidence
 
@@ -114,6 +132,7 @@ The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides,
 - The decision table demonstrates run aggregation and preserves the primary cause when cleanup or report writing also fails.
 - Fixtures cover representative run/case aggregation and secondary-error outcomes.
 - A contributor can determine what a run's result means without reading implementation code.
+- The owner reported that the development-container test execution passed after M6.13.
 
 ## Learning reference
 

@@ -117,7 +117,7 @@
 
 ## Completion evidence
 
-- Pure violation mapping is implemented and validated against result-model using synthetic observations/documents in the 109-test passing local Windows suite. The separate collector now implements caller-owned accumulation; automatic cadence/session collection are now implemented, while result emission and M6 policy remain pending.
+- Pure violation mapping is implemented and validated against result-model using synthetic observations/documents in the 109-test passing local Windows suite. The separate collector implements caller-owned accumulation; automatic cadence/session collection are implemented, and M6 now applies the configured failure policy and emits retained findings through the result adapter.
 
 - Direct case-session axe scanning is implemented and orchestration is covered by 11 new tests in the 99-test passing local Windows suite. Disabled and completed outcomes are distinct from rejections. No successful real-browser scan or automatic step cadence is established by those mocked checks.
 

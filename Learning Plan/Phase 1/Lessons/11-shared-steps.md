@@ -7,7 +7,7 @@
 
 The accepted MVP direction is one-level shared steps with stable IDs. A plan declares `sharedSteps` as an object keyed by ID, and a case uses `{ "action": "sharedSteps", "id": "..." }`. Validation rejects unknown calls, calls inside shared steps, and private variable definitions inside shared steps. Expansion replaces a marker with detached steps and retains the call-site, shared-step ID, and inner-step identity. Preparation resolves those copied steps with the calling case's variables and selected data set. Runner-core then dispatches the prepared steps in order. Shared steps have no private parameters or defaults.
 
-Think of a shared group as a reusable scene inserted into the caller's script, not a separate program. Diagnostics retain both the call site and inner-step identity for preparation errors, hard step errors, and soft assertion failures. Result aggregation and serialization of that identity are later M6 work.
+Think of a shared group as a reusable scene inserted into the caller's script, not a separate program. Diagnostics retain both the call site and inner-step identity for preparation errors, hard step errors, and soft assertion failures. M6 now aggregates the case outcomes; serializing shared-step identity into result documents remains later work.
 
 ```mermaid
 flowchart LR

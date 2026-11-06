@@ -32,7 +32,7 @@ None listed.
 
 ## Current repository context
 
-Runner errors now preserve case/step context and causes, including simultaneous assertion/axe errors. Assertions may include expected/actual content; no general secret redaction is implemented. M6 defines later case/run outcome policy. Restrict access to raw diagnostic values and do not use sensitive literals in plans.
+Runner errors preserve case/step context and causes, including simultaneous assertion/axe errors. Retained result evidence is redacted for caller-supplied protected values, while raw operational details stay inside runner-core. M6 defines case/run outcome policy. Restrict access to raw diagnostic values and do not use sensitive literals in plans.
 
 Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
 
