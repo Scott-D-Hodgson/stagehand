@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1 application foundation complete
+**Status:** In progress; M8.1 complete and initial M8.2 document-state slice verified
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -39,9 +39,9 @@ data. It defaults to the browser colour scheme and stores only explicit Light or
 Dark overrides locally; selecting System removes the override. Its unit and
 build verification, reported by the owner from the development container on 7
 November 2026, passed: six Vitest tests, `vue-tsc -b`, and the schema-backed
-Vite production build (116 transformed modules) all succeeded. Browser
-persistence verification must still be recorded with this PR before it becomes
-completion evidence.
+Vite production build (116 transformed modules) all succeeded. The owner later
+confirmed the Light, Dark, and System controls and their persistence through the
+forwarded browser.
 
 Vitest 5.1.0 is the selected unit-test runner for the editor. It shares Vite's
 transformation pipeline. The first validation boundary delegates to the public
@@ -65,20 +65,26 @@ Its first remote result must be recorded before it is treated as CI verification
 ### M8.2 — Document state and basic editing (2–3 person-days)
 
 - [x] Resolve the first editable contract field before implementing the form.
-- [ ] Load a synthetic plan/case bundle; render plan details, case list, and validation summary.
-- [ ] Preserve untouched contract data and incomplete edits; do not coerce invalid input into apparently valid values.
-- [ ] Validate on opening, field blur, and an explicit Validate action through shared validation.
-- [ ] Associate understandable feedback with fields where possible and retain a useful summary for bundle-level errors.
+- [x] Load a synthetic plan/case bundle; render plan details, case list, and validation summary.
+- [x] Preserve untouched contract data and incomplete edits; do not coerce invalid input into apparently valid values.
+- [x] Validate on opening, field blur, and an explicit Validate action through shared validation.
+- [x] Associate understandable feedback with fields where possible and retain a useful summary for bundle-level errors.
 - [ ] Show edits that have not been exported separately from whether a recovery copy is saved locally.
-- [ ] Confirm before resetting edited work to the sample.
+- [x] Confirm before resetting edited work to the sample.
 
 The accepted first editable field is `defaults.locale`. The current in-progress
 slice has a synthetic bundle, immutable raw-locale updates, a componentised
 plan-details area, a read-only case-reference list, shared validation
 presentation, an explicit Validate action, and a confirmation before a changed
-sample is reset. The post-component-extraction unit, type, build, and browser
-checks have not yet been recorded; retain the remaining task checkboxes until
-that evidence is available. The temporary "not exported" indicator is not a
+sample is reset. The owner verified this slice in the development container on
+7 November 2026: `npm test --workspace @stagehand/web` passed 12 tests across
+five files; `npm run type-check --workspace @stagehand/web` passed; and
+`npm run build --workspace @stagehand/web` built plan-schema, type-checked the
+editor, and completed a 134-module Vite production build in 1.38 seconds. The
+forwarded-browser check passed for raw invalid-locale feedback after blur and
+explicit validation, reset cancellation and confirmation, language and theme
+persistence, and live reload; the browser name and version were not recorded.
+The temporary "not exported" indicator is not a
 draft-recovery status: M8.4 still owns saved-local-copy and storage-failure
 feedback.
 
@@ -95,8 +101,11 @@ i18next-vue 5.4.0 with one JSON resource file per initial Canadian locale. It
 defaults to `en-CA`, remembers a selected interface language locally, and uses
 locale-aware zero/one/other plural resources for validation status. Neutral
 guidance, complete user-facing coverage, and accessibility verification remain
-open. Record test, build, and browser evidence for this slice before treating
-the new foundation as verified.
+open. The owner verified the current localization foundation alongside M8.2 on
+7 November 2026, including French selection persistence, plural wording, and
+forwarded-browser live reload; the browser name and version were not recorded.
+This evidence does not complete the remaining
+M8.3 scope.
 
 ### M8.4 — Draft autosave and recovery (2–4 person-days)
 
