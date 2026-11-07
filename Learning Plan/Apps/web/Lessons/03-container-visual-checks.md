@@ -14,11 +14,13 @@ npm run dev --workspace @stagehand/web -- --host 0.0.0.0
 
 Then forward port 5173 through the development environment and open the forwarded URL it provides. Do not treat that forwarding as a production hosting configuration; it is a local visual-check aid.
 
+The shell's Theme selector has System, Light, and Dark choices. System follows `prefers-color-scheme`; an explicit Light or Dark choice is a browser-local interface preference, not exported plan data or a recovery-draft value. Check its persistence during the same visual smoke check.
+
 As screens become stable, an automated browser runner can capture a fixed screenshot for each named route and viewport. Keep each capture's route, viewport, browser, and commit metadata with it. This is useful visual history, but it is not a replacement for accessible, semantic, and behavioural tests.
 
 ## Try it
 
-Start the server, forward port 5173, and identify the editor heading and shared contract status in the rendered shell. Stop the server when finished.
+Start the server, forward port 5173, and identify the editor heading and shared contract status in the rendered shell. Choose Dark, refresh, and confirm it remains dark; then return to System. Stop the server when finished.
 
 ## You are ready when
 

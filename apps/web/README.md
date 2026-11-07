@@ -29,3 +29,7 @@ Run these commands from the repository root:
   not yet supported; M14 owns the offline styling follow-through.
 - Vitest 5.1.0 is the selected unit-test runner. The first shared-validation
   boundary has focused valid/invalid-plan unit tests.
+- The Theme selector defaults to the browser light/dark preference. An explicit
+  Light or Dark selection is stored under `stagehand.theme-preference` in local
+  storage; System removes that override. This interface preference is separate
+  from plan data and draft recovery.

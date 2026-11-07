@@ -8,6 +8,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - Why browser code consumes the public `@stagehand/plan-schema` entry point.
 - How container port forwarding supports a local visual check.
 - How Vitest protects small editor-state boundaries before UI workflows grow.
+- How display preferences stay separate from a Stagehand plan and recovery draft.
 - What M8.1 established and what M8.2 through M8.5 still need to deliver.
 
 ## Do I need this course?
@@ -19,7 +20,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, and a focused Vitest test. It does not yet provide editable forms, localized resources, IndexedDB recovery, multi-tab conflict handling, import/export, or execution.
+M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. It does not yet provide editable forms, localized resources, IndexedDB recovery, multi-tab conflict handling, import/export, or execution.
 
 ## Lessons
 

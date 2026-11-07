@@ -34,6 +34,15 @@ bundle. The owner also started the development server with `--host 0.0.0.0`,
 forwarded port 5173, and visually confirmed the editor shell in a local
 browser. Record future browser checks with their browser and version.
 
+The theme selector is an interface preference, not document or draft-recovery
+data. It defaults to the browser colour scheme and stores only explicit Light or
+Dark overrides locally; selecting System removes the override. Its unit and
+build verification, reported by the owner from the development container on 7
+November 2026, passed: six Vitest tests, `vue-tsc -b`, and the schema-backed
+Vite production build (116 transformed modules) all succeeded. Browser
+persistence verification must still be recorded with this PR before it becomes
+completion evidence.
+
 Vitest 5.1.0 is the selected unit-test runner for the editor. It shares Vite's
 transformation pipeline. The first validation boundary delegates to the public
 shared-contract validator and has focused valid/invalid-plan unit tests. Browser

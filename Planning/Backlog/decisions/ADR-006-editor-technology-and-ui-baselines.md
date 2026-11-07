@@ -41,6 +41,7 @@ This decision supplements [ADR-002](ADR-002-local-first-editor.md) and the M8 re
 - Add Bootstrap JavaScript components only when needed.
 - Avoid extensive custom CSS while establishing functionality. Keep Bootstrap-specific presentation separate from document and storage logic so it can be replaced later.
 - Establish keyboard access, visible focus, labelled inputs, and understandable validation feedback in M8. Styling alone is not accessibility verification.
+- Use Bootstrap's root `data-bs-theme` mechanism for Light and Dark modes. Default to the browser colour-scheme preference; store only an explicit user override locally and keep it outside exported documents and recovery drafts. System selection removes that override.
 
 ### Offline styling follow-through
 
