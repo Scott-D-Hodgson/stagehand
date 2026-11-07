@@ -39,6 +39,8 @@ flowchart LR
 
 Several pieces remain planned: plan-file-to-coordinator orchestration, CLI protected-value boundaries, result-file writing, and CLI exit behaviour. The walkthrough connects packages only inside a test; it is not a production orchestrator. `executeCase` can use a caller-supplied protected-value map and redact returned soft failures and retained automatic accessibility evidence, without reading `process.env`; a direct scan can redact values its caller supplies. Shared steps now expand and execute at the case-session boundary, but that is not yet full result traceability. A coherent foundation states these gaps plainly.
 
+M7 completes this Phase 1 foundation. Its clean development-container verification checks package boundaries, package suites, and the mocked walkthrough, but it does not turn those doubles into real Chromium/axe evidence. The next learning phase moves to the local editor, while CLI execution and reporting remain later roadmap work.
+
 ## Try it
 
 Trace one case through the diagram and name the package responsible at each hand-off.

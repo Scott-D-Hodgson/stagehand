@@ -8,7 +8,7 @@ This work plan contains M0, a separately estimated repository-bootstrap prerequi
 
 Estimates are **person-days of focused work** (roughly 6–7 productive hours), including drafting, implementation/configuration, and a basic self-review. They exclude waiting for reviews, learning time beyond the [Learning Plan](../../Learning%20Plan/README.md), meetings, and substantial rework from changed product decisions. One person-day is effort, not one calendar day. Ranges reflect uncertainty while architecture and contracts are still proposed.
 
-The plan assumes one contributor familiar with Git and basic TypeScript/Node.js, working from the current backlog in a repository where the Phase 1 application behaviour is not yet implemented. The root npm workspace and CLI, web, and package manifest scaffolds exist; the work plan does not estimate implementing the full browser runner, CLI, editor, reporting integrations, or later roadmap phases.
+The plan assumes one contributor familiar with Git and basic TypeScript/Node.js, working from the current backlog. Phase 1 now has its contracts, reusable browser-runner slices, and in-memory result adaptation; the CLI, editor, report-file writing, real-browser accessibility evidence, and later roadmap phases remain outside this work plan's implementation estimates.
 
 ## Bootstrap prerequisite (estimated separately)
 

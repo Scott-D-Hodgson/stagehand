@@ -2,6 +2,10 @@
 
 Phase 1 builds the dependable base that later editor, CLI, and reporting work rely on.
 
+## Phase status
+
+M1 through M7 are complete. The course reflects the implemented reusable foundation and its limits: the clean development-container verification uses package and browser/axe doubles, while the CLI, report files, editor, parallel execution, and real Chromium/axe assessment belong to later work. See the [M7 close-out](../../Planning/Work%20Plan/M7-integration-and-phase-1-review.md#M76-phase-1-close-out-and-hand-off) for the evidence and hand-off map.
+
 ## In this phase you will learn
 
 - How Stagehand changes are governed and organized.

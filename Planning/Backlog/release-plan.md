@@ -6,6 +6,10 @@ Deliver the complete MVP across Roadmap Phases 1–4. Prioritize a useful local-
 
 The developer is the first dogfooding user; the primary intended MVP author is a non-technical tester. A minimum success path is: author or import a plan and its case files in the form-based Vue editor, validate and export them, execute them through the later runner/CLI phase, and understand the resulting report.
 
+## Current Phase 1 foundation
+
+Phase 1 is complete. It supplies the shared plan/result contracts, plan-file loading, sequential prepared-case execution, browser actions/assertions, accessibility collection, error/outcome policy, and an in-memory result document. The owner reported that the clean development-container verification passed 297 checks with no failures or skips. This is a reusable foundation, not the MVP execution path: the CLI, report-file writing, editor behaviour, parallel execution, and real Chromium/axe assessment remain in their assigned later work. See [M7](../Work%20Plan/M7-integration-and-phase-1-review.md) for the evidence and hand-off map.
+
 The first runner baseline is Windows with the Node.js version pinned in Phase 1 and a Playwright-managed Chromium browser. Linux runner and Edge support follow after the MVP and are not required to complete it. During MVP development, prefer designs that work on both Windows and Linux when practical. Playwright-managed Chromium is distinct from branded Google Chrome. Browser locale is a plan-run default inherited by each case unless overridden in that case.
 
 Stagehand should recommend test/staging targets, without implying those environments are free of quotas, egress/download restrictions, or charges. The MVP gives a general, non-blocking warning before execution that browser automation can have side effects and incur costs, and that operators must use authorized targets. Stagehand does not identify production targets or require a production-specific acknowledgement; those behaviours are deferred to [TE-019](technical-enablers/te-019-production-target-identification-and-warning.md).

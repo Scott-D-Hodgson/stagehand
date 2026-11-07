@@ -14,3 +14,7 @@ Use the [Phase 1 work plan](../../Work%20Plan/README.md) for milestones, deliver
 - Browser configuration, action vocabulary, assertion semantics.
 - Variable scopes, data sets, shared steps, and protected-value semantics; loops are deferred beyond MVP.
 - Error model and execution policies.
+
+## Current status
+
+M1 through M7 are complete. Phase 1 now provides the reusable contract and execution foundation described above, including an in-memory result document and a clean development-container verification run reported by the owner. See [M7](../../Work%20Plan/M7-integration-and-phase-1-review.md) for the 297-test evidence and the explicit hand-off to later CLI, reporting, editor, concurrency, and real-browser work. The real Chromium/axe assessment remains deferred until a project-owned test site exists; it is not represented as completed Phase 1 browser evidence.
