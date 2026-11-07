@@ -1,0 +1,19 @@
+{
+  "editor": {
+    "heading": "Stagehand",
+    "title": "Plan authoring starts here.",
+    "introduction": "The editor will help authors create valid Stagehand plans without hand-editing JSON.",
+    "sharedContract": "Shared contract",
+    "validPlan": "The bundled sample satisfies the shared plan contract.",
+    "invalidPlan_zero": "No validation issues found in the bundled sample.",
+    "invalidPlan_one": "A validation issue found in the bundled sample.",
+    "invalidPlan_other": "{{count}} validation issues found in the bundled sample.",
+    "language": "Language",
+    "englishCanada": "English (Canada)",
+    "frenchCanada": "French (Canada)",
+    "theme": "Theme",
+    "systemTheme": "System",
+    "lightTheme": "Light",
+    "darkTheme": "Dark"
+  }
+}

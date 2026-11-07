@@ -22,7 +22,9 @@ This decision supplements [ADR-002](ADR-002-local-first-editor.md) and the M8 re
 - Deliver Canadian English (`en-CA`) as the default interface language and Canadian French (`fr-CA`) as the second initial language.
 - Put user-facing strings into translation resources from the beginning, including persona guidance.
 - Keep interface language separate from the languages used for expected assertion values in plan documents.
-- i18next is the owner's familiar candidate. Assess its Vue integration before selecting the localization dependency; no integration package is selected by this decision.
+- Use `i18next` 26.7.2 with `i18next-vue` 5.4.0. Keep one JSON resource file per locale so a contributor can copy an existing file, translate its values, and register the locale deliberately.
+- Use i18next plural keys with `count` for count-sensitive messages. Provide `_zero`, `_one`, and `_other` wording where each is needed; do not use parenthetical singular/plural shortcuts.
+- Remember the selected interface language under a browser-local preference key, separately from exported plan data and recovery drafts.
 
 ### Guidance personas
 

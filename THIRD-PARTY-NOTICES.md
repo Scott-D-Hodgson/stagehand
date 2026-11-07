@@ -19,6 +19,8 @@ development tools and are not bundled into the application.
 | `@vue/tsconfig` | 0.9.1 | MIT | Vue contributors |
 | `vue-tsc` | 3.3.14 | MIT | Vue.js contributors |
 | `vitest` | 5.1.0 | MIT | Vitest contributors |
+| `i18next` | 26.7.2 | MIT | Copyright (c) Jan Mühlemann and i18next contributors |
+| `i18next-vue` | 5.4.0 | MIT | Konrad Kügler and i18next-vue contributors |
 | `typescript` | 6.0.3 | Apache-2.0 | Copyright Microsoft Corporation |
 
 The initial editor shell loads Bootstrap 5.3.8 CSS from jsDelivr rather than

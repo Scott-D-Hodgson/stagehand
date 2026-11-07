@@ -1,0 +1,19 @@
+{
+  "editor": {
+    "heading": "Stagehand",
+    "title": "La création de plans commence ici.",
+    "introduction": "L’éditeur aidera les auteurs à créer des plans Stagehand valides sans modifier le JSON à la main.",
+    "sharedContract": "Contrat partagé",
+    "validPlan": "L’exemple intégré respecte le contrat de plan partagé.",
+    "invalidPlan_zero": "Aucun problème de validation n’a été trouvé dans l’exemple intégré.",
+    "invalidPlan_one": "Un problème de validation a été trouvé dans l’exemple intégré.",
+    "invalidPlan_other": "{{count}} problèmes de validation ont été trouvés dans l’exemple intégré.",
+    "language": "Langue",
+    "englishCanada": "Anglais (Canada)",
+    "frenchCanada": "Français (Canada)",
+    "theme": "Thème",
+    "systemTheme": "Système",
+    "lightTheme": "Clair",
+    "darkTheme": "Sombre"
+  }
+}

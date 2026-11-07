@@ -74,11 +74,19 @@ Its first remote result must be recorded before it is treated as CI verification
 
 ### M8.3 — Localization and accessible Neutral guidance (1–2 person-days)
 
-- [ ] Assess i18next's Vue integration and record the selected dependency.
+- [x] Assess i18next's Vue integration and record the selected dependency.
 - [ ] Provide Canadian English (`en-CA`, default) and Canadian French (`fr-CA`) resources for user-facing text and Neutral guidance.
-- [ ] Keep interface language independent of assertion locales; remember language outside the recovery draft.
+- [x] Keep interface language independent of assertion locales; remember language outside the recovery draft.
 - [ ] Define a place for persona wording in localization without implementing optional persona files or loading.
 - [ ] Verify labelled controls, keyboard access, visible focus, and understandable validation/status feedback.
+
+M8.3 localization foundation is underway. The web shell uses i18next 26.7.2 and
+i18next-vue 5.4.0 with one JSON resource file per initial Canadian locale. It
+defaults to `en-CA`, remembers a selected interface language locally, and uses
+locale-aware zero/one/other plural resources for validation status. Neutral
+guidance, complete user-facing coverage, and accessibility verification remain
+open. Record test, build, and browser evidence for this slice before treating
+the new foundation as verified.
 
 ### M8.4 — Draft autosave and recovery (2–4 person-days)
 
@@ -111,7 +119,7 @@ Each slice can use more than one feature-sized PR if needed. The ranges sum to t
 ## Open decisions before relevant slices
 
 - **First editable field:** the v1 plan schema has no name or description property. Earlier conversational examples assumed one. With identifiers read-only, select an existing field for M8 or explicitly approve identifier editing. Do not invent a name field or change the contract silently.
-- Select localization integration and storage implementation during their slices.
+- Select storage implementation during its slice.
 - Define the exact draft representation and comparison presentation, including a clear route through failed storage or unreadable data.
 
 ## Exclusions and follow-through
