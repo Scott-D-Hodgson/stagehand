@@ -32,7 +32,7 @@ None listed.
 
 ## Current repository context
 
-Result-model validates a JSON result shape; it does not sanitize page markup or safely render HTML. Axe evidence and assertion diagnostics are untrusted target content. HTML reports and the Vue editor are not implemented; any future rendering must handle that content safely, and no redaction guarantee exists today.
+Result-model validates a JSON result shape; it does not sanitize page markup or safely render HTML. Axe evidence and assertion diagnostics are untrusted target content. HTML reports and future Vue editor rendering of that content are not implemented; any such rendering must handle it safely, and no redaction guarantee exists today.
 
 Repository implementation review, 1 November 2026; see the [security review evidence and limits](../REVIEW.md). This updates the product context without rating this control satisfied.
 
