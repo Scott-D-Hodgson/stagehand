@@ -6,8 +6,9 @@ Use this quiz after completing the web editor course. Check answers against the 
 2. Why must the browser editor use the public schema entry instead of the Node-side plan engine?
 3. What extra flag and development-environment step make a Vite server reachable from the host browser?
 4. What does the first Vitest test establish, and what does it not establish?
-5. Which unresolved M8.2 decision must be made before basic form editing begins?
+5. Which existing contract field is the first editable M8.2 field, and why is its input kept raw?
 6. Name the four kinds of data that must not be confused as M8 develops.
+7. What information does the v1 recovery record contain, and why is an unsupported stored record not deleted automatically?
 
 ## Answer key
 
@@ -15,5 +16,6 @@ Use this quiz after completing the web editor course. Check answers against the 
 2. The schema package validates values without filesystem work. The plan engine is Node-side and owns file loading, containment, and fingerprints.
 3. Start Vite with `--host 0.0.0.0`, then forward port 5173 and use the forwarded URL.
 4. It establishes that the editor validation boundary accepts a minimal valid plan and rejects one missing `cases`. It does not establish form behaviour, accessibility, browser storage, or recovery.
-5. Choose an existing first editable contract field or explicitly permit editing an identifier; do not invent a title or description.
+5. `defaults.locale` is the first editable field. Its input stays raw so shared validation can report an invalid value without silently changing the user's draft.
 6. Exportable contract data, incomplete form values, interface state, and local preferences.
+7. It contains the raw plan draft, a non-negative revision, and an ISO 8601 saved time. An unsupported record may still contain recoverable user work, so it remains unreadable until a later explicit discard choice.

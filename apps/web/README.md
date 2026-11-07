@@ -45,3 +45,6 @@ Run these commands from the repository root:
   and shared-contract assessment. The current draft deliberately preserves raw
   plan-locale input so shared validation can report invalid values rather than
   silently changing them.
+- `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
+  IndexedDB adapter for one versioned recovery record. It is not yet connected
+  to autosave, restore/discard UI, or multiple-tab conflict handling.

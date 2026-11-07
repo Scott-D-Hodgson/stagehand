@@ -11,6 +11,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - How display preferences stay separate from a Stagehand plan and recovery draft.
 - How per-locale JSON resources and i18next pluralization keep shell wording maintainable.
 - Why the first plan field preserves raw input and how the editor components divide responsibility.
+- How a versioned IndexedDB recovery record stays behind a small storage interface.
 - What M8.1 established and what M8.2 through M8.5 still need to deliver.
 
 ## Do I need this course?
@@ -22,7 +23,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 has a verified synthetic draft with one raw `defaults.locale` field, while recovery-status feedback remains later work. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. It does not yet provide complete form authoring, Neutral guidance, IndexedDB recovery, multi-tab conflict handling, import/export, or execution.
+M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 has a verified synthetic draft with one raw `defaults.locale` field. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. M8.4 has a verified storage foundation, but not autosave, recovery UI, or conflict handling. The editor does not yet provide complete form authoring, Neutral guidance, import/export, or execution.
 
 ## Lessons
 
@@ -31,5 +32,6 @@ M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minima
 3. [Development-container visual checks](Lessons/03-container-visual-checks.md)
 4. [Focused editor tests](Lessons/04-focused-editor-tests.md)
 5. [Document-state delivery path](Lessons/05-document-state-path.md)
+6. [Recovery-storage foundation](Lessons/06-recovery-storage-foundation.md)
 
 Finish with the [course skill check](quiz.md).

@@ -19,6 +19,7 @@ development tools and are not bundled into the application.
 | `@vue/tsconfig` | 0.9.1 | MIT | Vue contributors |
 | `vue-tsc` | 3.3.14 | MIT | Vue.js contributors |
 | `vitest` | 5.1.0 | MIT | Vitest contributors |
+| `fake-indexeddb` | 6.2.7 | Apache-2.0 | fake-indexeddb contributors |
 | `i18next` | 26.7.2 | MIT | Copyright (c) Jan Mühlemann and i18next contributors |
 | `i18next-vue` | 5.4.0 | MIT | Konrad Kügler and i18next-vue contributors |
 | `typescript` | 6.0.3 | Apache-2.0 | Copyright Microsoft Corporation |
@@ -50,11 +51,13 @@ Bundled third-party components have adjacent `.LICENSE` sidecars containing
 their attribution and licence text; retain these files when redistributing the
 Playwright package. The Playwright notice is reproduced below.
 
-### Licence review
+### Apache-2.0 licence review
 
-Playwright and `playwright-core` are licensed under Apache-2.0, not MIT. This
-non-MIT dependency is flagged for maintainer review. The Apache-2.0 licence
-text and Playwright attribution notice are included below.
+Playwright, `playwright-core`, and development-only `fake-indexeddb` are
+licensed under Apache-2.0, not MIT. `fake-indexeddb` is used only to test the
+web editor's browser-storage adapter; it is not bundled into the application.
+These non-MIT dependencies are flagged for maintainer review. The Apache-2.0
+licence text and Playwright attribution notice are included below.
 
 ## axe accessibility dependencies
 
