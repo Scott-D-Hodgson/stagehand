@@ -5,9 +5,9 @@
 [← Previous: drafts recovery](07-drafts-recovery.md) · [Phase outline](../README.md) · [Next: course skill check →](../quiz.md)
 
 
-The phase succeeds when the editor joins its parts into one understandable path: import, validate, edit, recover if needed, validate again, and export.
+The phase succeeds when the editor joins its parts into one understandable path: begin with a bundled sample, validate and edit it, recover if needed, then later import, validate, edit, and export user-owned files. M8 introduces recovery before the full import/export workflow so early authoring work is protected.
 
-Review boundaries as well as screens. The shared schemas decide whether a document is valid; the editor explains and applies those rules. Local storage supports recovery; it is not a hidden Stagehand account.
+Review boundaries as well as screens. The shared schemas decide whether a document is valid; the editor explains and applies those rules. Local storage supports recovery; it is not a hidden Stagehand account. UI language and optional guidance personas affect wording only; they must not change document rules, available actions, or critical warnings.
 
 ## Try it
 

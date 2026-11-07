@@ -1,6 +1,6 @@
 # Work Plan guidance
 
-This folder records M0 as a separately estimated repository-bootstrap prerequisite and decomposes Roadmap Phase 1 into M1–M7. Milestone files should remain actionable planning documents with a clear objective, prerequisites, work items, deliverables, acceptance/completion evidence, open decisions, and estimate where applicable.
+This folder records M0 as a separately estimated repository-bootstrap prerequisite, Roadmap Phase 1 as M1–M7, and Phase 2 as M8–M14. Milestone files should remain actionable planning documents with a clear objective, prerequisites, work items, deliverables, acceptance/completion evidence, open decisions, and estimate where applicable.
 
 - Preserve milestone IDs and dependency relationships. M0 is GitHub repository bootstrap; M1–M7 cover architecture, development guidance, contracts, browser actions, data/reuse semantics, error policies, and integration/review.
 - Use each milestone's task list, ownership boundaries, and completion evidence as the source of truth for scope and status. Do not assign work based only on the package being changed or assume that extending a completed shared contract reopens its milestone.
@@ -9,3 +9,5 @@ This folder records M0 as a separately estimated repository-bootstrap prerequisi
 - The owner is currently the only developer and wants PR-based changes with a self-review step. Do not claim GitHub rulesets or checks are configured unless verified against the actual remote.
 - Keep the roadmap high-level and avoid duplicating its phase narrative here.
 - Make every ADR and technical-enabler identifier in tasks, evidence, and explanatory text a clickable relative Markdown link to its source document.
+
+Completed milestones use Objective, Tasks completed, Decisions made, Deferred work, Completion evidence, and Learning plan reference. Retain useful detailed tables under Supporting detail rather than chronological progress logs. Preserve evidence attribution and deferred verification; historical estimates are not actual effort.

@@ -6,7 +6,7 @@
 
 ## Objective
 
-Implement fixed localized input definitions, scope/data-set selection, effective environment preflight, and safe redaction in small slices. The accepted contract is in the related stories; the proposed PR sequence is in [M5](../../Work%20Plan/M5-data-and-reuse-semantics.md#incremental-pr-sequence).
+Implement fixed localized input definitions, scope/data-set selection, effective environment preflight, and safe redaction in small slices. The accepted contract is in the related stories; the completed implementation summary and remaining scope are in [M5](../../Work%20Plan/M5-data-and-reuse-semantics.md).
 
 ## Acceptance criteria
 

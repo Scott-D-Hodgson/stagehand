@@ -7,5 +7,5 @@ This folder groups the documents that guide Stagehand's direction, delivery, and
 - [Backlog](Backlog/README.md) - product vision, release proposal, stories, technical enablers, and decisions.
 - [Roadmap](Roadmap/README.md) - proposed delivery phases and their sequence.
 - [Security](Security/README.md) - planned ITSG-33 control catalogue mapping and initial assessment.
-- [Work Plan](Work%20Plan/README.md) - the separately estimated M0 repository-bootstrap prerequisite and Phase 1 milestones, dependencies, estimates, and completion evidence.
+- [Work Plan](Work%20Plan/README.md) - the separately estimated M0 repository-bootstrap prerequisite and Phase 1–2 milestones, dependencies, estimates, and completion evidence.
 - [Acronyms](acronyms.md) - abbreviations used across the Planning materials.

@@ -1,21 +1,51 @@
 # M6 — Error model and execution policies
 
-**Estimate:** 2–4 person-days  
-**Depends on:** M3–M5  
-**Roadmap item:** Error model and execution policies
 **Status:** Complete
+**Original estimate:** 2–4 person-days (not actual effort)
+**Depends on:** M3–M5
 
-## Accepted initial policy decisions
+## Objective
 
-- A hard assertion stops its current case, but independent remaining cases continue unless a runner-wide failure makes continuation unsafe.
-- When `failOnViolation` is enabled, accessibility findings fail the case but do not stop that case's remaining eligible steps.
-- Run-outcome precedence is `error`, then `cancelled`, then `failed`, then `passed`.
-- The first implementation runs cases sequentially. Case concurrency is deferred until timeout and cancellation behaviour is established.
-- Initial cancellation is requested through a standard JavaScript `AbortSignal` supplied to the run coordinator. CLI interrupt handling is later work.
+Established predictable failure, continuation, timing, cancellation, and cleanup policies, then implemented sequential prepared-case coordination and validated in-memory results.
 
-## M6.1 decision table
+## Tasks completed
 
-This table sets the policy boundary for the later implementation slices. It records the policy boundary used by the current coordinator and result adapter.
+- Implemented pure case outcome and run aggregation helpers and stable diagnostic-code validation.
+- Added injectable monotonic timing, cancellation before new work, and cleanup handling that preserves primary and secondary causes.
+- Implemented `executePlanRun` preflight and sequential isolated case execution, plus `createResultDocument` safe adaptation and final redaction.
+- Enforced the fixed active-case limit after dispatch completes and verified policy fixtures, including corrected browser-action diagnostics.
+- Recorded future CLI exit meanings and the non-blocking operator-responsibility warning.
+
+## Decisions made
+
+- A hard assertion stops its case; independent cases continue when safe. Soft failures and configured accessibility findings fail a case without stopping eligible steps.
+- Run precedence is `error` > `cancelled` > `failed` > `passed`; scan execution errors are operational failures, not findings.
+- Cancellation uses a caller-supplied AbortSignal and prevents later case work; it does not forcibly interrupt active Playwright operations.
+- Whole-run elapsed time includes preflight and cleanup but excludes report writing. Active-case time includes dispatched work/waits/scans, excludes setup/cleanup, and has a fixed 600,000 ms limit.
+- Serialized diagnostics use safe codes/messages and reviewed context; raw errors stay internal. Cleanup failure does not erase the original execution diagnostic.
+
+## Deferred work
+
+- CLI implementation, interrupt wiring, report-file output, and production loader-to-runner orchestration remain later phase work; their policy definitions are not shipped commands.
+- Concurrency, forced interruption, configurable active-case limits, threshold warnings, and Playwright timeout integration remain deferred.
+- Shared-step identity serialization and richer operational detail remain later work. Production-target detection/acknowledgement is deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
+- Actual Chromium/axe and report-file tests remain deferred.
+
+## Completion evidence
+
+- The owner reported passing development-container test execution after the M6.13 browser-action diagnostic correction.
+- The policy fixture matrix covers preflight, assertion failures, findings, scan errors, browser/cleanup failures, cancellation, time limits, output diagnostics, and redaction using doubles.
+- M7 later verified the integrated 297-check baseline; the result-output fixture demonstrates safe adaptation, not file writing.
+
+## Learning plan reference
+
+[Errors and execution policy](../../Learning%20Plan/Phase%201/Lessons/12-errors-policy.md).
+
+## Supporting detail
+
+### M6.1 decision table
+
+This table records the accepted policy used by the coordinator and result adapter. Loading and report-output rows also define boundaries for deferred production orchestration and file writing; they do not establish those integrations as implemented.
 
 | Situation | Current case | Later independent cases | Run outcome | Diagnostic rule |
 | --- | --- | --- | --- | --- |
@@ -32,7 +62,7 @@ This table sets the policy boundary for the later implementation slices. It reco
 
 Run aggregation uses this fixed precedence: `error` > `cancelled` > `failed` > `passed`.
 
-## M6.8 diagnostic contract
+### M6.8 diagnostic contract
 
 Each retained diagnostic has a stable `code`, a severity, a safe message, and optional zero-based `stepIndex`. The case result already supplies the stable case ID; shared-step identity remains retained by execution errors but is not yet serialized in result documents. Codes are machine-readable identifiers, while messages are for people and may improve without changing the code.
 
@@ -51,17 +81,17 @@ Each retained diagnostic has a stable `code`, a severity, a safe message, and op
 
 Do not retain resolved protected values, environment values, raw exception stacks, local machine paths, unbounded browser/axe objects, or unreviewed page content in a diagnostic. The final result adapter redacts supplied protected literals across the document. Raw operational errors stay inside runner-core; the result uses a fixed safe message.
 
-## M6.10 cleanup failure results
+### M6.10 cleanup failure results
 
 When case execution and its cleanup both fail, the coordinator keeps two diagnostics in order: the original execution diagnostic first, then `cleanup.failure`. The original diagnostic records the primary category, such as `assertion.hard` or `runner.infrastructure`; the cleanup diagnostic is the secondary category. The case and run are `error`. The current sequential coordinator still attempts later independent cases. The run-level diagnostic is the safe `cleanup.failure` record, while the raw primary and cleanup errors remain inside runner-core.
 
-## M6.11 cancellation and active-case limit
+### M6.11 cancellation and active-case limit
 
 When cancellation is observed before a case starts, the coordinator does not start that case or later cases. The result document records safe `run.cancelled` context. An earlier operational error still takes precedence over cancellation.
 
 Active case-step execution has a fixed 10-minute limit. The monotonic timer starts immediately before step dispatch and stops when dispatch ends, so setup and cleanup do not count. Stagehand does not forcibly interrupt a Playwright operation already in progress. Instead, after active step work finishes, a limit reached or exceeded becomes a safe `runner.infrastructure` case error; cleanup still runs and later independent cases continue.
 
-## M6.12 future CLI signalling and execution warning
+### M6.12 future CLI signalling and execution warning
 
 The CLI is not implemented. When it is, it should return one stable exit code for the final run meaning:
 
@@ -75,7 +105,7 @@ The CLI is not implemented. When it is, it should return one stable exit code fo
 
 The CLI should display a non-blocking warning before every run. It should say that the operator is responsible for authorizing the target and accepting possible side effects, network egress or downloads, target limits, and costs. The warning informs; it does not ask for confirmation, detect a target environment, prove authorization, or prevent execution. Production-target identification and production-specific acknowledgement remain deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
 
-## M6.13 fixture matrix
+### M6.13 fixture matrix
 
 The focused runner-core tests below provide the current policy fixtures. They use mocked browser and axe behaviour; they do not provide real Chromium or live axe coverage. A `result.output` fixture verifies the result adapter preserves a safe output diagnostic after execution. It does not add report-file writing.
 
@@ -92,48 +122,17 @@ The focused runner-core tests below provide the current policy fixtures. They us
 | Result output | `result.test.js`: `retains a safe result-output diagnostic after execution` | Code is `result.output`; raw operational detail is absent. |
 | Result redaction | `result.test.js`: redaction fixtures | Supplied protected values are redacted at the result boundary. |
 
-### Worked examples
+#### Worked examples
 
 - **No case starts:** bundle validation rejects an unknown shared-step ID. Chromium does not start and the run is `error`.
 - **Mixed outcomes:** case A passes, case B has a hard assertion failure, and case C has an axe scan error. Case C is `error`, so the run is `error` even though B is `failed`.
 - **Partial cancellation:** A finishes, then cancellation is observed before B starts. A keeps its completed outcome; B and later cases do not start; the run is `cancelled` unless an earlier `error` takes precedence.
 - **Cleanup after a failure:** a hard assertion fails, then that case's cleanup also fails. The case retains `assertion.hard` first and `cleanup.failure` second; the run is `error` with the safe cleanup diagnostic.
 
-## M6.4 timing boundary
+### M6.4 timing boundary
 
 Durations are integer milliseconds measured with a monotonic clock, not wall-clock timestamps. The coordinator starts whole-run elapsed time when it accepts a run request, before preflight, and stops it after browser/session cleanup but before report writing. This lets a preflight-only failure have a run duration while keeping report-output failure separate.
 
 Active-case time starts immediately before the first case step is dispatched and stops when step dispatch ends, whether it passes, fails, errors, or is cancelled. It includes step waits and automatic accessibility scans. It excludes preflight, browser/context/session startup, waiting for a future concurrency slot, and cleanup.
 
 The active-case limit is 10 minutes (600,000 milliseconds). Plan/case overrides, threshold warnings, forced active-work interruption, and Playwright timeout integration remain later work. `startElapsedTimer` and `elapsedMilliseconds` provide the injectable timing foundation used by the coordinator to enforce the limit after active step work completes.
-
-## Tasks
-
-- [x] Review [TE-004](../Backlog/technical-enablers/te-004-execution-context-and-failure-policy.md) and related plan/execution stories.
-- [x] Define stable diagnostic codes for preparation, assertions, accessibility, browser/action, runner/infrastructure, cleanup, result output, and cancellation. The v1 validator rejects unknown codes.
-- [x] Record the detailed decision table for each category and continuation scope, using the accepted initial policy as its baseline.
-- [x] Define precise case-status mappings for hard failures, soft failures, accessibility findings, runner failures, and cancellation in the pure `determineCaseOutcome` helper.
-- [x] Define run-status aggregation details from case outcomes, including runs with no cases started and partial cancellation, in the pure `summarizeRunOutcome` helper. It uses `error`, then `cancelled`, then `failed`, then `passed`. Keep the result field shape in M3 and the underlying action/assertion configuration in M4/M5.
-- [x] Specify diagnostic fields, stable case/step identity, safe retained context, and redaction rules. Shared-step identity serialization and raw operational detail remain later work.
-- [x] Define CLI/result signalling principles, including the difference between an unsuccessful test run and a runner unable to execute the plan.
-- [x] Define the monotonic-clock boundary for whole-run elapsed time and active-case time, with integer-millisecond durations, and add the injectable `startElapsedTimer`/`elapsedMilliseconds` foundation. Enforce the fixed 10-minute active-case limit after active step work completes. Plan/case overrides, thresholds, forced interruption, and Playwright timeout integration remain later work.
-- [x] Add browser-free cancellation and cleanup primitives: an `AbortSignal`-aware sequential-work helper stops before new work begins, and a wrapper retains an execution failure as primary when cleanup also fails. CLI interrupts, active-work interruption, browser coordination, and result serialization remain later work.
-- [x] Add `executePlanRun`, which prepares selected cases before Chromium starts, executes them sequentially in isolated sessions, applies current M6 policy/timing/cancellation helpers, and returns an in-memory outcome. CLI behaviour, active-work interruption, and concurrency remain later work.
-- [x] Add `createResultDocument`, which adapts a coordinator outcome into a validated result-model document with safe operational diagnostics and final-boundary redaction. Report-file writing, CLI behaviour, active-work interruption, and concurrency remain later work.
-- [x] Define execution-time effects of the accessibility policy established in M4: findings do not fail by default, configured findings fail a case without stopping later eligible steps, and axe execution errors produce `accessibility.scan` and follow runner error policy.
-- [x] Carry a cleanup failure through the coordinator and result adapter without replacing the primary execution diagnostic. Emit a safe `cleanup.failure` record after the primary diagnostic, and cover hard-assertion and operational-error cases.
-- [x] Record safe `run.cancelled` context in result documents and enforce the fixed active-case limit with the monotonic timer. Cover cancellation before startup, expiry, cleanup, and later-case continuation without adding forced active-work interruption.
-- [x] Define the general non-blocking CLI execution warning for authorization, side effects, egress/downloads, limits, and costs; record that production-target identification and production-specific acknowledgement are deferred to [TE-019](../Backlog/technical-enablers/te-019-production-target-identification-and-warning.md).
-- [x] Verify the M6.13 fixture matrix in the development container. The owner reported that test execution passed after the browser-action diagnostic correction. The matrix covers each current error category, continuation policy, status mapping, aggregation, safe redaction, and retained primary/secondary diagnostic. Real Chromium/axe and report-file coverage remain later work.
-
-## Completion evidence
-
-- Every defined failure class has a predictable next action, result status, and diagnostic.
-- The decision table demonstrates run aggregation and preserves the primary cause when cleanup or report writing also fails.
-- Fixtures cover representative run/case aggregation and secondary-error outcomes.
-- A contributor can determine what a run's result means without reading implementation code.
-- The owner reported that the development-container test execution passed after M6.13.
-
-## Learning reference
-
-[Errors and execution policy](../../Learning%20Plan/Phase%201/Lessons/12-errors-policy.md)

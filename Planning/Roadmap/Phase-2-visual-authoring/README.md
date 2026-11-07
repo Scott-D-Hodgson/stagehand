@@ -12,3 +12,7 @@ Give the first user-facing Stagehand capability to the primary intended user—a
 - Provide synthetic examples and a short authoring walkthrough for dogfooding and feedback.
 
 This phase does not include browser execution. The CLI and runner follow in Phase 3.
+
+## Delivery planning
+
+The [Phase 2 work plan](../../Work%20Plan/Phase-2-visual-authoring.md) breaks this scope into M8–M14. Accepted foundation choices are recorded in [ADR-005](../../Backlog/decisions/ADR-005-editor-draft-recovery.md) and [ADR-006](../../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md); implementation and completion evidence remain outstanding.

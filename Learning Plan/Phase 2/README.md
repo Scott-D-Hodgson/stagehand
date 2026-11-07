@@ -18,6 +18,12 @@ Phase 2 teaches how a local Vue editor can help people create valid Stagehand do
 
 Complete the Phase 1 contract lessons first; the editor must preserve those contracts rather than inventing a second document model.
 
+## Work-plan alignment
+
+The [Phase 2 work plan](../../Planning/Work%20Plan/Phase-2-visual-authoring.md) defines M8–M14. These lessons explain concepts rather than dictate implementation order: basic draft recovery and multiple-tab conflict handling start in M8, before the full file workflow. M13 completes protection across later authoring features.
+
+The accepted foundation uses owner-led Vite/Vue/TypeScript setup, Canadian English/French, Neutral guidance, and initial Bootstrap 5 CDN styling; optional user-loaded personas follow later. See [ADR-006](../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md). The recovery scope is recorded in [ADR-005](../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md). These are planned capabilities, not implemented editor behaviour.
+
 ## Lessons
 
 1. [Vue application foundations](Lessons/01-vue-foundations.md)
