@@ -4,7 +4,7 @@ import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import PlanBundle from './components/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
-import { createBundledPlanDraft } from './document/plan-draft'
+import { copyPlanDraft, createBundledPlanDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -16,12 +16,16 @@ import {
 } from './preferences/theme'
 import { createIndexedDbDraftStorage, type DraftStorage } from './recovery/draft-storage'
 import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
+import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
 
 const { i18next, t } = useTranslation()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
 const planDraft = ref(createBundledPlanDraft())
 const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
 let draftStorage: DraftStorage | undefined
+const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
+const recoveryRevision = ref(0)
+let autosaveController: AutosaveController | undefined
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -145,6 +149,25 @@ function continueWithoutRecovery(): void {
   recoveryState.value = { kind: 'ready' }
 }
 
+/*
+Starts autosave only after recovery has been resolved for this editor session.
+---
+Inputs: The resolved recovery-gate state and an available storage boundary.
+---
+Output: A controller that reports local-save status for future plan changes.
+*/
+function startAutosave(): void {
+  if (autosaveController !== undefined || draftStorage === undefined) {
+    return
+  }
+  autosaveController = createAutosaveController({
+    delayMs: 1000,
+    onRevision: (revision) => { recoveryRevision.value = revision },
+    onStatus: (status) => { recoverySaveStatus.value = status },
+    storage: draftStorage,
+  })
+}
+
 onMounted(() => {
   colourSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
   systemTheme.value = colourSchemeQuery.matches ? 'dark' : 'light'
@@ -154,9 +177,18 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   colourSchemeQuery?.removeEventListener('change', updateSystemTheme)
+  autosaveController?.stop()
 })
 
 watch(themePreference, saveThemePreference)
+watch(recoveryState, (state) => {
+  if (state.kind === 'ready') {
+    startAutosave()
+  }
+})
+watch(planDraft, (draft) => {
+  autosaveController?.schedule(copyPlanDraft(draft), recoveryRevision.value)
+}, { deep: true })
 watch(interfaceLanguage, (language) => {
   saveInterfaceLanguage(language)
   document.documentElement.lang = language
@@ -178,7 +210,10 @@ watch(resolvedTheme, (theme) => {
             {{ t('editor.introduction') }}
           </p>
           <RecoveryGate v-if="recoveryState.kind !== 'ready'" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
-          <PlanBundle v-else v-model:plan="planDraft" />
+          <template v-else>
+            <PlanBundle v-model:plan="planDraft" />
+            <p class="mt-3 text-body-secondary" aria-live="polite">{{ recoverySaveStatus === 'saving' ? t('editor.savingLocally') : recoverySaveStatus === 'saved' ? t('editor.savedLocally') : recoverySaveStatus === 'failed' ? t('editor.saveFailed') : '' }}</p>
+          </template>
         </div>
       </div>
     </main>

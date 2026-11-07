@@ -34,6 +34,9 @@
     "unreadableRecoveryDetail": "Stagehand ne la remplacera pas automatiquement. Supprimez-la seulement si vous voulez commencer avec l’exemple intégré.",
     "recoveryUnavailable": "La récupération locale n’est pas disponible",
     "recoveryUnavailableDetail": "Vous pouvez continuer dans cet onglet, mais les modifications ne seront pas récupérées après sa fermeture.",
-    "continueWithoutRecovery": "Continuer sans récupération"
+    "continueWithoutRecovery": "Continuer sans récupération",
+    "savingLocally": "Enregistrement local en cours…",
+    "savedLocally": "Enregistré localement.",
+    "saveFailed": "Impossible d’enregistrer localement."
   }
 }

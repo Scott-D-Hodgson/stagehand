@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 has a verified synthetic draft with one raw `defaults.locale` field. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. M8.4 has a verified storage foundation and recovery gate, but not autosave, recovery-status feedback, or conflict handling. The editor does not yet provide complete form authoring, Neutral guidance, import/export, or execution.
+M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 has a verified synthetic draft with one raw `defaults.locale` field. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. M8.4 has verified storage, recovery gating, and one-second autosave status, but not browser failure-state evidence or conflict handling. The editor does not yet provide complete form authoring, Neutral guidance, import/export, or execution.
 
 ## Lessons
 

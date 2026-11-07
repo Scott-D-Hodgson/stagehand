@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBundledPlanDraft, updatePlanLocale } from './plan-draft'
+import { copyPlanDraft, createBundledPlanDraft, updatePlanLocale } from './plan-draft'
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -18,5 +18,13 @@ describe('plan draft', () => {
     expect(updated.id).toBe(draft.id)
     expect(updated.cases).toEqual(draft.cases)
     expect(draft.defaults.locale).toBe('en-CA')
+  })
+
+  it('creates an independent plain snapshot for local recovery', () => {
+    const draft = createBundledPlanDraft()
+    const snapshot = copyPlanDraft(draft)
+    snapshot.defaults.locale = 'fr-CA'
+    snapshot.cases[0]!.path = 'cases/changed.json'
+    expect(draft).toEqual(createBundledPlanDraft())
   })
 })
