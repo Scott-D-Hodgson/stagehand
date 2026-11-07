@@ -34,6 +34,9 @@
     "unreadableRecoveryDetail": "Stagehand will not replace it automatically. Discard it only if you want to start with the bundled sample.",
     "recoveryUnavailable": "Local recovery is unavailable",
     "recoveryUnavailableDetail": "You can continue in this tab, but changes will not be recovered after it closes.",
-    "continueWithoutRecovery": "Continue without recovery"
+    "continueWithoutRecovery": "Continue without recovery",
+    "savingLocally": "Saving locally…",
+    "savedLocally": "Saved locally.",
+    "saveFailed": "Could not save locally."
   }
 }

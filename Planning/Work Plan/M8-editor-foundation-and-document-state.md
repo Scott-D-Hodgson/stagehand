@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1/M8.2 complete and M8.4 recovery gate verified
+**Status:** In progress; M8.1/M8.2 complete and M8.4 autosave flow verified
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -110,8 +110,8 @@ M8.3 scope.
 ### M8.4 — Draft autosave and recovery (2–4 person-days)
 
 - [x] Put IndexedDB operations behind a small storage interface and identify the initial draft format.
-- [ ] Store one plan/case draft, including incomplete form values, after one second without edits; validation failures do not block saving.
-- [ ] Show saving, saved locally only after success, and failure states. Do not rely on application closure to save.
+- [x] Store one plan/case draft, including incomplete form values, after one second without edits; validation failures do not block saving.
+- [x] Show saving, saved locally only after success, and failure states. Do not rely on application closure to save.
 - [x] Offer Restore or Discard with the last-saved time on reopening.
 - [ ] Preserve unreadable recovery data and require explicit discard before starting fresh.
 - [ ] Verify reopened recovery, invalid/incomplete values, storage failures, and sample-reset protection.
@@ -132,6 +132,13 @@ forwarded-browser check restored a seeded `recovered-plan` with `fr-CA`, then
 discarded the recovery copy and returned to `editor-foundation` with `en-CA`.
 The browser name and version were not recorded. Unreadable-record presentation
 has automated coverage but still needs browser evidence.
+
+Autosave now begins only after recovery is resolved. It snapshots the reactive
+draft into plain data, waits one second after the latest edit, and writes an
+invalid draft without coercing it. The owner verified Saving locally, Saved
+locally, refresh, restore, and discard in the forwarded browser on 7 November
+2026. The development-container checks passed 22 tests across eight files,
+type check, and a production build. Browser failure-state evidence remains open.
 
 ### M8.5 — Multiple-tab conflict handling (2–3 person-days)
 

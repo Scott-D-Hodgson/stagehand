@@ -30,6 +30,22 @@ export function createBundledPlanDraft(): PlanDraft {
 }
 
 /*
+Copies the current supported plan-draft shape into plain browser-storable data.
+---
+Inputs: A possibly reactive plan draft.
+---
+Output: An independent plain draft snapshot for local recovery.
+*/
+export function copyPlanDraft(plan: PlanDraft): PlanDraft {
+  return {
+    version: plan.version,
+    id: plan.id,
+    defaults: { locale: plan.defaults.locale },
+    cases: plan.cases.map((caseReference) => ({ path: caseReference.path })),
+  }
+}
+
+/*
 Replaces the plan locale while preserving the rest of the draft.
 ---
 Inputs: An existing plan draft and raw locale input.

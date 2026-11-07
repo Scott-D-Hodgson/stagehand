@@ -48,5 +48,6 @@ Run these commands from the repository root:
 - `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
   IndexedDB adapter for one versioned recovery record. On startup, the recovery
   gate offers Restore or Discard for a readable copy and requires explicit
-  discard for unreadable data. Autosave and multiple-tab conflict handling
-  remain later work.
+  discard for unreadable data. Once resolved, autosave writes a plain draft
+  snapshot one second after the latest edit and reports saving, saved, or failed
+  local status. Multiple-tab conflict handling remains later work.
