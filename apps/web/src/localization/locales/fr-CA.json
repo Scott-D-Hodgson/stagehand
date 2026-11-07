@@ -24,6 +24,16 @@
     "changesNotExported": "Les modifications n’ont pas été exportées.",
     "noUnexportedChanges": "Aucune modification à exporter.",
     "resetSample": "Réinitialiser l’exemple",
-    "resetConfirmation": "Abandonner la modification actuelle des paramètres régionaux du plan et restaurer l’exemple?"
+    "resetConfirmation": "Abandonner la modification actuelle des paramètres régionaux du plan et restaurer l’exemple?",
+    "checkingRecovery": "Vérification de la récupération locale…",
+    "recoveryAvailable": "Une copie de récupération locale est disponible",
+    "recoveryAvailableDetail": "Cette copie a été enregistrée localement le {{savedAt}}.",
+    "restoreRecovery": "Restaurer le brouillon",
+    "discardRecovery": "Supprimer la copie de récupération",
+    "unreadableRecovery": "La copie de récupération locale est illisible",
+    "unreadableRecoveryDetail": "Stagehand ne la remplacera pas automatiquement. Supprimez-la seulement si vous voulez commencer avec l’exemple intégré.",
+    "recoveryUnavailable": "La récupération locale n’est pas disponible",
+    "recoveryUnavailableDetail": "Vous pouvez continuer dans cet onglet, mais les modifications ne seront pas récupérées après sa fermeture.",
+    "continueWithoutRecovery": "Continuer sans récupération"
   }
 }

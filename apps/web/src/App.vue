@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import PlanBundle from './components/PlanBundle.vue'
+import RecoveryGate from './components/RecoveryGate.vue'
 import { createBundledPlanDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
@@ -13,10 +14,14 @@ import {
   type ResolvedTheme,
   type ThemePreference,
 } from './preferences/theme'
+import { createIndexedDbDraftStorage, type DraftStorage } from './recovery/draft-storage'
+import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
 
 const { i18next, t } = useTranslation()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
 const planDraft = ref(createBundledPlanDraft())
+const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
+let draftStorage: DraftStorage | undefined
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -79,10 +84,72 @@ function saveThemePreference(preference: ThemePreference): void {
   }
 }
 
+/*
+Loads local recovery before making the editable plan available.
+---
+Inputs: The browser's IndexedDB availability and stored recovery record.
+---
+Output: A non-destructive recovery-gate state.
+*/
+async function initialiseRecovery(): Promise<void> {
+  try {
+    draftStorage = createIndexedDbDraftStorage()
+    recoveryState.value = await loadRecoveryGateState(draftStorage)
+  } catch {
+    recoveryState.value = { kind: 'unavailable' }
+  }
+}
+
+/*
+Restores the accepted browser-local draft into the editor.
+---
+Inputs: A readable recovery-gate state.
+---
+Output: The recovered draft becomes the active plan.
+*/
+function restoreRecovery(): void {
+  if (recoveryState.value.kind !== 'restore-or-discard') {
+    return
+  }
+  planDraft.value = recoveryState.value.draft
+  recoveryState.value = { kind: 'ready' }
+}
+
+/*
+Discards a stored recovery record only after the user requests it.
+---
+Inputs: A discard action from the recovery gate.
+---
+Output: The editor opens only after successful local deletion.
+*/
+async function discardRecovery(): Promise<void> {
+  if (draftStorage === undefined) {
+    return
+  }
+  try {
+    await draftStorage.discard()
+    recoveryState.value = { kind: 'ready' }
+  } catch {
+    recoveryState.value = { kind: 'unavailable' }
+  }
+}
+
+/*
+Continues with the in-memory sample when browser recovery is unavailable.
+---
+Inputs: An acknowledgement of unavailable browser storage.
+---
+Output: The editor opens without a recovery snapshot.
+*/
+function continueWithoutRecovery(): void {
+  recoveryState.value = { kind: 'ready' }
+}
+
 onMounted(() => {
   colourSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)')
   systemTheme.value = colourSchemeQuery.matches ? 'dark' : 'light'
   colourSchemeQuery.addEventListener('change', updateSystemTheme)
+  void initialiseRecovery()
 })
 
 onBeforeUnmount(() => {
@@ -110,7 +177,8 @@ watch(resolvedTheme, (theme) => {
           <p class="lead">
             {{ t('editor.introduction') }}
           </p>
-          <PlanBundle v-model:plan="planDraft" />
+          <RecoveryGate v-if="recoveryState.kind !== 'ready'" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
+          <PlanBundle v-else v-model:plan="planDraft" />
         </div>
       </div>
     </main>

@@ -24,6 +24,16 @@
     "changesNotExported": "Changes have not been exported.",
     "noUnexportedChanges": "No changes to export.",
     "resetSample": "Reset sample",
-    "resetConfirmation": "Discard the current plan-locale edit and restore the sample?"
+    "resetConfirmation": "Discard the current plan-locale edit and restore the sample?",
+    "checkingRecovery": "Checking local recovery…",
+    "recoveryAvailable": "A local recovery copy is available",
+    "recoveryAvailableDetail": "This copy was saved locally on {{savedAt}}.",
+    "restoreRecovery": "Restore draft",
+    "discardRecovery": "Discard recovery copy",
+    "unreadableRecovery": "The local recovery copy cannot be read",
+    "unreadableRecoveryDetail": "Stagehand will not replace it automatically. Discard it only if you want to start with the bundled sample.",
+    "recoveryUnavailable": "Local recovery is unavailable",
+    "recoveryUnavailableDetail": "You can continue in this tab, but changes will not be recovered after it closes.",
+    "continueWithoutRecovery": "Continue without recovery"
   }
 }

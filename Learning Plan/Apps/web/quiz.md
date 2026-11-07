@@ -9,6 +9,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 5. Which existing contract field is the first editable M8.2 field, and why is its input kept raw?
 6. Name the four kinds of data that must not be confused as M8 develops.
 7. What information does the v1 recovery record contain, and why is an unsupported stored record not deleted automatically?
+8. Why must the recovery gate run before autosave?
 
 ## Answer key
 
@@ -19,3 +20,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 5. `defaults.locale` is the first editable field. Its input stays raw so shared validation can report an invalid value without silently changing the user's draft.
 6. Exportable contract data, incomplete form values, interface state, and local preferences.
 7. It contains the raw plan draft, a non-negative revision, and an ISO 8601 saved time. An unsupported record may still contain recoverable user work, so it remains unreadable until a later explicit discard choice.
+8. Otherwise, the bundled sample could overwrite a recovery record before the person can restore or discard it.
