@@ -14,6 +14,16 @@
     "theme": "Thème",
     "systemTheme": "Système",
     "lightTheme": "Clair",
-    "darkTheme": "Sombre"
+    "darkTheme": "Sombre",
+    "planDetails": "Détails du plan",
+    "planId": "ID du plan",
+    "planLocale": "Paramètres régionaux du plan",
+    "planLocaleHelp": "Une balise linguistique BCP 47, par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur.",
+    "validate": "Valider le plan",
+    "caseReferences": "Références de cas",
+    "changesNotExported": "Les modifications n’ont pas été exportées.",
+    "noUnexportedChanges": "Aucune modification à exporter.",
+    "resetSample": "Réinitialiser l’exemple",
+    "resetConfirmation": "Abandonner la modification actuelle des paramètres régionaux du plan et restaurer l’exemple?"
   }
 }

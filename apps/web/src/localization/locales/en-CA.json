@@ -14,6 +14,16 @@
     "theme": "Theme",
     "systemTheme": "System",
     "lightTheme": "Light",
-    "darkTheme": "Dark"
+    "darkTheme": "Dark",
+    "planDetails": "Plan details",
+    "planId": "Plan ID",
+    "planLocale": "Plan locale",
+    "planLocaleHelp": "A BCP 47 language tag, such as en-CA. This affects the plan, not the editor display language.",
+    "validate": "Validate plan",
+    "caseReferences": "Case references",
+    "changesNotExported": "Changes have not been exported.",
+    "noUnexportedChanges": "No changes to export.",
+    "resetSample": "Reset sample",
+    "resetConfirmation": "Discard the current plan-locale edit and restore the sample?"
   }
 }

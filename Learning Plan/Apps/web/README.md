@@ -10,6 +10,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - How Vitest protects small editor-state boundaries before UI workflows grow.
 - How display preferences stay separate from a Stagehand plan and recovery draft.
 - How per-locale JSON resources and i18next pluralization keep shell wording maintainable.
+- Why the first plan field preserves raw input and how the editor components divide responsibility.
 - What M8.1 established and what M8.2 through M8.5 still need to deliver.
 
 ## Do I need this course?
@@ -21,7 +22,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. It does not yet provide editable forms, Neutral guidance, IndexedDB recovery, multi-tab conflict handling, import/export, or execution.
+M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 now has an in-progress synthetic draft with one raw `defaults.locale` field, while its post-component-extraction checks remain to be recorded. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. It does not yet provide complete form authoring, Neutral guidance, IndexedDB recovery, multi-tab conflict handling, import/export, or execution.
 
 ## Lessons
 

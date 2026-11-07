@@ -64,13 +64,23 @@ Its first remote result must be recorded before it is treated as CI verification
 
 ### M8.2 — Document state and basic editing (2–3 person-days)
 
-- [ ] Resolve the first editable contract field before implementing the form.
+- [x] Resolve the first editable contract field before implementing the form.
 - [ ] Load a synthetic plan/case bundle; render plan details, case list, and validation summary.
 - [ ] Preserve untouched contract data and incomplete edits; do not coerce invalid input into apparently valid values.
 - [ ] Validate on opening, field blur, and an explicit Validate action through shared validation.
 - [ ] Associate understandable feedback with fields where possible and retain a useful summary for bundle-level errors.
 - [ ] Show edits that have not been exported separately from whether a recovery copy is saved locally.
 - [ ] Confirm before resetting edited work to the sample.
+
+The accepted first editable field is `defaults.locale`. The current in-progress
+slice has a synthetic bundle, immutable raw-locale updates, a componentised
+plan-details area, a read-only case-reference list, shared validation
+presentation, an explicit Validate action, and a confirmation before a changed
+sample is reset. The post-component-extraction unit, type, build, and browser
+checks have not yet been recorded; retain the remaining task checkboxes until
+that evidence is available. The temporary "not exported" indicator is not a
+draft-recovery status: M8.4 still owns saved-local-copy and storage-failure
+feedback.
 
 ### M8.3 — Localization and accessible Neutral guidance (1–2 person-days)
 
@@ -118,7 +128,7 @@ Each slice can use more than one feature-sized PR if needed. The ranges sum to t
 
 ## Open decisions before relevant slices
 
-- **First editable field:** the v1 plan schema has no name or description property. Earlier conversational examples assumed one. With identifiers read-only, select an existing field for M8 or explicitly approve identifier editing. Do not invent a name field or change the contract silently.
+- **Plan locale control:** `defaults.locale` is the accepted first editable field. Keep its raw BCP 47 text input for the initial M8.2 slice. A future focused PR may replace it with an accessible searchable combobox backed by a deliberately maintained locale catalogue; do not restrict plan locales to the editor's `en-CA`/`fr-CA` interface choices without a separate contract decision.
 - Select storage implementation during its slice.
 - Define the exact draft representation and comparison presentation, including a clear route through failed storage or unreadable data.
 

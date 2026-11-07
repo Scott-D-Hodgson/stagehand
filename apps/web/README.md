@@ -1,8 +1,9 @@
 # Stagehand web editor
 
 This workspace contains the local-first Stagehand Vue editor. M8.1 establishes
-the Vite, Vue, and TypeScript application foundation. Form authoring, imported
-files, browser recovery, and execution remain later Phase 2 work.
+the Vite, Vue, and TypeScript application foundation. The current M8.2 slice
+adds one synthetic plan draft with raw plan-locale editing; form authoring,
+imported files, browser recovery, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -39,3 +40,8 @@ Run these commands from the repository root:
   default) and Canadian French (`fr-CA`) shell resources. Each locale has its
   own JSON file in `src/localization/locales/`; the selected language is stored
   under `stagehand.interface-language`, separately from plan and recovery data.
+- `App.vue` owns application preferences and the active draft. `AppHeader`
+  owns shell controls; `PlanBundle` composes the plan details, case references,
+  and shared-contract assessment. The current draft deliberately preserves raw
+  plan-locale input so shared validation can report invalid values rather than
+  silently changing them.
