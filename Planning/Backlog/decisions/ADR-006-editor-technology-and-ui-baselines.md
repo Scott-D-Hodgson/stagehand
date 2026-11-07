@@ -7,7 +7,7 @@
 
 Phase 2 starts with the M8 editor foundation. The owner wants to focus on function, learn the application setup, and avoid extensive custom styling before authoring workflows are established. The interface must support localization and optional personality in its guidance.
 
-This decision supplements [ADR-002](ADR-002-local-first-editor.md) and the M8 recovery scope in [ADR-005](ADR-005-editor-draft-recovery.md). It records planned choices, not implemented or verified editor behaviour.
+This decision supplements [ADR-002](ADR-002-local-first-editor.md) and the M8 recovery scope in [ADR-005](ADR-005-editor-draft-recovery.md). It records technology and presentation choices. M8.1 has implemented and verified the initial Vite/Vue/TypeScript foundation and Bootstrap CSS shell; later editor behaviour remains planned until its own evidence is recorded.
 
 ## Decision
 

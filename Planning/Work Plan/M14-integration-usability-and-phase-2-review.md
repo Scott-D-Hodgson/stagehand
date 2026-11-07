@@ -16,6 +16,7 @@ Verify the complete authoring experience and document evidence against Phase 2 o
 - [ ] Demonstrate static hosting and offline-after-load editing, validation, and recovery writes without claiming offline cold-start support.
 - [ ] Resolve CDN styling follow-through with an agreed approach if needed, such as project-owned CSS or an offline shim; record and verify the choice.
 - [ ] Publish project-owned synthetic examples and a short authoring walkthrough as repository documentation; update learning guidance.
+- [ ] Decide whether to retain a versioned visual-history archive, and if adopted capture intentional page screenshots with browser, viewport, route, and commit metadata.
 - [ ] Review package boundaries and baseline checks; record actual automated/manual evidence, unresolved issues, and explicit deferrals.
 - [ ] Trace roadmap outcomes to evidence and update milestone/backlog status only where supported.
 

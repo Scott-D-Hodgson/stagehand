@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** Planned; detailed breakdown and estimate proposed  
+**Status:** In progress; M8.1 application foundation complete
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -18,11 +18,40 @@ Case editing, import/export, new-plan creation, advanced configuration, optional
 
 ### M8.1 — Owner-led application setup (1–2 person-days)
 
-- [ ] Review the existing workspace and select compatible pinned Vite/Vue/TypeScript dependencies.
-- [ ] Give the owner setup commands with explanations and checkpoints; the owner runs the initial scaffold rather than the agent generating it.
-- [ ] Establish documented development, build, type-check, and suitable test commands in the existing workspace.
-- [ ] Demonstrate a browser build consuming the public plan-schema entry without Node-only dependencies.
-- [ ] Start with Bootstrap 5 CDN CSS; add JavaScript only for demonstrated needs.
+- [x] Review the existing workspace and select compatible pinned Vite/Vue/TypeScript dependencies.
+- [x] Give the owner setup commands with explanations and checkpoints; the owner runs the initial scaffold rather than the agent generating it.
+- [x] Establish documented development, build, type-check, and suitable test commands in the existing workspace.
+- [x] Demonstrate a browser build consuming the public plan-schema entry without Node-only dependencies.
+- [x] Start with Bootstrap 5 CDN CSS; add JavaScript only for demonstrated needs.
+
+M8.1 currently pins Vue 3.5.44, Vite 8.3.6, and TypeScript 6.0.3. The
+repository TypeScript pin changed to 6.0.3 because the selected Vue type-check
+tooling requires the TypeScript 6 API. The first shell imports `validatePlan`
+from the public `@stagehand/plan-schema` entry point. The owner verified the
+build in the development container on 7 November 2026: plan-schema built,
+`vue-tsc -b` passed, and Vite transformed 114 modules for the production
+bundle. The owner also started the development server with `--host 0.0.0.0`,
+forwarded port 5173, and visually confirmed the editor shell in a local
+browser. Record future browser checks with their browser and version.
+
+Vitest 5.1.0 is the selected unit-test runner for the editor. It shares Vite's
+transformation pipeline. The first validation boundary delegates to the public
+shared-contract validator and has focused valid/invalid-plan unit tests. Browser
+interaction and accessibility checks remain separate work, not a substitute for
+unit tests.
+
+M8.1 completion evidence, reported by the owner from the development container
+on 7 November 2026: `npm test --workspace @stagehand/web` passed one test file
+with two tests; `npm run type-check --workspace @stagehand/web` passed; and
+`npm run build --workspace @stagehand/web` built plan-schema, type-checked the
+editor, and completed the Vite production build (115 transformed modules) in
+1.77 seconds. The build and visual shell checks establish the application
+foundation only; they do not verify later form, recovery, conflict, localization,
+or offline behaviour.
+
+This PR also configures a focused Linux GitHub Actions web job that installs the
+workspace, builds the schema-backed editor bundle, and runs the web unit tests.
+Its first remote result must be recorded before it is treated as CI verification.
 
 ### M8.2 — Document state and basic editing (2–3 person-days)
 
@@ -73,7 +102,7 @@ Each slice can use more than one feature-sized PR if needed. The ranges sum to t
 ## Open decisions before relevant slices
 
 - **First editable field:** the v1 plan schema has no name or description property. Earlier conversational examples assumed one. With identifiers read-only, select an existing field for M8 or explicitly approve identifier editing. Do not invent a name field or change the contract silently.
-- Select test tools, localization integration, and storage implementation during their slices.
+- Select localization integration and storage implementation during their slices.
 - Define the exact draft representation and comparison presentation, including a clear route through failed storage or unreadable data.
 
 ## Exclusions and follow-through

@@ -19,6 +19,6 @@
     "test:phase1-integration": "npm run build --workspace @stagehand/plan-engine && npm run build --workspace @stagehand/runner-core && node --test tests/phase1-integration.test.js"
   },
   "devDependencies": {
-    "typescript": "7.0.2"
+    "typescript": "6.0.3"
   }
 }

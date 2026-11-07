@@ -1,5 +1,27 @@
 {
   "name": "@stagehand/web",
   "version": "0.1.0",
-  "private": true
+  "private": true,
+  "dependencies": {
+    "@stagehand/plan-schema": "0.1.0",
+    "vue": "3.5.44"
+  },
+  "devDependencies": {
+    "@types/node": "26.6.5",
+    "@vitejs/plugin-vue": "6.0.10",
+    "@vue/tsconfig": "0.9.1",
+    "typescript": "6.0.3",
+    "vite": "8.3.6",
+    "vitest": "5.1.0",
+    "vue-tsc": "3.3.14"
+  },
+  "scripts": {
+    "dev": "vite",
+    "type-check": "vue-tsc -b",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "build": "npm run build --workspace @stagehand/plan-schema && npm run type-check && vite build",
+    "preview": "vite preview"
+  },
+  "type": "module"
 }

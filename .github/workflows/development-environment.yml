@@ -95,6 +95,30 @@ jobs:
       - name: Test plan-schema package
         run: npm test --workspace @stagehand/plan-schema
 
+  web:
+    name: Test web editor application
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Build web editor application
+        run: npm run build --workspace @stagehand/web
+
+      - name: Test web editor application
+        run: npm test --workspace @stagehand/web
+
   plan-engine:
     name: Test plan-engine package (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
