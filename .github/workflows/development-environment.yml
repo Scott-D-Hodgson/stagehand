@@ -169,3 +169,24 @@ jobs:
 
       - name: Test runner-core package
         run: npm test --workspace @stagehand/runner-core
+
+  phase1-integration:
+    name: Test Phase 1 package integration
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+
+      - name: Pin npm
+        run: npm install --global npm@11.20.0
+
+      - name: Install workspace dependencies
+        run: npm ci
+
+      - name: Test Phase 1 package integration
+        run: npm run test:phase1-integration
