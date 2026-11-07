@@ -1,158 +1,46 @@
 # M4 — Browser configuration, actions, and assertions
 
-**Estimate:** 3–5 person-days  
-**Depends on:** M2, M3  
-**Roadmap item:** Browser configuration, action vocabulary, assertion semantics
+**Status:** Complete
+**Original estimate:** 3–5 person-days (not actual effort)
+**Depends on:** M2, M3
 
-## Tasks
+## Objective
 
-- [x] Review [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md) and the execution-related stories before fixing the contract.
-- [x] Define the MVP support matrix: Windows with Playwright-managed Chromium, using the Node.js version selected in M2; schedule Linux runner and Edge support after the MVP. During development, prefer designs that work on both Windows and Linux when practical.
-- [x] Record the initial runner target as Windows with Playwright-managed Chromium; branded Google Chrome is not a separate initial support target.
-- [x] Select `chromium` as the initial browser type identifier; plan and case schemas reject other browser types.
-- [x] Specify default headless mode `true` as run-wide because it is selected at Chromium launch; cases cannot override it. Set the default viewport to 1280 by 720 CSS pixels with positive integer dimensions and no Stagehand-specific maximum, default IANA time zone to `UTC`, and default run-wide BCP 47 locale to `en-CA`; cases cannot override locale.
-- [x] Set the default navigation wait to `domcontentloaded`, the default action/navigation timeout to 30 seconds, and the maximum explicit fixed delay to 30 seconds; allow explicit bounded `networkidle` waits.
-- [x] Require `navigate.url` to be an absolute HTTP or HTTPS URL with a host; defer relative URLs and any `baseURL` setting for future consideration under [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
-- [x] Agree that locators use one strategy per object: role (optionally with accessible name), label, CSS, or XPath.
-- [x] Require exact role/label names; fail immediately on multiple matches and retry zero matches up to three total attempts by default. Reserve one-second gaps between attempts, then divide the remaining action timeout as evenly as possible among the locator waits; a 30-second timeout gives about 9.3 seconds per wait.
-- [x] Choose action names `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue`; distinguish character typing from direct field setting and allow dropdown selection by value or visible label.
-- [x] Use ordered `before` and `after` lists; default `scrollIntoView` to true for interactions, with a per-step option to turn it off.
-- [x] Use exact, case-sensitive assertion comparisons and make assertions hard by default; soft assertions use `soft: true`. Defer contains comparisons beyond MVP.
-- [x] Identify steps by case ID and sequence position; represent the result position as a zero-based index and do not require author-assigned step IDs.
-- [x] Keep action inputs literal for M4; define variable references in M5. Preserve CLI-over-plan precedence while deferring exact CLI flags to CLI implementation.
-- [x] Use standard HTML label associations for optional soft label checks; fail softly when none is associated or multiple labels make the match ambiguous. Accessibility scans run after completed steps, including failed assertions when the browser remains usable.
-- [x] Default axe scanning to disabled and `failOnViolation` to false; plan settings can be overridden by case settings. M6 defines outcome and continuation policy.
-- [x] Add browser-default annotations, locale and time-zone checks, and locator-shape validation to `@stagehand/plan-schema`; public-entry tests cover these rules.
-- [x] Set the delay between locator retries to one second, with up to three total attempts by default. The action timeout includes those gaps and is divided across the waits; an expired budget prevents another attempt.
-- [x] Give each assertion an `expected` object with a required `default` and optional BCP 47 keyed `locales` overrides; use the default when no override exists for the run locale.
-- [x] Make an optional associated-label check fail softly when multiple labels make the association ambiguous.
-- [x] Use `timeout` for per-action and per-wait timeout overrides, measured in milliseconds.
-- [x] Define before/after wait-list items as a `waitFor` locator, `waitForState` of `domcontentloaded` or `networkidle`, or a `delay` in milliseconds, with optional `timeout` in milliseconds for waits.
-- [x] Keep reload/back/forward, standalone URL waits, distinct click variants, and additional assertion types (visibility, enabled/disabled, checked state, attributes, URL, and page title) out of MVP; track them in [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
-- [x] Define timeout and assertion diagnostic details: case ID, step position, action, relevant locator, timeout value, and expected/actual values where available. M5 defines redaction if expected values later support secrets; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 own hard/soft continuation and status policy.
-- [x] Require positive integer timeout values in milliseconds and integer delays from 1 to 30,000 milliseconds. Canonicalize BCP 47 locale-override keys for matching and reject keys that canonicalize to duplicates.
-- [x] Use one timeout budget for each `waitFor` locator; check once per second until exactly one match appears or the timeout expires. Fail immediately on multiple matches. The three-attempt rule applies to action locator lookups, not `waitFor` items.
-- [x] Encode the agreed precedence baseline: plan JSON supplies plan defaults, cases inherit plan values, explicit case values override inherited values, and CLI configuration overrides JSON at the targeted scope. Defer CLI flag names to CLI implementation and variable references to M5.
-- [x] Define accessibility settings and scan behaviour: scans are disabled by default, findings are non-failing by default, plan settings can be overridden by cases, and enabled scans run after completed steps with deduplicated findings. M6 defines how configured failure policies affect case/run outcomes and continuation.
-- [x] Decide to keep accessibility findings attached to each case and deduplicate them by URL and violation description within that case; record effective `enabled` and `failOnViolation` settings.
-- [x] Review the proposed axe integration dependency, published-package licences, and bundled notices; see the [dependency review under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#dependency-review). The subsequent owner acceptance and installation are recorded below.
-- [x] Accept `@axe-core/playwright@4.14.0` and its MPL-2.0 obligations for use without modifying covered files; install/pin it, resolve `axe-core@4.14.0`, and update the lockfile and third-party notices with the MPL text, bundled attributions, and exact-version source instructions.
-- [x] Settle retained accessibility fields: finding-level `tags`; affected-node `html`, structured `target`, available `failureSummary` and `impact`, `xpath` when available, and `relatedNodes`. See the [accepted field selection under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#accepted-retained-fields). The result-schema extension is implemented below; the pure mapper is implemented below, while automatic session/collector integration is now implemented.
-- [x] Agree that run-level axe assessment has a companion optional tag filter; selected tags scope the scan, while omitted/empty tags leave axe's default rule selection unrestricted. This input filter is separate from finding-level `tags`.
-- [x] Implement `accessibility.tags` in plan/case schemas and examples: reject unknown/non-exact tags, duplicates, and wrong types; preserve omission for inheritance, non-empty case lists for replacement, and explicit empty lists for clearing. All 39 plan-schema tests pass locally on Windows. Plan-engine builds with 14 passing tests and 3 skipped Windows symlink tests. Validation does not apply effective settings; exact CLI flag names remain deferred to CLI implementation.
-- [x] Verify the current scan-tag schema suite in the existing dev container and record owner-confirmed passing PR CI; see the current verification evidence below.
-- [x] Resolve effective per-case accessibility enabled/failOnViolation/tags in a small runner-core slice: apply independent plan/case overrides, preserve explicit false, inherit omitted tags, replace non-empty tag lists, and clear with empty lists. Defaults are disabled/non-failing/unrestricted tags. The pure public resolver and session.accessibility snapshots copy tag arrays and preserve settings before asynchronous setup. All 88 runner-core tests (seven new settings tests) and a TypeScript result-settings compatibility check pass locally on Windows; that settings-only slice did not implement scans or M6 policy; the subsequent explicit scan slice is recorded below.
-- [x] Verify the accessibility settings slice in the existing dev container; current-suite evidence is recorded below.
-- [x] Verify the accessibility settings slice in CI. Owner confirmed passing CI on every PR.
-- [x] Add direct `scanAccessibility()` on case sessions: skip disabled scans; apply copied non-empty tag filters before analysis; preserve raw observations and incomplete results; wrap adapter failures with their causes without applying failure policy. Build and all 99 runner-core tests pass locally on Windows, including 11 new scan tests, plus a TypeScript outcome/result/error check.
-- [ ] Deferred until the project test site exists: verify direct scans with actual Chromium/axe frame/cleanup coverage.
-- [x] Verify direct-scan unit coverage in the existing dev container; current-suite evidence is recorded below.
-- [x] Verify direct-scan unit coverage in CI. Owner confirmed passing CI on every PR.
-- [x] Apply/test direct scans at the agreed after-step cadence for one tag, multiple tags, omitted tags, and empty lists. See the [scan-scope option under TE-010](../Backlog/technical-enablers/te-010-axe-integration.md#accepted-scan-scope-option).
-- [x] Extend the result-model v1 schema, types, and synthetic example with finding URLs/tags/affectedNodes, flat related-node evidence, optional XPath, nullable unknown impact, and required per-case effective enabled/failOnViolation/tags, including cases without findings. The build and all 22 result-model tests passed locally on Windows; a public TypeScript type check passed.
-- [x] Verify the result-model slice in the existing dev container; current-suite evidence is recorded below.
-- [x] Verify the result-model slice in CI. Owner confirmed passing CI on every PR. This extension remains M4 work and does not reopen M3.
-- [x] Add pure mapAccessibilityFindings projection from raw violations into shared result-model types. Preserve selected evidence, flatten/deduplicate exact related tuples, copy nested data, and count mapped nodes without accumulating across calls. Runner-core declares/builds its result-model dependency first. The build and all 109 runner-core tests pass locally on Windows, including 10 mapping tests validated through result-model; a TypeScript public-import check passes.
-- [x] Verify the mapping slice in the existing dev container; current-suite evidence is recorded below.
-- [x] Verify the mapping slice in CI. Owner confirmed passing CI on every PR.
-- [x] Implement optional axe scanning after each completed step and collect/deduplicate findings within the case; keep violations separate from functional assertion outcomes and leave status policy to M6.
-- [x] Add public-entry tests for scan defaults, plan/case overrides, scan cadence, per-case de-duplication, affected-node data, and axe execution errors.
-- [x] Represent the agreed action, assertion, browser-setting, accessibility, and navigation-URL contracts in the schemas, examples, and tests. The subsequent scan-tag schema addition is implemented and verified locally as recorded above; execution remains outstanding. `plan-schema` validates step shapes, absolute HTTP/HTTPS navigation URLs, and locale-key semantics; it does not execute actions or apply retry policy.
-- [x] Add public-entry tests for the supported actions, assertions, waits, locale overrides, timeout/delay constraints, and accessibility settings.
-- [x] Run `npm test --workspace @stagehand/plan-schema`; the build succeeded and all 32 tests passed in the dev container after absolute HTTP/HTTPS URL validation was added.
-- [x] Update the Phase 1 and package learning guides to reflect the implemented schema boundary.
-- [x] Implement the initial browser lifecycle in [`@stagehand/runner-core` under TE-003](../Backlog/technical-enablers/te-003-playwright-browser-lifecycle-and-factory.md): one Playwright-managed Chromium process per run and one isolated browser context/page per case. Apply run-wide locale/headless defaults and case-overridable viewport/time-zone settings; wait for in-flight case setup before browser shutdown, reject sessions whose setup finishes after shutdown starts, and make concurrent run cleanup calls await the same promise.
-- [x] Add case-session locator resolution to runner-core for role, label, CSS, and XPath strategies, enforcing exact role/label names, unique matches, and the agreed bounded retry policy.
-- [x] Add ordered case-session wait-list execution for locator waits, page-state waits, and bounded fixed delays.
-- [x] Add case-session navigation for absolute HTTP/HTTPS URLs, with `domcontentloaded` and a 30-second timeout by default plus supported overrides.
-- [x] Add a direct case-session click method using the agreed locator retry policy, shared timeout budget, and default scroll behaviour.
-- [x] Add an initial case-step dispatcher that runs validated `navigate` and `click` steps in order, including click `before`/`after` waits, and wraps failures with case ID and zero-based step index. Result records and outcome aggregation remain out of scope for this slice.
-- [x] Add public-entry tests for ordered step dispatch, click wait lists, and failure context.
-- [x] Build and run the runner-core suite with the new dispatcher tests in the dev container; all 32 tests passed.
-- [x] Add a public-entry test confirming `scrollIntoView: false` is passed through to the click operation.
-- [x] Rerun the runner-core suite with the step-level scrolling test; all 33 tests passed in the dev container.
-- [x] Add the initial `type` step handler using Playwright's sequential character input, shared locator/action timeout, ordered waits, and scroll option.
-- [x] Add public-entry tests for typing, timeout handling, and the no-scroll viewport check.
-- [x] Build and run the expanded runner-core suite in the dev container; all 37 tests passed.
-- [x] Implement the `fill` step handler and direct case-session method with ordered waits, shared timeout, and the no-scroll viewport check.
-- [x] Add public-entry tests for fill dispatch, timeout sharing, viewport handling, and error context.
-- [x] Build and run the expanded runner-core suite with fill tests in the dev container; the build succeeded and all 41 tests passed.
-- [x] Add the `selectOption` case-session method and whole-step handler, supporting selection by option value or visible label with ordered waits, a shared timeout, and the no-scroll viewport check.
-- [x] Add public-entry tests for value/label selection, wait ordering, timeout sharing, viewport handling, and error context.
-- [x] Build and run the expanded runner-core suite with the `selectOption` tests in the dev container; build succeeded and all 46 tests passed.
-- [x] Implement direct and step-dispatched `assertText` with exact, case-sensitive inner-text comparison, run-locale expected-value selection, timeout handling, and returned soft-failure details.
-- [x] Treat a soft `assertText` mismatch, missing/ambiguous locator, or text-read timeout as a soft failure with expected text and a diagnostic; include actual text when available and continue later steps. Errors that make browser execution unsafe remain hard failures.
-- [x] Add public-entry tests for `assertText` locale selection, exact comparison, locator failures, text-read timeout, hard-failure context, and soft-failure continuation.
-- [x] Fix the `assertText` default-locale test double to use the CSS locator supported by its mock page.
-- [x] Build and run the expanded runner-core suite with the `assertText` tests in the dev container; build succeeded and all 54 tests passed.
-- [x] Implement direct and step-dispatched `assertHtml` using exact, case-sensitive inner-HTML comparison, run-locale expected-value selection, a shared timeout, and the established soft-failure behaviour.
-- [x] Add public-entry tests for `assertHtml` locale selection, exact comparison, locator failures, HTML-read timeout, hard-failure context, unsafe-error handling, and soft-failure continuation.
-- [x] Build and run the expanded runner-core suite with the `assertHtml` tests in the dev container; the build succeeded and all 62 tests passed.
-- [x] Implement direct and step-dispatched `assertValue` with exact input-value comparison, run-locale expected-value selection, and the shared assertion timeout/failure behaviour.
-- [x] Implement the optional associated-label check for `assertValue`; compare the label's visible text exactly and always report this check as soft.
-- [x] Add public-entry tests for `assertValue` success, locale overrides, mismatch, timeout, associated-label success/missing/ambiguous outcomes, and hard/soft continuation.
-- [x] Build and run the expanded runner-core suite with `assertValue` tests locally on Windows using the pinned Node.js/npm versions; the build succeeded and all 81 mocked-browser tests passed.
-- [x] Verify the `assertValue` slice in the existing dev container as part of the current 131-test runner-core suite.
-- [x] Pin Playwright 1.64.1 and include its Apache-2.0 licence and attribution notice in `THIRD-PARTY-NOTICES.md`; its non-MIT licence remains flagged for maintainer review.
-- [x] Build and run the runner-core public-entry tests in the dev container; all 25 tests passed before the initial step dispatcher was added.
-- [x] Add runner-core tests to the GitHub Actions Linux and Windows jobs.
-- [x] Record owner confirmation that GitHub CI passed on every PR, including the configured Linux/Windows checks; individual workflow runs were not inspected by the agent.
+Defined and implemented the initial browser lifecycle, actions, assertions, and optional accessibility assessment at the case-session boundary.
 
-## Per-case collector implementation
+## Tasks completed
 
-- [x] Implement explicit caller-owned collection. The caller-owned `createAccessibilityFindingCollector()` now reuses the mapper through `add(rawResults)`. Create one collector per case. It groups by exact URL and description, retains one node per exact `html` string, and recalculates counts. First-observed finding metadata and node evidence are retained, even when later rule IDs, tags, severity, selectors, or related evidence differ. `getFindings()` returns a deep copied snapshot. Different URLs/descriptions and separate collectors remain isolated. Empty/non-violation scans add nothing; zero-node violations remain with count zero. Raw incomplete/error groups remain available on input for later interpretation. Sessions now own an internal collector for enabled after-step scans.
-- [x] The local Windows build and all 117 runner-core tests pass, including eight new collection tests checked through result-model using synthetic documents. At that slice, browser and dev-container/CI verification remained outstanding. The current evidence below covers the existing suites and PR CI; actual browser assessments remain deferred.
-- [x] Integrate automatic session scans and collector calls; keep M6 outcome policy separate.
-- [x] Verify collection in the existing dev container; current-suite evidence is recorded below.
-- [x] Verify collection in CI. Owner confirmed passing CI on every PR.
+- Encoded browser defaults, locator shapes, waits, action inputs, assertion locale rules, timeout constraints, and accessibility settings in shared schemas and fixtures.
+- Implemented one Chromium process per run, isolated case contexts/pages, coordinated startup/cleanup, unique locators, ordered waits, and action dispatch.
+- Implemented navigation, click, sequential typing, fill, option selection, and exact text/HTML/value assertions with hard/soft behaviour and optional always-soft label checks.
+- Implemented accessibility defaults/overrides, explicit scans, pure finding mapping, per-case collection, and awaited scans after eligible completed steps.
+- Extended result-model accessibility evidence and documented reviewed Playwright/axe dependencies and notices.
 
-## Automatic assessment implementation
+## Decisions made
 
-- [x] Case-session `executeSteps` now awaits automatic accessibility scans after completed steps when enabled, using the existing scan operation and a collector owned by that session. Interaction after-waits finish before scanning. Successful assertions, soft failures, and recognized hard assertion mismatch/locator/timeout failures are scanned while the page is open. Failed interactions, unknown browser errors, and closed pages do not trigger scans. Hard assertions still stop execution after assessment. A scan rejection stops dispatch with StepExecutionError and AccessibilityScanError causes; simultaneous hard assertion and scan errors are preserved in an AggregateError. No failOnViolation outcome policy is applied.
-- [x] `getAccessibilityFindings()` returns deep copied accumulated findings. `getAccessibilityScans()` returns a new array of copied caseId/stepIndex records retaining the original raw result references, including incomplete observations; callers must treat those results as read-only. This avoids cloning arbitrary adapter data or live references. Repeated executeSteps calls on one session accumulate history; use one session per case. Direct navigation/assertion/scan methods do not automatically collect or trigger extra scans. Scan history retains raw observations for the session lifetime; no pruning or result serialization is implemented.
-- [x] The local Windows build and all 131 runner-core tests pass, including 14 new automatic execution tests. Browser/adapter doubles verify cadence, awaited scans, tags, case isolation, failure paths, and copied findings; they do not establish real-browser/frame coverage, dev-container/CI results, or a full result pipeline.
-- [ ] Deferred until the project test site exists: verify actual Chromium/axe assessments, frames, and cleanup.
-- [x] Verify existing unit suites in the existing dev container independently of deferred browser assessments; all 209 tests pass.
-- [x] Record owner confirmation that GitHub CI passed on every PR.
+- Targeted Windows with Playwright-managed Chromium; defaulted to headless, 1280 × 720 viewport, UTC time zone, and run-wide `en-CA` locale.
+- Used absolute HTTP/HTTPS navigation, a 30-second default action timeout, bounded waits, exact role/label names, and immediate ambiguity failure.
+- Made assertions exact and case-sensitive, hard by default; used default expected values with locale overrides and zero-based step positions.
+- Disabled accessibility scanning and failure-on-violation by default. Collected findings by exact URL/description and node HTML, retaining first-observed evidence; M6 owns outcome effects.
+- Accepted the axe dependency obligations recorded in [TE-010](../Backlog/technical-enablers/te-010-axe-integration.md) and pinned dependency notices.
+
+## Deferred work
+
+- Real Chromium/axe assessments, frames, tags, repeated scans, and cleanup remain deferred until a project-owned test site exists; site design and location were not selected.
+- Linux runner support, additional browsers, relative navigation/base URLs, richer assertions, and additional browser actions remain later work, including [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md).
+- M5 later added protected-value handling and M6 supplied result adaptation/outcome policy. M4's original raw-history descriptions must not be treated as current redaction guarantees.
 
 ## Completion evidence
 
-- Pure violation mapping is implemented and validated against result-model using synthetic observations/documents in the 109-test passing local Windows suite. The separate collector implements caller-owned accumulation; automatic cadence/session collection are implemented, and M6 now applies the configured failure policy and emits retained findings through the result adapter.
+- At checkout `fe539f7`, agent-run verification in the existing Linux development container passed `npm ci`, seven-workspace resolution, and 209 tests: 39 plan-schema, 17 plan-engine, 22 result-model, and 131 runner-core, with no failures or skips.
+- The owner confirmed passing CI on every PR through automatic-assessment PR #50; individual remote runs were not inspected by the agent.
+- Public-entry tests and browser/adapter doubles cover lifecycle, actions, assertions, settings, scan cadence, mapping, collection, and failure paths. They do not establish actual Chromium/axe coverage.
+- M7 subsequently recorded the expanded 297-test clean development-container verification.
 
-- Direct case-session axe scanning is implemented and orchestration is covered by 11 new tests in the 99-test passing local Windows suite. Disabled and completed outcomes are distinct from rejections. No successful real-browser scan or automatic step cadence is established by those mocked checks.
+## Learning plan reference
 
-- Runner-core resolves accessibility defaults and independent plan/case overrides through a pure public helper and exposes per-session snapshots. The build and all 88 tests pass locally on Windows; a separate TypeScript public-import check confirms compatibility with result-model settings. These are mocked-browser tests, not axe scan execution evidence.
+[Browser lifecycle](../../Learning%20Plan/Phase%201/Lessons/07-browser-lifecycle.md), [page interactions](../../Learning%20Plan/Phase%201/Lessons/08-page-interactions.md), and [assertions and accessibility](../../Learning%20Plan/Phase%201/Lessons/09-assertions-accessibility.md).
 
-- The accessibility result v1 extension is represented in JSON Schema, TypeScript types, a synthetic example, and 22 passing local Windows tests. It validates shape/formats and duplicate related objects; the pure mapper now calculates counts for each mapped violation, while the separate collector now updates accumulated counts; automatic scanner integration is now implemented. Earlier minimal v1 accessibility records require the new fields; no migration tooling is implemented.
+## Supporting detail
 
-- The `assertValue` slice builds and passes all 81 runner-core tests locally on Windows. Coverage includes exact input values, locale selection, shared timeout budgets, hard/soft failures, and optional associated-label checks. These tests mock Playwright; dev-container, real-browser, and current CI verification are not established by this run.
-- A plan author can determine valid settings and actions from the contract alone.
-- The initial action set covers URL navigation, the requested selector-based interactions, bounded optional waits/delays, and viewport handling; each option's applicability and ordering are explicit.
-- The initial assertions cover inner text/HTML and input value comparisons, with optional associated-label checks implemented as always soft. A hard value failure stops before the label check; a soft value failure allows the label check to run within the remaining timeout.
-- Invalid settings and unknown actions fail clearly before execution where possible.
-- The action schema represents hard/soft assertion mode; [ATR-010](../Backlog/epics/E02-execution-engine/stories/ATR-010.md) and M6 define continuation and result-status effects.
-- Examples and invalid fixtures reflect the documented rules; plan-schema public-entry tests cover the action/assertion shapes, and runner-core tests cover implemented execution behaviour. The earlier 62-test dev-container run covered `assertText` and `assertHtml`; the subsequent 81-test Windows run also covers `assertValue` and its label checks.
-- `@stagehand/runner-core` starts one Chromium process per run, creates isolated case contexts/pages with effective browser settings, coordinates in-flight setup with idempotent run cleanup, resolves unique locators, runs ordered wait lists, exposes case-session navigation, clicks, sequential typing, direct field filling, option selection by value or visible label, and exact locale-aware text, HTML, and input-value assertions. The dispatcher handles validated `navigate`, `click`, `type`, `fill`, `selectOption`, `assertText`, `assertHtml`, and `assertValue` steps. The build and all 81 mocked-browser tests passed locally on Windows; the earlier 62-test dev-container result predates `assertValue`.
-- The earlier plan-schema baseline passed all 32 tests in the dev container, including absolute HTTP/HTTPS navigation URL checks. The later tag-schema slice builds and passes all 39 tests locally on Windows; its dependent plan-engine check passes 14 tests and skips 3 Windows symlink tests. The current dev-container evidence and owner-confirmed PR CI below now cover this slice.
-
-## Learning reference
-
-[Page interactions](../../Learning%20Plan/Phase%201/Lessons/08-page-interactions.md) and [assertions and accessibility](../../Learning%20Plan/Phase%201/Lessons/09-assertions-accessibility.md)
-
-## Deferred Chromium/axe verification
-
-The owner deferred actual Chromium/axe integration tests until the project contains its own test site. Resume this verification when that site is available; cover successful assessments, tag scope, repeated-scan deduplication, frames, and cleanup against synthetic site content. This is deferred verification, not a passing browser assessment or evidence that M4 is complete. Existing unit tests and dev-container/CI checks that do not require real Chromium/axe assessments can proceed independently. The site location, design, and implementation slice have not been selected.
-
-## Current dev-container verification
-
-The agent ran the existing suites in the running Stagehand Linux dev container at checkout `fe539f7`, using the repository Dockerfile environment with Node.js 26.12.1 and npm 11.20.0. `npm ci` succeeded, and `npm ls --workspaces --depth=0` then showed all seven linked workspaces without extraneous dependencies. Each package test command built its package successfully: plan-schema 39/39, plan-engine 17/17, result-model 22/22, and runner-core 131/131. All 209 tests passed with zero failures and zero skips, including the three filesystem-link tests previously skipped on Windows. These were the existing suites with browser/adapter doubles; no actual Chromium/axe assessments were run. This verifies the current checkout in the existing container, not a fresh container image build, GitHub CI run, or production Linux runner support.
-
-Commands run as the configured `node` user in `/workspaces/stagehand`: `npm ci`, `npm ls --workspaces --depth=0`, then `npm test --workspace @stagehand/plan-schema`, `npm test --workspace @stagehand/plan-engine`, `npm test --workspace @stagehand/result-model`, and `npm test --workspace @stagehand/runner-core`. The container shares the checkout and node_modules with the host; dependency refresh replaced the inconsistent pre-existing installation.
-
-## Owner-confirmed CI evidence
-
-The owner confirmed that GitHub CI passed on every PR through the merged automatic-assessment PR #50. This is owner-reported remote verification, separate from the agent-run 209-test dev-container verification. The agent did not inspect individual workflow runs or collect run URLs. Actual Chromium/axe assessments remain deferred until a project-owned test site exists; passing CI does not supply that missing browser evidence.
-
-## Current status
-
-M4 implementation tasks are complete. The existing suites pass in the running dev container (209 tests, no failures or skips), and the owner confirmed passing GitHub CI on every PR through PR #50. Actual Chromium/axe assessment verification is explicitly deferred until a project-owned test site exists. This status does not claim complete browser verification or close the deferred tasks; no test-site design or implementation has been agreed.
+Detailed contracts remain in [ATR-003](../Backlog/epics/E01-plan-definition/stories/ATR-003.md), [TE-003](../Backlog/technical-enablers/te-003-playwright-browser-lifecycle-and-factory.md), [TE-010](../Backlog/technical-enablers/te-010-axe-integration.md), and the runner-core package documentation. Locators use up to three attempts with one-second gaps inside the shared timeout. Direct methods do not imply automatic collection; eligible step execution owns that cadence.

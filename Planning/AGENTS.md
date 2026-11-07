@@ -4,7 +4,7 @@ This folder contains four different planning artifacts and a repository map. Kee
 
 - `Backlog/` records candidate requirements, epics, stories, technical enablers, and decisions.
 - `Roadmap/` describes a proposed dependency-informed sequence and phase outcomes.
-- `Work Plan/` records M0 as a pre-Phase 1 prerequisite and turns Phase 1 into milestones, deliverables, dependencies, estimates, and evidence.
+- `Work Plan/` records M0 as a pre-Phase 1 prerequisite and turns Phase 1–2 into milestones, deliverables, dependencies, estimates, and evidence.
 - `Security/` contains an initial, planned ITSG-33 control mapping; it is not a compliance assertion.
 - `Repository/` documents the current and proposed repository layout.
 - `Diagrams/` contains planning diagrams, preferably as editable Mermaid in Markdown.

@@ -11,7 +11,7 @@ This is similar to editing one cell in a spreadsheet: changing the cell should n
 
 ## Try it
 
-Trace a plan title from loaded JSON, through a form control, and back to exported JSON. List the checks needed at each boundary.
+Choose an existing editable plan field once M8 resolves that decision. Trace it from loaded JSON, through a form control, and back to exported JSON. List the checks needed at each boundary. Do not assume a plan title exists: the current v1 plan contract has no title or description field.
 
 ## You are ready when
 

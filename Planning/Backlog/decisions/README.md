@@ -5,3 +5,8 @@
 Use ADRs to capture significant decisions, alternatives considered, consequences, and status. Do not silently rewrite a decision that has already guided implementation; create a superseding ADR when the decision changes.
 
 Suggested status values: Proposed, Accepted, Rejected, Superseded.
+
+## Phase 2 editor decisions
+
+- [ADR-005 — Basic editor draft recovery from M8](ADR-005-editor-draft-recovery.md): accepted; one IndexedDB recovery draft is part of M8, with broader protection retained for M13.
+- [ADR-006 — Editor technology and UI baselines](ADR-006-editor-technology-and-ui-baselines.md): accepted; owner-led Vite/Vue/TypeScript setup, Canadian English/French localization with Neutral guidance, later user-loaded optional personas, and initial Bootstrap 5 CDN styling with offline follow-through deferred.

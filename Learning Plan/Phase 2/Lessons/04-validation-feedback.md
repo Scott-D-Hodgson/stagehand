@@ -9,6 +9,8 @@ Validation feedback should say what is wrong, where it is, and what kind of corr
 
 Do not hide the original location: it helps diagnose problems the form cannot display. Feedback must also work with a keyboard and assistive technology.
 
+M8 will validate when a document opens, when an edited field loses focus, and when the user chooses Validate. An invalid value can still be part of a recovery draft; validation must not silently discard it or block autosave.
+
 ## Try it
 
 Rewrite “must match pattern” as an actionable message for an invalid case ID. Include the field, the rule, and an example correction.
