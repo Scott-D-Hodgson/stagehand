@@ -1,8 +1,29 @@
 # Third-party notices
 
 Stagehand uses the following third-party packages in `@stagehand/plan-schema`,
-`@stagehand/plan-engine`, `@stagehand/result-model`, and `@stagehand/runner-core`. Dependency versions
-and licences below reflect the resolved dependency tree in `package-lock.json`.
+`@stagehand/plan-engine`, `@stagehand/result-model`, `@stagehand/runner-core`,
+and `@stagehand/web`. Dependency versions and licences below reflect the
+resolved dependency tree in `package-lock.json`.
+
+## Web editor dependencies
+
+The following packages establish the Vue editor's development and build
+foundation. Vue is bundled into the editor output; the remaining packages are
+development tools and are not bundled into the application.
+
+| Package | Version | Licence | Copyright / attribution |
+| --- | --- | --- | --- |
+| `vue` | 3.5.44 | MIT | Copyright (c) 2018-present Evan You and Vue contributors |
+| `vite` | 8.3.6 | MIT | Copyright (c) 2019-present Evan You and Vite contributors |
+| `@vitejs/plugin-vue` | 6.0.10 | MIT | Vite contributors |
+| `@vue/tsconfig` | 0.9.1 | MIT | Vue contributors |
+| `vue-tsc` | 3.3.14 | MIT | Vue.js contributors |
+| `vitest` | 5.1.0 | MIT | Vitest contributors |
+| `typescript` | 6.0.3 | Apache-2.0 | Copyright Microsoft Corporation |
+
+The initial editor shell loads Bootstrap 5.3.8 CSS from jsDelivr rather than
+bundling it. Bootstrap is MIT-licensed and is not available for an offline cold
+start in this slice. Its local/offline follow-through is planned for M14.
 
 ## Ajv and dependencies
 
@@ -91,11 +112,11 @@ Reproduced from the installed `axe-core@4.14.0/axe.js`:
 
 DEQUE, DEQUELABS, AXE®, and AXE-CORE® are trademarks of Deque Systems, Inc. Use of the Deque trademarks must be in accordance with [Deque's trademark policy](https://www.deque.com/legal/trademarks/).
 
-## Plan-engine development-only types
+## Development-only Node.js types
 
 These packages provide TypeScript declarations for the Node.js APIs used by
-`@stagehand/plan-engine`; they are development dependencies and are not bundled
-into the Stagehand application.
+`@stagehand/plan-engine` and the web-editor build tooling; they are development
+dependencies and are not bundled into the Stagehand application.
 
 | Package | Version | Licence | Copyright / attribution |
 | --- | --- | --- | --- |

@@ -8,7 +8,9 @@ This folder describes the shape of the Stagehand repository. The companion [stru
 
 - [`Planning/`](../README.md) - product backlog, roadmap, security planning, and work plans.
 - [`Learning Plan/`](../../Learning%20Plan/README.md) - learning materials that prepare for Phase 1 work.
-- `apps/` - initial CLI and Vue editor npm workspace scaffolds; no app behaviour is implemented yet.
+- `apps/` - CLI workspace scaffold and the M8.1 Vue editor foundation. The web
+  app has a minimal shell, shared-schema validation boundary, and focused unit
+  test; authoring behaviour remains later Phase 2 work.
 - `packages/` - reusable-package npm workspaces; plan-schema, plan-engine, result-model, and runner-core have implementation code. The remaining packages are scaffolds.
 - [`Planning/Diagrams/`](../Diagrams/M1-component-dependency-graph.md) - editable diagrams that clarify proposed architecture and planning relationships.
 

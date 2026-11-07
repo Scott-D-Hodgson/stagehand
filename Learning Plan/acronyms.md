@@ -22,7 +22,7 @@ This glossary covers acronyms used in the Learning Plan. Backlog identifiers are
 | JSON | JavaScript Object Notation. |
 | LICENSE | The conventional filename for a repository's licence text; not an acronym in this context. |
 | LTS | Long-term support. |
-| M0–M7 | Work-plan milestone identifiers; M0 is repository bootstrap and M1–M7 cover Phase 1. |
+| M0–M14 | Work-plan milestone identifiers; M0 is repository bootstrap, M1–M7 cover Phase 1, and M8–M14 cover Phase 2. |
 | MDN | Mozilla Developer Network. |
 | MIT | Massachusetts Institute of Technology; the project uses the MIT Licence. |
 | MPL-2.0 | Mozilla Public License, version 2.0. |

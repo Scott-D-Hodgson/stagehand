@@ -9,7 +9,7 @@ Vue builds a screen from **components**: small, reusable pieces such as a plan f
 
 Think of a component as a labelled drawer and reactive state as its contents. Vue keeps the label on the drawer in step with what is inside.
 
-Stagehand's Vue editor is planned work. M8 will use Vite, Vue, and TypeScript, with the owner running the initial setup commands as a learning exercise. It should provide a local interface over the shared document contracts, not replace them. Bootstrap 5 CDN styling is an initial presentation aid; it must not determine document rules or application state.
+M8.1 has established Stagehand's Vite, Vue, and TypeScript editor foundation, with the owner running the initial setup commands as a learning exercise. It provides a local shell over the shared document contracts, not a replacement for them. Bootstrap 5 CDN styling is an initial presentation aid; it must not determine document rules or application state. Form editing remains later M8 work.
 
 The first editor ships with Canadian English and Canadian French Neutral guidance. User-facing text belongs in translation resources from the start, even when the first screen has only a small amount of text.
 

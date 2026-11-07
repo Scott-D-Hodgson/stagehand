@@ -22,7 +22,7 @@ Complete the Phase 1 contract lessons first; the editor must preserve those cont
 
 The [Phase 2 work plan](../../Planning/Work%20Plan/Phase-2-visual-authoring.md) defines M8–M14. These lessons explain concepts rather than dictate implementation order: basic draft recovery and multiple-tab conflict handling start in M8, before the full file workflow. M13 completes protection across later authoring features.
 
-The accepted foundation uses owner-led Vite/Vue/TypeScript setup, Canadian English/French, Neutral guidance, and initial Bootstrap 5 CDN styling; optional user-loaded personas follow later. See [ADR-006](../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md). The recovery scope is recorded in [ADR-005](../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md). These are planned capabilities, not implemented editor behaviour.
+The accepted foundation uses owner-led Vite/Vue/TypeScript setup, Canadian English/French, Neutral guidance, and initial Bootstrap 5 CDN styling; optional user-loaded personas follow later. See [ADR-006](../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md). The recovery scope is recorded in [ADR-005](../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md). M8.1 now supplies the application foundation, shared-schema validation boundary, focused unit test, and visual shell check. Form editing, localization, recovery, conflict handling, import/export, and other Phase 2 workflows remain planned.
 
 ## Lessons
 

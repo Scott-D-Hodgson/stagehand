@@ -1,0 +1,23 @@
+# Lesson 5: Document-state delivery path
+
+> “What can the editor safely do next without pretending the hard parts are done?” — Dana “Draft” Ellis, Developer
+
+[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+
+M8.2 begins document state and basic editing. Before a form is implemented, the owner must choose an existing first editable contract field or explicitly permit identifier editing. The v1 plan schema has no title or description field, so an editor must not invent one as a convenient label.
+
+The subsequent M8 slices add localization and Neutral guidance (M8.3), one recoverable IndexedDB draft (M8.4), and multiple-tab conflict handling (M8.5). The accepted recovery scope is in [ADR-005](../../../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md); technology and language baselines are in [ADR-006](../../../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md).
+
+Keep four kinds of information separate: contract data that can eventually be exported, temporary incomplete form values, interface state such as the open panel, and local preferences such as the selected interface language. A storage snapshot must preserve incomplete values without claiming that they are a valid portable plan.
+
+## Try it
+
+Open the M8 work plan and list one acceptance check for each remaining M8 slice. Then identify the unresolved first-editable-field decision before writing a form.
+
+## You are ready when
+
+- You can name the remaining M8 slices and their boundaries.
+- You will not add a plan name or description without a contract decision.
+- You can distinguish an invalid draft from valid exportable document data.
+
+[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)

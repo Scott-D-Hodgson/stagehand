@@ -4,9 +4,9 @@
 
 ## Objective and prerequisites
 
-Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md) is recorded complete. The web application remains a workspace scaffold; this plan does not claim any editor behaviour is implemented.
+Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md) is recorded complete. M8.1 has established the web application's Vite/Vue/TypeScript foundation, shared-schema validation boundary, focused unit test, and visual shell check. This plan does not claim later editor behaviour is implemented.
 
-The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md) for M8 draft recovery and [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) for technology, localization, and presentation. The owner performs the Vite scaffolding with guided commands. Implementation has not been authorized by this planning document alone.
+The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md) for M8 draft recovery and [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) for technology, localization, and presentation. The owner completed the Vite scaffolding through guided commands in M8.1. This planning document does not authorize or evidence later implementation by itself.
 
 ## Milestones and provisional estimates
 
