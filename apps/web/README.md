@@ -46,5 +46,7 @@ Run these commands from the repository root:
   plan-locale input so shared validation can report invalid values rather than
   silently changing them.
 - `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
-  IndexedDB adapter for one versioned recovery record. It is not yet connected
-  to autosave, restore/discard UI, or multiple-tab conflict handling.
+  IndexedDB adapter for one versioned recovery record. On startup, the recovery
+  gate offers Restore or Discard for a readable copy and requires explicit
+  discard for unreadable data. Autosave and multiple-tab conflict handling
+  remain later work.

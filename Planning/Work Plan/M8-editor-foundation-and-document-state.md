@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1 complete, M8.2 verified, and M8.4 storage foundation verified
+**Status:** In progress; M8.1/M8.2 complete and M8.4 recovery gate verified
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -112,7 +112,7 @@ M8.3 scope.
 - [x] Put IndexedDB operations behind a small storage interface and identify the initial draft format.
 - [ ] Store one plan/case draft, including incomplete form values, after one second without edits; validation failures do not block saving.
 - [ ] Show saving, saved locally only after success, and failure states. Do not rely on application closure to save.
-- [ ] Offer Restore or Discard with the last-saved time on reopening.
+- [x] Offer Restore or Discard with the last-saved time on reopening.
 - [ ] Preserve unreadable recovery data and require explicit discard before starting fresh.
 - [ ] Verify reopened recovery, invalid/incomplete values, storage failures, and sample-reset protection.
 
@@ -120,12 +120,18 @@ The initial storage boundary is a `DraftStorage` interface with load, save, and
 explicit discard operations for one active recovery record. The v1 record keeps
 the raw plan draft, a non-negative revision, and an ISO 8601 saved time. The
 IndexedDB adapter keeps its internal key private, preserves unsupported records
-as unreadable rather than deleting them, and is not yet connected to the editor
-or an autosave timer. The owner verified the foundation in the development
-container on 7 November 2026: `npm test --workspace @stagehand/web` passed 17
-tests across six files; `npm run type-check --workspace @stagehand/web` passed;
-and `npm run build --workspace @stagehand/web` completed the plan-schema build,
-editor type check, and 134-module Vite production build in 1.76 seconds.
+as unreadable rather than deleting them. The startup gate now loads this record
+before editing: it offers Restore or Discard with the saved time for a readable
+record, and requires explicit discard for unreadable data. Autosave remains out
+of scope for this slice. The owner verified it in the development container on
+7 November 2026: `npm test --workspace @stagehand/web` passed 21 tests across
+seven files; `npm run type-check --workspace @stagehand/web` passed; and
+`npm run build --workspace @stagehand/web` completed the plan-schema build,
+editor type check, and 138-module Vite production build in 1.50 seconds. The
+forwarded-browser check restored a seeded `recovered-plan` with `fr-CA`, then
+discarded the recovery copy and returned to `editor-foundation` with `en-CA`.
+The browser name and version were not recorded. Unreadable-record presentation
+has automated coverage but still needs browser evidence.
 
 ### M8.5 — Multiple-tab conflict handling (2–3 person-days)
 

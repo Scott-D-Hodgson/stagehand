@@ -2,7 +2,7 @@
 
 > “How can a draft survive a closed tab without becoming the user's exported file?” — Rowan “Record” Patel, Developer
 
-[← Previous: document-state path](05-document-state-path.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: document-state path](05-document-state-path.md) · [Course outline](../README.md) · [Next: recovery gate →](07-recovery-gate.md)
 
 M8.4 begins with a narrow persistence boundary. `DraftStorage` exposes only
 load, save, and explicit discard operations. Vue components do not use
@@ -16,8 +16,8 @@ whether a plan is valid for a later export or run.
 
 There is only one active record in this slice. The IndexedDB adapter keeps its
 internal lookup key private. If it encounters an unsupported record, it reports
-that record as unreadable instead of changing or deleting it. A later UI slice
-must offer an explicit discard path; it must never overwrite unreadable data
+that record as unreadable instead of changing or deleting it. The recovery gate
+offers an explicit discard path; it must never overwrite unreadable data
 with the bundled sample.
 
 `fake-indexeddb` is a development-only test dependency that lets Vitest execute
@@ -35,6 +35,6 @@ record.
 - You can distinguish a recovery snapshot from an exported plan.
 - You can explain why unknown stored data must not be silently discarded.
 - You can name the remaining recovery work: autosave timing, status feedback,
-  restore/discard UI, and multiple-tab conflict handling.
+  browser evidence for unreadable data, and multiple-tab conflict handling.
 
-[← Previous: document-state path](05-document-state-path.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: document-state path](05-document-state-path.md) · [Course outline](../README.md) · [Next: recovery gate →](07-recovery-gate.md)
