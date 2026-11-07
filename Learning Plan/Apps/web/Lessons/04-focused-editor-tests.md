@@ -14,6 +14,8 @@ npm test --workspace @stagehand/web
 
 Use unit tests for deterministic document-state rules: preserving an invalid input, calculating whether an export is allowed, or comparing a local revision. They do not prove keyboard behaviour, screen-reader announcements, or browser storage behaviour. Those require appropriately scoped browser checks later.
 
+Localization tests also belong here when they exercise stable language rules. The validation-status test checks i18next's zero, one, and other plural resources for both initial locales, so a future wording change cannot quietly reintroduce “issue(s)” style copy.
+
 The GitHub Actions web job repeats the production build and one-time Vitest run on Linux after a clean install. It gives pull requests a repeatable check of the M8.1 foundation, but it does not open a browser or replace the forwarded-port visual smoke check.
 
 ## Try it

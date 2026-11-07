@@ -11,6 +11,8 @@ Run these commands from the repository root:
 - `npm run dev --workspace @stagehand/web` starts the Vite development server.
 - In a development container, append `-- --host 0.0.0.0`, forward port 5173,
   and use the forwarded browser URL for a visual check.
+- The Vite server uses polling so edits made through the shared development
+  workspace trigger a reliable live reload in the container.
 - `npm run type-check --workspace @stagehand/web` checks the Vue and TypeScript source.
 - `npm test --workspace @stagehand/web` runs the editor unit tests once.
 - `npm run test:watch --workspace @stagehand/web` starts Vitest in watch mode.
@@ -33,3 +35,7 @@ Run these commands from the repository root:
   Light or Dark selection is stored under `stagehand.theme-preference` in local
   storage; System removes that override. This interface preference is separate
   from plan data and draft recovery.
+- i18next 26.7.2 and i18next-vue 5.4.0 provide Canadian English (`en-CA`,
+  default) and Canadian French (`fr-CA`) shell resources. Each locale has its
+  own JSON file in `src/localization/locales/`; the selected language is stored
+  under `stagehand.interface-language`, separately from plan and recovery data.
