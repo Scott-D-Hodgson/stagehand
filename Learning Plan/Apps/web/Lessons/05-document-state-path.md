@@ -19,8 +19,9 @@ interface languages.
 The current component boundary is deliberately small: `App` owns application
 preferences and the active draft, `AppHeader` owns shell controls, `PlanBundle`
 coordinates the plan view, and its children present plan details, read-only case
-references, and the shared-contract assessment. The implementation awaits its
-post-extraction checks; this is a learning map, not completion evidence.
+references, and the shared-contract assessment. Its initial automated and
+forwarded-browser checks have passed, but that evidence does not complete later
+M8 document, recovery, or accessibility work.
 
 The subsequent M8 slices add localization and Neutral guidance (M8.3), one recoverable IndexedDB draft (M8.4), and multiple-tab conflict handling (M8.5). The accepted recovery scope is in [ADR-005](../../../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md); technology and language baselines are in [ADR-006](../../../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md).
 
