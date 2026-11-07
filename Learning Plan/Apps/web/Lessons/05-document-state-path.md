@@ -2,7 +2,7 @@
 
 > “What can the editor safely do next without pretending the hard parts are done?” — Dana “Draft” Ellis, Developer
 
-[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: recovery storage →](06-recovery-storage-foundation.md)
 
 M8.2 begins document state and basic editing. The owner selected the existing
 `defaults.locale` contract field as its first editable field; identifiers remain
@@ -37,4 +37,4 @@ Open the M8 work plan and list one acceptance check for each remaining M8 slice.
 - You will not add a plan name or description without a contract decision.
 - You can distinguish an invalid draft from valid exportable document data.
 
-[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: course skill check →](../quiz.md)
+[← Previous: focused editor tests](04-focused-editor-tests.md) · [Course outline](../README.md) · [Next: recovery storage →](06-recovery-storage-foundation.md)

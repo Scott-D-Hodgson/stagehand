@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1 complete and initial M8.2 document-state slice verified
+**Status:** In progress; M8.1 complete, M8.2 verified, and M8.4 storage foundation verified
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -109,12 +109,23 @@ M8.3 scope.
 
 ### M8.4 — Draft autosave and recovery (2–4 person-days)
 
-- [ ] Put IndexedDB operations behind a small storage interface and identify the initial draft format.
+- [x] Put IndexedDB operations behind a small storage interface and identify the initial draft format.
 - [ ] Store one plan/case draft, including incomplete form values, after one second without edits; validation failures do not block saving.
 - [ ] Show saving, saved locally only after success, and failure states. Do not rely on application closure to save.
 - [ ] Offer Restore or Discard with the last-saved time on reopening.
 - [ ] Preserve unreadable recovery data and require explicit discard before starting fresh.
 - [ ] Verify reopened recovery, invalid/incomplete values, storage failures, and sample-reset protection.
+
+The initial storage boundary is a `DraftStorage` interface with load, save, and
+explicit discard operations for one active recovery record. The v1 record keeps
+the raw plan draft, a non-negative revision, and an ISO 8601 saved time. The
+IndexedDB adapter keeps its internal key private, preserves unsupported records
+as unreadable rather than deleting them, and is not yet connected to the editor
+or an autosave timer. The owner verified the foundation in the development
+container on 7 November 2026: `npm test --workspace @stagehand/web` passed 17
+tests across six files; `npm run type-check --workspace @stagehand/web` passed;
+and `npm run build --workspace @stagehand/web` completed the plan-schema build,
+editor type check, and 134-module Vite production build in 1.76 seconds.
 
 ### M8.5 — Multiple-tab conflict handling (2–3 person-days)
 
@@ -138,8 +149,7 @@ Each slice can use more than one feature-sized PR if needed. The ranges sum to t
 ## Open decisions before relevant slices
 
 - **Plan locale control:** `defaults.locale` is the accepted first editable field. Keep its raw BCP 47 text input for the initial M8.2 slice. A future focused PR may replace it with an accessible searchable combobox backed by a deliberately maintained locale catalogue; do not restrict plan locales to the editor's `en-CA`/`fr-CA` interface choices without a separate contract decision.
-- Select storage implementation during its slice.
-- Define the exact draft representation and comparison presentation, including a clear route through failed storage or unreadable data.
+- Define the comparison presentation and a clear route through failed storage or unreadable data.
 
 ## Exclusions and follow-through
 
