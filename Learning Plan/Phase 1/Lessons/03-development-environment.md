@@ -9,6 +9,16 @@ A development container records the operating system tools, Node version, npm ve
 
 Repository guidance explains how humans and agents should edit, verify, and report work. Pinned tools reduce accidental differences; documented commands make verification repeatable.
 
+After opening the development container, a contributor can refresh the locked dependencies and run the current Phase 1 checks with:
+
+```sh
+npm ci
+npm ls --workspaces --depth=0
+npm run test:phase1
+```
+
+`test:phase1` checks package boundaries, the four implemented package suites, and the mocked package-integration walkthrough. It does not install Chromium or prove a live Chromium/axe assessment; those remain deferred until Stagehand has a project-owned test site. GitHub Actions runs the package suites, boundary check, and mocked integration walkthrough as separate jobs, including Windows coverage for plan-engine and runner-core.
+
 ## Try it
 
 Identify which files pin Node/npm, configure the container, and provide contributor/agent rules. Explain what each controls.
@@ -17,5 +27,6 @@ Identify which files pin Node/npm, configure the container, and provide contribu
 
 - You can distinguish a reproducible environment from production support.
 - You know where to find the repository's working rules.
+- You can run the clean-install verification sequence and state what it does not test.
 
 [← Previous: package architecture](02-package-architecture.md) · [Phase outline](../README.md) · [Next: plan case contracts →](04-plan-case-contracts.md)
