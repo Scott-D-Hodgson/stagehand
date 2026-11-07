@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
-import { validateEditorPlan } from './document/validation'
+import AppHeader from './components/AppHeader.vue'
+import PlanBundle from './components/PlanBundle.vue'
+import { createBundledPlanDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -12,15 +14,9 @@ import {
   type ThemePreference,
 } from './preferences/theme'
 
-const bundledPlan = {
-  version: 1,
-  id: 'editor-foundation',
-  cases: [],
-}
-
-const validation = validateEditorPlan(bundledPlan)
 const { i18next, t } = useTranslation()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
+const planDraft = ref(createBundledPlanDraft())
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -106,26 +102,7 @@ watch(resolvedTheme, (theme) => {
 
 <template>
   <div class="min-vh-100 bg-body">
-    <header class="border-bottom bg-body-tertiary">
-      <div class="container d-flex align-items-center justify-content-between gap-3 py-3">
-        <p class="mb-0 fw-semibold">{{ t('editor.heading') }}</p>
-        <label class="d-flex align-items-center gap-2 small" for="interface-language">
-          {{ t('editor.language') }}
-          <select id="interface-language" v-model="interfaceLanguage" class="form-select form-select-sm">
-            <option value="en-CA">{{ t('editor.englishCanada') }}</option>
-            <option value="fr-CA">{{ t('editor.frenchCanada') }}</option>
-          </select>
-        </label>
-        <label class="d-flex align-items-center gap-2 small" for="theme-preference">
-          {{ t('editor.theme') }}
-          <select id="theme-preference" v-model="themePreference" class="form-select form-select-sm">
-            <option value="system">{{ t('editor.systemTheme') }}</option>
-            <option value="light">{{ t('editor.lightTheme') }}</option>
-            <option value="dark">{{ t('editor.darkTheme') }}</option>
-          </select>
-        </label>
-      </div>
-    </header>
+    <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
     <main class="container py-5">
       <div class="row justify-content-center">
         <div class="col-lg-8">
@@ -133,12 +110,7 @@ watch(resolvedTheme, (theme) => {
           <p class="lead">
             {{ t('editor.introduction') }}
           </p>
-          <section class="card shadow-sm" aria-labelledby="contract-status-heading">
-            <div class="card-body">
-              <h2 id="contract-status-heading" class="h5">{{ t('editor.sharedContract') }}</h2>
-              <p class="mb-0" aria-live="polite">{{ validation.valid ? t('editor.validPlan') : t('editor.invalidPlan', { count: validation.issues.length }) }}</p>
-            </div>
-          </section>
+          <PlanBundle v-model:plan="planDraft" />
         </div>
       </div>
     </main>
