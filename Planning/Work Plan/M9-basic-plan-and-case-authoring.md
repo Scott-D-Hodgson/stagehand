@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** Planned; task breakdown and estimate proposed  
+**Status:** In progress; first case-reference authoring slice implemented, pending verification
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -11,11 +11,26 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 ## Tasks
 
 - [ ] Create new plans and cases with clear identifier handling; preserve version 1 contract rules.
-- [ ] Add, remove, and reorder case references and steps; explain missing or duplicate references.
+- [ ] Verify add, edit, and removal of plan case references while preserving the rest of the draft; require confirmation before removal and prevent duplicate entered paths.
+- [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
 - [ ] Extend recovery and conflict comparison to all newly editable data; confirm destructive changes as they are introduced.
 - [ ] Keep new UI text in Canadian English/French resources and verify keyboard operation.
+
+## Current implementation evidence
+
+The first M9 slice adds immutable draft helpers for adding, changing, and
+removing a case-reference path. The editor presents existing references as
+read-only values with Edit and Remove controls. Add and Edit share a Bootstrap
+dialog that suggests a filename-safe `cases/*.json` path from the entered case
+name; the reference path remains independently editable. A Bootstrap
+confirmation dialog protects removal and sample reset. Canadian English and
+French resources include the new interface text.
+
+Focused plan-draft tests cover add, change, and remove operations without
+mutating the source draft. Verification of the completed UI workflow, keyboard
+operation, and updated automated checks remains pending for this PR.
 
 ## Deliverables and completion evidence
 
@@ -25,7 +40,7 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested PR slices: plan/case creation and references; interaction forms; assertion forms and step ordering.
+Suggested remaining PR slices: plan/case creation; interaction forms; assertion forms and step ordering.
 
 ## Open decisions and exclusions
 

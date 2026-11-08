@@ -10,6 +10,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 6. Name the four kinds of data that must not be confused as M8 develops.
 7. What information does the v1 recovery record contain, and why is an unsupported stored record not deleted automatically?
 8. Why must the recovery gate run before autosave?
+9. What does the current M9 case-reference dialog save, and what does it not create?
 
 ## Answer key
 
@@ -21,3 +22,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 6. Exportable contract data, incomplete form values, interface state, and local preferences.
 7. It contains the raw plan draft, a non-negative revision, and an ISO 8601 saved time. An unsupported record may still contain recoverable user work, so it remains unreadable until a later explicit discard choice.
 8. Otherwise, the bundled sample could overwrite a recovery record before the person can restore or discard it.
+9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.

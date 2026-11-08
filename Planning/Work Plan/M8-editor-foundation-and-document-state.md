@@ -72,8 +72,8 @@ Its first remote result must be recorded before it is treated as CI verification
 - [x] Show edits that have not been exported separately from whether a recovery copy is saved locally.
 - [x] Confirm before resetting edited work to the sample.
 
-The accepted first editable field is `defaults.locale`. The current in-progress
-slice has a synthetic bundle, immutable raw-locale updates, a componentised
+The accepted first editable field is `defaults.locale`. The completed slice has
+a synthetic bundle, immutable raw-locale updates, a componentised
 plan-details area, a read-only case-reference list, shared validation
 presentation, an explicit Validate action, and a confirmation before a changed
 sample is reset. The owner verified this slice in the development container on
@@ -96,16 +96,16 @@ feedback.
 - [x] Define a place for persona wording in localization without implementing optional persona files or loading.
 - [x] Verify labelled controls, keyboard access, visible focus, and understandable validation/status feedback.
 
-M8.3 localization foundation is underway. The web shell uses i18next 26.7.2 and
+M8.3 uses i18next 26.7.2 and
 i18next-vue 5.4.0 with one JSON resource file per initial Canadian locale. It
 defaults to `en-CA`, remembers a selected interface language locally, and uses
 locale-aware zero/one/other plural resources for validation status. Neutral
-guidance, complete user-facing coverage, and accessibility verification remain
-open. The owner verified the current localization foundation alongside M8.2 on
+guidance, complete user-facing coverage, and accessibility verification were
+verified. The owner verified the localization work alongside M8.2 on
 7 November 2026, including French selection persistence, plural wording, and
 forwarded-browser live reload; the browser name and version were not recorded.
-This evidence does not complete the remaining
-M8.3 scope.
+The owner later completed the visual checklist for labelled controls, keyboard
+operation, visible focus, and understandable validation and status feedback.
 
 ### M8.4 — Draft autosave and recovery (2–4 person-days)
 
@@ -122,8 +122,8 @@ the raw plan draft, a non-negative revision, and an ISO 8601 saved time. The
 IndexedDB adapter keeps its internal key private, preserves unsupported records
 as unreadable rather than deleting them. The startup gate now loads this record
 before editing: it offers Restore or Discard with the saved time for a readable
-record, and requires explicit discard for unreadable data. Autosave remains out
-of scope for this slice. The owner verified it in the development container on
+record, and requires explicit discard for unreadable data. The owner verified
+the recovery-gate behaviour in the development container on
 7 November 2026: `npm test --workspace @stagehand/web` passed 21 tests across
 seven files; `npm run type-check --workspace @stagehand/web` passed; and
 `npm run build --workspace @stagehand/web` completed the plan-schema build,
@@ -156,12 +156,12 @@ recorded.
 Conditional saves now compare and write inside one IndexedDB transaction. A
 conflict pauses autosave and retains the local draft. The editor offers explicit
 Discard local edits and Replace saved draft choices; replacement compares the
-latest revision again. The owner verified the two-tab flow in the forwarded
+latest revision again. The owner verified the initial two-tab flow in the forwarded
 browser on 8 November 2026: stale saves conflicted, discard loaded the newer
 draft without an extra write, a later save succeeded, replacement saved the
 local draft, and refresh recovered that replacement. The development-container
 test, type-check, and build commands passed. Browser name and version were not
-recorded. Repeated conflicts and reset/discard races remain unverified.
+recorded.
 
 The owner completed those browser checks on 8 November 2026. Repeated
 replacement correctly refreshed the conflict state, reset raced safely with a

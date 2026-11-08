@@ -1,12 +1,12 @@
 export interface PlanDraft {
-  version: 1
-  id: string
+  version: 1;
+  id: string;
   defaults: {
-    locale: string
-  }
+    locale: string;
+  };
   cases: Array<{
-    path: string
-  }>
+    path: string;
+  }>;
 }
 
 /*
@@ -26,7 +26,7 @@ export function createBundledPlanDraft(): PlanDraft {
     cases: [
       { path: 'cases/landing-page.json' },
     ],
-  }
+  };
 }
 
 /*
@@ -42,7 +42,7 @@ export function copyPlanDraft(plan: PlanDraft): PlanDraft {
     id: plan.id,
     defaults: { locale: plan.defaults.locale },
     cases: plan.cases.map((caseReference) => ({ path: caseReference.path })),
-  }
+  };
 }
 
 /*
@@ -59,5 +59,38 @@ export function updatePlanLocale(plan: PlanDraft, locale: string): PlanDraft {
       ...plan.defaults,
       locale,
     },
-  }
+  };
+}
+
+/*
+Adds a supplied case reference without changing existing references.
+---
+Inputs: An existing editable plan draft.
+---
+Output: A new draft with one empty case-reference path.
+*/
+export function addCaseReference(plan: PlanDraft, path: string): PlanDraft {
+  return { ...plan, cases: [...plan.cases, { path }] };
+}
+
+/*
+Replaces one raw case-reference path by its current index.
+---
+Inputs: A draft, reference index, and entered path.
+---
+Output: A new draft preserving all other references.
+*/
+export function updateCaseReference(plan: PlanDraft, index: number, path: string): PlanDraft {
+  return { ...plan, cases: plan.cases.map((reference, candidateIndex) => candidateIndex === index ? { path } : reference) };
+}
+
+/*
+Removes one case reference after the caller has confirmed the action.
+---
+Inputs: A draft and reference index.
+---
+Output: A new draft without the selected reference.
+*/
+export function removeCaseReference(plan: PlanDraft, index: number): PlanDraft {
+  return { ...plan, cases: plan.cases.filter((_, candidateIndex) => candidateIndex !== index) };
 }

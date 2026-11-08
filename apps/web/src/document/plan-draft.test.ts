@@ -1,5 +1,5 @@
-import { describe, expect, it } from 'vitest'
-import { copyPlanDraft, createBundledPlanDraft, updatePlanLocale } from './plan-draft'
+import { describe, expect, it } from 'vitest';
+import { addCaseReference, copyPlanDraft, createBundledPlanDraft, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -8,23 +8,31 @@ describe('plan draft', () => {
       id: 'editor-foundation',
       defaults: { locale: 'en-CA' },
       cases: [{ path: 'cases/landing-page.json' }],
-    })
-  })
+    });
+  });
 
   it('preserves unrelated plan data and raw invalid locale input', () => {
-    const draft = createBundledPlanDraft()
-    const updated = updatePlanLocale(draft, 'not a locale')
-    expect(updated.defaults.locale).toBe('not a locale')
-    expect(updated.id).toBe(draft.id)
-    expect(updated.cases).toEqual(draft.cases)
-    expect(draft.defaults.locale).toBe('en-CA')
-  })
+    const draft = createBundledPlanDraft();
+    const updated = updatePlanLocale(draft, 'not a locale');
+    expect(updated.defaults.locale).toBe('not a locale');
+    expect(updated.id).toBe(draft.id);
+    expect(updated.cases).toEqual(draft.cases);
+    expect(draft.defaults.locale).toBe('en-CA');
+  });
 
   it('creates an independent plain snapshot for local recovery', () => {
-    const draft = createBundledPlanDraft()
-    const snapshot = copyPlanDraft(draft)
-    snapshot.defaults.locale = 'fr-CA'
-    snapshot.cases[0]!.path = 'cases/changed.json'
-    expect(draft).toEqual(createBundledPlanDraft())
-  })
-})
+    const draft = createBundledPlanDraft();
+    const snapshot = copyPlanDraft(draft);
+    snapshot.defaults.locale = 'fr-CA';
+    snapshot.cases[0]!.path = 'cases/changed.json';
+    expect(draft).toEqual(createBundledPlanDraft());
+  });
+
+  it('adds, updates, and removes case references without mutating the source', () => {
+    const draft = createBundledPlanDraft();
+    const added = addCaseReference(draft, '');
+    const updated = updateCaseReference(added, 1, 'cases/second.json');
+    expect(removeCaseReference(updated, 0).cases).toEqual([{ path: 'cases/second.json' }]);
+    expect(draft.cases).toEqual([{ path: 'cases/landing-page.json' }]);
+  });
+});
