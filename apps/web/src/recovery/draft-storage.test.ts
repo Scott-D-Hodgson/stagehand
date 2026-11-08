@@ -108,4 +108,13 @@ describe('draft recovery storage', () => {
     await expect(otherStorage.save(second, 0)).resolves.toEqual({ kind: 'conflict', record: first })
     await expect(storage.load()).resolves.toEqual({ kind: 'available', record: first })
   })
+
+  it('rejects a stale discard without deleting the newer draft', async () => {
+    const { databaseName, indexedDb, storage } = createTestStorage()
+    const otherStorage = createIndexedDbDraftStorage({ databaseName, indexedDb })
+    const record = createDraftRecoveryRecord({ draft: createBundledPlanDraft(), revision: 1, savedAt: '2026-11-08T20:00:00.000Z' })
+    await storage.save(record, 0)
+    await expect(otherStorage.discard({ revision: 0, savedAt: '2026-11-08T19:00:00.000Z' })).resolves.toEqual({ kind: 'conflict', record })
+    await expect(storage.load()).resolves.toEqual({ kind: 'available', record })
+  })
 })

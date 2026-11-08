@@ -11,7 +11,7 @@ Inputs: A load operation result or rejection.
 Output: A draft-storage boundary for recovery-gate tests.
 */
 function createStorage(load: DraftStorage['load']): DraftStorage {
-  return { discard: async () => {}, load, save: async () => ({ kind: 'saved', revision: 0 }) }
+  return { discard: async () => ({ kind: 'discarded' }), load, save: async () => ({ kind: 'saved', revision: 0 }) }
 }
 
 describe('recovery gate', () => {

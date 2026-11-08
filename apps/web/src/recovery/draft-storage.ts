@@ -18,12 +18,13 @@ export type DraftRecoveryLoadResult =
   | { kind: 'unreadable' }
 
 export interface DraftStorage {
-  discard(): Promise<void>
+  discard(expected?: { revision: number; savedAt: string }): Promise<DraftDiscardResult>
   load(): Promise<DraftRecoveryLoadResult>
   save(record: DraftRecoveryRecord, expectedRevision: number): Promise<DraftSaveResult>
 }
 
 export type DraftSaveResult = { kind: 'saved'; revision: number } | { kind: 'conflict'; record: DraftRecoveryRecord | undefined }
+export type DraftDiscardResult = { kind: 'discarded' } | { kind: 'conflict'; record: DraftRecoveryRecord | undefined }
 
 export interface CreateDraftRecoveryRecordOptions {
   draft: PlanDraft
@@ -77,13 +78,22 @@ export function createIndexedDbDraftStorage(options: CreateIndexedDbDraftStorage
     throw new DraftStorageUnavailableError()
   }
   return {
-    async discard(): Promise<void> {
+    async discard(expected?: { revision: number; savedAt: string }): Promise<DraftDiscardResult> {
       const database = await openDatabase(indexedDb, databaseName)
       try {
         const transaction = database.transaction(recoveryStoreName, 'readwrite')
         const completion = completeTransaction(transaction)
+        const existing = await completeRequest<unknown>(transaction.objectStore(recoveryStoreName).get(activeDraftKey))
+        const actualRevision = isDraftRecoveryRecord(existing) ? existing.revision : 0
+        if (expected !== undefined && (!isDraftRecoveryRecord(existing) || actualRevision !== expected.revision || existing.savedAt !== expected.savedAt)) {
+          const conflictRecord = isDraftRecoveryRecord(existing) ? toDraftRecoveryRecord(existing) : undefined
+          transaction.abort()
+          try { await completion } catch { return { kind: 'conflict', record: conflictRecord } }
+          return { kind: 'conflict', record: conflictRecord }
+        }
         transaction.objectStore(recoveryStoreName).delete(activeDraftKey)
         await completion
+        return { kind: 'discarded' }
       } finally {
         database.close()
       }
