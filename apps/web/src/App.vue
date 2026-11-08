@@ -25,6 +25,7 @@ const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
 let draftStorage: DraftStorage | undefined
 const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
 const recoveryRevision = ref(0)
+const recoveryActionPending = ref(false)
 const conflictRecord = ref<DraftRecoveryRecord | undefined>()
 let autosaveController: AutosaveController | undefined
 let skipNextAutosave = false
@@ -130,14 +131,22 @@ Inputs: A discard action from the recovery gate.
 Output: The editor opens only after successful local deletion.
 */
 async function discardRecovery(): Promise<void> {
-  if (draftStorage === undefined) {
+  if (draftStorage === undefined || recoveryActionPending.value) {
     return
   }
+  recoveryActionPending.value = true
   try {
-    await draftStorage.discard()
+    const expected = recoveryState.value.kind === 'restore-or-discard' ? { revision: recoveryState.value.revision, savedAt: recoveryState.value.savedAt } : undefined
+    const result = await draftStorage.discard(expected)
+    if (result.kind === 'conflict') {
+      recoveryState.value = await loadRecoveryGateState(draftStorage)
+      return
+    }
     recoveryState.value = { kind: 'ready' }
   } catch {
     recoveryState.value = { kind: 'unavailable' }
+  } finally {
+    recoveryActionPending.value = false
   }
 }
 
@@ -239,7 +248,7 @@ watch(resolvedTheme, (theme) => {
           <p class="lead">
             {{ t('editor.introduction') }}
           </p>
-          <RecoveryGate v-if="recoveryState.kind !== 'ready'" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
+          <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
           <template v-else>
             <PlanBundle v-model:plan="planDraft" />
             <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>

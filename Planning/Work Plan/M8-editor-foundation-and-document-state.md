@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1, M8.2, M8.4, and core M8.5 conflict flow verified
+**Status:** In progress; M8.1, M8.2, M8.4, and M8.5 complete
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -151,7 +151,7 @@ recorded.
 - [x] Compare pending edits with the saved draft; allow explicit local discard or saved-draft replacement.
 - [x] Recheck the revision on replacement and detect intervening saves.
 - [x] Allow a tab without pending edits to load the newer saved draft.
-- [ ] Verify competing saves, conflict choices, repeated conflicts, and reset/discard races across tabs.
+- [x] Verify competing saves, conflict choices, repeated conflicts, and reset/discard races across tabs.
 
 Conditional saves now compare and write inside one IndexedDB transaction. A
 conflict pauses autosave and retains the local draft. The editor offers explicit
@@ -162,6 +162,12 @@ draft without an extra write, a later save succeeded, replacement saved the
 local draft, and refresh recovered that replacement. The development-container
 test, type-check, and build commands passed. Browser name and version were not
 recorded. Repeated conflicts and reset/discard races remain unverified.
+
+The owner completed those browser checks on 8 November 2026. Repeated
+replacement correctly refreshed the conflict state, reset raced safely with a
+newer tab save, and a stale recovery-discard prompt could not delete a newer
+draft. Recovery actions are guarded while their IndexedDB operation is in
+flight, preventing a rapid second discard from acting on a refreshed prompt.
 
 Each slice can use more than one feature-sized PR if needed. The ranges sum to the milestone estimate; they are provisional and exclude additional learning time.
 

@@ -9,7 +9,7 @@ describe('autosave controller', () => {
     const savedRecords: Parameters<DraftStorage['save']>[0][] = []
     const save: DraftStorage['save'] = async (record) => { savedRecords.push(record); return { kind: 'saved', revision: record.revision } }
     const statuses: string[] = []
-    const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: (status) => statuses.push(status), storage: { discard: async () => {}, load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage })
+    const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: (status) => statuses.push(status), storage: { discard: async () => ({ kind: 'discarded' }), load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage })
     controller.schedule(createBundledPlanDraft(), 0)
     controller.schedule(updatePlanLocale(createBundledPlanDraft(), 'not a locale'), 0)
     await vi.advanceTimersByTimeAsync(1000)

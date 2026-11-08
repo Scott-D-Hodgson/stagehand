@@ -30,6 +30,7 @@
     "recoveryAvailableDetail": "Cette copie a été enregistrée localement le {{savedAt}}.",
     "restoreRecovery": "Restaurer le brouillon",
     "discardRecovery": "Supprimer la copie de récupération",
+    "discardingRecovery": "Suppression de la copie de récupération…",
     "unreadableRecovery": "La copie de récupération locale est illisible",
     "unreadableRecoveryDetail": "Stagehand ne la remplacera pas automatiquement. Supprimez-la seulement si vous voulez commencer avec l’exemple intégré.",
     "recoveryUnavailable": "La récupération locale n’est pas disponible",
