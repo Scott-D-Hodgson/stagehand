@@ -246,7 +246,7 @@ watch(resolvedTheme, (theme) => {
         <div class="col-lg-8">
           <h1 class="mb-3">{{ t('editor.title') }}</h1>
           <p class="lead">
-            {{ t('editor.introduction') }}
+            {{ t('guidance.neutral.introduction') }}
           </p>
           <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
           <template v-else>

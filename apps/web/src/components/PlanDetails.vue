@@ -54,7 +54,7 @@ function validatePlanLocale(): void {
       <form @submit.prevent="emit('validate')">
         <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
         <input id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-help plan-locale-error' : 'plan-locale-help'" :class="['form-control', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @input="changePlanLocale" />
-        <div id="plan-locale-help" class="form-text">{{ t('editor.planLocaleHelp') }}</div>
+        <div id="plan-locale-help" class="form-text">{{ t('guidance.neutral.planLocaleHelp') }}</div>
         <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
         <button class="btn btn-primary mt-3" type="submit">{{ t('editor.validate') }}</button>
       </form>

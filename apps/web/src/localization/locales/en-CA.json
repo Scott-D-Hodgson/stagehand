@@ -2,7 +2,6 @@
   "editor": {
     "heading": "Stagehand",
     "title": "Plan authoring starts here.",
-    "introduction": "The editor will help authors create valid Stagehand plans without hand-editing JSON.",
     "sharedContract": "Shared contract",
     "validPlan": "The bundled sample satisfies the shared plan contract.",
     "invalidPlan_zero": "No validation issues found in the bundled sample.",
@@ -18,7 +17,6 @@
     "planDetails": "Plan details",
     "planId": "Plan ID",
     "planLocale": "Plan locale",
-    "planLocaleHelp": "A BCP 47 language tag, such as en-CA. This affects the plan, not the editor display language.",
     "validate": "Validate plan",
     "caseReferences": "Case references",
     "changesNotExported": "Changes have not been exported.",
@@ -42,5 +40,11 @@
     "conflictDetected": "Another tab saved newer changes. Your local edits are paused.",
     "discardLocalEdits": "Discard local edits",
     "replaceSavedDraft": "Replace saved draft"
+  },
+  "guidance": {
+    "neutral": {
+      "introduction": "The editor will help authors create valid Stagehand plans without hand-editing JSON.",
+      "planLocaleHelp": "A BCP 47 language tag, such as en-CA. This affects the plan, not the editor display language."
+    }
   }
 }
