@@ -42,5 +42,11 @@
     "conflictDetected": "Un autre onglet a enregistré des modifications plus récentes. Vos modifications locales sont en pause.",
     "discardLocalEdits": "Abandonner les modifications locales",
     "replaceSavedDraft": "Remplacer le brouillon enregistré"
+  },
+  "guidance": {
+    "neutral": {
+      "introduction": "L’éditeur aidera les auteurs à créer des plans Stagehand valides sans modifier le JSON à la main.",
+      "planLocaleHelp": "Une balise linguistique BCP 47, par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur."
+    }
   }
 }

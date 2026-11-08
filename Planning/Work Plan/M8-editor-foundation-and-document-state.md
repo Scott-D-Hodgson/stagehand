@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1, M8.2, M8.4, and M8.5 complete
+**Status:** Complete
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -69,7 +69,7 @@ Its first remote result must be recorded before it is treated as CI verification
 - [x] Preserve untouched contract data and incomplete edits; do not coerce invalid input into apparently valid values.
 - [x] Validate on opening, field blur, and an explicit Validate action through shared validation.
 - [x] Associate understandable feedback with fields where possible and retain a useful summary for bundle-level errors.
-- [ ] Show edits that have not been exported separately from whether a recovery copy is saved locally.
+- [x] Show edits that have not been exported separately from whether a recovery copy is saved locally.
 - [x] Confirm before resetting edited work to the sample.
 
 The accepted first editable field is `defaults.locale`. The current in-progress
@@ -91,10 +91,10 @@ feedback.
 ### M8.3 — Localization and accessible Neutral guidance (1–2 person-days)
 
 - [x] Assess i18next's Vue integration and record the selected dependency.
-- [ ] Provide Canadian English (`en-CA`, default) and Canadian French (`fr-CA`) resources for user-facing text and Neutral guidance.
+- [x] Provide Canadian English (`en-CA`, default) and Canadian French (`fr-CA`) resources for user-facing text and Neutral guidance.
 - [x] Keep interface language independent of assertion locales; remember language outside the recovery draft.
-- [ ] Define a place for persona wording in localization without implementing optional persona files or loading.
-- [ ] Verify labelled controls, keyboard access, visible focus, and understandable validation/status feedback.
+- [x] Define a place for persona wording in localization without implementing optional persona files or loading.
+- [x] Verify labelled controls, keyboard access, visible focus, and understandable validation/status feedback.
 
 M8.3 localization foundation is underway. The web shell uses i18next 26.7.2 and
 i18next-vue 5.4.0 with one JSON resource file per initial Canadian locale. It
