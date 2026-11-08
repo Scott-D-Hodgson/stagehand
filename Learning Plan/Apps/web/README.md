@@ -13,7 +13,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - Why the first plan field preserves raw input and how the editor components divide responsibility.
 - How a versioned IndexedDB recovery record stays behind a small storage interface.
 - How a recovery gate prevents a bundled sample from silently replacing local work.
-- What M8.1 established and what M8.2 through M8.5 still need to deliver.
+- How M8 established the editor foundation and where M9 case-reference authoring begins.
 
 ## Do I need this course?
 
@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minimal Bootstrap-styled shell, public shared-schema validation, a focused Vitest test, and a Light/Dark/System interface preference. M8.2 has a verified synthetic draft with one raw `defaults.locale` field. M8.3 has begun with i18next, per-locale Canadian English/French shell resources, and remembered interface language. M8.4 and M8.5 are complete, including recovery and two-tab conflict handling. The editor does not yet provide complete form authoring, Neutral guidance, import/export, or execution.
+M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 has started with editable case-reference paths, Bootstrap add/edit and confirmation dialogs, and immutable draft updates. The editor does not yet create case documents, provide complete form authoring, import/export, or execute plans.
 
 ## Lessons
 
@@ -35,5 +35,6 @@ M8.1 is complete: the application has a Vite/Vue/TypeScript foundation, a minima
 5. [Document-state delivery path](Lessons/05-document-state-path.md)
 6. [Recovery-storage foundation](Lessons/06-recovery-storage-foundation.md)
 7. [Recovery gate](Lessons/07-recovery-gate.md)
+8. [Case-reference authoring](Lessons/08-case-reference-authoring.md)
 
 Finish with the [course skill check](quiz.md).

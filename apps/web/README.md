@@ -1,9 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. M8.1 establishes
-the Vite, Vue, and TypeScript application foundation. The current M8.2 slice
-adds one synthetic plan draft with raw plan-locale editing; form authoring,
-imported files, browser recovery, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slice adds controlled case-reference authoring; complete plan/case authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -27,9 +24,10 @@ Run these commands from the repository root:
 - Vue 3.5.44, Vite 8.3.6, and TypeScript 6.0.3 are pinned exactly.
 - The initial shell imports `validatePlan` through the public
   `@stagehand/plan-schema` entry point.
-- Bootstrap 5.3.8 CSS is loaded from a CDN. No Bootstrap JavaScript is used.
-  This keeps the initial presentation lightweight, but a cold offline start is
-  not yet supported; M14 owns the offline styling follow-through.
+- Bootstrap 5.3.8 CSS and its bundle are loaded from a CDN. Vue owns editor
+  state while Bootstrap owns the demonstrated modal mechanics. This keeps the
+  initial presentation lightweight, but a cold offline start is not yet
+  supported; M14 owns the offline styling follow-through.
 - Vitest 5.1.0 is the selected unit-test runner. The first shared-validation
   boundary has focused valid/invalid-plan unit tests.
 - The Theme selector defaults to the browser light/dark preference. An explicit
@@ -50,4 +48,12 @@ Run these commands from the repository root:
   gate offers Restore or Discard for a readable copy and requires explicit
   discard for unreadable data. Once resolved, autosave writes a plain draft
   snapshot one second after the latest edit and reports saving, saved, or failed
-  local status. Multiple-tab conflict handling remains later work.
+  local status. Conditional IndexedDB writes detect multiple-tab conflicts;
+  the affected tab pauses autosave until the author discards local edits or
+  explicitly replaces the saved draft.
+- `PlanBundle` composes case references as well as plan details and assessment.
+  Existing references are read-only until Edit is selected. Add and Edit use a
+  Bootstrap dialog with a filename-safe path suggestion; removal and sample
+  reset require a Bootstrap confirmation dialog. Case-reference path editing is
+  draft-only until M10 adds export, and creating case documents remains M9
+  follow-through.
