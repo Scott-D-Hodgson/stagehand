@@ -37,6 +37,9 @@
     "continueWithoutRecovery": "Continue without recovery",
     "savingLocally": "Saving locally…",
     "savedLocally": "Saved locally.",
-    "saveFailed": "Could not save locally."
+    "saveFailed": "Could not save locally.",
+    "conflictDetected": "Another tab saved newer changes. Your local edits are paused.",
+    "discardLocalEdits": "Discard local edits",
+    "replaceSavedDraft": "Replace saved draft"
   }
 }

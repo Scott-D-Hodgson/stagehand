@@ -1,6 +1,6 @@
 # M8 — Editor foundation and document state
 
-**Status:** In progress; M8.1, M8.2, and M8.4 complete
+**Status:** In progress; M8.1, M8.2, M8.4, and core M8.5 conflict flow verified
 **Estimate:** 8–14 focused human person-days  
 **Depends on:** [M7](M7-integration-and-phase-1-review.md)
 
@@ -146,12 +146,22 @@ recorded.
 
 ### M8.5 — Multiple-tab conflict handling (2–3 person-days)
 
-- [ ] Compare the stored revision and write the replacement in one IndexedDB transaction.
-- [ ] On a conflict, pause autosave in the affected tab and retain its pending edits.
-- [ ] Compare pending edits with the saved draft; allow explicit local discard or saved-draft replacement.
-- [ ] Recheck the revision on replacement and detect intervening saves.
-- [ ] Allow a tab without pending edits to load the newer saved draft.
+- [x] Compare the stored revision and write the replacement in one IndexedDB transaction.
+- [x] On a conflict, pause autosave in the affected tab and retain its pending edits.
+- [x] Compare pending edits with the saved draft; allow explicit local discard or saved-draft replacement.
+- [x] Recheck the revision on replacement and detect intervening saves.
+- [x] Allow a tab without pending edits to load the newer saved draft.
 - [ ] Verify competing saves, conflict choices, repeated conflicts, and reset/discard races across tabs.
+
+Conditional saves now compare and write inside one IndexedDB transaction. A
+conflict pauses autosave and retains the local draft. The editor offers explicit
+Discard local edits and Replace saved draft choices; replacement compares the
+latest revision again. The owner verified the two-tab flow in the forwarded
+browser on 8 November 2026: stale saves conflicted, discard loaded the newer
+draft without an extra write, a later save succeeded, replacement saved the
+local draft, and refresh recovered that replacement. The development-container
+test, type-check, and build commands passed. Browser name and version were not
+recorded. Repeated conflicts and reset/discard races remain unverified.
 
 Each slice can use more than one feature-sized PR if needed. The ranges sum to the milestone estimate; they are provisional and exclude additional learning time.
 
