@@ -14,7 +14,7 @@ import {
   type ResolvedTheme,
   type ThemePreference,
 } from './preferences/theme'
-import { createIndexedDbDraftStorage, type DraftStorage } from './recovery/draft-storage'
+import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecoveryRecord, type DraftStorage } from './recovery/draft-storage'
 import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
 import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
 
@@ -25,7 +25,9 @@ const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
 let draftStorage: DraftStorage | undefined
 const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
 const recoveryRevision = ref(0)
+const conflictRecord = ref<DraftRecoveryRecord | undefined>()
 let autosaveController: AutosaveController | undefined
+let skipNextAutosave = false
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -116,6 +118,7 @@ function restoreRecovery(): void {
     return
   }
   planDraft.value = recoveryState.value.draft
+  recoveryRevision.value = recoveryState.value.revision
   recoveryState.value = { kind: 'ready' }
 }
 
@@ -163,9 +166,32 @@ function startAutosave(): void {
   autosaveController = createAutosaveController({
     delayMs: 1000,
     onRevision: (revision) => { recoveryRevision.value = revision },
+    onConflict: (record) => { conflictRecord.value = record },
     onStatus: (status) => { recoverySaveStatus.value = status },
     storage: draftStorage,
   })
+}
+
+function discardLocalEdits(): void {
+  if (conflictRecord.value === undefined) return
+  skipNextAutosave = true
+  planDraft.value = copyPlanDraft(conflictRecord.value.draft)
+  recoveryRevision.value = conflictRecord.value.revision
+  conflictRecord.value = undefined
+  autosaveController?.resume()
+}
+
+async function replaceSavedDraft(): Promise<void> {
+  if (draftStorage === undefined || conflictRecord.value === undefined) return
+  const record = createDraftRecoveryRecord({ draft: copyPlanDraft(planDraft.value), revision: conflictRecord.value.revision + 1, savedAt: new Date().toISOString() })
+  const result = await draftStorage.save(record, conflictRecord.value.revision)
+  if (result.kind === 'saved') {
+    recoveryRevision.value = result.revision
+    conflictRecord.value = undefined
+    autosaveController?.resume()
+  } else {
+    conflictRecord.value = result.record
+  }
 }
 
 onMounted(() => {
@@ -187,6 +213,10 @@ watch(recoveryState, (state) => {
   }
 })
 watch(planDraft, (draft) => {
+  if (skipNextAutosave) {
+    skipNextAutosave = false
+    return
+  }
   autosaveController?.schedule(copyPlanDraft(draft), recoveryRevision.value)
 }, { deep: true })
 watch(interfaceLanguage, (language) => {
@@ -212,6 +242,7 @@ watch(resolvedTheme, (theme) => {
           <RecoveryGate v-if="recoveryState.kind !== 'ready'" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
           <template v-else>
             <PlanBundle v-model:plan="planDraft" />
+            <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>
             <p class="mt-3 text-body-secondary" aria-live="polite">{{ recoverySaveStatus === 'saving' ? t('editor.savingLocally') : recoverySaveStatus === 'saved' ? t('editor.savedLocally') : recoverySaveStatus === 'failed' ? t('editor.saveFailed') : '' }}</p>
           </template>
         </div>

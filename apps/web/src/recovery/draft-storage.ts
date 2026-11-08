@@ -20,8 +20,10 @@ export type DraftRecoveryLoadResult =
 export interface DraftStorage {
   discard(): Promise<void>
   load(): Promise<DraftRecoveryLoadResult>
-  save(record: DraftRecoveryRecord): Promise<void>
+  save(record: DraftRecoveryRecord, expectedRevision: number): Promise<DraftSaveResult>
 }
+
+export type DraftSaveResult = { kind: 'saved'; revision: number } | { kind: 'conflict'; record: DraftRecoveryRecord | undefined }
 
 export interface CreateDraftRecoveryRecordOptions {
   draft: PlanDraft
@@ -105,14 +107,23 @@ export function createIndexedDbDraftStorage(options: CreateIndexedDbDraftStorage
         database.close()
       }
     },
-    async save(record: DraftRecoveryRecord): Promise<void> {
+    async save(record: DraftRecoveryRecord, expectedRevision: number): Promise<DraftSaveResult> {
       const database = await openDatabase(indexedDb, databaseName)
       try {
         const transaction = database.transaction(recoveryStoreName, 'readwrite')
         const completion = completeTransaction(transaction)
+        const existing = await completeRequest<unknown>(transaction.objectStore(recoveryStoreName).get(activeDraftKey))
+        const actualRevision = isDraftRecoveryRecord(existing) ? existing.revision : 0
+        if (actualRevision !== expectedRevision) {
+          const conflictRecord = isDraftRecoveryRecord(existing) ? toDraftRecoveryRecord(existing) : undefined
+          transaction.abort()
+          try { await completion } catch { return { kind: 'conflict', record: conflictRecord } }
+          return { kind: 'conflict', record: conflictRecord }
+        }
         const storedRecord: StoredDraftRecoveryRecord = { ...record, key: activeDraftKey }
         transaction.objectStore(recoveryStoreName).put(storedRecord)
         await completion
+        return { kind: 'saved', revision: record.revision }
       } finally {
         database.close()
       }

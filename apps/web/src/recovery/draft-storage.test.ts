@@ -68,7 +68,7 @@ describe('draft recovery storage', () => {
       revision: 4,
       savedAt: '2026-11-07T20:00:00.000Z',
     })
-    await storage.save(record)
+    await storage.save(record, 0)
     const loaded = await storage.load()
     expect(loaded).toEqual({ kind: 'available', record })
     if (loaded.kind === 'available') {
@@ -83,7 +83,7 @@ describe('draft recovery storage', () => {
       draft: createBundledPlanDraft(),
       revision: 0,
       savedAt: '2026-11-07T20:00:00.000Z',
-    }))
+    }), 0)
     await storage.discard()
     await expect(storage.load()).resolves.toEqual({ kind: 'absent' })
   })
@@ -97,5 +97,15 @@ describe('draft recovery storage', () => {
     await writeUnsupportedRecord(indexedDb, databaseName)
     await expect(storage.load()).resolves.toEqual({ kind: 'unreadable' })
     await expect(storage.load()).resolves.toEqual({ kind: 'unreadable' })
+  })
+
+  it('rejects a stale writer without replacing the newer draft', async () => {
+    const { databaseName, indexedDb, storage } = createTestStorage()
+    const otherStorage = createIndexedDbDraftStorage({ databaseName, indexedDb })
+    const first = createDraftRecoveryRecord({ draft: updatePlanLocale(createBundledPlanDraft(), 'fr-CA'), revision: 1, savedAt: '2026-11-07T20:00:00.000Z' })
+    const second = createDraftRecoveryRecord({ draft: updatePlanLocale(createBundledPlanDraft(), 'de-DE'), revision: 1, savedAt: '2026-11-07T20:00:01.000Z' })
+    await expect(storage.save(first, 0)).resolves.toEqual({ kind: 'saved', revision: 1 })
+    await expect(otherStorage.save(second, 0)).resolves.toEqual({ kind: 'conflict', record: first })
+    await expect(storage.load()).resolves.toEqual({ kind: 'available', record: first })
   })
 })

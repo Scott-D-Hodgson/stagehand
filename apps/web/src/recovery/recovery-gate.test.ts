@@ -11,7 +11,7 @@ Inputs: A load operation result or rejection.
 Output: A draft-storage boundary for recovery-gate tests.
 */
 function createStorage(load: DraftStorage['load']): DraftStorage {
-  return { discard: async () => {}, load, save: async () => {} }
+  return { discard: async () => {}, load, save: async () => ({ kind: 'saved', revision: 0 }) }
 }
 
 describe('recovery gate', () => {
@@ -21,7 +21,7 @@ describe('recovery gate', () => {
 
   it('offers restore or discard for a readable recovery record', async () => {
     const draft = createBundledPlanDraft()
-    await expect(loadRecoveryGateState(createStorage(async () => ({ kind: 'available', record: { draft, formatVersion: 1, revision: 2, savedAt: '2026-11-07T20:00:00.000Z' } })))).resolves.toEqual({ kind: 'restore-or-discard', draft, savedAt: '2026-11-07T20:00:00.000Z' })
+    await expect(loadRecoveryGateState(createStorage(async () => ({ kind: 'available', record: { draft, formatVersion: 1, revision: 2, savedAt: '2026-11-07T20:00:00.000Z' } })))).resolves.toEqual({ kind: 'restore-or-discard', draft, revision: 2, savedAt: '2026-11-07T20:00:00.000Z' })
   })
 
   it('blocks automatic replacement when recovery data is unreadable', async () => {

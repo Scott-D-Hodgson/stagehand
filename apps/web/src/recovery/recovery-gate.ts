@@ -4,7 +4,7 @@ import type { DraftStorage } from './draft-storage'
 export type RecoveryGateState =
   | { kind: 'loading' }
   | { kind: 'ready' }
-  | { kind: 'restore-or-discard'; draft: PlanDraft; savedAt: string }
+  | { kind: 'restore-or-discard'; draft: PlanDraft; revision: number; savedAt: string }
   | { kind: 'unreadable' }
   | { kind: 'unavailable' }
 
@@ -24,7 +24,7 @@ export async function loadRecoveryGateState(storage: DraftStorage): Promise<Reco
     if (result.kind === 'unreadable') {
       return { kind: 'unreadable' }
     }
-    return { kind: 'restore-or-discard', draft: result.record.draft, savedAt: result.record.savedAt }
+    return { kind: 'restore-or-discard', draft: result.record.draft, revision: result.record.revision, savedAt: result.record.savedAt }
   } catch {
     return { kind: 'unavailable' }
   }
