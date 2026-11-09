@@ -4,7 +4,7 @@ import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import PlanBundle from './components/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
-import { copyEditorBundleDraft, createBundledEditorDraft } from './document/plan-draft'
+import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -36,6 +36,9 @@ const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
     : recoverySaveStatus.value === 'failed'
       ? t('editor.saveFailed')
       : t('editor.localSaveIdle'));
+const exportStatusMessage = computed(() => JSON.stringify(editorDraft.value) !== JSON.stringify(createBundledEditorDraft())
+  ? t('editor.changesNotExported')
+  : t('editor.noUnexportedChanges'));
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -169,6 +172,17 @@ function continueWithoutRecovery(): void {
 }
 
 /*
+Replaces the active editor bundle with a new empty plan.
+---
+Inputs: A confirmed plan identifier.
+---
+Output: A new recoverable editor bundle using the current saved revision.
+*/
+function createNewPlan(id: string): void {
+  editorDraft.value = createEmptyEditorDraft(id);
+}
+
+/*
 Starts autosave only after recovery has been resolved for this editor session.
 ---
 Inputs: The resolved recovery-gate state and an available storage boundary.
@@ -255,12 +269,15 @@ watch(resolvedTheme, (theme) => {
       </p>
       <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
-        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" />
+        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @new-plan="createNewPlan" />
         <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>
       </template>
     </main>
     <footer class="fixed-bottom border-top bg-body-tertiary px-4 py-2 text-body-secondary" aria-live="polite">
-      {{ saveStatusMessage }}
+      <div class="d-flex flex-wrap gap-3">
+        <span>{{ exportStatusMessage }}</span>
+        <span>{{ saveStatusMessage }}</span>
+      </div>
     </footer>
   </div>
 </template>

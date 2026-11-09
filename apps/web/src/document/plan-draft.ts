@@ -58,6 +58,25 @@ export function createBundledEditorDraft(): EditorBundleDraft {
 }
 
 /*
+Creates a new empty version 1 editor bundle for a supplied plan identifier.
+---
+Inputs: A raw plan identifier entered by the author.
+---
+Output: A plan with default locale and no case references or case documents.
+*/
+export function createEmptyEditorDraft(id: string): EditorBundleDraft {
+  return {
+    cases: {},
+    plan: {
+      cases: [],
+      defaults: { locale: 'en-CA' },
+      id,
+      version: 1,
+    },
+  };
+}
+
+/*
 Migrates a legacy plan-only draft into a bundle with empty case documents.
 ---
 Inputs: A version 1 plan draft whose case documents were not stored separately.
