@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slice adds controlled case-reference authoring; complete plan/case authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slice adds controlled plan, case-reference, and case-document authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -62,3 +62,6 @@ Run these commands from the repository root:
 - A full-width fixed status footer announces the local-save state. Its current
   placement can overlap the final controls on a long page; revisit that layout
   in a later M9 UI slice.
+- A sticky plan-action bar provides New plan and Reset sample. New plan collects
+  a filename-safe ID, starts with default `en-CA` and no cases, and confirms
+  replacement of changed work before the recovered bundle is replaced.

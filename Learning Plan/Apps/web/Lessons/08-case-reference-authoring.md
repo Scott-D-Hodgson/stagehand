@@ -12,6 +12,14 @@ with an independently editable ID and an empty `steps` array. It does not yet
 create a case JSON file, resolve a path from the browser filesystem, or export
 a plan.
 
+New plan starts an empty bundle rather than changing the shared contract. The
+author supplies a required Plan ID; the editor suggests a filename-safe value,
+uses `en-CA` by default, and begins with no references or case documents. If
+the active bundle has changes, a Bootstrap confirmation prevents accidental
+replacement. The new bundle continues at the current local recovery revision,
+so the first autosave replaces the prior recovery copy without a false
+multiple-tab conflict.
+
 Existing paths are displayed read-only. Selecting Add or Edit opens the same
 Bootstrap dialog. The Name field offers a filename-safe suggestion such as
 `cases/landing-page.json`; the author can independently change the Reference

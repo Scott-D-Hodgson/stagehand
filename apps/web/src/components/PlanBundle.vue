@@ -6,6 +6,7 @@ import { validateEditorPlan } from '../document/validation';
 import CaseReferences from './CaseReferences.vue';
 import CaseDetails from './CaseDetails.vue';
 import ConfirmationModal from './ConfirmationModal.vue';
+import NewPlanDialog from './NewPlanDialog.vue';
 import PlanDetails from './PlanDetails.vue';
 import SharedContractAssessment from './SharedContractAssessment.vue';
 
@@ -17,6 +18,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:case-drafts': [caseDrafts: Record<string, CaseDraft>];
   'update:plan': [plan: PlanDraft];
+  'new-plan': [id: string];
 }>();
 
 const { t } = useTranslation();
@@ -24,7 +26,8 @@ const validationRequested = ref(false);
 const planValidation = computed(() => validateEditorPlan(props.plan));
 const validationIssues = computed(() => planValidation.value.valid ? [] : planValidation.value.issues);
 const hasUnexportedChanges = computed(() => JSON.stringify(props.plan) !== JSON.stringify(createBundledEditorDraft().plan) || JSON.stringify(props.caseDrafts) !== JSON.stringify(createBundledEditorDraft().cases));
-const confirmation = ref<{ index?: number; kind: 'remove-reference' | 'reset-sample' }>();
+const confirmation = ref<{ id?: string; index?: number; kind: 'new-plan' | 'remove-reference' | 'reset-sample' }>();
+const newPlanDialogOpen = ref(false);
 const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
 
 watch(() => props.plan.cases, (references) => {
@@ -135,6 +138,33 @@ function resetPlanDraft(): void {
 }
 
 /*
+Opens the dialog used to collect a new plan identifier.
+---
+Inputs: A New plan action.
+---
+Output: A visible new-plan dialog.
+*/
+function requestNewPlan(): void {
+  newPlanDialogOpen.value = true;
+}
+
+/*
+Requests replacement of the active bundle after collecting a plan identifier.
+---
+Inputs: A non-empty identifier from the new-plan dialog.
+---
+Output: An immediate new-plan event or a replacement confirmation.
+*/
+function createNewPlan(id: string): void {
+  newPlanDialogOpen.value = false;
+  if (hasUnexportedChanges.value) {
+    confirmation.value = { id, kind: 'new-plan' };
+    return;
+  }
+  emit('new-plan', id);
+}
+
+/*
 Restores the bundled sample as the current plan draft.
 ---
 Inputs: A reset that does not require confirmation.
@@ -169,6 +199,9 @@ function confirmAction(): void {
   if (action?.kind === 'reset-sample') {
     restoreBundledPlan();
   }
+  if (action?.kind === 'new-plan' && action.id !== undefined) {
+    emit('new-plan', action.id);
+  }
 }
 
 /*
@@ -184,22 +217,25 @@ function cancelConfirmation(): void {
 </script>
 
 <template>
+  <nav class="sticky-top border-bottom bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
+    <div class="d-flex flex-wrap align-items-center gap-2">
+      <button class="btn btn-primary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
+      <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
+    </div>
+  </nav>
   <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
     <CaseReferences :cases="plan.cases" @add="addReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference" />
   </PlanDetails>
   <CaseDetails :case-drafts="caseDrafts" :selected-path="selectedCasePath" @update:case-id="changeCaseId" />
   <SharedContractAssessment :validation="planValidation" />
-  <div class="d-flex flex-wrap align-items-center gap-2 mt-3">
-    <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
-    <p class="mb-0 text-body-secondary">{{ hasUnexportedChanges ? t('editor.changesNotExported') : t('editor.noUnexportedChanges') }}</p>
-  </div>
   <ConfirmationModal
     v-if="confirmation"
     :cancel-label="t('editor.cancel')"
-    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : t('editor.reset')"
-    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : t('editor.resetConfirmation')"
+    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : confirmation.kind === 'new-plan' ? t('editor.create') : t('editor.reset')"
+    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : confirmation.kind === 'new-plan' ? t('editor.newPlanConfirmation') : t('editor.resetConfirmation')"
     :title="t('editor.confirmationTitle')"
     @cancel="cancelConfirmation"
     @confirm="confirmAction"
   />
+  <NewPlanDialog v-if="newPlanDialogOpen" @create="createNewPlan" />
 </template>
