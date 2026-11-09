@@ -1,4 +1,4 @@
-import type { PlanDraft } from '../document/plan-draft'
+import { copyEditorBundleDraft, migratePlanDraftToEditorBundle, type EditorBundleDraft, type PlanDraft } from '../document/plan-draft'
 
 const databaseVersion = 1
 const recoveryRecordVersion = 1
@@ -7,7 +7,7 @@ const activeDraftKey = 'active-plan'
 
 export interface DraftRecoveryRecord {
   formatVersion: typeof recoveryRecordVersion
-  draft: PlanDraft
+  draft: EditorBundleDraft
   revision: number
   savedAt: string
 }
@@ -27,7 +27,7 @@ export type DraftSaveResult = { kind: 'saved'; revision: number } | { kind: 'con
 export type DraftDiscardResult = { kind: 'discarded' } | { kind: 'conflict'; record: DraftRecoveryRecord | undefined }
 
 export interface CreateDraftRecoveryRecordOptions {
-  draft: PlanDraft
+  draft: EditorBundleDraft
   revision: number
   savedAt: string
 }
@@ -58,7 +58,7 @@ Output: A recovery record ready for browser-local storage.
 export function createDraftRecoveryRecord(options: CreateDraftRecoveryRecordOptions): DraftRecoveryRecord {
   return {
     formatVersion: recoveryRecordVersion,
-    draft: options.draft,
+    draft: copyEditorBundleDraft(options.draft),
     revision: options.revision,
     savedAt: options.savedAt,
   }
@@ -148,7 +148,7 @@ Inputs: A value read from IndexedDB.
 ---
 Output: Whether the value can safely be treated as the v1 recovery record.
 */
-function isDraftRecoveryRecord(value: unknown): value is DraftRecoveryRecord {
+function isDraftRecoveryRecord(value: unknown): value is DraftRecoveryRecord | { formatVersion: typeof recoveryRecordVersion; draft: PlanDraft; revision: number; savedAt: string } {
   if (!isRecord(value) || value.formatVersion !== recoveryRecordVersion || !isRecord(value.draft)) {
     return false
   }
@@ -156,12 +156,16 @@ function isDraftRecoveryRecord(value: unknown): value is DraftRecoveryRecord {
     return false
   }
   const draft = value.draft
-  return typeof draft.id === 'string'
-    && draft.version === 1
-    && isRecord(draft.defaults)
-    && typeof draft.defaults.locale === 'string'
-    && Array.isArray(draft.cases)
-    && draft.cases.every((caseReference) => isRecord(caseReference) && typeof caseReference.path === 'string')
+  const hasPlan = isRecord(draft.plan) ? draft.plan : draft
+  const hasValidPlan = typeof hasPlan.id === 'string'
+    && hasPlan.version === 1
+    && isRecord(hasPlan.defaults)
+    && typeof hasPlan.defaults.locale === 'string'
+    && Array.isArray(hasPlan.cases)
+    && hasPlan.cases.every((caseReference) => isRecord(caseReference) && typeof caseReference.path === 'string')
+  const hasValidCases = !isRecord(draft.plan) || (isRecord(draft.cases) && Object.values(draft.cases).every((caseDraft) => isRecord(caseDraft) && caseDraft.version === 1 && typeof caseDraft.id === 'string' && Array.isArray(caseDraft.steps)))
+  return hasValidPlan
+    && hasValidCases
     && Number.isSafeInteger(value.revision)
     && value.revision >= 0
     && !Number.isNaN(Date.parse(value.savedAt))
@@ -174,13 +178,24 @@ Inputs: A validated stored recovery record.
 ---
 Output: The public recovery-record shape without storage metadata.
 */
-function toDraftRecoveryRecord(record: DraftRecoveryRecord): DraftRecoveryRecord {
+function toDraftRecoveryRecord(record: DraftRecoveryRecord | { formatVersion: typeof recoveryRecordVersion; draft: PlanDraft; revision: number; savedAt: string }): DraftRecoveryRecord {
   return {
-    draft: record.draft,
+    draft: isEditorBundleDraft(record.draft) ? copyEditorBundleDraft(record.draft) : migratePlanDraftToEditorBundle(record.draft),
     formatVersion: record.formatVersion,
     revision: record.revision,
     savedAt: record.savedAt,
   }
+}
+
+/*
+Distinguishes a current editor bundle from a legacy plan-only recovery draft.
+---
+Inputs: A recovery draft that passed the storage shape check.
+---
+Output: Whether the draft already carries separately stored case documents.
+*/
+function isEditorBundleDraft(draft: EditorBundleDraft | PlanDraft): draft is EditorBundleDraft {
+  return 'plan' in draft && 'cases' in draft && !Array.isArray(draft.cases);
 }
 
 /*

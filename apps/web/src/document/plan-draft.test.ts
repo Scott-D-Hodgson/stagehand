@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyPlanDraft, createBundledPlanDraft, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -26,6 +26,14 @@ describe('plan draft', () => {
     snapshot.defaults.locale = 'fr-CA';
     snapshot.cases[0]!.path = 'cases/changed.json';
     expect(draft).toEqual(createBundledPlanDraft());
+  });
+
+  it('creates an independent plan and case-document bundle', () => {
+    const draft = createBundledEditorDraft();
+    const snapshot = copyEditorBundleDraft(draft);
+    snapshot.plan.defaults.locale = 'fr-CA';
+    snapshot.cases['cases/landing-page.json']!.id = 'changed';
+    expect(draft).toEqual(createBundledEditorDraft());
   });
 
   it('adds, updates, and removes case references without mutating the source', () => {

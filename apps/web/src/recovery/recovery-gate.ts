@@ -1,10 +1,10 @@
-import type { PlanDraft } from '../document/plan-draft'
+import type { EditorBundleDraft } from '../document/plan-draft'
 import type { DraftStorage } from './draft-storage'
 
 export type RecoveryGateState =
   | { kind: 'loading' }
   | { kind: 'ready' }
-  | { kind: 'restore-or-discard'; draft: PlanDraft; revision: number; savedAt: string }
+  | { kind: 'restore-or-discard'; draft: EditorBundleDraft; revision: number; savedAt: string }
   | { kind: 'unreadable' }
   | { kind: 'unavailable' }
 

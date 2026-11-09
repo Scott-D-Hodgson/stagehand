@@ -8,7 +8,7 @@ interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 const props = defineProps<{
   cases: PlanDraft['cases']
 }>();
-const emit = defineEmits<{ add: [path: string]; remove: [index: number]; update: [index: number, path: string] }>();
+const emit = defineEmits<{ add: [path: string]; remove: [index: number]; select: [path: string]; update: [index: number, path: string] }>();
 
 const { t } = useTranslation();
 const caseName = ref('');
@@ -85,39 +85,37 @@ onBeforeUnmount(() => { modal?.dispose(); });
 </script>
 
 <template>
-  <section class="card mb-3 shadow-sm" aria-labelledby="case-references-heading">
-    <div class="card-body">
-      <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
-      <ul class="list-unstyled mb-3">
-        <li v-for="(caseReference, index) in cases" :key="index" class="d-flex justify-content-between align-items-center gap-2 py-1">
-          <span class="font-monospace">{{ caseReference.path }}</span>
-          <span class="d-flex gap-2">
-            <button class="btn btn-outline-secondary btn-sm" type="button" @click="openDialog(index)">{{ t('editor.edit') }}</button>
-            <button class="btn btn-outline-danger btn-sm" type="button" @click="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
-          </span>
-        </li>
-      </ul>
-      <button class="btn btn-outline-primary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>
-      <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="add-case-heading" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-          <form class="modal-content" @submit.prevent="addReference">
-            <div class="modal-header">
-              <h2 id="add-case-heading" class="h5 modal-title">{{ t('editor.caseReference') }}</h2>
-              <button class="btn-close" type="button" :aria-label="t('editor.close')" @click="closeDialog"></button>
-            </div>
-            <div class="modal-body">
-              <label class="form-label" for="case-name">{{ t('editor.name') }}</label>
-              <input id="case-name" v-model="caseName" class="form-control" required />
-              <label class="form-label mt-3" for="case-path">{{ t('editor.referencePath') }}</label>
-              <input id="case-path" v-model="casePath" class="form-control font-monospace" required />
-              <div v-if="pathError" class="invalid-feedback d-block">{{ pathError }}</div>
-            </div>
-            <div class="modal-footer">
-              <button class="btn btn-secondary" type="button" @click="closeDialog">{{ t('editor.cancel') }}</button>
-              <button class="btn btn-primary" type="submit">{{ t('editor.save') }}</button>
-            </div>
-          </form>
-        </div>
+  <section class="border-top mt-4 pt-3" aria-labelledby="case-references-heading">
+    <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
+    <ul class="list-unstyled mb-3">
+      <li v-for="(caseReference, index) in cases" :key="index" class="d-flex justify-content-between align-items-center gap-2 py-1">
+        <button class="btn btn-link p-0 font-monospace text-start" type="button" @click="emit('select', caseReference.path)">{{ caseReference.path }}</button>
+        <span class="d-flex gap-2">
+          <button class="btn btn-outline-secondary btn-sm" type="button" @click="openDialog(index)">{{ t('editor.edit') }}</button>
+          <button class="btn btn-outline-danger btn-sm" type="button" @click="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
+        </span>
+      </li>
+    </ul>
+    <button class="btn btn-outline-primary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>
+    <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="add-case-heading" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <form class="modal-content" @submit.prevent="addReference">
+          <div class="modal-header">
+            <h2 id="add-case-heading" class="h5 modal-title">{{ t('editor.caseReference') }}</h2>
+            <button class="btn-close" type="button" :aria-label="t('editor.close')" @click="closeDialog"></button>
+          </div>
+          <div class="modal-body">
+            <label class="form-label" for="case-name">{{ t('editor.name') }}</label>
+            <input id="case-name" v-model="caseName" class="form-control" required />
+            <label class="form-label mt-3" for="case-path">{{ t('editor.referencePath') }}</label>
+            <input id="case-path" v-model="casePath" class="form-control font-monospace" required />
+            <div v-if="pathError" class="invalid-feedback d-block">{{ pathError }}</div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-secondary" type="button" @click="closeDialog">{{ t('editor.cancel') }}</button>
+            <button class="btn btn-primary" type="submit">{{ t('editor.save') }}</button>
+          </div>
+        </form>
       </div>
     </div>
   </section>
