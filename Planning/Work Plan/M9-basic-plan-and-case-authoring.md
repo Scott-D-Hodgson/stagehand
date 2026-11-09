@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; new-plan creation implemented, automated verification pending
+**Status:** In progress; Navigate-step authoring slice complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -13,6 +13,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Associate each referenced case with an in-memory version 1 case document and allow its identifier to be edited independently of its path.
 - [x] Add, edit, and remove plan case references while preserving the rest of the draft; require confirmation before removal and prevent duplicate entered paths.
 - [x] Create a fresh empty plan with an author-supplied identifier, default locale, and no references; confirm replacement when the active bundle has changes.
+- [x] Provide a recoverable, shared-contract-validated Navigate step with a dialog-based Add/Edit flow.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -42,7 +43,16 @@ Reset sample. New plan collects a filename-safe identifier in a Bootstrap
 dialog, replaces the active bundle only after confirmation when needed, and
 retains the current IndexedDB revision so its first autosave does not create a
 false multi-tab conflict. The owner manually confirmed that correction.
-Focused automated verification for this follow-up remains pending.
+The owner later reported that the development-container test, type-check, and
+production-build commands passed for the New plan and Navigate work.
+
+The completed Navigate slice presents ordered steps as numbered Bootstrap cards
+with action, URL, Edit, and Remove controls. Add and Edit use a shared dialog
+that explains the absolute HTTP/HTTPS URL requirement. Contract feedback stays
+hidden until the URL field blurs, but Save blocks an invalid URL and reveals its
+feedback. The owner manually confirmed Add, Edit, Remove, card presentation,
+dialog validation, local save, refresh, and recovery restore for a Navigate
+step.
 
 ## Deliverables and completion evidence
 
@@ -52,7 +62,7 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested remaining PR slices: interaction forms; assertion forms and step ordering.
+Suggested remaining PR slices: interaction forms after Navigate; assertion forms and step ordering.
 
 ## Open decisions and exclusions
 

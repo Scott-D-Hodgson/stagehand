@@ -20,6 +20,12 @@ replacement. The new bundle continues at the current local recovery revision,
 so the first autosave replaces the prior recovery copy without a false
 multiple-tab conflict.
 
+The first editable step is Navigate. The case-details panel displays each step
+as a numbered card with its action and URL. Add and Edit use the same dialog,
+which describes the absolute HTTP/HTTPS URL rule. Validation becomes visible
+after URL-field blur; an invalid value cannot be saved into the case. A valid
+step remains part of the recovered bundle after refresh and restore.
+
 Existing paths are displayed read-only. Selecting Add or Edit opens the same
 Bootstrap dialog. The Name field offers a filename-safe suggestion such as
 `cases/landing-page.json`; the author can independently change the Reference
@@ -42,6 +48,10 @@ made filename-safe. Then select the reference, change its case ID, refresh,
 and restore the local recovery copy. Confirm that the author must explicitly
 confirm removal and that Reset asks for confirmation only after the draft
 differs from the bundled sample.
+
+Add a Navigate step with an invalid URL, blur the field, and explain the
+feedback. Replace it with a valid URL, save it, then refresh and restore the
+local recovery copy.
 
 ## You are ready when
 
