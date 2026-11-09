@@ -90,6 +90,27 @@ function changeCaseId(path: string, id: string): void {
 }
 
 /*
+Updates ordered step data for one selected case document.
+---
+Inputs: A case-reference path and replacement raw steps.
+---
+Output: An immutable case-draft collection update.
+*/
+function changeCaseSteps(path: string, steps: unknown[]): void {
+  const caseDraft = props.caseDrafts[path];
+  if (caseDraft !== undefined) {
+    emit('update:case-drafts', { ...props.caseDrafts, [path]: { ...caseDraft, steps } });
+  }
+}
+
+function removeCaseStep(path: string, index: number): void {
+  const caseDraft = props.caseDrafts[path];
+  if (caseDraft !== undefined) {
+    emit('update:case-drafts', { ...props.caseDrafts, [path]: { ...caseDraft, steps: caseDraft.steps.filter((_, candidateIndex) => candidateIndex !== index) } });
+  }
+}
+
+/*
 Selects the case document associated with a clicked plan reference.
 ---
 Inputs: A case-reference path selected in the case-reference panel.
@@ -226,7 +247,7 @@ function cancelConfirmation(): void {
   <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
     <CaseReferences :cases="plan.cases" @add="addReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference" />
   </PlanDetails>
-  <CaseDetails :case-drafts="caseDrafts" :selected-path="selectedCasePath" @update:case-id="changeCaseId" />
+  <CaseDetails :case-drafts="caseDrafts" :selected-path="selectedCasePath" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
   <SharedContractAssessment :validation="planValidation" />
   <ConfirmationModal
     v-if="confirmation"

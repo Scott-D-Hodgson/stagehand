@@ -126,7 +126,7 @@ Output: A detached plan and case-document snapshot.
 */
 export function copyEditorBundleDraft(draft: EditorBundleDraft): EditorBundleDraft {
   return {
-    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, { ...caseDraft, steps: [...caseDraft.steps] }])),
+    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, { ...caseDraft, steps: caseDraft.steps.map((step) => typeof step === 'object' && step !== null ? { ...(step as Record<string, unknown>) } : step) }])),
     plan: copyPlanDraft(draft.plan),
   };
 }

@@ -65,3 +65,7 @@ Run these commands from the repository root:
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
+- Case details supports the first executable step: Navigate. Steps appear as
+  numbered Bootstrap cards; Add and Edit use a URL dialog that validates the
+  shared absolute HTTP/HTTPS requirement before saving. Navigate data is part
+  of the recovered editor bundle.
