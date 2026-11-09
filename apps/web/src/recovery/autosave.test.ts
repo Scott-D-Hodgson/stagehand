@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { createBundledPlanDraft, updatePlanLocale } from '../document/plan-draft'
+import { createBundledEditorDraft, updatePlanLocale } from '../document/plan-draft'
 import type { DraftStorage } from './draft-storage'
 import { createAutosaveController } from './autosave'
 
@@ -10,12 +10,25 @@ describe('autosave controller', () => {
     const save: DraftStorage['save'] = async (record) => { savedRecords.push(record); return { kind: 'saved', revision: record.revision } }
     const statuses: string[] = []
     const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: (status) => statuses.push(status), storage: { discard: async () => ({ kind: 'discarded' }), load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage })
-    controller.schedule(createBundledPlanDraft(), 0)
-    controller.schedule(updatePlanLocale(createBundledPlanDraft(), 'not a locale'), 0)
+    controller.schedule(createBundledEditorDraft(), 0)
+    controller.schedule({ ...createBundledEditorDraft(), plan: updatePlanLocale(createBundledEditorDraft().plan, 'not a locale') }, 0)
     await vi.advanceTimersByTimeAsync(1000)
     expect(savedRecords).toHaveLength(1)
-    expect(savedRecords[0]?.draft.defaults.locale).toBe('not a locale')
+    expect(savedRecords[0]?.draft.plan.defaults.locale).toBe('not a locale')
     expect(statuses).toEqual(['saving', 'saved'])
+    vi.useRealTimers()
+  })
+
+  it('saves a changed case identifier with its associated case document', async () => {
+    vi.useFakeTimers()
+    const savedRecords: Parameters<DraftStorage['save']>[0][] = []
+    const save: DraftStorage['save'] = async (record) => { savedRecords.push(record); return { kind: 'saved', revision: record.revision } }
+    const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: () => {}, storage: { discard: async () => ({ kind: 'discarded' }), load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage })
+    const draft = createBundledEditorDraft()
+    draft.cases['cases/landing-page.json']!.id = 'changed-case'
+    controller.schedule(draft, 0)
+    await vi.advanceTimersByTimeAsync(1000)
+    expect(savedRecords[0]?.draft.cases['cases/landing-page.json']?.id).toBe('changed-case')
     vi.useRealTimers()
   })
 })

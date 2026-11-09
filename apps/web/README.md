@@ -54,6 +54,11 @@ Run these commands from the repository root:
 - `PlanBundle` composes case references as well as plan details and assessment.
   Existing references are read-only until Edit is selected. Add and Edit use a
   Bootstrap dialog with a filename-safe path suggestion; removal and sample
-  reset require a Bootstrap confirmation dialog. Case-reference path editing is
-  draft-only until M10 adds export, and creating case documents remains M9
-  follow-through.
+  reset require a Bootstrap confirmation dialog. Selecting a reference opens
+  its case details, where the independently stored case ID can be edited. The
+  v1 recovery adapter migrates earlier plan-only drafts by creating empty case
+  documents for their retained references. Plan/case data remains draft-only
+  until M10 adds export.
+- A full-width fixed status footer announces the local-save state. Its current
+  placement can overlap the final controls on a long page; revisit that layout
+  in a later M9 UI slice.

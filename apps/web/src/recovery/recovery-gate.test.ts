@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { createBundledPlanDraft } from '../document/plan-draft'
+import { createBundledEditorDraft } from '../document/plan-draft'
 import type { DraftStorage } from './draft-storage'
 import { loadRecoveryGateState } from './recovery-gate'
 
@@ -20,7 +20,7 @@ describe('recovery gate', () => {
   })
 
   it('offers restore or discard for a readable recovery record', async () => {
-    const draft = createBundledPlanDraft()
+    const draft = createBundledEditorDraft()
     await expect(loadRecoveryGateState(createStorage(async () => ({ kind: 'available', record: { draft, formatVersion: 1, revision: 2, savedAt: '2026-11-07T20:00:00.000Z' } })))).resolves.toEqual({ kind: 'restore-or-discard', draft, revision: 2, savedAt: '2026-11-07T20:00:00.000Z' })
   })
 

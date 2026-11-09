@@ -7,8 +7,10 @@
 M9 begins controlled plan authoring without inventing a new contract. A version
 1 plan stores each case reference as a `path` in its `cases` array. The current
 editor can add, edit, and remove that path while preserving all other draft
-values immutably. It does not yet create the case JSON file, resolve a path from
-the browser filesystem, or export a plan.
+values immutably. Each reference now has an in-memory version 1 case document
+with an independently editable ID and an empty `steps` array. It does not yet
+create a case JSON file, resolve a path from the browser filesystem, or export
+a plan.
 
 Existing paths are displayed read-only. Selecting Add or Edit opens the same
 Bootstrap dialog. The Name field offers a filename-safe suggestion such as
@@ -19,16 +21,19 @@ referenced file exists.
 Removing a reference and resetting a changed sample use a Bootstrap confirmation
 dialog rather than a browser-native prompt. This makes the behaviour consistent
 with the editor’s presentation and leaves room for clear localized wording. The
-plan-draft helpers return new objects, allowing IndexedDB autosave and the
-multi-tab conflict logic established in M8 to observe the complete changed
-draft.
+plan/case bundle helpers return new objects, allowing IndexedDB autosave and
+the multi-tab conflict logic established in M8 to observe the complete changed
+draft. Earlier recovery records contained only the plan. On load, Stagehand
+retains each legacy reference and creates an empty case document with a
+filename-derived ID.
 
 ## Try it
 
 Add a reference using a multi-word case name. Explain how its suggested path is
-made filename-safe. Then edit its path, save it, and use Remove. Confirm that
-the author must explicitly confirm removal and that Reset asks for confirmation
-only after the draft differs from the bundled sample.
+made filename-safe. Then select the reference, change its case ID, refresh,
+and restore the local recovery copy. Confirm that the author must explicitly
+confirm removal and that Reset asks for confirmation only after the draft
+differs from the bundled sample.
 
 ## You are ready when
 

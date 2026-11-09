@@ -4,7 +4,7 @@ import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import PlanBundle from './components/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
-import { copyPlanDraft, createBundledPlanDraft } from './document/plan-draft'
+import { copyEditorBundleDraft, createBundledEditorDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -20,7 +20,7 @@ import { createAutosaveController, type AutosaveController, type RecoverySaveSta
 
 const { i18next, t } = useTranslation()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
-const planDraft = ref(createBundledPlanDraft())
+const editorDraft = ref(createBundledEditorDraft())
 const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
 let draftStorage: DraftStorage | undefined
 const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
@@ -29,6 +29,13 @@ const recoveryActionPending = ref(false)
 const conflictRecord = ref<DraftRecoveryRecord | undefined>()
 let autosaveController: AutosaveController | undefined
 let skipNextAutosave = false
+const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
+  ? t('editor.savingLocally')
+  : recoverySaveStatus.value === 'saved'
+    ? t('editor.savedLocally')
+    : recoverySaveStatus.value === 'failed'
+      ? t('editor.saveFailed')
+      : t('editor.localSaveIdle'));
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -118,7 +125,7 @@ function restoreRecovery(): void {
   if (recoveryState.value.kind !== 'restore-or-discard') {
     return
   }
-  planDraft.value = recoveryState.value.draft
+  editorDraft.value = recoveryState.value.draft
   recoveryRevision.value = recoveryState.value.revision
   recoveryState.value = { kind: 'ready' }
 }
@@ -184,7 +191,7 @@ function startAutosave(): void {
 function discardLocalEdits(): void {
   if (conflictRecord.value === undefined) return
   skipNextAutosave = true
-  planDraft.value = copyPlanDraft(conflictRecord.value.draft)
+  editorDraft.value = copyEditorBundleDraft(conflictRecord.value.draft)
   recoveryRevision.value = conflictRecord.value.revision
   conflictRecord.value = undefined
   autosaveController?.resume()
@@ -192,7 +199,7 @@ function discardLocalEdits(): void {
 
 async function replaceSavedDraft(): Promise<void> {
   if (draftStorage === undefined || conflictRecord.value === undefined) return
-  const record = createDraftRecoveryRecord({ draft: copyPlanDraft(planDraft.value), revision: conflictRecord.value.revision + 1, savedAt: new Date().toISOString() })
+  const record = createDraftRecoveryRecord({ draft: copyEditorBundleDraft(editorDraft.value), revision: conflictRecord.value.revision + 1, savedAt: new Date().toISOString() })
   const result = await draftStorage.save(record, conflictRecord.value.revision)
   if (result.kind === 'saved') {
     recoveryRevision.value = result.revision
@@ -221,12 +228,12 @@ watch(recoveryState, (state) => {
     startAutosave()
   }
 })
-watch(planDraft, (draft) => {
+watch(editorDraft, (draft) => {
   if (skipNextAutosave) {
     skipNextAutosave = false
     return
   }
-  autosaveController?.schedule(copyPlanDraft(draft), recoveryRevision.value)
+  autosaveController?.schedule(copyEditorBundleDraft(draft), recoveryRevision.value)
 }, { deep: true })
 watch(interfaceLanguage, (language) => {
   saveInterfaceLanguage(language)
@@ -241,21 +248,19 @@ watch(resolvedTheme, (theme) => {
 <template>
   <div class="min-vh-100 bg-body">
     <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
-    <main class="container py-5">
-      <div class="row justify-content-center">
-        <div class="col-lg-8">
-          <h1 class="mb-3">{{ t('editor.title') }}</h1>
-          <p class="lead">
-            {{ t('guidance.neutral.introduction') }}
-          </p>
-          <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
-          <template v-else>
-            <PlanBundle v-model:plan="planDraft" />
-            <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>
-            <p class="mt-3 text-body-secondary" aria-live="polite">{{ recoverySaveStatus === 'saving' ? t('editor.savingLocally') : recoverySaveStatus === 'saved' ? t('editor.savedLocally') : recoverySaveStatus === 'failed' ? t('editor.saveFailed') : '' }}</p>
-          </template>
-        </div>
-      </div>
+    <main class="container-fluid px-4 py-5 pb-5">
+      <h1 class="mb-3">{{ t('editor.title') }}</h1>
+      <p class="lead">
+        {{ t('guidance.neutral.introduction') }}
+      </p>
+      <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
+      <template v-else>
+        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" />
+        <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>
+      </template>
     </main>
+    <footer class="fixed-bottom border-top bg-body-tertiary px-4 py-2 text-body-secondary" aria-live="polite">
+      {{ saveStatusMessage }}
+    </footer>
   </div>
 </template>

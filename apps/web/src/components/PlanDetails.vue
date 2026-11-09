@@ -58,6 +58,7 @@ function validatePlanLocale(): void {
         <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
         <button class="btn btn-primary mt-3" type="submit">{{ t('editor.validate') }}</button>
       </form>
+      <slot />
     </div>
   </section>
 </template>

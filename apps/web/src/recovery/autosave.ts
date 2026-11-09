@@ -1,4 +1,4 @@
-import type { PlanDraft } from '../document/plan-draft'
+import type { EditorBundleDraft } from '../document/plan-draft'
 import { createDraftRecoveryRecord, type DraftRecoveryRecord, type DraftStorage } from './draft-storage'
 
 export type RecoverySaveStatus = 'idle' | 'saving' | 'saved' | 'failed'
@@ -13,7 +13,7 @@ export interface CreateAutosaveControllerOptions {
 
 export interface AutosaveController {
   resume(): void
-  schedule(draft: PlanDraft, revision: number): void
+  schedule(draft: EditorBundleDraft, revision: number): void
   stop(): void
 }
 
@@ -32,7 +32,7 @@ export function createAutosaveController(options: CreateAutosaveControllerOption
     resume(): void {
       paused = false
     },
-    schedule(draft: PlanDraft, revision: number): void {
+    schedule(draft: EditorBundleDraft, revision: number): void {
       if (stopped || paused) {
         return
       }
@@ -55,11 +55,11 @@ export function createAutosaveController(options: CreateAutosaveControllerOption
 /*
 Writes one latest draft and reports its resulting local-save state.
 ---
-Inputs: Autosave callbacks, a raw plan draft, and its current revision.
+Inputs: Autosave callbacks, a raw editor bundle, and its current revision.
 ---
 Output: Completion after saved or failed status has been reported.
 */
-async function saveDraft(options: CreateAutosaveControllerOptions, draft: PlanDraft, revision: number, pause: () => void): Promise<void> {
+async function saveDraft(options: CreateAutosaveControllerOptions, draft: EditorBundleDraft, revision: number, pause: () => void): Promise<void> {
   options.onStatus('saving')
   const nextRevision = revision + 1
   try {

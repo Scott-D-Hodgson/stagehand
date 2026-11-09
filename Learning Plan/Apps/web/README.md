@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 has started with editable case-reference paths, Bootstrap add/edit and confirmation dialogs, and immutable draft updates. The editor does not yet create case documents, provide complete form authoring, import/export, or execute plans.
+M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, Bootstrap add/edit and confirmation dialogs, and recovery migration for plan-only drafts. The editor does not yet create new plans, provide step forms, import/export, or execute plans.
 
 ## Lessons
 
