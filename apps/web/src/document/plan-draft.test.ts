@@ -62,6 +62,15 @@ describe('plan draft', () => {
     expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'fill', locator: { name: 'Email', role: 'textbox' }, value: 'author@example.com' }]);
   });
 
+  it('copies Select option label and nested locator data into an independent recovery snapshot', () => {
+    const draft = createBundledEditorDraft();
+    draft.cases['cases/landing-page.json']!.steps = [{ action: 'selectOption', label: 'Canada', locator: { name: 'Country', role: 'combobox' } }];
+    const snapshot = copyEditorBundleDraft(draft);
+    (snapshot.cases['cases/landing-page.json']!.steps[0] as { label: string; locator: { name: string } }).label = 'France';
+    (snapshot.cases['cases/landing-page.json']!.steps[0] as { locator: { name: string } }).locator.name = 'Changed';
+    expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'selectOption', label: 'Canada', locator: { name: 'Country', role: 'combobox' } }]);
+  });
+
   it('creates a new empty plan bundle with the supplied identifier', () => {
     expect(createEmptyEditorDraft('new-plan')).toEqual({
       cases: {},

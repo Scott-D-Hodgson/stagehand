@@ -7,6 +7,7 @@ import ConfirmationModal from './dialogs/ConfirmationModal.vue';
 import ClickStepDialog from './dialogs/ClickStepDialog.vue';
 import FillStepDialog from './dialogs/FillStepDialog.vue';
 import NavigateStepDialog from './dialogs/NavigateStepDialog.vue';
+import SelectOptionStepDialog from './dialogs/SelectOptionStepDialog.vue';
 import StepChooserDialog from './dialogs/StepChooserDialog.vue';
 import TypeStepDialog from './dialogs/TypeStepDialog.vue';
 
@@ -30,6 +31,7 @@ const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
 const clickDialogOpen = ref(false);
 const fillDialogOpen = ref(false);
+const selectOptionDialogOpen = ref(false);
 const typeDialogOpen = ref(false);
 const stepChooserOpen = ref(false);
 const clickRole = ref('');
@@ -46,6 +48,15 @@ const fillRoleBlurred = ref(false);
 const fillValueBlurred = ref(false);
 const fillRoleValidationMessage = computed(() => fillRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
 const fillValueValidationMessage = computed(() => fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined);
+const selectOptionRole = ref('');
+const selectOptionName = ref('');
+const selectOptionSelection = ref('');
+const selectOptionMode = ref<'label' | 'value'>('value');
+const editingSelectOptionIndex = ref<number | undefined>();
+const selectOptionRoleBlurred = ref(false);
+const selectOptionSelectionBlurred = ref(false);
+const selectOptionRoleValidationMessage = computed(() => selectOptionRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
+const selectOptionSelectionValidationMessage = computed(() => selectOptionSelection.value.trim().length === 0 ? selectOptionMode.value === 'value' ? t('editor.valueRequired') : t('editor.labelRequired') : undefined);
 const typeRole = ref('');
 const typeName = ref('');
 const typeText = ref('');
@@ -101,7 +112,7 @@ Inputs: The action selected in the step chooser.
 ---
 Output: A visible dialog with fields reset for a new step.
 */
-function chooseStep(action: 'click' | 'fill' | 'navigate' | 'type'): void {
+function chooseStep(action: 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'): void {
   stepChooserOpen.value = false;
   if (action === 'click') {
     addClickStep();
@@ -113,6 +124,10 @@ function chooseStep(action: 'click' | 'fill' | 'navigate' | 'type'): void {
   }
   if (action === 'fill') {
     addFillStep();
+    return;
+  }
+  if (action === 'selectOption') {
+    addSelectOptionStep();
     return;
   }
   addNavigateStep();
@@ -319,6 +334,62 @@ function resetFillDialog(): void {
 }
 
 /*
+Opens an empty Select option dialog for the selected case document.
+---
+Inputs: The selected case reference.
+---
+Output: A visible Select option dialog for a new step.
+*/
+function addSelectOptionStep(): void {
+  editingSelectOptionIndex.value = undefined;
+  selectOptionRole.value = '';
+  selectOptionName.value = '';
+  selectOptionSelection.value = '';
+  selectOptionMode.value = 'value';
+  selectOptionRoleBlurred.value = false;
+  selectOptionSelectionBlurred.value = false;
+  selectOptionDialogOpen.value = true;
+}
+
+/*
+Saves the valid Select option fields to the selected case document.
+---
+Inputs: The current Select option dialog state.
+---
+Output: An updated case-step list or visible validation feedback.
+*/
+function saveSelectOptionStep(): void {
+  if (selectOptionRoleValidationMessage.value !== undefined || selectOptionSelectionValidationMessage.value !== undefined) {
+    selectOptionRoleBlurred.value = true;
+    selectOptionSelectionBlurred.value = true;
+    return;
+  }
+  if (selectedCase.value !== undefined && props.selectedPath) {
+    const locator = selectOptionName.value.trim() ? { name: selectOptionName.value.trim(), role: selectOptionRole.value.trim() } : { role: selectOptionRole.value.trim() };
+    const selection = selectOptionMode.value === 'value' ? { value: selectOptionSelection.value } : { label: selectOptionSelection.value };
+    const step = { action: 'selectOption', locator, ...selection };
+    const steps = editingSelectOptionIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingSelectOptionIndex.value ? step : candidate);
+    emit('update:steps', props.selectedPath, steps);
+  }
+}
+
+/*
+Resets Select option dialog fields and visible validation to their new-step defaults.
+---
+Inputs: A Reset action in the Select option dialog.
+---
+Output: Blank fields, Value selection mode, and hidden validation feedback.
+*/
+function resetSelectOptionDialog(): void {
+  selectOptionRole.value = '';
+  selectOptionName.value = '';
+  selectOptionSelection.value = '';
+  selectOptionMode.value = 'value';
+  selectOptionRoleBlurred.value = false;
+  selectOptionSelectionBlurred.value = false;
+}
+
+/*
 Returns the localized action label for a supported authored step.
 ---
 Inputs: A raw case-step value.
@@ -335,6 +406,9 @@ function getStepActionLabel(step: unknown): string {
   }
   if (action === 'fill') {
     return t('editor.fill');
+  }
+  if (action === 'selectOption') {
+    return t('editor.selectOption');
   }
   return t('editor.navigate');
 }
@@ -358,6 +432,10 @@ function getStepSummary(step: unknown): string | undefined {
   }
   if (action === 'fill') {
     return `${target} → ${(step as { value?: string }).value ?? ''}`;
+  }
+  if (action === 'selectOption') {
+    const selection = step as { label?: string; value?: string };
+    return `${target} → ${selection.value === undefined ? t('editor.label') : t('editor.value')}: ${selection.value ?? selection.label ?? ''}`;
   }
   return target;
 }
@@ -398,6 +476,17 @@ function editStep(index: number, step: unknown): void {
     fillDialogOpen.value = true;
     return;
   }
+  if ((step as { action?: string }).action === 'selectOption') {
+    editingSelectOptionIndex.value = index;
+    selectOptionRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    selectOptionName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    selectOptionMode.value = (step as { value?: string }).value === undefined ? 'label' : 'value';
+    selectOptionSelection.value = (step as { label?: string; value?: string }).value ?? (step as { label?: string }).label ?? '';
+    selectOptionRoleBlurred.value = false;
+    selectOptionSelectionBlurred.value = false;
+    selectOptionDialogOpen.value = true;
+    return;
+  }
   editNavigateStep(index, step);
 }
 
@@ -435,6 +524,17 @@ function cloneStep(step: unknown): void {
     fillRoleBlurred.value = false;
     fillValueBlurred.value = false;
     fillDialogOpen.value = true;
+    return;
+  }
+  if ((step as { action?: string }).action === 'selectOption') {
+    editingSelectOptionIndex.value = undefined;
+    selectOptionRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    selectOptionName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    selectOptionMode.value = (step as { value?: string }).value === undefined ? 'label' : 'value';
+    selectOptionSelection.value = (step as { label?: string; value?: string }).value ?? (step as { label?: string }).label ?? '';
+    selectOptionRoleBlurred.value = false;
+    selectOptionSelectionBlurred.value = false;
+    selectOptionDialogOpen.value = true;
     return;
   }
   editingStepIndex.value = undefined;
@@ -554,6 +654,27 @@ function confirmStepRemoval(): void {
             @update:role="fillRole = $event"
             @update:value="fillValue = $event"
             @validate="fillRoleBlurred = true; fillValueBlurred = true"
+          />
+          <SelectOptionStepDialog
+            v-if="selectOptionDialogOpen"
+            :name="selectOptionName"
+            :role="selectOptionRole"
+            :role-validation-message="selectOptionRoleValidationMessage"
+            :role-validation-visible="selectOptionRoleBlurred"
+            :selection="selectOptionSelection"
+            :selection-mode="selectOptionMode"
+            :selection-validation-message="selectOptionSelectionValidationMessage"
+            :selection-validation-visible="selectOptionSelectionBlurred"
+            @blur:role="selectOptionRoleBlurred = true"
+            @blur:selection="selectOptionSelectionBlurred = true"
+            @close="selectOptionDialogOpen = false"
+            @reset="resetSelectOptionDialog"
+            @save="saveSelectOptionStep"
+            @update:name="selectOptionName = $event"
+            @update:role="selectOptionRole = $event"
+            @update:selection="selectOptionSelection = $event"
+            @update:selection-mode="selectOptionMode = $event"
+            @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
           />
           <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
           <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />

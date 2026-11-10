@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, and Fill-step authoring slices complete
+**Status:** In progress; Navigate-, Click-, Type-, Fill-, and Select-option-step authoring slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -17,6 +17,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Click step with a constrained Role/Accessible-name locator form and Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Type step with constrained Role/Accessible-name locator and literal-text forms, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Fill step with constrained Role/Accessible-name locator and literal-value forms, plus Add/Edit/Clone/Remove flows.
+- [x] Provide a recoverable, shared-contract-validated Select option step with a constrained Role/Accessible-name locator and exactly one literal Value or Label, plus Add/Edit/Clone/Remove flows.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -93,6 +94,16 @@ detached Fill-step copying and autosave. The owner reported passing web-editor
 tests, type check, production build, and manual Fill-step/recovery verification
 in the development container.
 
+The completed Select option slice adds a Select option action with the same
+constrained locator form and a deliberate By value or By label choice. The
+dialog saves exactly one required literal field, so its saved shape cannot
+contain both `value` and `label`. Each selected field has independently
+blur-gated feedback. Variable-backed selections remain deferred with variables
+to M12. Focused tests protect detached Label-based copying and Value-based
+autosave. The owner reported passing web-editor tests, type check, production
+build, and manual Select-option/recovery verification in the development
+container.
+
 ## Deliverables and completion evidence
 
 A user creates a small plan and case, adds navigation and an assertion, reorders steps, sees actionable validation errors, and recovers edits after reopening.
@@ -101,7 +112,7 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested remaining PR slices: Select option authoring, assertion forms, and step ordering.
+Suggested remaining PR slices: assertion forms and step ordering.
 
 ## Open decisions and exclusions
 

@@ -14,6 +14,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
 11. Which Type-step fields are currently authorable, and which supported text form remains deferred?
 12. Why is `LocatorFields.vue` shared by Click, Type, and Fill while their action-specific fields remain separate?
+13. Why does the Select option dialog use a Value-or-Label mode rather than show both fields at once?
 
 ## Answer key
 
@@ -29,3 +30,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
 11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
 12. The three forms now repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Text and Value have different meanings and separate validation states, so their owning dialogs retain those fields.
+13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.

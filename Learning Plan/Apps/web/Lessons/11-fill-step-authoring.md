@@ -2,7 +2,7 @@
 
 > “Reuse the parts that mean the same thing; name the parts that do not.” — Felicia “Form” Osei, Test Engineer
 
-[← Previous: Type-step authoring](10-type-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Type-step authoring](10-type-step-authoring.md) · [Course outline](../README.md) · [Next: Select-option authoring →](12-select-option-authoring.md)
 
 A Fill step replaces the current value of a target field. The current editor
 authors this shared-contract shape:
@@ -58,4 +58,4 @@ shared locator fields still focus and validate correctly.
 - You know why literal Value is current scope while variable references wait
   for M12.
 
-[← Previous: Type-step authoring](10-type-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Type-step authoring](10-type-step-authoring.md) · [Course outline](../README.md) · [Next: Select-option authoring →](12-select-option-authoring.md)
