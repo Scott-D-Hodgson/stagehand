@@ -21,6 +21,7 @@ const emit = defineEmits<{
 
 const modalElement = ref<HTMLElement>();
 let modal: BootstrapModal | undefined;
+let pendingAction: 'cancel' | 'confirm' = 'cancel';
 
 /*
 Closes the modal and records that its action was cancelled.
@@ -30,8 +31,8 @@ Inputs: A close, backdrop, or cancel-button interaction.
 Output: A cancellation event for the owning component.
 */
 function cancel(): void {
+  pendingAction = 'cancel';
   modal?.hide();
-  emit('cancel');
 }
 
 /*
@@ -42,13 +43,19 @@ Inputs: A confirmation-button interaction.
 Output: A confirmation event for the owning component.
 */
 function confirm(): void {
+  pendingAction = 'confirm';
   modal?.hide();
-  emit('confirm');
 }
 
 onMounted(() => {
-  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement) => BootstrapModal } }).bootstrap.Modal(modalElement.value!);
-  modalElement.value?.addEventListener('hidden.bs.modal', () => emit('cancel'), { once: true });
+  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
+  modalElement.value?.addEventListener('hidden.bs.modal', () => {
+    if (pendingAction === 'confirm') {
+      emit('confirm');
+      return;
+    }
+    emit('cancel');
+  }, { once: true });
   modal.show();
 });
 onBeforeUnmount(() => modal?.dispose());

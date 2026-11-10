@@ -2,7 +2,7 @@
 
 > “A reference is not a case document. It is the plan’s deliberate pointer to one.” — Dana “Draft” Ellis, Developer
 
-[← Previous: recovery gate](07-recovery-gate.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: recovery gate](07-recovery-gate.md) · [Course outline](../README.md) · [Next: Click-step authoring →](09-click-step-authoring.md)
 
 M9 begins controlled plan authoring without inventing a new contract. A version
 1 plan stores each case reference as a `path` in its `cases` array. The current
@@ -59,4 +59,4 @@ local recovery copy.
 - You know why a filename suggestion must remain editable.
 - You can explain why immutable updates matter to recovery and conflict handling.
 
-[← Previous: recovery gate](07-recovery-gate.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: recovery gate](07-recovery-gate.md) · [Course outline](../README.md) · [Next: Click-step authoring →](09-click-step-authoring.md)

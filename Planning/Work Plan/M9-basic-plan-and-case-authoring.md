@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-step authoring slice complete
+**Status:** In progress; Navigate- and Click-step authoring slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -14,6 +14,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Add, edit, and remove plan case references while preserving the rest of the draft; require confirmation before removal and prevent duplicate entered paths.
 - [x] Create a fresh empty plan with an author-supplied identifier, default locale, and no references; confirm replacement when the active bundle has changes.
 - [x] Provide a recoverable, shared-contract-validated Navigate step with a dialog-based Add/Edit flow.
+- [x] Provide a recoverable, shared-contract-validated Click step with a constrained Role/Accessible-name locator form and Add/Edit/Clone/Remove flows.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -54,6 +55,24 @@ feedback. The owner manually confirmed Add, Edit, Remove, card presentation,
 dialog validation, local save, refresh, and recovery restore for a Navigate
 step.
 
+The completed Click slice adds a step-type chooser and a Click card that shows
+its Role and optional Accessible name. Add, Edit, and Clone open the same
+Role/Accessible-name dialog. Role is required and receives one focused,
+localized author-facing message after blur or an attempted save; the full
+schema remains the validation boundary for saved case content. Click locator
+data is copied into a plain recovery snapshot so IndexedDB receives no Vue
+reactive values. Step removal now uses the shared Bootstrap confirmation
+dialog.
+
+All editor dialogs now use Bootstrap lifecycle events: their first actionable
+control receives focus after opening, they retain a static backdrop, and Vue
+removes them only after Bootstrap has completed its hide transition. This
+prevents close-induced validation feedback and stranded page scroll locks.
+The owner reported 32 passing web-editor tests, a passing type check and
+production build in the development container, and manual verification of
+Click authoring, recovery, dialog focus, validation, cancellation, backdrop,
+and scroll behaviour.
+
 ## Deliverables and completion evidence
 
 A user creates a small plan and case, adds navigation and an assertion, reorders steps, sees actionable validation errors, and recovers edits after reopening.
@@ -62,7 +81,7 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested remaining PR slices: interaction forms after Navigate; assertion forms and step ordering.
+Suggested remaining PR slices: the next interaction form, assertion forms, and step ordering.
 
 ## Open decisions and exclusions
 

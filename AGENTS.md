@@ -33,6 +33,7 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 - Do not put blank lines inside function bodies. Blank lines between functions and other top-level declarations are fine.
 - Terminate TypeScript and JavaScript statements with semicolons.
 - Do not put blank lines inside Vue `<template>` markup. Keep adjacent markup visually contiguous unless a structural boundary requires a comment.
+- Use comments only to explain retained code or markup. Do not comment out unused or superseded code; remove it from the working tree.
 - Precede every named implementation function with a short plain-language block comment. Leave exactly one blank line immediately before the comment. Use `/*`, a one-line purpose, `---`, an `Inputs:` line, `---`, an `Output:` line, and `*/`; do not add comments to trivial inline callbacks.
 - For each code change, consider whether a typed options object would make a function call clearer or safer to extend. Prefer one for several related, optional, or easily confused inputs; retain ordinary parameters for a small, naturally ordered set.
 - Use `async`/`await` as the standard style for asynchronous control flow and cleanup. Prefer `try`/`catch`/`finally` around `await` over direct `.then()`, `.catch()`, or `.finally()` chains. Use explicit Promise composition or coordination only when needed for concurrent work; keep `Promise<T>` types and APIs that return promises where appropriate.

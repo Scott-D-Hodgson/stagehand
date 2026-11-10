@@ -2,13 +2,22 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 
-interface BootstrapModal { dispose(): void; hide(): void; show(): void; }
+interface BootstrapModal {
+  dispose(): void;
+  hide(): void;
+  show(): void;
+}
 
-const emit = defineEmits<{ create: [id: string]; }>();
+const emit = defineEmits<{
+  close: [];
+  create: [id: string];
+}>();
 const { t } = useTranslation();
 const modalElement = ref<HTMLElement>();
+const planIdInput = ref<HTMLInputElement>();
 const planId = ref('');
 let modal: BootstrapModal | undefined;
+let pendingPlanId: string | undefined;
 
 /*
 Suggests a filename-safe plan identifier from entered text.
@@ -40,13 +49,21 @@ Inputs: The current plan-ID field value.
 Output: A new-plan event and hidden dialog.
 */
 function create(): void {
-  emit('create', planId.value.trim());
+  pendingPlanId = planId.value.trim();
   modal?.hide();
 }
 
 watch(planId, (id) => { planId.value = suggestPlanId(id); });
 onMounted(() => {
-  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement) => BootstrapModal } }).bootstrap.Modal(modalElement.value!);
+  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
+  modalElement.value?.addEventListener('shown.bs.modal', () => planIdInput.value?.focus(), { once: true });
+  modalElement.value?.addEventListener('hidden.bs.modal', () => {
+    if (pendingPlanId === undefined) {
+      emit('close');
+      return;
+    }
+    emit('create', pendingPlanId);
+  }, { once: true });
   modal.show();
 });
 onBeforeUnmount(() => modal?.dispose());
@@ -62,7 +79,7 @@ onBeforeUnmount(() => modal?.dispose());
         </div>
         <div class="modal-body">
           <label class="form-label" for="new-plan-id">{{ t('editor.planId') }}</label>
-          <input id="new-plan-id" v-model="planId" class="form-control" required />
+          <input id="new-plan-id" ref="planIdInput" v-model="planId" class="form-control" required />
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>

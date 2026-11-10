@@ -11,6 +11,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 7. What information does the v1 recovery record contain, and why is an unsupported stored record not deleted automatically?
 8. Why must the recovery gate run before autosave?
 9. What does the current M9 case-reference dialog save, and what does it not create?
+10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
 
 ## Answer key
 
@@ -23,3 +24,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 7. It contains the raw plan draft, a non-negative revision, and an ISO 8601 saved time. An unsupported record may still contain recoverable user work, so it remains unreadable until a later explicit discard choice.
 8. Otherwise, the bundled sample could overwrite a recovery record before the person can restore or discard it.
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
+10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
