@@ -1,6 +1,6 @@
 # Course: Understanding `@stagehand/web`
 
-This course explains the foundation of the local-first Stagehand web editor. The [application README](../../../apps/web/README.md) is the operational reference for its commands; [M8](../../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) defines the current milestone scope.
+This course explains the foundation of the local-first Stagehand web editor. The [application README](../../../apps/web/README.md) is the operational reference for its commands; [M8](../../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) defines the foundation and [M9](../../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) defines the current authoring scope.
 
 ## In this course you will learn
 
@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and validated Navigate and Click step forms. The editor does not yet provide the remaining step forms, import/export, or execute plans.
+M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and validated Navigate, Click, and Type step forms. The editor does not yet provide the remaining step forms, import/export, or execute plans.
 
 ## Lessons
 
@@ -37,5 +37,6 @@ M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-
 7. [Recovery gate](Lessons/07-recovery-gate.md)
 8. [Case-reference authoring](Lessons/08-case-reference-authoring.md)
 9. [Click-step authoring and modal lifecycle](Lessons/09-click-step-authoring.md)
+10. [Type-step authoring](Lessons/10-type-step-authoring.md)
 
 Finish with the [course skill check](quiz.md).

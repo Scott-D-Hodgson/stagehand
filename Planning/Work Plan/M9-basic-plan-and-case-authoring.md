@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate- and Click-step authoring slices complete
+**Status:** In progress; Navigate-, Click-, and Type-step authoring slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -15,6 +15,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Create a fresh empty plan with an author-supplied identifier, default locale, and no references; confirm replacement when the active bundle has changes.
 - [x] Provide a recoverable, shared-contract-validated Navigate step with a dialog-based Add/Edit flow.
 - [x] Provide a recoverable, shared-contract-validated Click step with a constrained Role/Accessible-name locator form and Add/Edit/Clone/Remove flows.
+- [x] Provide a recoverable, shared-contract-validated Type step with constrained Role/Accessible-name locator and literal-text forms, plus Add/Edit/Clone/Remove flows.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -72,6 +73,15 @@ The owner reported 32 passing web-editor tests, a passing type check and
 production build in the development container, and manual verification of
 Click authoring, recovery, dialog focus, validation, cancellation, backdrop,
 and scroll behaviour.
+
+The completed Type slice extends the chooser and numbered cards with a Type
+action. Its dialog uses the existing constrained Role/Accessible-name locator
+form and a required literal Text field. Role and Text feedback are independently
+hidden until their field blurs or the author attempts a save. Variable-backed
+text remains deferred with variables to M12. Type steps use the existing plain
+snapshot boundary, and focused tests cover both detached nested data and
+autosave. The owner reported passing web-editor tests, type check, production
+build, and manual Type-step/recovery verification in the development container.
 
 ## Deliverables and completion evidence
 

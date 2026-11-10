@@ -2,7 +2,7 @@
 
 > “A form should explain the choice it offers, not recite every choice it does not.” — Mira “Modal” Chen, Interface Developer
 
-[← Previous: case-reference authoring](08-case-reference-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: case-reference authoring](08-case-reference-authoring.md) · [Course outline](../README.md) · [Next: Type-step authoring →](10-type-step-authoring.md)
 
 The editor’s current Click form creates the shared-contract shape for a Click
 step:
@@ -31,7 +31,7 @@ but IndexedDB needs ordinary cloneable data. The editor copies nested step data
 into a plain snapshot before autosave. This keeps recovery and multi-tab
 comparison working while the user edits a nested locator.
 
-The step chooser leads to a Click or Navigate dialog. Existing steps can be
+The step chooser leads to a Navigate, Click, or Type dialog. Existing steps can be
 edited, cloned into a new step, or removed after confirmation. These are small
 forms today, but their values remain part of the same recoverable case-document
 draft as every other M9 change.
@@ -64,4 +64,4 @@ confirm that the dialog remains open.
 - You can describe why a modal’s `shown` and `hidden` events matter to focus
   and page scrolling.
 
-[← Previous: case-reference authoring](08-case-reference-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: case-reference authoring](08-case-reference-authoring.md) · [Course outline](../README.md) · [Next: Type-step authoring →](10-type-step-authoring.md)

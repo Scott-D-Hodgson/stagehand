@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, and Click-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, and Type-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -65,11 +65,12 @@ Run these commands from the repository root:
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
-- Case details supports Navigate and Click steps. Steps appear as numbered
+- Case details supports Navigate, Click, and Type steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
-  and Accessible name optional. Add, Edit, Clone, and Remove preserve recovery
-  and confirmation behaviour. The dialog components live in `src/components/dialogs/`;
-  Bootstrap focuses their first control after opening, retains a static backdrop,
-  and completes hide cleanup before Vue removes them. Step data is part of the
-  recovered editor bundle.
+  and Accessible name optional. Type uses that locator form plus required literal
+  Text; variable-backed text follows in M12. Add, Edit, Clone, and Remove
+  preserve recovery and confirmation behaviour. The dialog components live in
+  `src/components/dialogs/`; Bootstrap focuses their first control after opening,
+  retains a static backdrop, and completes hide cleanup before Vue removes them.
+  Step data is part of the recovered editor bundle.
