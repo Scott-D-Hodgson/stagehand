@@ -70,4 +70,17 @@ describe('autosave controller', () => {
     expect(savedRecords[0]?.draft.cases['cases/landing-page.json']?.steps).toEqual([{ action: 'fill', locator: { name: 'Email', role: 'textbox' }, value: 'author@example.com' }]);
     vi.useRealTimers();
   });
+
+  it('saves a Select option value as plain recovery data', async () => {
+    vi.useFakeTimers();
+    const savedRecords: Parameters<DraftStorage['save']>[0][] = [];
+    const save: DraftStorage['save'] = async (record) => { savedRecords.push(record); return { kind: 'saved', revision: record.revision }; };
+    const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: () => {}, storage: { discard: async () => ({ kind: 'discarded' }), load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage });
+    const draft = createBundledEditorDraft();
+    draft.cases['cases/landing-page.json']!.steps = [{ action: 'selectOption', locator: { name: 'Country', role: 'combobox' }, value: 'CA' }];
+    controller.schedule(draft, 0);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(savedRecords[0]?.draft.cases['cases/landing-page.json']?.steps).toEqual([{ action: 'selectOption', locator: { name: 'Country', role: 'combobox' }, value: 'CA' }]);
+    vi.useRealTimers();
+  });
 })
