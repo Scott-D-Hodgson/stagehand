@@ -25,12 +25,12 @@ authoring capability belongs to M12 with variables and data sets.
 
 ## Shared locator fields
 
-Click, Type, and Fill all need the same current target: required Role plus
+Click, Type, Fill, Select option, and Assert text all need the same current target: required Role plus
 optional Accessible name. `LocatorFields.vue` owns those inputs, their
-localized Role feedback, and role focus after the dialog opens. The Click,
-Type, and Fill dialogs each still own their own action-specific required field
-and its independent validation: none for Click, Text for Type, and Value for
-Fill.
+localized Role feedback, and role focus after the dialog opens. Each dialog
+still owns its action-specific fields and independent validation: none for
+Click, Text for Type, Value for Fill, a Value-or-Label choice for Select option,
+and Expected text for Assert text.
 
 This is a practical rule for component design: share a thing only when it has
 the same meaning, behaviour, and future direction everywhere it appears.

@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, Type-step, Fill-step, and Select-option-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, Type-step, Fill-step, Select-option-step, and Assert-text-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -65,15 +65,17 @@ Run these commands from the repository root:
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
-- Case details supports Navigate, Click, Type, Fill, and Select option steps. Steps appear as numbered
+- Case details supports Navigate, Click, Type, Fill, Select option, and Assert text steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
   Text, and Fill uses it plus required literal Value. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
-  one of those fields. Variable-backed text and values follow in M12. Click,
-  Type, Fill, and Select option share `LocatorFields.vue` for their target
-  fields, but retain their action-specific dialogs and validation.
+  one of those fields. Assert text uses that locator and one literal default
+  Expected text value; localized expected values follow in M11. Variable-backed
+  text and values follow in M12. Click, Type, Fill, Select option, and Assert
+  text share `LocatorFields.vue` for their target fields, but retain their
+  action-specific dialogs and validation.
   Add, Edit, Clone, and Remove preserve recovery and confirmation behaviour.
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
