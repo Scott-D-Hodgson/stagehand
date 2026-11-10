@@ -2,7 +2,7 @@
 
 > “A good small form does one job clearly before it learns every clever trick.” — Theo “Textbox” Grant, Test Author
 
-[← Previous: Click-step authoring](09-click-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Click-step authoring](09-click-step-authoring.md) · [Course outline](../README.md) · [Next: Fill-step authoring →](11-fill-step-authoring.md)
 
 A Type step tells the runner to enter text into a target. The current editor
 authors this shared-contract shape:
@@ -27,14 +27,13 @@ The shared contract allows the `text` value to be a variable reference as well
 as a literal. The editor does not offer variable selection or editing yet; that
 belongs to M12. This is deliberate scope, not a limitation of the contract.
 
-## Reuse without premature abstraction
+## Reuse after repetition
 
-Type and Click currently have separate dialogs even though they share locator
-fields. Their behaviour is similar, but Type adds a second required field and
-independent validation state. Keeping their components separate makes that
-difference obvious while the interaction vocabulary is still growing. A later
-review can extract a shared locator-fields component once Fill and other forms
-show a stable common shape.
+Click, Type, and Fill now use a shared `LocatorFields.vue` component for their
+Role/Accessible-name target fields. Each dialog keeps its action-specific field
+and validation state: Text for Type and Value for Fill. This is a useful middle
+ground: common target behaviour has one owner, without hiding the meaningful
+differences between actions.
 
 ## Data and recovery
 
@@ -57,4 +56,4 @@ page, and restore the local recovery copy.
   supports it.
 - You know why each required field needs its own validation state.
 
-[← Previous: Click-step authoring](09-click-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Click-step authoring](09-click-step-authoring.md) · [Course outline](../README.md) · [Next: Fill-step authoring →](11-fill-step-authoring.md)

@@ -13,6 +13,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. What does the current M9 case-reference dialog save, and what does it not create?
 10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
 11. Which Type-step fields are currently authorable, and which supported text form remains deferred?
+12. Why is `LocatorFields.vue` shared by Click, Type, and Fill while their action-specific fields remain separate?
 
 ## Answer key
 
@@ -27,3 +28,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
 11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
+12. The three forms now repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Text and Value have different meanings and separate validation states, so their owning dialogs retain those fields.
