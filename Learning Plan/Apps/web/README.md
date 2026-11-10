@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and validated Navigate, Click, and Type step forms. The editor does not yet provide the remaining step forms, import/export, or execute plans.
+M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and validated Navigate, Click, Type, and Fill step forms. The editor does not yet provide the remaining step forms, import/export, or execute plans.
 
 ## Lessons
 
@@ -38,5 +38,6 @@ M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-
 8. [Case-reference authoring](Lessons/08-case-reference-authoring.md)
 9. [Click-step authoring and modal lifecycle](Lessons/09-click-step-authoring.md)
 10. [Type-step authoring](Lessons/10-type-step-authoring.md)
+11. [Fill-step authoring and field reuse](Lessons/11-fill-step-authoring.md)
 
 Finish with the [course skill check](quiz.md).

@@ -5,6 +5,7 @@ import { validateCase } from '@stagehand/plan-schema';
 import type { CaseDraft } from '../document/plan-draft';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
 import ClickStepDialog from './dialogs/ClickStepDialog.vue';
+import FillStepDialog from './dialogs/FillStepDialog.vue';
 import NavigateStepDialog from './dialogs/NavigateStepDialog.vue';
 import StepChooserDialog from './dialogs/StepChooserDialog.vue';
 import TypeStepDialog from './dialogs/TypeStepDialog.vue';
@@ -28,6 +29,7 @@ const editingStepIndex = ref<number | undefined>();
 const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
 const clickDialogOpen = ref(false);
+const fillDialogOpen = ref(false);
 const typeDialogOpen = ref(false);
 const stepChooserOpen = ref(false);
 const clickRole = ref('');
@@ -36,6 +38,14 @@ const editingClickIndex = ref<number | undefined>();
 const pendingStepRemoval = ref<number | undefined>();
 const clickRoleBlurred = ref(false);
 const clickRoleValidationMessage = computed(() => clickRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
+const fillRole = ref('');
+const fillName = ref('');
+const fillValue = ref('');
+const editingFillIndex = ref<number | undefined>();
+const fillRoleBlurred = ref(false);
+const fillValueBlurred = ref(false);
+const fillRoleValidationMessage = computed(() => fillRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
+const fillValueValidationMessage = computed(() => fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined);
 const typeRole = ref('');
 const typeName = ref('');
 const typeText = ref('');
@@ -91,7 +101,7 @@ Inputs: The action selected in the step chooser.
 ---
 Output: A visible dialog with fields reset for a new step.
 */
-function chooseStep(action: 'click' | 'navigate' | 'type'): void {
+function chooseStep(action: 'click' | 'fill' | 'navigate' | 'type'): void {
   stepChooserOpen.value = false;
   if (action === 'click') {
     addClickStep();
@@ -99,6 +109,10 @@ function chooseStep(action: 'click' | 'navigate' | 'type'): void {
   }
   if (action === 'type') {
     addTypeStep();
+    return;
+  }
+  if (action === 'fill') {
+    addFillStep();
     return;
   }
   addNavigateStep();
@@ -252,6 +266,59 @@ function resetTypeDialog(): void {
 }
 
 /*
+Opens an empty Fill-step dialog for the selected case document.
+---
+Inputs: The selected case reference.
+---
+Output: A visible Fill-step dialog for a new step.
+*/
+function addFillStep(): void {
+  editingFillIndex.value = undefined;
+  fillRole.value = '';
+  fillName.value = '';
+  fillValue.value = '';
+  fillRoleBlurred.value = false;
+  fillValueBlurred.value = false;
+  fillDialogOpen.value = true;
+}
+
+/*
+Saves the valid Fill-step fields to the selected case document.
+---
+Inputs: The current Fill-step dialog state.
+---
+Output: An updated case-step list or visible validation feedback.
+*/
+function saveFillStep(): void {
+  if (fillRoleValidationMessage.value !== undefined || fillValueValidationMessage.value !== undefined) {
+    fillRoleBlurred.value = true;
+    fillValueBlurred.value = true;
+    return;
+  }
+  if (selectedCase.value !== undefined && props.selectedPath) {
+    const locator = fillName.value.trim() ? { name: fillName.value.trim(), role: fillRole.value.trim() } : { role: fillRole.value.trim() };
+    const step = { action: 'fill', locator, value: fillValue.value };
+    const steps = editingFillIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingFillIndex.value ? step : candidate);
+    emit('update:steps', props.selectedPath, steps);
+  }
+}
+
+/*
+Resets Fill dialog fields and visible validation to their new-step defaults.
+---
+Inputs: A Reset action in the Fill dialog.
+---
+Output: Blank fields and hidden validation feedback.
+*/
+function resetFillDialog(): void {
+  fillRole.value = '';
+  fillName.value = '';
+  fillValue.value = '';
+  fillRoleBlurred.value = false;
+  fillValueBlurred.value = false;
+}
+
+/*
 Returns the localized action label for a supported authored step.
 ---
 Inputs: A raw case-step value.
@@ -265,6 +332,9 @@ function getStepActionLabel(step: unknown): string {
   }
   if (action === 'type') {
     return t('editor.type');
+  }
+  if (action === 'fill') {
+    return t('editor.fill');
   }
   return t('editor.navigate');
 }
@@ -285,6 +355,9 @@ function getStepSummary(step: unknown): string | undefined {
   const target = `${locator?.role ?? ''}${locator?.name ? `: ${locator.name}` : ''}`;
   if (action === 'type') {
     return `${target} → ${(step as { text?: string }).text ?? ''}`;
+  }
+  if (action === 'fill') {
+    return `${target} → ${(step as { value?: string }).value ?? ''}`;
   }
   return target;
 }
@@ -315,6 +388,16 @@ function editStep(index: number, step: unknown): void {
     typeDialogOpen.value = true;
     return;
   }
+  if ((step as { action?: string }).action === 'fill') {
+    editingFillIndex.value = index;
+    fillRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    fillName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    fillValue.value = (step as { value?: string }).value ?? '';
+    fillRoleBlurred.value = false;
+    fillValueBlurred.value = false;
+    fillDialogOpen.value = true;
+    return;
+  }
   editNavigateStep(index, step);
 }
 
@@ -342,6 +425,16 @@ function cloneStep(step: unknown): void {
     typeRoleBlurred.value = false;
     typeTextBlurred.value = false;
     typeDialogOpen.value = true;
+    return;
+  }
+  if ((step as { action?: string }).action === 'fill') {
+    editingFillIndex.value = undefined;
+    fillRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    fillName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    fillValue.value = (step as { value?: string }).value ?? '';
+    fillRoleBlurred.value = false;
+    fillValueBlurred.value = false;
+    fillDialogOpen.value = true;
     return;
   }
   editingStepIndex.value = undefined;
@@ -442,6 +535,25 @@ function confirmStepRemoval(): void {
             @update:role="typeRole = $event"
             @update:text="typeText = $event"
             @validate="typeRoleBlurred = true; typeTextBlurred = true"
+          />
+          <FillStepDialog
+            v-if="fillDialogOpen"
+            :name="fillName"
+            :role="fillRole"
+            :role-validation-message="fillRoleValidationMessage"
+            :role-validation-visible="fillRoleBlurred"
+            :value="fillValue"
+            :value-validation-message="fillValueValidationMessage"
+            :value-validation-visible="fillValueBlurred"
+            @blur:role="fillRoleBlurred = true"
+            @blur:value="fillValueBlurred = true"
+            @close="fillDialogOpen = false"
+            @reset="resetFillDialog"
+            @save="saveFillStep"
+            @update:name="fillName = $event"
+            @update:role="fillRole = $event"
+            @update:value="fillValue = $event"
+            @validate="fillRoleBlurred = true; fillValueBlurred = true"
           />
           <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
           <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />

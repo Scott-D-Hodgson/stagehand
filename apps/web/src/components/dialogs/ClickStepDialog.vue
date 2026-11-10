@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import LocatorFields from './LocatorFields.vue';
 
 interface BootstrapModal {
   dispose(): void;
@@ -26,7 +27,7 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 const modalElement = ref<HTMLElement>();
-const roleInput = ref<HTMLInputElement>();
+const locatorFields = ref<InstanceType<typeof LocatorFields>>();
 let modal: BootstrapModal | undefined;
 let closing = false;
 
@@ -84,7 +85,7 @@ function save(): void {
 
 onMounted(() => {
   modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
-  modalElement.value?.addEventListener('shown.bs.modal', () => roleInput.value?.focus(), { once: true });
+  modalElement.value?.addEventListener('shown.bs.modal', () => locatorFields.value?.focusRoleInput(), { once: true });
   modalElement.value?.addEventListener('hide.bs.modal', () => { closing = true; }, { once: true });
   modalElement.value?.addEventListener('hidden.bs.modal', () => emit('close'), { once: true });
   modal.show();
@@ -101,25 +102,17 @@ onBeforeUnmount(() => modal?.dispose());
           <button class="btn-close" type="button" :aria-label="t('editor.close')" @mousedown="prepareToClose" @click.prevent="cancel"></button>
         </div>
         <div class="modal-body">
-          <label class="form-label" for="click-role">{{ t('editor.role') }}</label>
-          <input
-            id="click-role"
-            ref="roleInput"
-            :value="props.role"
-            class="form-control"
-            :class="{ 'is-invalid': props.validationVisible && props.validationMessage !== undefined }"
-            required
+          <LocatorFields
+            ref="locatorFields"
+            :name="props.name"
+            prefix="click"
+            :role="props.role"
+            :validation-message="props.validationMessage"
+            :validation-visible="props.validationVisible"
             @blur="reportRoleBlur"
-            @input="emit('update:role', ($event.target as HTMLInputElement).value)"
+            @update:name="emit('update:name', $event)"
+            @update:role="emit('update:role', $event)"
           />
-          <label class="form-label mt-3" for="click-name">{{ t('editor.accessibleName') }}</label>
-          <input
-            id="click-name"
-            :value="props.name"
-            class="form-control"
-            @input="emit('update:name', ($event.target as HTMLInputElement).value)"
-          />
-          <div v-if="props.validationVisible && props.validationMessage" class="invalid-feedback d-block">{{ props.validationMessage }}</div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline-secondary" type="button" @click="emit('reset')">{{ t('editor.reset') }}</button>
