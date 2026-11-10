@@ -16,6 +16,7 @@ const casePath = ref('');
 const editingIndex = ref<number | undefined>();
 const pathError = ref('');
 const modalElement = ref<HTMLElement>();
+const caseNameInput = ref<HTMLInputElement>();
 let modal: BootstrapModal | undefined;
 
 /*
@@ -80,7 +81,10 @@ function addReference(): void {
     closeDialog();
   }
 }
-onMounted(() => { modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement) => BootstrapModal } }).bootstrap.Modal(modalElement.value!); });
+onMounted(() => {
+  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
+  modalElement.value?.addEventListener('shown.bs.modal', () => caseNameInput.value?.focus());
+});
 onBeforeUnmount(() => { modal?.dispose(); });
 </script>
 
@@ -106,7 +110,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
           </div>
           <div class="modal-body">
             <label class="form-label" for="case-name">{{ t('editor.name') }}</label>
-            <input id="case-name" v-model="caseName" class="form-control" required />
+            <input id="case-name" ref="caseNameInput" v-model="caseName" class="form-control" required />
             <label class="form-label mt-3" for="case-path">{{ t('editor.referencePath') }}</label>
             <input id="case-path" v-model="casePath" class="form-control font-monospace" required />
             <div v-if="pathError" class="invalid-feedback d-block">{{ pathError }}</div>

@@ -5,8 +5,8 @@ import { addCaseReference, createBundledEditorDraft, createCaseDraft, removeCase
 import { validateEditorPlan } from '../document/validation';
 import CaseReferences from './CaseReferences.vue';
 import CaseDetails from './CaseDetails.vue';
-import ConfirmationModal from './ConfirmationModal.vue';
-import NewPlanDialog from './NewPlanDialog.vue';
+import ConfirmationModal from './dialogs/ConfirmationModal.vue';
+import NewPlanDialog from './dialogs/NewPlanDialog.vue';
 import PlanDetails from './PlanDetails.vue';
 import SharedContractAssessment from './SharedContractAssessment.vue';
 
@@ -258,5 +258,5 @@ function cancelConfirmation(): void {
     @cancel="cancelConfirmation"
     @confirm="confirmAction"
   />
-  <NewPlanDialog v-if="newPlanDialogOpen" @create="createNewPlan" />
+  <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlan" />
 </template>

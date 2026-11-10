@@ -126,9 +126,26 @@ Output: A detached plan and case-document snapshot.
 */
 export function copyEditorBundleDraft(draft: EditorBundleDraft): EditorBundleDraft {
   return {
-    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, { ...caseDraft, steps: caseDraft.steps.map((step) => typeof step === 'object' && step !== null ? { ...(step as Record<string, unknown>) } : step) }])),
+    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, { ...caseDraft, steps: caseDraft.steps.map(copyPlainValue) }])),
     plan: copyPlanDraft(draft.plan),
   };
+}
+
+/*
+Copies nested step data into browser-cloneable plain values.
+---
+Inputs: A primitive, array, or object held in a possibly reactive case step.
+---
+Output: An independent plain value suitable for IndexedDB storage.
+*/
+function copyPlainValue(value: unknown): unknown {
+  if (Array.isArray(value)) {
+    return value.map(copyPlainValue);
+  }
+  if (typeof value === 'object' && value !== null) {
+    return Object.fromEntries(Object.entries(value).map(([key, nestedValue]) => [key, copyPlainValue(nestedValue)]));
+  }
+  return value;
 }
 
 /*

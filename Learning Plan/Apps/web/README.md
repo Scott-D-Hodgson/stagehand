@@ -13,7 +13,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - Why the first plan field preserves raw input and how the editor components divide responsibility.
 - How a versioned IndexedDB recovery record stays behind a small storage interface.
 - How a recovery gate prevents a bundled sample from silently replacing local work.
-- How M8 established the editor foundation and where M9 case-reference authoring begins.
+- How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
 
@@ -24,7 +24,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and a validated Navigate-step form. The editor does not yet provide the remaining step forms, import/export, or execute plans.
+M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, and two-tab conflict handling. M9 now has editable case-reference paths, in-memory version 1 case documents, New plan creation, and validated Navigate and Click step forms. The editor does not yet provide the remaining step forms, import/export, or execute plans.
 
 ## Lessons
 
@@ -36,5 +36,6 @@ M8 is complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-
 6. [Recovery-storage foundation](Lessons/06-recovery-storage-foundation.md)
 7. [Recovery gate](Lessons/07-recovery-gate.md)
 8. [Case-reference authoring](Lessons/08-case-reference-authoring.md)
+9. [Click-step authoring and modal lifecycle](Lessons/09-click-step-authoring.md)
 
 Finish with the [course skill check](quiz.md).

@@ -36,6 +36,14 @@ describe('plan draft', () => {
     expect(draft).toEqual(createBundledEditorDraft());
   });
 
+  it('copies nested Click locator data into an independent recovery snapshot', () => {
+    const draft = createBundledEditorDraft();
+    draft.cases['cases/landing-page.json']!.steps = [{ action: 'click', locator: { name: 'Continue', role: 'button' } }];
+    const snapshot = copyEditorBundleDraft(draft);
+    (snapshot.cases['cases/landing-page.json']!.steps[0] as { locator: { name: string } }).locator.name = 'Changed';
+    expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'click', locator: { name: 'Continue', role: 'button' } }]);
+  });
+
   it('creates a new empty plan bundle with the supplied identifier', () => {
     expect(createEmptyEditorDraft('new-plan')).toEqual({
       cases: {},
