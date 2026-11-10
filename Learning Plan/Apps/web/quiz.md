@@ -13,8 +13,9 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. What does the current M9 case-reference dialog save, and what does it not create?
 10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
 11. Which Type-step fields are currently authorable, and which supported text form remains deferred?
-12. Why is `LocatorFields.vue` shared by Click, Type, and Fill while their action-specific fields remain separate?
+12. Why is `LocatorFields.vue` shared by Click, Type, Fill, Select option, and Assert text while their action-specific fields remain separate?
 13. Why does the Select option dialog use a Value-or-Label mode rather than show both fields at once?
+14. What is the current Assert text expected-value shape, and why are localized expected values not authorable yet?
 
 ## Answer key
 
@@ -29,5 +30,6 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
 11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
-12. The three forms now repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Text and Value have different meanings and separate validation states, so their owning dialogs retain those fields.
+12. The five forms repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Their action-specific inputs have different meanings and validation states, so their owning dialogs retain those fields.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
+14. Assert text saves `expected: { default: "…" }` with a literal default value. Localized expected values are intentionally deferred to M11 with the related browser and run configuration work.

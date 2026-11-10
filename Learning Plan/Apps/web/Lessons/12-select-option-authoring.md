@@ -2,7 +2,7 @@
 
 > “Let the interface make an invalid state difficult to express.” — Amara Singh, Quality Engineer
 
-[← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Next: Assert-text authoring →](13-assert-text-authoring.md)
 
 A Select option step chooses an entry from a target control. The current editor
 authors either a literal machine-readable Value:
@@ -46,7 +46,7 @@ in this form.
 
 ## Shared target, separate selection
 
-Select option shares `LocatorFields.vue` with Click, Type, and Fill because
+Select option shares `LocatorFields.vue` with Click, Type, Fill, and Assert text because
 each action needs the same required Role and optional Accessible name target.
 The selection mode and its required field remain owned by the Select option
 dialog because they describe this action alone.
@@ -73,4 +73,4 @@ one presents the selection form it saved.
   remain action-specific.
 - You know why variable-backed selections wait for M12.
 
-[← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Next: Assert-text authoring →](13-assert-text-authoring.md)
