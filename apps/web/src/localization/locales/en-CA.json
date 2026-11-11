@@ -57,6 +57,17 @@
     "textRequired": "Enter text.",
     "expectedText": "Expected text",
     "expectedTextRequired": "Enter expected text.",
+    "locale": "Locale",
+    "selectLocale": "Select a locale",
+    "remove": "Remove",
+    "localeOverrides": "Locale overrides",
+    "localeOverride": "Locale override",
+    "noLocaleOverrides": "No locale overrides have been added.",
+    "addLocaleOverride": "Add locale override",
+    "removeLocaleOverride": "Remove locale override for {{locale}}",
+    "removeLocaleOverrideConfirmation": "Remove the {{locale}} locale override?",
+    "invalidLocaleOverride": "Select a locale.",
+    "duplicateLocaleOverride": "This locale duplicates another locale override.",
     "expectedHtml": "Expected HTML",
     "expectedHtmlRequired": "Enter expected HTML.",
     "expectedValue": "Expected value",
@@ -115,9 +126,7 @@
   },
   "guidance": {
     "neutral": {
-      "bcpExpansion": "Best Current Practice",
-      "planLocaleHelpBefore": "A ",
-      "planLocaleHelpAfter": " language tag, such as en-CA. This affects the plan, not the editor display language."
+      "bcpExpansion": "Best Current Practice"
     }
   }
 }

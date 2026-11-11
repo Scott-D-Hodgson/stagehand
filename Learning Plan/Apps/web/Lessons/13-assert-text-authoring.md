@@ -55,6 +55,7 @@ and restore the recovery copy to confirm the default expected value remains.
 - You can identify the difference between the target’s Accessible name and its
   expected visible text.
 - You know why the form saves `expected.default` rather than a raw text field.
-- You can explain why localized expected values remain M11 work.
+- You can distinguish the literal default expected value from the early M11
+  locale-override workflow described in Lesson 19.
 
 [← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Next: Assert-HTML authoring →](14-assert-html-authoring.md)

@@ -258,7 +258,7 @@ function cancelConfirmation(): void {
   <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
     <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference">
       <template #case-details="{ path }">
-        <CaseDetails :case-drafts="caseDrafts" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
+        <CaseDetails :case-drafts="caseDrafts" :plan-locale="plan.defaults.locale" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
       </template>
     </CaseReferences>
   </PlanDetails>

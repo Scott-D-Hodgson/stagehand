@@ -12,7 +12,7 @@ Run the one-time test command from the repository root:
 npm test --workspace @stagehand/web
 ```
 
-Use unit tests for deterministic document-state rules: preserving an invalid input, calculating whether an export is allowed, or comparing a local revision. The current draft tests prove that changing the raw plan-locale text preserves unrelated plan data and does not mutate the original draft. They do not prove keyboard behaviour, screen-reader announcements, or browser storage behaviour. Those require appropriately scoped browser checks later.
+Use unit tests for deterministic document-state rules: preserving a recovered out-of-catalogue locale, calculating whether an export is allowed, or comparing a local revision. The current draft tests prove that an out-of-catalogue locale value preserves unrelated plan data and does not mutate the original draft. They do not prove keyboard behaviour, screen-reader announcements, or browser storage behaviour. Those require appropriately scoped browser checks later.
 
 Localization tests also belong here when they exercise stable language rules. The validation-status test checks i18next's zero, one, and other plural resources for both initial locales, so a future wording change cannot quietly reintroduce “issue(s)” style copy.
 

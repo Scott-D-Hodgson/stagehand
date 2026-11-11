@@ -57,6 +57,17 @@
     "textRequired": "Entrez du texte.",
     "expectedText": "Texte attendu",
     "expectedTextRequired": "Entrez le texte attendu.",
+    "locale": "Paramètres régionaux",
+    "selectLocale": "Sélectionnez des paramètres régionaux",
+    "remove": "Supprimer",
+    "localeOverrides": "Remplacements régionaux",
+    "localeOverride": "Remplacement régional",
+    "noLocaleOverrides": "Aucun remplacement régional n’a été ajouté.",
+    "addLocaleOverride": "Ajouter un remplacement régional",
+    "removeLocaleOverride": "Supprimer le remplacement régional pour {{locale}}",
+    "removeLocaleOverrideConfirmation": "Supprimer le remplacement régional {{locale}}?",
+    "invalidLocaleOverride": "Sélectionnez des paramètres régionaux.",
+    "duplicateLocaleOverride": "Ces paramètres régionaux dupliquent un autre remplacement régional.",
     "expectedHtml": "HTML attendu",
     "expectedHtmlRequired": "Entrez le HTML attendu.",
     "expectedValue": "Valeur attendue",
@@ -114,9 +125,7 @@
   },
   "guidance": {
     "neutral": {
-      "bcpExpansion": "Bonne pratique courante",
-      "planLocaleHelpBefore": "Une balise linguistique ",
-      "planLocaleHelpAfter": ", par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur."
+      "bcpExpansion": "Bonne pratique courante"
     }
   }
 }

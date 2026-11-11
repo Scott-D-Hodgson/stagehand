@@ -12,9 +12,10 @@ must not invent one as a convenient label.
 The initial raw text input intentionally accepts what the user types, including
 an invalid BCP 47 language tag. A shared-contract validation result then
 explains the problem. This prevents a UI convenience from silently changing the
-document. A searchable locale combobox backed by a maintained catalogue is a
-future focused slice, not a reason to limit plan locales to the editor's two
-interface languages.
+document. The early M11 locale-override slice now uses a maintained JSON
+catalogue shared by Plan Locale and Assert-text overrides. It is distinct from
+the editor's two interface languages; reassess a searchable control if the
+catalogue grows.
 
 The current component boundary is deliberately small: `App` owns application
 preferences and the active draft, `AppHeader` owns shell controls, `PlanBundle`

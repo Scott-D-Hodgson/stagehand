@@ -181,7 +181,7 @@ Each slice can use more than one feature-sized PR if needed. The ranges sum to t
 
 ## Open decisions before relevant slices
 
-- **Plan locale control:** `defaults.locale` is the accepted first editable field. Keep its raw BCP 47 text input for the initial M8.2 slice. A future focused PR may replace it with an accessible searchable combobox backed by a deliberately maintained locale catalogue; do not restrict plan locales to the editor's `en-CA`/`fr-CA` interface choices without a separate contract decision.
+- **Plan locale control:** `defaults.locale` began as the accepted first editable raw text field in M8.2. The early M11 Assert-text locale-override slice replaced its UI with a select backed by a deliberately maintained 66-entry locale catalogue; it remains separate from the editor's `en-CA`/`fr-CA` interface choices. A searchable control can be reassessed if the catalogue grows.
 - Define the comparison presentation and a clear route through failed storage or unreadable data.
 
 ## Exclusions and follow-through
