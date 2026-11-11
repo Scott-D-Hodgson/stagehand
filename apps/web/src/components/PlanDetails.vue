@@ -1,34 +1,36 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import { useTranslation } from 'i18next-vue'
-import type { PlanDraft } from '../document/plan-draft'
-import type { ValidationIssue } from '@stagehand/plan-schema'
+import { computed, ref } from 'vue';
+import { useTranslation } from 'i18next-vue';
+import type { PlanDraft } from '../document/plan-draft';
+import type { ValidationIssue } from '@stagehand/plan-schema';
+import localeCatalogue from '../localization/locale-catalogue.json';
 
 const props = defineProps<{
-  plan: PlanDraft
-  validationIssues: ValidationIssue[]
-  validationRequested: boolean
-}>()
+  plan: PlanDraft;
+  validationIssues: ValidationIssue[];
+  validationRequested: boolean;
+}>();
 
 const emit = defineEmits<{
-  'update:locale': [locale: string]
-  validate: []
-}>()
+  'update:locale': [locale: string];
+  validate: [];
+}>();
 
-const { t } = useTranslation()
-const localeWasBlurred = ref(false)
-const planLocaleIssues = computed(() => props.validationIssues.filter((issue) => issue.path === '/defaults/locale'))
-const shouldShowPlanLocaleIssues = computed(() => planLocaleIssues.value.length > 0 && (localeWasBlurred.value || props.validationRequested))
+const { t } = useTranslation();
+const localeWasBlurred = ref(false);
+const planLocaleIssues = computed(() => props.validationIssues.filter((issue) => issue.path === '/defaults/locale'));
+const shouldShowPlanLocaleIssues = computed(() => planLocaleIssues.value.length > 0 && (localeWasBlurred.value || props.validationRequested));
+const hasUnknownPlanLocale = computed(() => !localeCatalogue.includes(props.plan.defaults.locale));
 
 /*
-Emits raw locale input without coercing it into a valid value.
+Emits a selected locale from the maintained application catalogue.
 ---
-Inputs: A plan-locale input event.
+Inputs: A plan-locale select event.
 ---
-Output: The entered locale text.
+Output: The selected locale code.
 */
 function changePlanLocale(event: Event): void {
-  emit('update:locale', (event.target as HTMLInputElement).value)
+  emit('update:locale', (event.target as HTMLSelectElement).value);
 }
 
 /*
@@ -39,7 +41,7 @@ Inputs: The plan-locale blur event.
 Output: Enables field-level validation feedback.
 */
 function validatePlanLocale(): void {
-  localeWasBlurred.value = true
+  localeWasBlurred.value = true;
 }
 </script>
 
@@ -53,11 +55,10 @@ function validatePlanLocale(): void {
     <div class="card-body">
       <form @submit.prevent="emit('validate')">
         <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
-        <input id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-help plan-locale-error' : 'plan-locale-help'" :class="['form-control', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @input="changePlanLocale" />
-        <div id="plan-locale-help" class="form-text">
-          <span>{{ t('guidance.neutral.planLocaleHelpBefore') }}</span>
-          <abbr :title="t('guidance.neutral.bcpExpansion')">BCP</abbr> 47<span>{{ t('guidance.neutral.planLocaleHelpAfter') }}</span>
-        </div>
+        <select id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-error' : undefined" :class="['form-select', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @change="changePlanLocale">
+          <option v-if="hasUnknownPlanLocale" :value="plan.defaults.locale" disabled>{{ plan.defaults.locale }}</option>
+          <option v-for="locale in localeCatalogue" :key="locale" :value="locale">{{ locale }}</option>
+        </select>
         <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
         <button class="btn btn-primary mt-3" type="submit">{{ t('editor.validate') }}</button>
       </form>

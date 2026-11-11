@@ -11,7 +11,6 @@ Output: The shared contract validation result.
 export function validateEditorPlan(input: unknown): ValidationResult {
   return validatePlan(input);
 }
-
 /*
 Finds authored case-step positions that fail shared-contract validation.
 ---

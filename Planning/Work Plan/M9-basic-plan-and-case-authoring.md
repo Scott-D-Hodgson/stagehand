@@ -112,16 +112,18 @@ container.
 
 The completed Assert text slice adds an Assert text action with the same
 constrained locator form and one required literal default expected value. Role
-and Expected text feedback are independently blur-gated. Localized expected
-values remain deferred to M11. Focused tests protect detached expected-value
-copying and autosave. The owner reported that the development-container tests,
+and Expected text feedback are independently blur-gated. An early M11 slice
+now adds localized Assert-text expected values through the card-level Locale
+overrides panel. Focused tests protect detached expected-value copying and
+autosave. The owner reported that the development-container tests,
 type check, production build, and manual Assert-text/recovery verification all
 passed.
 
 The completed Assert HTML slice follows the same constrained locator and
 literal default expected-value boundary. It uses a multiline Expected HTML
 field, while retaining independently blur-gated Role and expected-value
-feedback. Localized expected values remain deferred to M11. Focused tests
+feedback. Localized expected values for Assert HTML and Assert value remain
+deferred to M11. Focused tests
 protect detached expected-HTML copying and autosave. The owner reported that
 the development-container tests, type check, production build, and manual
 Assert-HTML/recovery verification all passed.

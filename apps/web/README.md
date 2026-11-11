@@ -42,9 +42,10 @@ Run these commands from the repository root:
 - `App.vue` owns application preferences and the active draft. `AppHeader`
   provides the sticky Stagehand heading, tagline, and shell controls;
   `PlanBundle` composes the plan details, case-reference workspaces, and
-  shared-contract assessment. The current draft deliberately preserves raw
-  plan-locale input so shared validation can report invalid values rather than
-  silently changing them.
+  shared-contract assessment. Plan Locale uses the maintained JSON catalogue;
+  it is separate from the remembered interface language. An out-of-catalogue
+  recovered value remains visible as a disabled current option rather than
+  being silently changed.
 - `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
   IndexedDB adapter for one versioned recovery record. On startup, the recovery
   gate offers Restore or Discard for a readable copy and requires explicit
@@ -78,10 +79,14 @@ Run these commands from the repository root:
   Text, and Fill uses it plus required literal Value. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
   one of those fields. Assert text uses that locator and one literal default
-  Expected text value. Assert HTML uses the same locator, a literal default
+  Expected text value. Assert text also has a card-level Locale overrides panel
+  using the catalogue. It previews the configured Plan Locale by emphasizing
+  its matching override, or the default when no override matches. Assert HTML
+  uses the same locator, a literal default
   Expected HTML value, and a multiline field. Assert value uses the same
   locator and a literal default Expected value; its optional associated-label
-  check has no editor form yet. Localized expected values follow in M11.
+  check has no editor form yet. Localized expected values for Assert HTML and
+  Assert value remain M11 work.
   Variable-backed text and values follow in M12. Click, Type, Fill, Select
   option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
   for their target fields, but retain their action-specific dialogs and

@@ -1,6 +1,6 @@
 # Lesson 18: Selected-step validation
 
-[← Previous: Case-reference workspaces](17-case-reference-workspaces.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Case-reference workspaces](17-case-reference-workspaces.md) · [Course outline](../README.md) · [Next: Localized Assert-text expectations →](19-localized-assert-text.md)
 
 Shared validation is authoritative, but its raw messages are not always useful
 editor copy. A schema `oneOf` can report several alternatives for one incomplete
@@ -35,4 +35,4 @@ step and confirm each warning clears after the draft becomes valid.
 - You know why a set of step indexes avoids repeated messages for one step.
 - You can explain why a collapsed case still needs a validation cue.
 
-[← Previous: Case-reference workspaces](17-case-reference-workspaces.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Case-reference workspaces](17-case-reference-workspaces.md) · [Course outline](../README.md) · [Next: Localized Assert-text expectations →](19-localized-assert-text.md)
