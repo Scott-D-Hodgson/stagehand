@@ -60,6 +60,8 @@
     "byValue": "Valeur",
     "byLabel": "Étiquette",
     "caseStepsEmpty": "Aucune étape n’a encore été ajoutée.",
+    "moveStepUp": "Déplacer vers le haut",
+    "moveStepDown": "Déplacer vers le bas",
     "noCaseSelected": "Sélectionnez une référence de cas pour modifier ses détails.",
     "caseReference": "Référence de cas",
     "caseName": "Nom du cas",

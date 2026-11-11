@@ -209,3 +209,20 @@ Output: A new draft without the selected reference.
 export function removeCaseReference(plan: PlanDraft, index: number): PlanDraft {
   return { ...plan, cases: plan.cases.filter((_, candidateIndex) => candidateIndex !== index) };
 }
+
+/*
+Moves one step to another valid position without changing the source list.
+---
+Inputs: A step list, source index, and destination index.
+---
+Output: A reordered copy, or an unchanged copy for an invalid move.
+*/
+export function moveCaseStep(steps: unknown[], fromIndex: number, toIndex: number): unknown[] {
+  if (fromIndex < 0 || fromIndex >= steps.length || toIndex < 0 || toIndex >= steps.length) {
+    return [...steps];
+  }
+  const reordered = [...steps];
+  const [step] = reordered.splice(fromIndex, 1);
+  reordered.splice(toIndex, 0, step);
+  return reordered;
+}

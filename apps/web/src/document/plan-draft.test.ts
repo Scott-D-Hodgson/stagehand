@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseStep, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -111,5 +111,12 @@ describe('plan draft', () => {
     const updated = updateCaseReference(added, 1, 'cases/second.json');
     expect(removeCaseReference(updated, 0).cases).toEqual([{ path: 'cases/second.json' }]);
     expect(draft.cases).toEqual([{ path: 'cases/landing-page.json' }]);
+  });
+
+  it('moves a case step without changing the source list', () => {
+    const steps = [{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }];
+    expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
+    expect(moveCaseStep(steps, 0, 2)).toEqual(steps);
+    expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
   });
 });

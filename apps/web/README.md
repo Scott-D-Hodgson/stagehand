@@ -80,7 +80,9 @@ Run these commands from the repository root:
   option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
   for their target fields, but retain their action-specific dialogs and
   validation.
-  Add, Edit, Clone, and Remove preserve recovery and confirmation behaviour.
+  Add, Edit, Clone, Remove, and adjacent Move up/Move down controls preserve
+  recovery and confirmation behaviour. Reordered cards animate into their new
+  positions; the first and last cards disable the unavailable direction.
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
   hide cleanup before Vue removes them. Step data is part of the recovered editor
