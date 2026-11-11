@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseStep, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -118,5 +118,12 @@ describe('plan draft', () => {
     expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
     expect(moveCaseStep(steps, 0, 2)).toEqual(steps);
     expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+  });
+
+  it('moves a case reference without changing the source draft', () => {
+    const draft = addCaseReference(createBundledPlanDraft(), 'cases/second.json');
+    expect(moveCaseReference(draft, 1, 0).cases).toEqual([{ path: 'cases/second.json' }, { path: 'cases/landing-page.json' }]);
+    expect(moveCaseReference(draft, 0, 2)).toEqual(draft);
+    expect(draft.cases).toEqual([{ path: 'cases/landing-page.json' }, { path: 'cases/second.json' }]);
   });
 });

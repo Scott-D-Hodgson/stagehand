@@ -262,11 +262,7 @@ watch(resolvedTheme, (theme) => {
 <template>
   <div class="min-vh-100 bg-body">
     <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
-    <main class="container-fluid px-4 py-5 pb-5">
-      <h1 class="mb-3">{{ t('editor.title') }}</h1>
-      <p class="lead">
-        {{ t('guidance.neutral.introduction') }}
-      </p>
+    <main class="container-fluid px-4 py-4 pb-5">
       <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
         <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @new-plan="createNewPlan" />

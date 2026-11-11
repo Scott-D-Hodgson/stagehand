@@ -1,7 +1,7 @@
 {
   "editor": {
     "heading": "Stagehand",
-    "title": "Plan authoring starts here.",
+    "tagline": "Plan authoring starts here.",
     "sharedContract": "Shared contract",
     "validPlan": "The bundled sample satisfies the shared plan contract.",
     "invalidPlan_zero": "No validation issues found in the bundled sample.",
@@ -17,6 +17,8 @@
     "planDetails": "Plan details",
     "planActions": "Plan actions",
     "planId": "Plan ID",
+    "identifierAbbreviation": "ID",
+    "identifierExpansion": "Identifier",
     "newPlan": "New plan",
     "newPlanConfirmation": "Discard the current plan and create a new one?",
     "create": "Create",
@@ -24,7 +26,12 @@
     "validate": "Validate plan",
     "caseReferences": "Case references",
     "caseDetails": "Case details",
+    "caseStepCount_zero": "No steps",
+    "caseStepCount_one": "{{count}} step",
+    "caseStepCount_other": "{{count}} steps",
     "caseId": "Case ID",
+    "caseIdPrefix": "Case ",
+    "caseIdSuffix": "",
     "steps": "Steps",
     "navigateUrl": "Navigate URL",
     "navigateUrlHelp": "Use an absolute HTTP or HTTPS URL, such as https://example.com.",
@@ -104,8 +111,9 @@
   },
   "guidance": {
     "neutral": {
-      "introduction": "The editor will help authors create valid Stagehand plans without hand-editing JSON.",
-      "planLocaleHelp": "A BCP 47 language tag, such as en-CA. This affects the plan, not the editor display language."
+      "bcpExpansion": "Best Current Practice",
+      "planLocaleHelpBefore": "A ",
+      "planLocaleHelpAfter": " language tag, such as en-CA. This affects the plan, not the editor display language."
     }
   }
 }

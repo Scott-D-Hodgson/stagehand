@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../document/plan-draft';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../document/plan-draft';
 import { validateEditorPlan } from '../document/validation';
 import CaseReferences from './CaseReferences.vue';
 import CaseDetails from './CaseDetails.vue';
@@ -76,6 +76,17 @@ function changeReference(index: number, path: string): void {
 }
 
 /*
+Moves one case reference by one valid adjacent position.
+---
+Inputs: A case-reference index and an adjacent movement direction.
+---
+Output: An updated plan draft while retaining the selected reference path.
+*/
+function moveReference(index: number, direction: -1 | 1): void {
+  emit('update:plan', moveCaseReference(props.plan, index, index + direction));
+}
+
+/*
 Updates one case-document identifier without changing its other data.
 ---
 Inputs: A case-reference path and replacement raw identifier.
@@ -118,7 +129,7 @@ Inputs: A case-reference path selected in the case-reference panel.
 Output: The matching case details become visible.
 */
 function selectCase(path: string): void {
-  selectedCasePath.value = path;
+  selectedCasePath.value = selectedCasePath.value === path ? '' : path;
 }
 
 /*
@@ -238,16 +249,19 @@ function cancelConfirmation(): void {
 </script>
 
 <template>
-  <nav class="sticky-top border-bottom bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
+  <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
     <div class="d-flex flex-wrap align-items-center gap-2">
       <button class="btn btn-primary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
       <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
     </div>
   </nav>
   <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
-    <CaseReferences :cases="plan.cases" @add="addReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference" />
+    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference">
+      <template #case-details="{ path }">
+        <CaseDetails :case-drafts="caseDrafts" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
+      </template>
+    </CaseReferences>
   </PlanDetails>
-  <CaseDetails :case-drafts="caseDrafts" :selected-path="selectedCasePath" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
   <SharedContractAssessment :validation="planValidation" />
   <ConfirmationModal
     v-if="confirmation"
@@ -260,3 +274,11 @@ function cancelConfirmation(): void {
   />
   <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlan" />
 </template>
+
+<style scoped>
+.plan-actions {
+  position: sticky;
+  top: 3.5rem;
+  z-index: 1020;
+}
+</style>

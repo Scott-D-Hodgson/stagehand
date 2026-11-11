@@ -884,192 +884,189 @@ function getStepKey(step: unknown): string {
 </script>
 
 <template>
-  <section class="card mb-3 shadow-sm" aria-labelledby="case-details-heading">
-    <div class="card-body">
-      <h2 id="case-details-heading" class="h5">{{ t('editor.caseDetails') }}</h2>
-      <template v-if="selectedCase">
-        <label class="form-label" for="case-id">{{ t('editor.caseId') }}</label>
-        <input id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
-        <div class="border-top mt-4 pt-3">
-          <h3 class="h6">{{ t('editor.steps') }}</h3>
-          <TransitionGroup name="step" tag="div">
-            <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" class="card mb-3">
-              <div class="card-body d-flex justify-content-between align-items-start gap-3">
-                <div>
-                  <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
-                  <p class="mb-0 text-body-secondary text-break">{{ getStepSummary(step) }}</p>
-                </div>
-                <div class="d-flex gap-2">
-                  <button
-                    class="btn btn-outline-secondary btn-sm"
-                    type="button"
-                    :disabled="index === 0"
-                    @click="moveStep(index, -1)"
-                  >
-                    {{ t('editor.moveStepUp') }}
-                  </button>
-                  <button
-                    class="btn btn-outline-secondary btn-sm"
-                    type="button"
-                    :disabled="index === selectedCase.steps.length - 1"
-                    @click="moveStep(index, 1)"
-                  >
-                    {{ t('editor.moveStepDown') }}
-                  </button>
-                  <button class="btn btn-outline-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
-                  <button class="btn btn-outline-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
-                  <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
-                </div>
-              </div>
-              <div v-for="issue in caseIssues.filter((candidate) => candidate.path === `/steps/${index}/url`)" :key="issue.path + issue.message" class="card-footer text-danger">{{ issue.message }}</div>
+  <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
+    <label class="form-label" for="case-id">
+      <span>{{ t('editor.caseIdPrefix') }}</span>
+      <abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span>
+    </label>
+    <input id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
+    <div class="border-top mt-4 pt-3">
+      <h3 class="h6">{{ t('editor.steps') }}</h3>
+      <TransitionGroup name="step" tag="div">
+        <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" class="card mb-3">
+          <div class="card-body d-flex justify-content-between align-items-start gap-3">
+            <div>
+              <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
+              <p class="mb-0 text-body-secondary text-break">{{ getStepSummary(step) }}</p>
             </div>
-          </TransitionGroup>
-          <button class="btn btn-outline-primary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
-          <NavigateStepDialog
-            v-if="navigateDialogOpen"
-            :url="navigateUrl"
-            :validation-issues="navigateValidationIssues"
-            :validation-visible="navigateUrlBlurred"
-            @blur="navigateUrlBlurred = true"
-            @close="navigateDialogOpen = false"
-            @reset="resetNavigateDialog"
-            @save="saveNavigateStep"
-            @update:url="navigateUrl = $event"
-          />
-          <ClickStepDialog
-            v-if="clickDialogOpen"
-            :name="clickName"
-            :role="clickRole"
-            :validation-message="clickRoleValidationMessage"
-            :validation-visible="clickRoleBlurred"
-            @blur="clickRoleBlurred = true"
-            @close="clickDialogOpen = false"
-            @reset="resetClickDialog"
-            @save="saveClickStep"
-            @update:name="clickName = $event"
-            @update:role="clickRole = $event"
-          />
-          <TypeStepDialog
-            v-if="typeDialogOpen"
-            :name="typeName"
-            :role="typeRole"
-            :role-validation-message="typeRoleValidationMessage"
-            :role-validation-visible="typeRoleBlurred"
-            :text="typeText"
-            :text-validation-message="typeTextValidationMessage"
-            :text-validation-visible="typeTextBlurred"
-            @blur:role="typeRoleBlurred = true"
-            @blur:text="typeTextBlurred = true"
-            @close="typeDialogOpen = false"
-            @reset="resetTypeDialog"
-            @save="saveTypeStep"
-            @update:name="typeName = $event"
-            @update:role="typeRole = $event"
-            @update:text="typeText = $event"
-            @validate="typeRoleBlurred = true; typeTextBlurred = true"
-          />
-          <FillStepDialog
-            v-if="fillDialogOpen"
-            :name="fillName"
-            :role="fillRole"
-            :role-validation-message="fillRoleValidationMessage"
-            :role-validation-visible="fillRoleBlurred"
-            :value="fillValue"
-            :value-validation-message="fillValueValidationMessage"
-            :value-validation-visible="fillValueBlurred"
-            @blur:role="fillRoleBlurred = true"
-            @blur:value="fillValueBlurred = true"
-            @close="fillDialogOpen = false"
-            @reset="resetFillDialog"
-            @save="saveFillStep"
-            @update:name="fillName = $event"
-            @update:role="fillRole = $event"
-            @update:value="fillValue = $event"
-            @validate="fillRoleBlurred = true; fillValueBlurred = true"
-          />
-          <SelectOptionStepDialog
-            v-if="selectOptionDialogOpen"
-            :name="selectOptionName"
-            :role="selectOptionRole"
-            :role-validation-message="selectOptionRoleValidationMessage"
-            :role-validation-visible="selectOptionRoleBlurred"
-            :selection="selectOptionSelection"
-            :selection-mode="selectOptionMode"
-            :selection-validation-message="selectOptionSelectionValidationMessage"
-            :selection-validation-visible="selectOptionSelectionBlurred"
-            @blur:role="selectOptionRoleBlurred = true"
-            @blur:selection="selectOptionSelectionBlurred = true"
-            @close="selectOptionDialogOpen = false"
-            @reset="resetSelectOptionDialog"
-            @save="saveSelectOptionStep"
-            @update:name="selectOptionName = $event"
-            @update:role="selectOptionRole = $event"
-            @update:selection="selectOptionSelection = $event"
-            @update:selection-mode="selectOptionMode = $event"
-            @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
-          />
-          <AssertTextStepDialog
-            v-if="assertTextDialogOpen"
-            :expected="assertTextExpected"
-            :expected-validation-message="assertTextExpectedValidationMessage"
-            :expected-validation-visible="assertTextExpectedBlurred"
-            :name="assertTextName"
-            :role="assertTextRole"
-            :role-validation-message="assertTextRoleValidationMessage"
-            :role-validation-visible="assertTextRoleBlurred"
-            @blur:expected="assertTextExpectedBlurred = true"
-            @blur:role="assertTextRoleBlurred = true"
-            @close="assertTextDialogOpen = false"
-            @reset="resetAssertTextDialog"
-            @save="saveAssertTextStep"
-            @update:expected="assertTextExpected = $event"
-            @update:name="assertTextName = $event"
-            @update:role="assertTextRole = $event"
-            @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"
-          />
-          <AssertHtmlStepDialog
-            v-if="assertHtmlDialogOpen"
-            :expected="assertHtmlExpected"
-            :expected-validation-message="assertHtmlExpectedValidationMessage"
-            :expected-validation-visible="assertHtmlExpectedBlurred"
-            :name="assertHtmlName"
-            :role="assertHtmlRole"
-            :role-validation-message="assertHtmlRoleValidationMessage"
-            :role-validation-visible="assertHtmlRoleBlurred"
-            @blur:expected="assertHtmlExpectedBlurred = true"
-            @blur:role="assertHtmlRoleBlurred = true"
-            @close="assertHtmlDialogOpen = false"
-            @reset="resetAssertHtmlDialog"
-            @save="saveAssertHtmlStep"
-            @update:expected="assertHtmlExpected = $event"
-            @update:name="assertHtmlName = $event"
-            @update:role="assertHtmlRole = $event"
-            @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"
-          />
-          <AssertValueStepDialog
-            v-if="assertValueDialogOpen"
-            :expected="assertValueExpected"
-            :expected-validation-message="assertValueExpectedValidationMessage"
-            :expected-validation-visible="assertValueExpectedBlurred"
-            :name="assertValueName"
-            :role="assertValueRole"
-            :role-validation-message="assertValueRoleValidationMessage"
-            :role-validation-visible="assertValueRoleBlurred"
-            @blur:expected="assertValueExpectedBlurred = true"
-            @blur:role="assertValueRoleBlurred = true"
-            @close="assertValueDialogOpen = false"
-            @reset="resetAssertValueDialog"
-            @save="saveAssertValueStep"
-            @update:expected="assertValueExpected = $event"
-            @update:name="assertValueName = $event"
-            @update:role="assertValueRole = $event"
-            @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"
-          />
-          <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
-          <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />
+            <div class="d-flex gap-2">
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                :disabled="index === 0"
+                @click="moveStep(index, -1)"
+              >
+                {{ t('editor.moveStepUp') }}
+              </button>
+              <button
+                class="btn btn-outline-secondary btn-sm"
+                type="button"
+                :disabled="index === selectedCase.steps.length - 1"
+                @click="moveStep(index, 1)"
+              >
+                {{ t('editor.moveStepDown') }}
+              </button>
+              <button class="btn btn-outline-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
+              <button class="btn btn-outline-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
+              <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
+            </div>
+          </div>
+          <div v-for="issue in caseIssues.filter((candidate) => candidate.path === `/steps/${index}/url`)" :key="issue.path + issue.message" class="card-footer text-danger">{{ issue.message }}</div>
         </div>
-      </template>
-      <p v-else class="mb-0 text-body-secondary">{{ t('editor.noCaseSelected') }}</p>
+      </TransitionGroup>
+      <button class="btn btn-outline-primary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
+      <NavigateStepDialog
+        v-if="navigateDialogOpen"
+        :url="navigateUrl"
+        :validation-issues="navigateValidationIssues"
+        :validation-visible="navigateUrlBlurred"
+        @blur="navigateUrlBlurred = true"
+        @close="navigateDialogOpen = false"
+        @reset="resetNavigateDialog"
+        @save="saveNavigateStep"
+        @update:url="navigateUrl = $event"
+      />
+      <ClickStepDialog
+        v-if="clickDialogOpen"
+        :name="clickName"
+        :role="clickRole"
+        :validation-message="clickRoleValidationMessage"
+        :validation-visible="clickRoleBlurred"
+        @blur="clickRoleBlurred = true"
+        @close="clickDialogOpen = false"
+        @reset="resetClickDialog"
+        @save="saveClickStep"
+        @update:name="clickName = $event"
+        @update:role="clickRole = $event"
+      />
+      <TypeStepDialog
+        v-if="typeDialogOpen"
+        :name="typeName"
+        :role="typeRole"
+        :role-validation-message="typeRoleValidationMessage"
+        :role-validation-visible="typeRoleBlurred"
+        :text="typeText"
+        :text-validation-message="typeTextValidationMessage"
+        :text-validation-visible="typeTextBlurred"
+        @blur:role="typeRoleBlurred = true"
+        @blur:text="typeTextBlurred = true"
+        @close="typeDialogOpen = false"
+        @reset="resetTypeDialog"
+        @save="saveTypeStep"
+        @update:name="typeName = $event"
+        @update:role="typeRole = $event"
+        @update:text="typeText = $event"
+        @validate="typeRoleBlurred = true; typeTextBlurred = true"
+      />
+      <FillStepDialog
+        v-if="fillDialogOpen"
+        :name="fillName"
+        :role="fillRole"
+        :role-validation-message="fillRoleValidationMessage"
+        :role-validation-visible="fillRoleBlurred"
+        :value="fillValue"
+        :value-validation-message="fillValueValidationMessage"
+        :value-validation-visible="fillValueBlurred"
+        @blur:role="fillRoleBlurred = true"
+        @blur:value="fillValueBlurred = true"
+        @close="fillDialogOpen = false"
+        @reset="resetFillDialog"
+        @save="saveFillStep"
+        @update:name="fillName = $event"
+        @update:role="fillRole = $event"
+        @update:value="fillValue = $event"
+        @validate="fillRoleBlurred = true; fillValueBlurred = true"
+      />
+      <SelectOptionStepDialog
+        v-if="selectOptionDialogOpen"
+        :name="selectOptionName"
+        :role="selectOptionRole"
+        :role-validation-message="selectOptionRoleValidationMessage"
+        :role-validation-visible="selectOptionRoleBlurred"
+        :selection="selectOptionSelection"
+        :selection-mode="selectOptionMode"
+        :selection-validation-message="selectOptionSelectionValidationMessage"
+        :selection-validation-visible="selectOptionSelectionBlurred"
+        @blur:role="selectOptionRoleBlurred = true"
+        @blur:selection="selectOptionSelectionBlurred = true"
+        @close="selectOptionDialogOpen = false"
+        @reset="resetSelectOptionDialog"
+        @save="saveSelectOptionStep"
+        @update:name="selectOptionName = $event"
+        @update:role="selectOptionRole = $event"
+        @update:selection="selectOptionSelection = $event"
+        @update:selection-mode="selectOptionMode = $event"
+        @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
+      />
+      <AssertTextStepDialog
+        v-if="assertTextDialogOpen"
+        :expected="assertTextExpected"
+        :expected-validation-message="assertTextExpectedValidationMessage"
+        :expected-validation-visible="assertTextExpectedBlurred"
+        :name="assertTextName"
+        :role="assertTextRole"
+        :role-validation-message="assertTextRoleValidationMessage"
+        :role-validation-visible="assertTextRoleBlurred"
+        @blur:expected="assertTextExpectedBlurred = true"
+        @blur:role="assertTextRoleBlurred = true"
+        @close="assertTextDialogOpen = false"
+        @reset="resetAssertTextDialog"
+        @save="saveAssertTextStep"
+        @update:expected="assertTextExpected = $event"
+        @update:name="assertTextName = $event"
+        @update:role="assertTextRole = $event"
+        @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"
+      />
+      <AssertHtmlStepDialog
+        v-if="assertHtmlDialogOpen"
+        :expected="assertHtmlExpected"
+        :expected-validation-message="assertHtmlExpectedValidationMessage"
+        :expected-validation-visible="assertHtmlExpectedBlurred"
+        :name="assertHtmlName"
+        :role="assertHtmlRole"
+        :role-validation-message="assertHtmlRoleValidationMessage"
+        :role-validation-visible="assertHtmlRoleBlurred"
+        @blur:expected="assertHtmlExpectedBlurred = true"
+        @blur:role="assertHtmlRoleBlurred = true"
+        @close="assertHtmlDialogOpen = false"
+        @reset="resetAssertHtmlDialog"
+        @save="saveAssertHtmlStep"
+        @update:expected="assertHtmlExpected = $event"
+        @update:name="assertHtmlName = $event"
+        @update:role="assertHtmlRole = $event"
+        @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"
+      />
+      <AssertValueStepDialog
+        v-if="assertValueDialogOpen"
+        :expected="assertValueExpected"
+        :expected-validation-message="assertValueExpectedValidationMessage"
+        :expected-validation-visible="assertValueExpectedBlurred"
+        :name="assertValueName"
+        :role="assertValueRole"
+        :role-validation-message="assertValueRoleValidationMessage"
+        :role-validation-visible="assertValueRoleBlurred"
+        @blur:expected="assertValueExpectedBlurred = true"
+        @blur:role="assertValueRoleBlurred = true"
+        @close="assertValueDialogOpen = false"
+        @reset="resetAssertValueDialog"
+        @save="saveAssertValueStep"
+        @update:expected="assertValueExpected = $event"
+        @update:name="assertValueName = $event"
+        @update:role="assertValueRole = $event"
+        @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"
+      />
+      <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
+      <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />
     </div>
   </section>
 </template>

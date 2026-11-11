@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { PlanDraft } from '../document/plan-draft';
+import type { CaseDraft, PlanDraft } from '../document/plan-draft';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 
 const props = defineProps<{
-  cases: PlanDraft['cases']
+  caseDrafts: Record<string, CaseDraft>;
+  cases: PlanDraft['cases'];
+  selectedPath: string;
 }>();
-const emit = defineEmits<{ add: [path: string]; remove: [index: number]; select: [path: string]; update: [index: number, path: string] }>();
+const emit = defineEmits<{ add: [path: string]; move: [index: number, direction: -1 | 1]; remove: [index: number]; select: [path: string]; update: [index: number, path: string] }>();
 
 const { t } = useTranslation();
 const caseName = ref('');
@@ -91,15 +93,41 @@ onBeforeUnmount(() => { modal?.dispose(); });
 <template>
   <section class="border-top mt-4 pt-3" aria-labelledby="case-references-heading">
     <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
-    <ul class="list-unstyled mb-3">
-      <li v-for="(caseReference, index) in cases" :key="index" class="d-flex justify-content-between align-items-center gap-2 py-1">
-        <button class="btn btn-link p-0 font-monospace text-start" type="button" @click="emit('select', caseReference.path)">{{ caseReference.path }}</button>
-        <span class="d-flex gap-2">
-          <button class="btn btn-outline-secondary btn-sm" type="button" @click="openDialog(index)">{{ t('editor.edit') }}</button>
-          <button class="btn btn-outline-danger btn-sm" type="button" @click="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
-        </span>
-      </li>
-    </ul>
+    <TransitionGroup name="case-reference" tag="div" class="mb-3">
+      <article v-for="(caseReference, index) in cases" :key="caseReference.path" :class="['card', 'mb-3', { 'case-reference-active': caseReference.path === selectedPath }]">
+        <div :class="['card-header', 'case-reference-header', 'position-relative', 'p-0', { 'bg-body': caseReference.path !== selectedPath, 'bg-body-secondary': caseReference.path === selectedPath }]">
+          <h3 class="h6 mb-0">
+            <button :class="['case-reference-toggle', 'btn', 'rounded-0', 'text-start', 'text-decoration-none', 'w-100']" type="button" :aria-controls="`case-reference-panel-${index}`" :aria-expanded="caseReference.path === selectedPath" @click="emit('select', caseReference.path)">
+              <span class="font-monospace text-break">{{ caseReference.path }}</span>
+              <span v-if="caseReference.path !== selectedPath" class="ms-2 text-body-secondary">{{ t('editor.caseStepCount', { count: caseDrafts[caseReference.path]?.steps.length ?? 0 }) }}</span>
+            </button>
+          </h3>
+          <div class="case-reference-actions d-flex flex-wrap gap-2 position-absolute top-50 end-0 translate-middle-y me-3 z-1">
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              type="button"
+              :disabled="index === 0"
+              @click.stop="emit('move', index, -1)"
+            >
+              {{ t('editor.moveStepUp') }}
+            </button>
+            <button
+              class="btn btn-outline-secondary btn-sm"
+              type="button"
+              :disabled="index === cases.length - 1"
+              @click.stop="emit('move', index, 1)"
+            >
+              {{ t('editor.moveStepDown') }}
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" type="button" @click.stop="openDialog(index)">{{ t('editor.edit') }}</button>
+            <button class="btn btn-outline-danger btn-sm" type="button" @click.stop="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
+          </div>
+        </div>
+        <div v-if="caseReference.path === selectedPath" :id="`case-reference-panel-${index}`" class="card-body border-top">
+          <slot name="case-details" :path="caseReference.path" />
+        </div>
+      </article>
+    </TransitionGroup>
     <button class="btn btn-outline-primary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>
     <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="add-case-heading" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
@@ -124,3 +152,17 @@ onBeforeUnmount(() => { modal?.dispose(); });
     </div>
   </section>
 </template>
+
+<style scoped>
+.case-reference-move {
+  transition: transform 180ms ease;
+}
+
+.case-reference-toggle {
+  padding: 1rem 12rem 1rem 1rem;
+}
+
+.case-reference-active {
+  border-color: var(--bs-emphasis-color);
+}
+</style>

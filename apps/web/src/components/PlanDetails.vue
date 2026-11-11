@@ -44,17 +44,20 @@ function validatePlanLocale(): void {
 </script>
 
 <template>
-  <section class="card mb-3 shadow-sm" aria-labelledby="plan-details-heading">
+  <section class="card mb-4 shadow-sm" aria-labelledby="plan-details-heading">
+    <div class="card-header plan-header bg-body py-2">
+      <h2 id="plan-details-heading" class="h5 mb-0">
+        {{ plan.id }}
+      </h2>
+    </div>
     <div class="card-body">
-      <h2 id="plan-details-heading" class="h5">{{ t('editor.planDetails') }}</h2>
-      <dl class="row mb-3">
-        <dt class="col-sm-3">{{ t('editor.planId') }}</dt>
-        <dd class="col-sm-9 font-monospace">{{ plan.id }}</dd>
-      </dl>
       <form @submit.prevent="emit('validate')">
         <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
         <input id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-help plan-locale-error' : 'plan-locale-help'" :class="['form-control', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @input="changePlanLocale" />
-        <div id="plan-locale-help" class="form-text">{{ t('guidance.neutral.planLocaleHelp') }}</div>
+        <div id="plan-locale-help" class="form-text">
+          <span>{{ t('guidance.neutral.planLocaleHelpBefore') }}</span>
+          <abbr :title="t('guidance.neutral.bcpExpansion')">BCP</abbr> 47<span>{{ t('guidance.neutral.planLocaleHelpAfter') }}</span>
+        </div>
         <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
         <button class="btn btn-primary mt-3" type="submit">{{ t('editor.validate') }}</button>
       </form>
@@ -62,3 +65,11 @@ function validatePlanLocale(): void {
     </div>
   </section>
 </template>
+
+<style scoped>
+.plan-header {
+  position: sticky;
+  top: 7rem;
+  z-index: 1010;
+}
+</style>
