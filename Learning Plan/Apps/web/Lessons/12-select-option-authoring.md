@@ -46,7 +46,7 @@ in this form.
 
 ## Shared target, separate selection
 
-Select option shares `LocatorFields.vue` with Click, Type, Fill, and Assert text because
+Select option shares `LocatorFields.vue` with Click, Type, Fill, Assert text, Assert HTML, and Assert value because
 each action needs the same required Role and optional Accessible name target.
 The selection mode and its required field remain owned by the Select option
 dialog because they describe this action alone.

@@ -109,4 +109,17 @@ describe('autosave controller', () => {
     expect(savedRecords[0]?.draft.cases['cases/landing-page.json']?.steps).toEqual([{ action: 'assertHtml', expected: { default: '<strong>Welcome</strong>' }, locator: { name: 'Welcome', role: 'heading' } }]);
     vi.useRealTimers();
   });
+
+  it('saves an Assert value step as plain recovery data', async () => {
+    vi.useFakeTimers();
+    const savedRecords: Parameters<DraftStorage['save']>[0][] = [];
+    const save: DraftStorage['save'] = async (record) => { savedRecords.push(record); return { kind: 'saved', revision: record.revision }; };
+    const controller = createAutosaveController({ delayMs: 1000, onConflict: () => {}, onRevision: () => {}, onStatus: () => {}, storage: { discard: async () => ({ kind: 'discarded' }), load: async () => ({ kind: 'absent' }), save } satisfies DraftStorage });
+    const draft = createBundledEditorDraft();
+    draft.cases['cases/landing-page.json']!.steps = [{ action: 'assertValue', expected: { default: 'author@example.com' }, locator: { name: 'Email', role: 'textbox' } }];
+    controller.schedule(draft, 0);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(savedRecords[0]?.draft.cases['cases/landing-page.json']?.steps).toEqual([{ action: 'assertValue', expected: { default: 'author@example.com' }, locator: { name: 'Email', role: 'textbox' } }]);
+    vi.useRealTimers();
+  });
 })
