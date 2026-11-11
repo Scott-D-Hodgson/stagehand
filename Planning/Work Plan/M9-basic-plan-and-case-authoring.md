@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, Assert-value-step, and step-reordering slices complete
+**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, Assert-value-step, case-reference-workspace, reordering, and selected-step-validation slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -22,9 +22,10 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Assert HTML step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert value step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Reorder authored case steps with localized adjacent-move controls while preserving recovery behaviour.
-- [ ] Reorder case references; explain missing or duplicate references.
-- [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
-- [ ] Reuse shared validation and map errors to the selected case and step.
+- [x] Reorder case references with localized adjacent-move controls while preserving recovery behaviour.
+- [ ] Explain references that lack case data after local file import; entered duplicate paths remain prevented before they are saved.
+- [x] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
+- [x] Reuse shared validation and map errors to the selected case and step.
 - [ ] Extend recovery and conflict comparison to all newly editable data; confirm destructive changes as they are introduced.
 - [ ] Keep new UI text in Canadian English/French resources and verify keyboard operation.
 
@@ -33,11 +34,12 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 The completed slice adds immutable plan/case bundle drafts. Existing recovery
 records that stored only the plan are migrated on load: their reference paths
 are retained and receive empty version 1 case documents with filename-derived
-IDs. The editor presents references in the Plan details card; selecting a path
-opens Case details, where its ID can change independently. Add and Edit share a
-Bootstrap dialog with a filename-safe `cases/*.json` suggestion, while removal
-and reset use Bootstrap confirmation dialogs. Canadian English and French
-resources cover the new wording.
+IDs. The editor presents references as cards in Plan details. One card can be
+expanded at a time to show its Case ID, ordered steps, validation, and step
+authoring controls; collapsed cards show a localized step count. Add and Edit
+share a Bootstrap dialog with a filename-safe `cases/*.json` suggestion, while
+removal and reset use Bootstrap confirmation dialogs. Canadian English and
+French resources cover the new wording.
 
 Focused checks cover bundle copying, legacy recovery migration, and case-ID
 autosave. The owner reported that the development-container test, type-check,
@@ -142,17 +144,39 @@ valid and invalid list moves. The owner reported that the development-container
 tests, type check, production build, and manual animated-reordering and
 recovery verification all passed.
 
+The completed case-reference-workspace slice makes each reference-card header
+the accessible expand/collapse control for its case workspace. Adjacent case
+reference moves use an immutable plan helper and animate the cards into their
+new order. The expanded card has theme-aware active styling; action controls
+do not change its expanded state. The application header remains first in the
+sticky context, and the Plan ID remains inside the Plan details card. Visible
+ID and BCP abbreviations use localized `abbr` expansions. The owner reported
+that the development-container tests, type check, production build, light/dark
+manual checks, expansion/collapse, reordering, recovery, and action-control
+behaviour all passed.
+
+The completed selected-step-validation slice reuses the shared case validator
+and extracts the unique authored step indexes from its issue paths. An expanded
+case presents a concise localized count and marks each affected step card with
+an actionable localized message rather than exposing every failed `oneOf`
+branch. Its enclosing case-reference card receives a red border even while
+collapsed, so an author can find a case requiring attention before opening it.
+Focused tests cover the index mapping and localized zero, one, and many
+messages. The owner reported that the development-container tests, type check,
+production build, and manual invalid-draft verification all passed.
+
 ## Deliverables and completion evidence
 
-A user creates a small plan and case, adds navigation and an assertion, reorders steps, sees actionable validation errors, and recovers edits after reopening.
+A user creates a small plan and case, adds navigation and an assertion, reorders case references and steps, sees actionable validation errors, and recovers edits after reopening.
 
 Deliver the relevant forms, synthetic examples, documentation, and verification records. Add focused automated checks for data preservation and contract integration, plus browser checks for the affected user flows. Follow the localization and presentation baseline in [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) and recovery baseline in [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
 
 ## Incremental delivery
 
-Suggested remaining PR slices: the Assert-value associated-label decision,
-case-reference ordering and missing/duplicate-reference feedback, then an M9
-integration review.
+Suggested remaining PR slice: an M9 integration review. The optional Assert
+value associated-label form is deliberately deferred for later scope review.
+Missing imported-reference feedback follows M10 because the editor has no local
+file import workflow yet.
 
 ## Open decisions and exclusions
 

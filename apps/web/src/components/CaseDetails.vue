@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
 import { moveCaseStep, type CaseDraft } from '../document/plan-draft';
+import { getInvalidCaseStepIndexes } from '../document/validation';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
 import AssertHtmlStepDialog from './dialogs/AssertHtmlStepDialog.vue';
 import AssertTextStepDialog from './dialogs/AssertTextStepDialog.vue';
@@ -27,8 +28,7 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 const selectedCase = computed(() => props.caseDrafts[props.selectedPath]);
-const caseValidation = computed(() => selectedCase.value === undefined ? undefined : validateCase(selectedCase.value));
-const caseIssues = computed(() => caseValidation.value?.valid === false ? caseValidation.value.issues : []);
+const invalidStepIndexes = computed(() => selectedCase.value === undefined ? [] : getInvalidCaseStepIndexes(selectedCase.value));
 const editingStepIndex = ref<number | undefined>();
 const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
@@ -890,10 +890,11 @@ function getStepKey(step: unknown): string {
       <abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span>
     </label>
     <input id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
+    <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger mt-3" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
     <div class="border-top mt-4 pt-3">
       <h3 class="h6">{{ t('editor.steps') }}</h3>
       <TransitionGroup name="step" tag="div">
-        <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" class="card mb-3">
+        <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" :class="['card', 'mb-3', { 'border-danger': invalidStepIndexes.includes(index) }]">
           <div class="card-body d-flex justify-content-between align-items-start gap-3">
             <div>
               <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
@@ -921,7 +922,7 @@ function getStepKey(step: unknown): string {
               <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
             </div>
           </div>
-          <div v-for="issue in caseIssues.filter((candidate) => candidate.path === `/steps/${index}/url`)" :key="issue.path + issue.message" class="card-footer text-danger">{{ issue.message }}</div>
+          <div v-if="invalidStepIndexes.includes(index)" class="card-footer text-danger">{{ t('editor.invalidStepMessage') }}</div>
         </div>
       </TransitionGroup>
       <button class="btn btn-outline-primary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>

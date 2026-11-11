@@ -18,4 +18,11 @@ describe('validation issue pluralization', () => {
     expect(instance.t('editor.invalidPlan', { count: 1 })).toBe('Un problème de validation a été trouvé dans l’exemple intégré.')
     expect(instance.t('editor.invalidPlan', { count: 2 })).toBe('2 problèmes de validation ont été trouvés dans l’exemple intégré.')
   })
+  it('uses the Canadian English step-validation wording', async () => {
+    const instance = i18next.createInstance();
+    await instance.init({ lng: 'en-CA', resources: interfaceResources });
+    expect(instance.t('editor.invalidStepSummary', { count: 0 })).toBe('No invalid steps found.');
+    expect(instance.t('editor.invalidStepSummary', { count: 1 })).toBe('A step needs attention.');
+    expect(instance.t('editor.invalidStepSummary', { count: 2 })).toBe('2 steps need attention.');
+  })
 })

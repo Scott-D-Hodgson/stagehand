@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { CaseDraft, PlanDraft } from '../document/plan-draft';
+import { getInvalidCaseStepIndexes } from '../document/validation';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 
@@ -13,6 +14,9 @@ const props = defineProps<{
 const emit = defineEmits<{ add: [path: string]; move: [index: number, direction: -1 | 1]; remove: [index: number]; select: [path: string]; update: [index: number, path: string] }>();
 
 const { t } = useTranslation();
+const invalidCasePaths = computed(() => new Set(Object.entries(props.caseDrafts)
+  .filter(([, caseDraft]) => getInvalidCaseStepIndexes(caseDraft).length > 0)
+  .map(([path]) => path)));
 const caseName = ref('');
 const casePath = ref('');
 const editingIndex = ref<number | undefined>();
@@ -94,7 +98,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
   <section class="border-top mt-4 pt-3" aria-labelledby="case-references-heading">
     <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
     <TransitionGroup name="case-reference" tag="div" class="mb-3">
-      <article v-for="(caseReference, index) in cases" :key="caseReference.path" :class="['card', 'mb-3', { 'case-reference-active': caseReference.path === selectedPath }]">
+      <article v-for="(caseReference, index) in cases" :key="caseReference.path" :class="['card', 'mb-3', { 'border-danger': invalidCasePaths.has(caseReference.path), 'case-reference-active': caseReference.path === selectedPath }]">
         <div :class="['card-header', 'case-reference-header', 'position-relative', 'p-0', { 'bg-body': caseReference.path !== selectedPath, 'bg-body-secondary': caseReference.path === selectedPath }]">
           <h3 class="h6 mb-0">
             <button :class="['case-reference-toggle', 'btn', 'rounded-0', 'text-start', 'text-decoration-none', 'w-100']" type="button" :aria-controls="`case-reference-panel-${index}`" :aria-expanded="caseReference.path === selectedPath" @click="emit('select', caseReference.path)">
@@ -162,7 +166,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
   padding: 1rem 12rem 1rem 1rem;
 }
 
-.case-reference-active {
+.case-reference-active:not(.border-danger) {
   border-color: var(--bs-emphasis-color);
 }
 </style>

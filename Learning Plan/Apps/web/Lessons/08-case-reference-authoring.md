@@ -12,8 +12,11 @@ with an independently editable ID and an empty `steps` array. It does not yet
 create a case JSON file, resolve a path from the browser filesystem, or export
 a plan.
 
-Existing paths are displayed read-only. Selecting Add or Edit opens the same
-Bootstrap dialog. The Name field offers a filename-safe suggestion such as
+Each reference is now a card. Its header expands or collapses the associated
+case workspace; when collapsed, it reports the localized number of steps. The
+expanded workspace contains the Case ID, steps, validation feedback, and step
+authoring controls. Selecting Add or Edit opens the same Bootstrap dialog. The
+Name field offers a filename-safe suggestion such as
 `cases/landing-page.json`; the author can independently change the Reference
 path before saving. This is a convenience for authoring, not a claim that the
 referenced file exists.
@@ -30,10 +33,10 @@ filename-derived ID.
 ## Try it
 
 Add a reference using a multi-word case name. Explain how its suggested path is
-made filename-safe. Then select the reference, change its case ID, refresh,
-and restore the local recovery copy. Confirm that the author must explicitly
-confirm removal and that Reset asks for confirmation only after the draft
-differs from the bundled sample.
+made filename-safe. Expand the reference, change its Case ID, then collapse it
+and confirm its step count. Refresh and restore the local recovery copy.
+Confirm that the author must explicitly confirm removal and that Reset asks for
+confirmation only after the draft differs from the bundled sample.
 
 ## You are ready when
 
