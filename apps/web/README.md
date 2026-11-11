@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, Type-step, Fill-step, Select-option-step, Assert-text-step, Assert-HTML-step, and Assert-value-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. Complete step authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -28,8 +28,9 @@ Run these commands from the repository root:
   state while Bootstrap owns the demonstrated modal mechanics. This keeps the
   initial presentation lightweight, but a cold offline start is not yet
   supported; M14 owns the offline styling follow-through.
-- Vitest 5.1.0 is the selected unit-test runner. The first shared-validation
-  boundary has focused valid/invalid-plan unit tests.
+- Vitest 5.1.0 is the selected unit-test runner. Focused validation tests cover
+  valid/invalid plans and the mapping from shared case-validation issue paths
+  to unique affected step indexes.
 - The Theme selector defaults to the browser light/dark preference. An explicit
   Light or Dark selection is stored under `stagehand.theme-preference` in local
   storage; System removes that override. This interface preference is separate
@@ -39,8 +40,9 @@ Run these commands from the repository root:
   own JSON file in `src/localization/locales/`; the selected language is stored
   under `stagehand.interface-language`, separately from plan and recovery data.
 - `App.vue` owns application preferences and the active draft. `AppHeader`
-  owns shell controls; `PlanBundle` composes the plan details, case references,
-  and shared-contract assessment. The current draft deliberately preserves raw
+  provides the sticky Stagehand heading, tagline, and shell controls;
+  `PlanBundle` composes the plan details, case-reference workspaces, and
+  shared-contract assessment. The current draft deliberately preserves raw
   plan-locale input so shared validation can report invalid values rather than
   silently changing them.
 - `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
@@ -51,12 +53,16 @@ Run these commands from the repository root:
   local status. Conditional IndexedDB writes detect multiple-tab conflicts;
   the affected tab pauses autosave until the author discards local edits or
   explicitly replaces the saved draft.
-- `PlanBundle` composes case references as well as plan details and assessment.
-  Existing references are read-only until Edit is selected. Add and Edit use a
-  Bootstrap dialog with a filename-safe path suggestion; removal and sample
-  reset require a Bootstrap confirmation dialog. Selecting a reference opens
-  its case details, where the independently stored case ID can be edited. The
-  v1 recovery adapter migrates earlier plan-only drafts by creating empty case
+- `PlanBundle` composes case-reference workspaces inside Plan details. A
+  reference-card header expands or collapses its case; only one case workspace
+  is open at a time. Collapsed cards show localized 0/1/many step wording;
+  the expanded card contains the independently stored Case ID, steps, and
+  authoring controls. Add and Edit use a Bootstrap dialog with a filename-safe
+  path suggestion; removal and sample reset require a Bootstrap confirmation
+  dialog. Adjacent move controls reorder reference cards immutably and animate
+  their exchanged positions. The expanded card uses Bootstrap theme-aware
+  active styling, and its action controls do not toggle the workspace. The v1
+  recovery adapter migrates earlier plan-only drafts by creating empty case
   documents for their retained references. Plan/case data remains draft-only
   until M10 adds export.
 - A full-width fixed status footer announces the local-save state. Its current
@@ -65,7 +71,7 @@ Run these commands from the repository root:
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
-- Case details supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
+- An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
@@ -81,8 +87,12 @@ Run these commands from the repository root:
   for their target fields, but retain their action-specific dialogs and
   validation.
   Add, Edit, Clone, Remove, and adjacent Move up/Move down controls preserve
-  recovery and confirmation behaviour. Reordered cards animate into their new
-  positions; the first and last cards disable the unavailable direction.
+  recovery and confirmation behaviour. Reordered step and reference cards
+  animate into their new positions; the first and last cards disable the
+  unavailable direction. The shared case validator identifies invalid authored
+  steps through their issue paths. The expanded case shows a concise localized
+  summary and an actionable message on each affected step card; its enclosing
+  reference card has a red border, including while collapsed.
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
   hide cleanup before Vue removes them. Step data is part of the recovered editor

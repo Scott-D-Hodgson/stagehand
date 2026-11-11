@@ -19,6 +19,8 @@ Use this quiz after completing the web editor course. Check answers against the 
 15. Why does Assert HTML use a multiline expected-value field, while retaining the same contract shape as Assert text?
 16. What does the current Assert value form author, and which optional contract check remains deferred?
 17. Why does step reordering use a copied list and stable card keys rather than list indexes?
+18. Why does the editor use one expandable case-reference workspace at a time, and what must a collapsed card still communicate?
+19. Why does selected-step validation map shared issue paths to step indexes instead of showing every schema message on a card?
 
 ## Answer key
 
@@ -39,3 +41,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 15. HTML commonly contains markup over multiple lines, so a multiline field makes authoring and review practical. Both assertion forms still save the same literal `expected.default` contract shape; only their action and comparison content differ.
 16. Assert value authors a Role/Accessible-name locator and one literal `expected.default` value. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
 17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.
+18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
+19. The schema can report several low-level alternative-branch failures for one incomplete step. Mapping its paths to unique indexes lets the editor show one concise, localized, actionable message on each affected card and a danger border on the enclosing case.
