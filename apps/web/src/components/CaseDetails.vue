@@ -4,6 +4,7 @@ import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
 import type { CaseDraft } from '../document/plan-draft';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
+import AssertHtmlStepDialog from './dialogs/AssertHtmlStepDialog.vue';
 import AssertTextStepDialog from './dialogs/AssertTextStepDialog.vue';
 import ClickStepDialog from './dialogs/ClickStepDialog.vue';
 import FillStepDialog from './dialogs/FillStepDialog.vue';
@@ -32,6 +33,7 @@ const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
 const clickDialogOpen = ref(false);
 const assertTextDialogOpen = ref(false);
+const assertHtmlDialogOpen = ref(false);
 const fillDialogOpen = ref(false);
 const selectOptionDialogOpen = ref(false);
 const typeDialogOpen = ref(false);
@@ -75,6 +77,14 @@ const assertTextRoleBlurred = ref(false);
 const assertTextExpectedBlurred = ref(false);
 const assertTextRoleValidationMessage = computed(() => assertTextRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
 const assertTextExpectedValidationMessage = computed(() => assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined);
+const assertHtmlRole = ref('');
+const assertHtmlName = ref('');
+const assertHtmlExpected = ref('');
+const editingAssertHtmlIndex = ref<number | undefined>();
+const assertHtmlRoleBlurred = ref(false);
+const assertHtmlExpectedBlurred = ref(false);
+const assertHtmlRoleValidationMessage = computed(() => assertHtmlRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
+const assertHtmlExpectedValidationMessage = computed(() => assertHtmlExpected.value.trim().length === 0 ? t('editor.expectedHtmlRequired') : undefined);
 
 const navigateUrlBlurred = ref(false);
 const navigateValidationIssues = computed(() => {
@@ -122,8 +132,12 @@ Inputs: The action selected in the step chooser.
 ---
 Output: A visible dialog with fields reset for a new step.
 */
-function chooseStep(action: 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'): void {
+function chooseStep(action: 'assertHtml' | 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'): void {
   stepChooserOpen.value = false;
+  if (action === 'assertHtml') {
+    addAssertHtmlStep();
+    return;
+  }
   if (action === 'assertText') {
     addAssertTextStep();
     return;
@@ -348,6 +362,59 @@ function resetAssertTextDialog(): void {
 }
 
 /*
+Opens an empty Assert HTML-step dialog for the selected case document.
+---
+Inputs: The selected case reference.
+---
+Output: A visible Assert HTML-step dialog for a new step.
+*/
+function addAssertHtmlStep(): void {
+  editingAssertHtmlIndex.value = undefined;
+  assertHtmlRole.value = '';
+  assertHtmlName.value = '';
+  assertHtmlExpected.value = '';
+  assertHtmlRoleBlurred.value = false;
+  assertHtmlExpectedBlurred.value = false;
+  assertHtmlDialogOpen.value = true;
+}
+
+/*
+Saves the valid Assert HTML-step fields to the selected case document.
+---
+Inputs: The current Assert HTML-step dialog state.
+---
+Output: An updated case-step list or visible validation feedback.
+*/
+function saveAssertHtmlStep(): void {
+  if (assertHtmlRoleValidationMessage.value !== undefined || assertHtmlExpectedValidationMessage.value !== undefined) {
+    assertHtmlRoleBlurred.value = true;
+    assertHtmlExpectedBlurred.value = true;
+    return;
+  }
+  if (selectedCase.value !== undefined && props.selectedPath) {
+    const locator = assertHtmlName.value.trim() ? { name: assertHtmlName.value.trim(), role: assertHtmlRole.value.trim() } : { role: assertHtmlRole.value.trim() };
+    const step = { action: 'assertHtml', expected: { default: assertHtmlExpected.value }, locator };
+    const steps = editingAssertHtmlIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertHtmlIndex.value ? step : candidate);
+    emit('update:steps', props.selectedPath, steps);
+  }
+}
+
+/*
+Resets Assert HTML dialog fields and visible validation to their new-step defaults.
+---
+Inputs: A Reset action in the Assert HTML dialog.
+---
+Output: Blank fields and hidden validation feedback.
+*/
+function resetAssertHtmlDialog(): void {
+  assertHtmlRole.value = '';
+  assertHtmlName.value = '';
+  assertHtmlExpected.value = '';
+  assertHtmlRoleBlurred.value = false;
+  assertHtmlExpectedBlurred.value = false;
+}
+
+/*
 Opens an empty Fill-step dialog for the selected case document.
 ---
 Inputs: The selected case reference.
@@ -465,6 +532,9 @@ Output: The action label shown on a step card.
 */
 function getStepActionLabel(step: unknown): string {
   const action = (step as { action?: string }).action;
+  if (action === 'assertHtml') {
+    return t('editor.assertHtml');
+  }
   if (action === 'assertText') {
     return t('editor.assertText');
   }
@@ -510,6 +580,9 @@ function getStepSummary(step: unknown): string | undefined {
   if (action === 'assertText') {
     return `${target} → ${(step as { expected?: { default?: string } }).expected?.default ?? ''}`;
   }
+  if (action === 'assertHtml') {
+    return `${target} → ${(step as { expected?: { default?: string } }).expected?.default ?? ''}`;
+  }
   return target;
 }
 
@@ -521,6 +594,16 @@ Inputs: A step index and raw step value.
 Output: A visible editor with current step values.
 */
 function editStep(index: number, step: unknown): void {
+  if ((step as { action?: string }).action === 'assertHtml') {
+    editingAssertHtmlIndex.value = index;
+    assertHtmlRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    assertHtmlName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    assertHtmlExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    assertHtmlRoleBlurred.value = false;
+    assertHtmlExpectedBlurred.value = false;
+    assertHtmlDialogOpen.value = true;
+    return;
+  }
   if ((step as { action?: string }).action === 'assertText') {
     editingAssertTextIndex.value = index;
     assertTextRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
@@ -581,6 +664,16 @@ Inputs: A raw step value to clone.
 Output: A visible new-step editor with carried-forward values.
 */
 function cloneStep(step: unknown): void {
+  if ((step as { action?: string }).action === 'assertHtml') {
+    editingAssertHtmlIndex.value = undefined;
+    assertHtmlRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
+    assertHtmlName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
+    assertHtmlExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    assertHtmlRoleBlurred.value = false;
+    assertHtmlExpectedBlurred.value = false;
+    assertHtmlDialogOpen.value = true;
+    return;
+  }
   if ((step as { action?: string }).action === 'assertText') {
     editingAssertTextIndex.value = undefined;
     assertTextRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
@@ -787,6 +880,25 @@ function confirmStepRemoval(): void {
             @update:name="assertTextName = $event"
             @update:role="assertTextRole = $event"
             @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"
+          />
+          <AssertHtmlStepDialog
+            v-if="assertHtmlDialogOpen"
+            :expected="assertHtmlExpected"
+            :expected-validation-message="assertHtmlExpectedValidationMessage"
+            :expected-validation-visible="assertHtmlExpectedBlurred"
+            :name="assertHtmlName"
+            :role="assertHtmlRole"
+            :role-validation-message="assertHtmlRoleValidationMessage"
+            :role-validation-visible="assertHtmlRoleBlurred"
+            @blur:expected="assertHtmlExpectedBlurred = true"
+            @blur:role="assertHtmlRoleBlurred = true"
+            @close="assertHtmlDialogOpen = false"
+            @reset="resetAssertHtmlDialog"
+            @save="saveAssertHtmlStep"
+            @update:expected="assertHtmlExpected = $event"
+            @update:name="assertHtmlName = $event"
+            @update:role="assertHtmlRole = $event"
+            @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"
           />
           <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
           <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />

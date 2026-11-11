@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, and Assert-text-step authoring slices complete
+**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, and Assert-HTML-step authoring slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -19,6 +19,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Fill step with constrained Role/Accessible-name locator and literal-value forms, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Select option step with a constrained Role/Accessible-name locator and exactly one literal Value or Label, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert text step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
+- [x] Provide a recoverable, shared-contract-validated Assert HTML step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -112,6 +113,14 @@ values remain deferred to M11. Focused tests protect detached expected-value
 copying and autosave. The owner reported that the development-container tests,
 type check, production build, and manual Assert-text/recovery verification all
 passed.
+
+The completed Assert HTML slice follows the same constrained locator and
+literal default expected-value boundary. It uses a multiline Expected HTML
+field, while retaining independently blur-gated Role and expected-value
+feedback. Localized expected values remain deferred to M11. Focused tests
+protect detached expected-HTML copying and autosave. The owner reported that
+the development-container tests, type check, production build, and manual
+Assert-HTML/recovery verification all passed.
 
 ## Deliverables and completion evidence
 

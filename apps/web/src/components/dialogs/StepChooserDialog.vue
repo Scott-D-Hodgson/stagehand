@@ -9,7 +9,7 @@ interface BootstrapModal {
 }
 
 const emit = defineEmits<{
-  choose: [action: 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'];
+  choose: [action: 'assertHtml' | 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'];
   close: [];
 }>();
 
@@ -17,7 +17,7 @@ const { t } = useTranslation();
 const modalElement = ref<HTMLElement>();
 const navigateButton = ref<HTMLButtonElement>();
 let modal: BootstrapModal | undefined;
-let selectedAction: 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type' | undefined;
+let selectedAction: 'assertHtml' | 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type' | undefined;
 
 /*
 Closes the chooser after recording the selected step action.
@@ -26,7 +26,7 @@ Inputs: The selected action type.
 ---
 Output: A hidden chooser followed by a selection event.
 */
-function choose(action: 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'): void {
+function choose(action: 'assertHtml' | 'assertText' | 'click' | 'fill' | 'navigate' | 'selectOption' | 'type'): void {
   selectedAction = action;
   modal?.hide();
 }
@@ -73,6 +73,7 @@ onBeforeUnmount(() => modal?.dispose());
             <button class="btn btn-outline-primary" type="button" @click="choose('fill')">{{ t('editor.fill') }}</button>
             <button class="btn btn-outline-primary" type="button" @click="choose('selectOption')">{{ t('editor.selectOption') }}</button>
             <button class="btn btn-outline-primary" type="button" @click="choose('assertText')">{{ t('editor.assertText') }}</button>
+            <button class="btn btn-outline-primary" type="button" @click="choose('assertHtml')">{{ t('editor.assertHtml') }}</button>
           </div>
         </div>
         <div class="modal-footer">
