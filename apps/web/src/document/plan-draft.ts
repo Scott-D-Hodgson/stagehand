@@ -211,6 +211,26 @@ export function removeCaseReference(plan: PlanDraft, index: number): PlanDraft {
 }
 
 /*
+Moves one case reference to another valid position without changing the source draft.
+---
+Inputs: A plan draft, source reference index, and destination reference index.
+---
+Output: A draft with reordered references, or an unchanged-copy for an invalid move.
+*/
+export function moveCaseReference(plan: PlanDraft, fromIndex: number, toIndex: number): PlanDraft {
+  if (fromIndex < 0 || fromIndex >= plan.cases.length || toIndex < 0 || toIndex >= plan.cases.length) {
+    return { ...plan, cases: [...plan.cases] };
+  }
+  const cases = [...plan.cases];
+  const [caseReference] = cases.splice(fromIndex, 1);
+  if (caseReference === undefined) {
+    return { ...plan, cases: [...plan.cases] };
+  }
+  cases.splice(toIndex, 0, caseReference);
+  return { ...plan, cases };
+}
+
+/*
 Moves one step to another valid position without changing the source list.
 ---
 Inputs: A step list, source index, and destination index.

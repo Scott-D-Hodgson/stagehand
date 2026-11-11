@@ -1,8 +1,7 @@
 {
   "editor": {
     "heading": "Stagehand",
-    "title": "La création de plans commence ici.",
-    "introduction": "L’éditeur aidera les auteurs à créer des plans Stagehand valides sans modifier le JSON à la main.",
+    "tagline": "La création de plans commence ici.",
     "sharedContract": "Contrat partagé",
     "validPlan": "L’exemple intégré respecte le contrat de plan partagé.",
     "invalidPlan_zero": "Aucun problème de validation n’a été trouvé dans l’exemple intégré.",
@@ -18,15 +17,21 @@
     "planDetails": "Détails du plan",
     "planActions": "Actions du plan",
     "planId": "ID du plan",
+    "identifierAbbreviation": "ID",
+    "identifierExpansion": "Identifiant",
     "newPlan": "Nouveau plan",
     "newPlanConfirmation": "Abandonner le plan actuel et en créer un nouveau?",
     "create": "Créer",
     "planLocale": "Paramètres régionaux du plan",
-    "planLocaleHelp": "Une balise linguistique BCP 47, par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur.",
     "validate": "Valider le plan",
     "caseReferences": "Références de cas",
     "caseDetails": "Détails du cas",
+    "caseStepCount_zero": "Aucune étape",
+    "caseStepCount_one": "{{count}} étape",
+    "caseStepCount_other": "{{count}} étapes",
     "caseId": "ID du cas",
+    "caseIdPrefix": "",
+    "caseIdSuffix": " du cas",
     "steps": "Étapes",
     "navigateUrl": "URL de navigation",
     "navigateUrlHelp": "Utilisez une URL HTTP ou HTTPS absolue, par exemple https://example.com.",
@@ -105,8 +110,9 @@
   },
   "guidance": {
     "neutral": {
-      "introduction": "L’éditeur aidera les auteurs à créer des plans Stagehand valides sans modifier le JSON à la main.",
-      "planLocaleHelp": "Une balise linguistique BCP 47, par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur."
+      "bcpExpansion": "Bonne pratique courante",
+      "planLocaleHelpBefore": "Une balise linguistique ",
+      "planLocaleHelpAfter": ", par exemple en-CA. Elle touche le plan, et non la langue d’affichage de l’éditeur."
     }
   }
 }
