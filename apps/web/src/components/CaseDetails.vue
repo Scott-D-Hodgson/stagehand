@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import type { CaseDraft } from '../document/plan-draft';
+import { moveCaseStep, type CaseDraft } from '../document/plan-draft';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
 import AssertHtmlStepDialog from './dialogs/AssertHtmlStepDialog.vue';
 import AssertTextStepDialog from './dialogs/AssertTextStepDialog.vue';
@@ -95,6 +95,8 @@ const assertValueRoleBlurred = ref(false);
 const assertValueExpectedBlurred = ref(false);
 const assertValueRoleValidationMessage = computed(() => assertValueRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
 const assertValueExpectedValidationMessage = computed(() => assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined);
+const stepKeys = new WeakMap<object, number>();
+let nextStepKey = 0;
 
 const navigateUrlBlurred = ref(false);
 const navigateValidationIssues = computed(() => {
@@ -846,6 +848,39 @@ function confirmStepRemoval(): void {
   }
   pendingStepRemoval.value = undefined;
 }
+
+/*
+Moves one selected case step by one position.
+---
+Inputs: The current step index and an adjacent movement direction.
+---
+Output: A reordered step list for the selected case document.
+*/
+function moveStep(index: number, direction: -1 | 1): void {
+  if (selectedCase.value !== undefined && props.selectedPath) {
+    emit('update:steps', props.selectedPath, moveCaseStep(selectedCase.value.steps, index, index + direction));
+  }
+}
+
+/*
+Returns a stable local key for an authored step object.
+---
+Inputs: A raw case-step value.
+---
+Output: A component-local key that survives a reordered step list.
+*/
+function getStepKey(step: unknown): string {
+  if (typeof step !== 'object' || step === null) {
+    return `invalid-${String(step)}`;
+  }
+  let key = stepKeys.get(step);
+  if (key === undefined) {
+    key = nextStepKey;
+    nextStepKey += 1;
+    stepKeys.set(step, key);
+  }
+  return `step-${key}`;
+}
 </script>
 
 <template>
@@ -857,20 +892,38 @@ function confirmStepRemoval(): void {
         <input id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
         <div class="border-top mt-4 pt-3">
           <h3 class="h6">{{ t('editor.steps') }}</h3>
-          <div v-for="(step, index) in selectedCase.steps" :key="index" class="card mb-3">
-            <div class="card-body d-flex justify-content-between align-items-start gap-3">
-              <div>
-                <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
-                <p class="mb-0 text-body-secondary text-break">{{ getStepSummary(step) }}</p>
+          <TransitionGroup name="step" tag="div">
+            <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" class="card mb-3">
+              <div class="card-body d-flex justify-content-between align-items-start gap-3">
+                <div>
+                  <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
+                  <p class="mb-0 text-body-secondary text-break">{{ getStepSummary(step) }}</p>
+                </div>
+                <div class="d-flex gap-2">
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    type="button"
+                    :disabled="index === 0"
+                    @click="moveStep(index, -1)"
+                  >
+                    {{ t('editor.moveStepUp') }}
+                  </button>
+                  <button
+                    class="btn btn-outline-secondary btn-sm"
+                    type="button"
+                    :disabled="index === selectedCase.steps.length - 1"
+                    @click="moveStep(index, 1)"
+                  >
+                    {{ t('editor.moveStepDown') }}
+                  </button>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
+                  <button class="btn btn-outline-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
+                  <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
+                </div>
               </div>
-              <div class="d-flex gap-2">
-                <button class="btn btn-outline-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
-                <button class="btn btn-outline-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
-                <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
-              </div>
+              <div v-for="issue in caseIssues.filter((candidate) => candidate.path === `/steps/${index}/url`)" :key="issue.path + issue.message" class="card-footer text-danger">{{ issue.message }}</div>
             </div>
-            <div v-for="issue in caseIssues.filter((candidate) => candidate.path === `/steps/${index}/url`)" :key="issue.path + issue.message" class="card-footer text-danger">{{ issue.message }}</div>
-          </div>
+          </TransitionGroup>
           <button class="btn btn-outline-primary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
           <NavigateStepDialog
             v-if="navigateDialogOpen"
@@ -1020,3 +1073,9 @@ function confirmStepRemoval(): void {
     </div>
   </section>
 </template>
+
+<style scoped>
+.step-move {
+  transition: transform 180ms ease-in-out;
+}
+</style>

@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, and Assert-value-step authoring slices complete
+**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, Assert-value-step, and step-reordering slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -21,7 +21,8 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Assert text step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert HTML step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert value step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
-- [ ] Reorder case references and steps; explain missing or duplicate references.
+- [x] Reorder authored case steps with localized adjacent-move controls while preserving recovery behaviour.
+- [ ] Reorder case references; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
 - [ ] Extend recovery and conflict comparison to all newly editable data; confirm destructive changes as they are introduced.
@@ -132,6 +133,15 @@ and autosave. The owner reported that the development-container tests, type
 check, production build, and manual Assert-value/recovery verification all
 passed.
 
+The completed step-reordering slice adds localized Move up and Move down
+controls to the ordered case-step cards. Boundary controls are disabled, and
+Vue animates the affected cards into their exchanged positions. Reordering
+copies the step list rather than mutating its source, so it continues through
+the existing recovery and conflict-comparison path. A focused unit test covers
+valid and invalid list moves. The owner reported that the development-container
+tests, type check, production build, and manual animated-reordering and
+recovery verification all passed.
+
 ## Deliverables and completion evidence
 
 A user creates a small plan and case, adds navigation and an assertion, reorders steps, sees actionable validation errors, and recovers edits after reopening.
@@ -140,7 +150,9 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested remaining PR slices: assertion forms and step ordering.
+Suggested remaining PR slices: the Assert-value associated-label decision,
+case-reference ordering and missing/duplicate-reference feedback, then an M9
+integration review.
 
 ## Open decisions and exclusions
 

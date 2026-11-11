@@ -18,6 +18,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 14. What is the current Assert text expected-value shape, and why are localized expected values not authorable yet?
 15. Why does Assert HTML use a multiline expected-value field, while retaining the same contract shape as Assert text?
 16. What does the current Assert value form author, and which optional contract check remains deferred?
+17. Why does step reordering use a copied list and stable card keys rather than list indexes?
 
 ## Answer key
 
@@ -37,3 +38,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 14. Assert text saves `expected: { default: "…" }` with a literal default value. Localized expected values are intentionally deferred to M11 with the related browser and run configuration work.
 15. HTML commonly contains markup over multiple lines, so a multiline field makes authoring and review practical. Both assertion forms still save the same literal `expected.default` contract shape; only their action and comparison content differ.
 16. Assert value authors a Role/Accessible-name locator and one literal `expected.default` value. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
+17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.

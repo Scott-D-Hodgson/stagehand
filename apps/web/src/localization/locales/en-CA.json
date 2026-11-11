@@ -58,6 +58,8 @@
     "byValue": "Value",
     "byLabel": "Label",
     "caseStepsEmpty": "No steps have been added yet.",
+    "moveStepUp": "Move up",
+    "moveStepDown": "Move down",
     "noCaseSelected": "Select a case reference to edit its details.",
     "caseReferencePath": "Case reference {{index}} path",
     "caseReference": "Case Reference",
