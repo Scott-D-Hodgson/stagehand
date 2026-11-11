@@ -2,7 +2,7 @@
 
 > “A clear expectation turns a check into a useful test.” — Mira Chen, Test Engineer
 
-[← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Next: Assert-HTML authoring →](14-assert-html-authoring.md)
 
 An Assert text step compares a target’s visible text with an expected value.
 The current editor authors this shared-contract shape:
@@ -57,4 +57,4 @@ and restore the recovery copy to confirm the default expected value remains.
 - You know why the form saves `expected.default` rather than a raw text field.
 - You can explain why localized expected values remain M11 work.
 
-[← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Next: Assert-HTML authoring →](14-assert-html-authoring.md)
