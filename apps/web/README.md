@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, Type-step, Fill-step, Select-option-step, Assert-text-step, and Assert-HTML-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan, case-reference, case-document, Navigate-step, Click-step, Type-step, Fill-step, Select-option-step, Assert-text-step, Assert-HTML-step, and Assert-value-step authoring; complete step authoring, imported files, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -65,7 +65,7 @@ Run these commands from the repository root:
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
-- Case details supports Navigate, Click, Type, Fill, Select option, Assert text, and Assert HTML steps. Steps appear as numbered
+- Case details supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
@@ -73,10 +73,13 @@ Run these commands from the repository root:
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
   one of those fields. Assert text uses that locator and one literal default
   Expected text value. Assert HTML uses the same locator, a literal default
-  Expected HTML value, and a multiline field. Localized expected values follow
-  in M11. Variable-backed text and values follow in M12. Click, Type, Fill,
-  Select option, Assert text, and Assert HTML share `LocatorFields.vue` for
-  their target fields, but retain their action-specific dialogs and validation.
+  Expected HTML value, and a multiline field. Assert value uses the same
+  locator and a literal default Expected value; its optional associated-label
+  check has no editor form yet. Localized expected values follow in M11.
+  Variable-backed text and values follow in M12. Click, Type, Fill, Select
+  option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
+  for their target fields, but retain their action-specific dialogs and
+  validation.
   Add, Edit, Clone, and Remove preserve recovery and confirmation behaviour.
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes

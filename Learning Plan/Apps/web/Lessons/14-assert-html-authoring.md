@@ -2,7 +2,7 @@
 
 > “Markup is part of the contract when the structure matters.” — Laila Morgan, Test Engineer
 
-[← Previous: Assert-text authoring](13-assert-text-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Assert-text authoring](13-assert-text-authoring.md) · [Course outline](../README.md) · [Next: Assert-value authoring →](15-assert-value-authoring.md)
 
 An Assert HTML step compares a target’s inner HTML with an expected value. The
 current editor authors this shared-contract shape:
@@ -56,4 +56,4 @@ remove one copy, then refresh and restore the recovery record.
   input controls.
 - You can explain why localized expected values remain M11 work.
 
-[← Previous: Assert-text authoring](13-assert-text-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Assert-text authoring](13-assert-text-authoring.md) · [Course outline](../README.md) · [Next: Assert-value authoring →](15-assert-value-authoring.md)

@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, and Assert-HTML-step authoring slices complete
+**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, and Assert-value-step authoring slices complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -20,6 +20,7 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Select option step with a constrained Role/Accessible-name locator and exactly one literal Value or Label, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert text step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Provide a recoverable, shared-contract-validated Assert HTML step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
+- [x] Provide a recoverable, shared-contract-validated Assert value step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [ ] Reorder case references and steps; explain missing or duplicate references.
 - [ ] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [ ] Reuse shared validation and map errors to the selected case and step.
@@ -121,6 +122,15 @@ feedback. Localized expected values remain deferred to M11. Focused tests
 protect detached expected-HTML copying and autosave. The owner reported that
 the development-container tests, type check, production build, and manual
 Assert-HTML/recovery verification all passed.
+
+The completed Assert value slice adds a literal default expected value with the
+same constrained locator form and independently blur-gated feedback. Its
+optional associated-label contract check is deliberately not authorable yet;
+that conditional form needs its own design decision. Localized expected values
+remain deferred to M11. Focused tests protect detached expected-value copying
+and autosave. The owner reported that the development-container tests, type
+check, production build, and manual Assert-value/recovery verification all
+passed.
 
 ## Deliverables and completion evidence
 
