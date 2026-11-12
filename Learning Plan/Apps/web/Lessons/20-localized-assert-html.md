@@ -1,6 +1,6 @@
 # Lesson 20: Localized Assert-HTML expectations
 
-[← Previous: Localized Assert-text expectations](19-localized-assert-text.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Localized Assert-text expectations](19-localized-assert-text.md) · [Course outline](../README.md) · [Next: Localized Assert-value expectations →](21-localized-assert-value.md)
 
 Assert HTML uses the same early M11 locale-override model as Assert text while
 keeping HTML practical to author. Its required `expected.default` remains the
@@ -47,4 +47,4 @@ emphasized without shifting the page, then refresh and restore the local draft.
 - You know that the editor preserves literal HTML values; it does not parse or
   sanitize them while authoring.
 
-[← Previous: Localized Assert-text expectations](19-localized-assert-text.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Localized Assert-text expectations](19-localized-assert-text.md) · [Course outline](../README.md) · [Next: Localized Assert-value expectations →](21-localized-assert-value.md)

@@ -79,14 +79,13 @@ Run these commands from the repository root:
   Text, and Fill uses it plus required literal Value. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
   one of those fields. Assert text uses that locator and one literal default
-  Expected text value. Assert text and Assert HTML also have card-level Locale
+  Expected text value. Assert text, Assert HTML, and Assert value have card-level Locale
   overrides panels using the catalogue. They preview the configured Plan Locale
   by emphasizing its matching override, or the default when no override
   matches. Assert HTML uses the same locator, a literal default Expected HTML
   value, and multiline base and override fields. Assert value uses the same
-  locator and a literal default Expected value; its optional associated-label
-  check has no editor form yet. Localized expected values for Assert value remain
-  M11 work.
+  locator and literal default and override Expected values; its optional
+  associated-label check has no editor form yet.
   Variable-backed text and values follow in M12. Click, Type, Fill, Select
   option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
   for their target fields, but retain their action-specific dialogs and

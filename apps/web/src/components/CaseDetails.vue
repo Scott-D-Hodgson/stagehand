@@ -106,6 +106,7 @@ const assertHtmlExpectedValidationMessage = computed(() => assertHtmlExpected.va
 const assertValueRole = ref('');
 const assertValueName = ref('');
 const assertValueExpected = ref('');
+const assertValueLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertValueIndex = ref<number | undefined>();
 const assertValueRoleBlurred = ref(false);
 const assertValueExpectedBlurred = ref(false);
@@ -424,7 +425,7 @@ function getSortedExpectedLocaleOverrides(step: unknown): LocaleOverride[] {
 }
 
 /*
-Returns whether a case-step card is an Assert text step.
+Returns whether a case-step card supports localized expected values.
 ---
 Inputs: A raw case-step value.
 ---
@@ -432,7 +433,58 @@ Output: Whether locale overrides are applicable to the card.
 */
 function isLocalizedExpectedValueStep(step: unknown): boolean {
   const action = (step as { action?: string }).action;
-  return action === 'assertHtml' || action === 'assertText';
+  return action === 'assertHtml' || action === 'assertText' || action === 'assertValue';
+}
+
+/*
+Returns the action for the assertion currently being localized.
+---
+Inputs: The selected locale-override step index and current case document.
+---
+Output: The supported assertion action, or no value when no step is selected.
+*/
+function getLocaleOverrideAction(): 'assertHtml' | 'assertText' | 'assertValue' | undefined {
+  if (localeOverrideStepIndex.value === undefined || selectedCase.value === undefined) {
+    return undefined;
+  }
+  const action = (selectedCase.value.steps[localeOverrideStepIndex.value] as { action?: string } | undefined)?.action;
+  return action === 'assertHtml' || action === 'assertText' || action === 'assertValue' ? action : undefined;
+}
+
+/*
+Returns the localized label for the current override value field.
+---
+Inputs: The assertion action currently being localized.
+---
+Output: The matching expected-value field label.
+*/
+function getLocaleOverrideValueLabel(): string {
+  const action = getLocaleOverrideAction();
+  if (action === 'assertHtml') {
+    return t('editor.expectedHtml');
+  }
+  if (action === 'assertValue') {
+    return t('editor.expectedValue');
+  }
+  return t('editor.expectedText');
+}
+
+/*
+Returns the required-value feedback for the current override value field.
+---
+Inputs: The assertion action currently being localized.
+---
+Output: The matching localized validation message.
+*/
+function getLocaleOverrideValueValidationMessage(): string {
+  const action = getLocaleOverrideAction();
+  if (action === 'assertHtml') {
+    return t('editor.expectedHtmlRequired');
+  }
+  if (action === 'assertValue') {
+    return t('editor.expectedValueRequired');
+  }
+  return t('editor.expectedTextRequired');
 }
 
 /*
@@ -690,6 +742,7 @@ function addAssertValueStep(): void {
   assertValueRole.value = '';
   assertValueName.value = '';
   assertValueExpected.value = '';
+  assertValueLocaleOverrides.value = [];
   assertValueRoleBlurred.value = false;
   assertValueExpectedBlurred.value = false;
   assertValueDialogOpen.value = true;
@@ -710,7 +763,9 @@ function saveAssertValueStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = assertValueName.value.trim() ? { name: assertValueName.value.trim(), role: assertValueRole.value.trim() } : { role: assertValueRole.value.trim() };
-    const step = { action: 'assertValue', expected: { default: assertValueExpected.value }, locator };
+    const locales = Object.fromEntries(assertValueLocaleOverrides.value.map((override) => [override.locale, override.value]));
+    const expected = Object.keys(locales).length === 0 ? { default: assertValueExpected.value } : { default: assertValueExpected.value, locales };
+    const step = { action: 'assertValue', expected, locator };
     const steps = editingAssertValueIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertValueIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -727,6 +782,7 @@ function resetAssertValueDialog(): void {
   assertValueRole.value = '';
   assertValueName.value = '';
   assertValueExpected.value = '';
+  assertValueLocaleOverrides.value = [];
   assertValueRoleBlurred.value = false;
   assertValueExpectedBlurred.value = false;
 }
@@ -922,6 +978,7 @@ function editStep(index: number, step: unknown): void {
     assertValueRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     assertValueName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
     assertValueExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    assertValueLocaleOverrides.value = readExpectedLocaleOverrides(step);
     assertValueRoleBlurred.value = false;
     assertValueExpectedBlurred.value = false;
     assertValueDialogOpen.value = true;
@@ -1004,6 +1061,7 @@ function cloneStep(step: unknown): void {
     assertValueRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     assertValueName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
     assertValueExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    assertValueLocaleOverrides.value = readExpectedLocaleOverrides(step);
     assertValueRoleBlurred.value = false;
     assertValueExpectedBlurred.value = false;
     assertValueDialogOpen.value = true;
@@ -1309,11 +1367,11 @@ function getStepKey(step: unknown): string {
       <LocaleOverrideDialog
         v-if="localeOverrideDialogOpen"
         :locale="localeOverrideLocale"
-        :multiline="localeOverrideStepIndex !== undefined && selectedCase?.steps[localeOverrideStepIndex] !== undefined && (selectedCase.steps[localeOverrideStepIndex] as { action?: string }).action === 'assertHtml'"
+        :multiline="getLocaleOverrideAction() === 'assertHtml'"
         :unavailable-locales="localeOverrideStepIndex === undefined || selectedCase === undefined ? [] : readExpectedLocaleOverrides(selectedCase.steps[localeOverrideStepIndex]).filter((override) => override.locale !== editingLocaleOverrideLocale).map((override) => override.locale)"
         :value="localeOverrideValue"
-        :value-label="localeOverrideStepIndex !== undefined && selectedCase?.steps[localeOverrideStepIndex] !== undefined && (selectedCase.steps[localeOverrideStepIndex] as { action?: string }).action === 'assertHtml' ? t('editor.expectedHtml') : t('editor.expectedText')"
-        :value-validation-message="localeOverrideStepIndex !== undefined && selectedCase?.steps[localeOverrideStepIndex] !== undefined && (selectedCase.steps[localeOverrideStepIndex] as { action?: string }).action === 'assertHtml' ? t('editor.expectedHtmlRequired') : t('editor.expectedTextRequired')"
+        :value-label="getLocaleOverrideValueLabel()"
+        :value-validation-message="getLocaleOverrideValueValidationMessage()"
         @close="localeOverrideDialogOpen = false"
         @reset="localeOverrideLocale = ''; localeOverrideValue = ''"
         @save="saveLocaleOverride"
