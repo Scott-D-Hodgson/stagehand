@@ -16,7 +16,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 12. Why is `LocatorFields.vue` shared by Click, Type, Fill, Select option, and the three current assertion forms while their action-specific fields remain separate?
 13. Why does the Select option dialog use a Value-or-Label mode rather than show both fields at once?
 14. What is the current Assert text expected-value shape, and how does its Locale overrides panel select the value previewed on the card?
-15. Why does Assert HTML use a multiline expected-value field, while retaining the same contract shape as Assert text?
+15. How does Assert HTML reuse the localized expected-value pattern while preserving practical HTML authoring?
 16. What does the current Assert value form author, and which optional contract check remains deferred?
 17. Why does step reordering use a copied list and stable card keys rather than list indexes?
 18. Why does the editor use one expandable case-reference workspace at a time, and what must a collapsed card still communicate?
@@ -38,7 +38,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 12. The seven forms repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Their action-specific inputs have different meanings and validation states, so their owning dialogs retain those fields.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
 14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its card-level Locale overrides panel. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
-15. HTML commonly contains markup over multiple lines, so a multiline field makes authoring and review practical. Both assertion forms still save the same literal `expected.default` contract shape; only their action and comparison content differ.
+15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, card-level override management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
 16. Assert value authors a Role/Accessible-name locator and one literal `expected.default` value. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
 17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.
 18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
