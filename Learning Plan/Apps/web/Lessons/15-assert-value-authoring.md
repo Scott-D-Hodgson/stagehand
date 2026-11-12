@@ -25,7 +25,8 @@ current editor authors this shared-contract shape:
 The dialog requires Role and Expected value, while Accessible name remains
 optional. Each field’s feedback is independently blur-gated. The form saves a
 literal `expected.default` value, like the other current assertion forms.
-Localized expected values remain M11 work.
+The early M11 workflow adds optional localized expected values; [Lesson
+21](21-localized-assert-value.md) covers that card-level flow.
 
 ## The associated-label boundary
 
@@ -52,8 +53,9 @@ copy. Confirm that no associated-label controls are presented in this slice.
 ## You are ready when
 
 - You can distinguish a control’s expected value from its Accessible name.
-- You know why this form saves `expected.default`.
+- You know why this form saves `expected.default` and can add optional locale
+  overrides outside the base dialog.
 - You can identify the optional associated-label check as deferred work rather
   than a missing saved field.
 
-[← Previous: Assert-HTML authoring](14-assert-html-authoring.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Assert-HTML authoring](14-assert-html-authoring.md) · [Course outline](../README.md) · [Next: Localized Assert-value expectations →](21-localized-assert-value.md)
