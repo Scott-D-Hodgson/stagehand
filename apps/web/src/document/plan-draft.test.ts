@@ -80,13 +80,13 @@ describe('plan draft', () => {
     expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'assertText', expected: { default: 'Welcome', locales: { 'fr-CA': 'Bienvenue' } }, locator: { name: 'Welcome', role: 'heading' } }]);
   });
 
-  it('copies Assert HTML expected content and nested locator data into an independent recovery snapshot', () => {
+  it('copies Assert HTML expected locale overrides and nested locator data into an independent recovery snapshot', () => {
     const draft = createBundledEditorDraft();
-    draft.cases['cases/landing-page.json']!.steps = [{ action: 'assertHtml', expected: { default: '<strong>Welcome</strong>' }, locator: { name: 'Welcome', role: 'heading' } }];
+    draft.cases['cases/landing-page.json']!.steps = [{ action: 'assertHtml', expected: { default: '<strong>Welcome</strong>', locales: { 'fr-CA': '<strong>Bienvenue</strong>' } }, locator: { name: 'Welcome', role: 'heading' } }];
     const snapshot = copyEditorBundleDraft(draft);
-    (snapshot.cases['cases/landing-page.json']!.steps[0] as { expected: { default: string }; locator: { name: string } }).expected.default = '<em>Bonjour</em>';
+    (snapshot.cases['cases/landing-page.json']!.steps[0] as { expected: { default: string; locales: Record<string, string> }; locator: { name: string } }).expected.locales['fr-CA'] = '<em>Bonjour</em>';
     (snapshot.cases['cases/landing-page.json']!.steps[0] as { locator: { name: string } }).locator.name = 'Changed';
-    expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'assertHtml', expected: { default: '<strong>Welcome</strong>' }, locator: { name: 'Welcome', role: 'heading' } }]);
+    expect(draft.cases['cases/landing-page.json']!.steps).toEqual([{ action: 'assertHtml', expected: { default: '<strong>Welcome</strong>', locales: { 'fr-CA': '<strong>Bienvenue</strong>' } }, locator: { name: 'Welcome', role: 'heading' } }]);
   });
 
   it('copies Assert value expected content and nested locator data into an independent recovery snapshot', () => {

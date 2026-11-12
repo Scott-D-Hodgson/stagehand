@@ -11,8 +11,11 @@ interface BootstrapModal {
 
 const props = defineProps<{
   locale: string;
+  multiline?: boolean;
   unavailableLocales: readonly string[];
   value: string;
+  valueLabel: string;
+  valueValidationMessage: string;
 }>();
 
 const emit = defineEmits<{
@@ -26,7 +29,7 @@ const emit = defineEmits<{
 const { t } = useTranslation();
 const localeInput = ref<HTMLSelectElement>();
 const modalElement = ref<HTMLElement>();
-const valueInput = ref<HTMLInputElement>();
+const valueInput = ref<HTMLInputElement | HTMLTextAreaElement>();
 let modal: BootstrapModal | undefined;
 let closing = false;
 const localeValidationVisible = ref(false);
@@ -162,9 +165,27 @@ onBeforeUnmount(() => modal?.dispose());
             <option v-for="locale in localeCatalogue" :key="locale" :value="locale" :disabled="isLocaleUnavailable(locale)">{{ locale }}</option>
           </select>
           <div v-if="localeValidationVisible && !props.locale" class="invalid-feedback d-block">{{ t('editor.invalidLocaleOverride') }}</div>
-          <label class="form-label mt-3" for="locale-override-value">{{ t('editor.expectedText') }}</label>
-          <input id="locale-override-value" ref="valueInput" :value="props.value" :class="['form-control', { 'is-invalid': valueValidationVisible && !props.value.trim() }]" @blur="reportValueBlur" @input="valueValidationVisible = false; emit('update:value', ($event.target as HTMLInputElement).value)" />
-          <div v-if="valueValidationVisible && !props.value.trim()" class="invalid-feedback d-block">{{ t('editor.expectedTextRequired') }}</div>
+          <label class="form-label mt-3" for="locale-override-value">{{ props.valueLabel }}</label>
+          <textarea
+            v-if="props.multiline"
+            id="locale-override-value"
+            ref="valueInput"
+            :value="props.value"
+            :class="['form-control', { 'is-invalid': valueValidationVisible && !props.value.trim() }]"
+            rows="4"
+            @blur="reportValueBlur"
+            @input="valueValidationVisible = false; emit('update:value', ($event.target as HTMLTextAreaElement).value)"
+          ></textarea>
+          <input
+            v-else
+            id="locale-override-value"
+            ref="valueInput"
+            :value="props.value"
+            :class="['form-control', { 'is-invalid': valueValidationVisible && !props.value.trim() }]"
+            @blur="reportValueBlur"
+            @input="valueValidationVisible = false; emit('update:value', ($event.target as HTMLInputElement).value)"
+          />
+          <div v-if="valueValidationVisible && !props.value.trim()" class="invalid-feedback d-block">{{ props.valueValidationMessage }}</div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-outline-secondary" type="button" @click="reset">{{ t('editor.reset') }}</button>

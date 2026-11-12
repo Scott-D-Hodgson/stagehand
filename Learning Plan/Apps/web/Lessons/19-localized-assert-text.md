@@ -1,6 +1,6 @@
 # Lesson 19: Localized Assert-text expectations
 
-[← Previous: Selected-step validation](18-selected-step-validation.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Selected-step validation](18-selected-step-validation.md) · [Course outline](../README.md) · [Next: Localized Assert-HTML expectations →](20-localized-assert-html.md)
 
 An Assert text step always has a required literal `expected.default`. The early
 M11 slice adds optional `expected.locales` values without moving that primary
@@ -45,4 +45,4 @@ local save, restore the draft, and confirm the override remains.
   enumerate all possible BCP 47 tags.
 - You can explain the card's configured-value colour preview.
 
-[← Previous: Selected-step validation](18-selected-step-validation.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Selected-step validation](18-selected-step-validation.md) · [Course outline](../README.md) · [Next: Localized Assert-HTML expectations →](20-localized-assert-html.md)

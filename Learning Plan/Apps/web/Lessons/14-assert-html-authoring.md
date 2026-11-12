@@ -29,8 +29,8 @@ HTML field, which makes markup easier to enter and review without changing the
 stored contract.
 
 Role and Expected HTML are required and independently blur-gated; Accessible
-name remains optional. Localized expected values remain M11 work. This form
-authors one literal default expectation only.
+name remains optional. The early M11 workflow adds optional localized expected
+values; [Lesson 20](20-localized-assert-html.md) covers that card-level flow.
 
 ## Shared target and recovery
 
@@ -54,6 +54,7 @@ remove one copy, then refresh and restore the recovery record.
   visible-text comparison.
 - You know why both forms save `expected.default` despite using different
   input controls.
-- You can explain why localized expected values remain M11 work.
+- You know that localized Assert-HTML expectations are covered by the early M11
+  workflow in [Lesson 20](20-localized-assert-html.md).
 
 [← Previous: Assert-text authoring](13-assert-text-authoring.md) · [Course outline](../README.md) · [Next: Assert-value authoring →](15-assert-value-authoring.md)
