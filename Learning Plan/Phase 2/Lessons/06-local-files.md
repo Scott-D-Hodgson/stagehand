@@ -9,10 +9,11 @@ Stagehand is local-first: the editor is intended to work without an account or c
 
 M10 uses one portable ZIP archive: `plan.json` lives at the archive root and
 each case lives at the exact relative path named by the plan. M10.1 implements
-only the pure browser-safe codec. It rejects unreadable ZIP data, unsafe entry
+the pure browser-safe codec. It rejects unreadable ZIP data, unsafe entry
 paths, malformed JSON, unmatched references, and invalid plan/case bundles.
-The later import UI must inspect that candidate before it replaces the active
-draft; the later export UI may download only a valid bundle.
+M10.2 connects that codec to browser ZIP selection, but it keeps a valid result
+as a candidate until the author confirms replacement of the currently loaded
+plan. The later export UI may download only a valid bundle.
 
 Browser file permissions differ from ordinary desktop access. The editor should explain what it can read or replace and provide a download fallback where direct saving is unavailable.
 

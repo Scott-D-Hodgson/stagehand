@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import type { ValidationIssue } from '@stagehand/plan-schema';
 import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../document/plan-draft';
 import { validateEditorPlan } from '../document/validation';
+import { readPortableBundleFile } from '../portable-bundle/import';
 import CaseReferences from './CaseReferences.vue';
 import CaseDetails from './CaseDetails.vue';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
+import ImportIssuesModal from './dialogs/ImportIssuesModal.vue';
 import NewPlanDialog from './dialogs/NewPlanDialog.vue';
 import PlanDetails from './PlanDetails.vue';
 import SharedContractAssessment from './SharedContractAssessment.vue';
@@ -18,6 +21,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:case-drafts': [caseDrafts: Record<string, CaseDraft>];
   'update:plan': [plan: PlanDraft];
+  'import-bundle': [bundle: { cases: Record<string, CaseDraft>; plan: PlanDraft }];
   'new-plan': [id: string];
 }>();
 
@@ -26,9 +30,11 @@ const validationRequested = ref(false);
 const planValidation = computed(() => validateEditorPlan(props.plan));
 const validationIssues = computed(() => planValidation.value.valid ? [] : planValidation.value.issues);
 const hasUnexportedChanges = computed(() => JSON.stringify(props.plan) !== JSON.stringify(createBundledEditorDraft().plan) || JSON.stringify(props.caseDrafts) !== JSON.stringify(createBundledEditorDraft().cases));
-const confirmation = ref<{ id?: string; index?: number; kind: 'new-plan' | 'remove-reference' | 'reset-sample' }>();
+const confirmation = ref<{ bundle?: { cases: Record<string, CaseDraft>; plan: PlanDraft }; id?: string; index?: number; kind: 'import-bundle' | 'new-plan' | 'remove-reference' | 'reset-sample' }>();
 const newPlanDialogOpen = ref(false);
 const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
+const importInput = ref<HTMLInputElement>();
+const importIssueMessages = ref<string[]>([]);
 
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
@@ -181,6 +187,75 @@ function requestNewPlan(): void {
 }
 
 /*
+Opens the browser file chooser for a portable ZIP bundle.
+---
+Inputs: An Import action from the plan toolbar.
+---
+Output: A browser-managed ZIP-file selection request.
+*/
+function requestImport(): void {
+  importInput.value?.click();
+}
+
+/*
+Reads a selected ZIP candidate before any active editor data is changed.
+---
+Inputs: The file-input change event and its optional selected file.
+---
+Output: Import issues or a replacement confirmation for a valid candidate.
+*/
+async function importSelectedFile(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement;
+  const file = input.files?.item(0);
+  input.value = '';
+  if (file === null || file === undefined) {
+    return;
+  }
+  const result = await readPortableBundleFile(file);
+  if (!result.valid) {
+    importIssueMessages.value = [...new Set(result.issues.map(getImportIssueMessage))];
+    return;
+  }
+  importIssueMessages.value = [];
+  confirmation.value = { bundle: result.draft, kind: 'import-bundle' };
+}
+
+/*
+Replaces the active editor bundle with a validated imported candidate.
+---
+Inputs: A detached bundle produced by the portable bundle reader.
+---
+Output: An imported-bundle event and cleared explicit validation state.
+*/
+function importBundle(bundle: { cases: Record<string, CaseDraft>; plan: PlanDraft }): void {
+  emit('import-bundle', bundle);
+  validationRequested.value = false;
+}
+
+/*
+Chooses localized wording for one portable-import issue.
+---
+Inputs: A codec or shared-contract validation issue.
+---
+Output: A localized author-facing description of the rejected candidate.
+*/
+function getImportIssueMessage(issue: ValidationIssue): string {
+  if (issue.keyword === 'invalidArchive' || issue.keyword === 'readFailure') {
+    return t('editor.importUnreadable');
+  }
+  if (issue.keyword === 'invalidJson') {
+    return t('editor.importInvalidJson');
+  }
+  if (issue.keyword === 'missingReference') {
+    return t('editor.importMissingReference');
+  }
+  if (issue.keyword === 'duplicateReference' || issue.keyword === 'ambiguousMatch') {
+    return t('editor.importDuplicateReference');
+  }
+  return t('editor.importInvalidDocument');
+}
+
+/*
 Requests replacement of the active bundle after collecting a plan identifier.
 ---
 Inputs: A non-empty identifier from the new-plan dialog.
@@ -234,6 +309,9 @@ function confirmAction(): void {
   if (action?.kind === 'new-plan' && action.id !== undefined) {
     emit('new-plan', action.id);
   }
+  if (action?.kind === 'import-bundle' && action.bundle !== undefined) {
+    importBundle(action.bundle);
+  }
 }
 
 /*
@@ -252,7 +330,9 @@ function cancelConfirmation(): void {
   <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
     <div class="d-flex flex-wrap align-items-center gap-2">
       <button class="btn btn-primary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
+      <button class="btn btn-outline-primary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
       <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
+      <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
   <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
@@ -266,12 +346,13 @@ function cancelConfirmation(): void {
   <ConfirmationModal
     v-if="confirmation"
     :cancel-label="t('editor.cancel')"
-    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : confirmation.kind === 'new-plan' ? t('editor.create') : t('editor.reset')"
-    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : confirmation.kind === 'new-plan' ? t('editor.newPlanConfirmation') : t('editor.resetConfirmation')"
+    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : confirmation.kind === 'new-plan' ? t('editor.create') : confirmation.kind === 'import-bundle' ? t('editor.import') : t('editor.reset')"
+    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : confirmation.kind === 'new-plan' ? t('editor.newPlanConfirmation') : confirmation.kind === 'import-bundle' ? t('editor.importConfirmation') : t('editor.resetConfirmation')"
     :title="t('editor.confirmationTitle')"
     @cancel="cancelConfirmation"
     @confirm="confirmAction"
   />
+  <ImportIssuesModal v-if="importIssueMessages.length > 0" :close-label="t('editor.close')" :issues="importIssueMessages" :message="t('editor.importFailed')" :title="t('editor.importErrorTitle')" @close="importIssueMessages = []" />
   <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlan" />
 </template>
 

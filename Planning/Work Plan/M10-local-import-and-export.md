@@ -1,6 +1,6 @@
 # M10 — Local import and export
 
-**Status:** In progress; M10.1 portable bundle codec complete and verified in the development container
+**Status:** In progress; M10.1 portable bundle codec and M10.2 validated import complete and verified in the development container
 **Estimate:** 4–7 focused human person-days  
 **Depends on:** [M9](M9-basic-plan-and-case-authoring.md)
 
@@ -39,8 +39,8 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
   draft remains editable and recoverable locally, with validation feedback, but
   cannot be represented as a valid downloaded Stagehand bundle.
 - A successful import replaces the active bundle only after the candidate has
-  parsed and validated and the author has confirmed replacement when current
-  work has changed.
+  parsed and validated and the author has explicitly confirmed replacement of
+  the currently loaded plan.
 
 ## Incremental delivery
 
@@ -49,10 +49,13 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
    reference matching, and parsed-bundle validation with synthetic ZIP tests.
    No file-picker or download UI is introduced. Development-container checks
    passed: editor unit tests, type-check, and production build.
-2. **M10.2 — Validated import:** add an Import control accepting `.zip`; parse
+2. **M10.2 — Validated import (complete):** add an Import control accepting `.zip`; parse
    a candidate without replacing the active draft; show localized malformed ZIP,
    JSON, version, missing-reference, duplicate, and invalid-document feedback;
-   then use a Bootstrap confirmation flow for changed current work.
+   then use a static Bootstrap confirmation flow before replacing the current
+   plan. The owner reported passing development-container tests. The
+   rejected-bundle dialog is also static and blocks page interaction until
+   acknowledged.
 3. **M10.3 — Valid-only export:** add an Export control and download a
    `<plan-id>.stagehand.zip` archive through the browser Blob API. Disable or
    block export for invalid drafts with clear validation feedback, while keeping

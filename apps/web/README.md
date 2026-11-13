@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec behind later import and export controls. Complete step authoring, file-picker/download UI, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec, and M10.2 adds validated ZIP selection and protected replacement. Complete step authoring, browser download/export UI, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -28,9 +28,9 @@ Run these commands from the repository root:
   state while Bootstrap owns the demonstrated modal mechanics. This keeps the
   initial presentation lightweight, but a cold offline start is not yet
   supported; M14 owns the offline styling follow-through.
-- Vitest 5.1.0 is the selected unit-test runner. Focused validation tests cover
-  valid/invalid plans and the mapping from shared case-validation issue paths
-  to unique affected step indexes.
+- Vitest 5.1.0 is the selected unit-test runner. Focused tests cover shared
+  plan/case validation, affected-step mapping, portable ZIP codec behaviour,
+  and browser-selected archive-read failures.
 - The Theme selector defaults to the browser light/dark preference. An explicit
   Light or Dark selection is stored under `stagehand.theme-preference` in local
   storage; System removes that override. This interface preference is separate
@@ -64,12 +64,16 @@ Run these commands from the repository root:
   their exchanged positions. The expanded card uses Bootstrap theme-aware
   active styling, and its action controls do not toggle the workspace. The v1
   recovery adapter migrates earlier plan-only drafts by creating empty case
-  documents for their retained references. Plan/case data remains draft-only
-  until later M10 slices add import and export controls.
+  documents for their retained references. M10.2 can replace the active bundle
+  from a validated browser-selected ZIP only after explicit confirmation; export
+  controls remain later M10 work.
 - A full-width fixed status footer announces the local-save state. The M9
   integration review verified that it does not obscure an actionable control in
   the accepted long-page layout.
-- A sticky plan-action bar provides New plan and Reset sample. New plan collects
+- A sticky plan-action bar provides New plan, Import, and Reset sample. Import
+  accepts a ZIP candidate, validates it without changing the active draft, then
+  always requests confirmation before replacement. Rejected candidates present
+  a localized static dialog so their feedback cannot be missed. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
 - An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
