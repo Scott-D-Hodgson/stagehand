@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. The current [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) slices add controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. Complete step authoring, imported files, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec behind later import and export controls. Complete step authoring, file-picker/download UI, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -65,7 +65,7 @@ Run these commands from the repository root:
   active styling, and its action controls do not toggle the workspace. The v1
   recovery adapter migrates earlier plan-only drafts by creating empty case
   documents for their retained references. Plan/case data remains draft-only
-  until M10 adds export.
+  until later M10 slices add import and export controls.
 - A full-width fixed status footer announces the local-save state. The M9
   integration review verified that it does not obscure an actionable control in
   the accepted long-page layout.

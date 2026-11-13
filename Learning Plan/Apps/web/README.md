@@ -1,6 +1,6 @@
 # Course: Understanding `@stagehand/web`
 
-This course explains the foundation of the local-first Stagehand web editor. The [application README](../../../apps/web/README.md) is the operational reference for its commands; [M8](../../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) defines the foundation and [M9](../../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) defines the current authoring scope.
+This course explains the foundation of the local-first Stagehand web editor. The [application README](../../../apps/web/README.md) is the operational reference for its commands; [M8](../../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) defines the foundation, [M9](../../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) defines the initial authoring scope, and [M10](../../../Planning/Work%20Plan/M10-local-import-and-export.md) defines the portable-file workflow.
 
 ## In this course you will learn
 
@@ -13,6 +13,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - Why the first plan field preserves raw input and how the editor components divide responsibility.
 - How a versioned IndexedDB recovery record stays behind a small storage interface.
 - How a recovery gate prevents a bundled sample from silently replacing local work.
+- How a pure browser-safe ZIP codec preserves a validated plan and its case paths
+  before file-picker and download UI is introduced.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -24,7 +26,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. Early M11 slices add a maintained locale catalogue and localized Assert-text, Assert-HTML, and Assert-value expected values. The editor does not yet provide the remaining step forms, import/export, or execute plans.
+M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. M10.1 adds a pure browser-safe ZIP codec that validates a portable `plan.json` and its case entries before it produces or accepts a draft; it deliberately adds no file-picker or browser-download UI. Early M11 slices add a maintained locale catalogue and localized Assert-text, Assert-HTML, and Assert-value expected values. The editor does not yet provide the remaining step forms, import/export controls, or execute plans.
 
 ## Lessons
 
@@ -50,5 +52,6 @@ M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bo
 20. [Localized Assert-HTML expectations](Lessons/20-localized-assert-html.md)
 21. [Localized Assert-value expectations](Lessons/21-localized-assert-value.md)
 22. [M9 integration review](Lessons/22-m9-integration-review.md)
+23. [Portable bundle codec](Lessons/23-portable-bundle-codec.md)
 
 Finish with the [course skill check](quiz.md).

@@ -22,6 +22,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 18. Why does the editor use one expandable case-reference workspace at a time, and what must a collapsed card still communicate?
 19. Why does selected-step validation map shared issue paths to step indexes instead of showing every schema message on a card?
 20. Why does a two-tab save conflict now require a blocking resolution dialog instead of an inline warning?
+21. What does the M10.1 portable bundle codec validate, and what browser workflow does it deliberately not provide?
 
 ## Answer key
 
@@ -45,3 +46,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
 19. The schema can report several low-level alternative-branch failures for one incomplete step. Mapping its paths to unique indexes lets the editor show one concise, localized, actionable message on each affected card and a danger border on the enclosing case.
 20. A paused local draft can otherwise be missed below the fold while the author continues to edit stale state. The static dialog puts the choice in focus and prevents further page actions until the author discards the paused local edits or replaces the newer saved draft.
+21. It accepts or produces one ZIP archive with root `plan.json` and case entries at the plan's referenced relative paths. It checks ZIP entry safety, JSON parsing, shared reference matching, and plan/case bundle validity. It deliberately does not open a file picker, replace the active draft, or trigger a browser download; later M10 slices own those user flows.

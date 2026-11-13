@@ -8,8 +8,8 @@ resolved dependency tree in `package-lock.json`.
 ## Web editor dependencies
 
 The following packages establish the Vue editor's development and build
-foundation. Vue is bundled into the editor output; the remaining packages are
-development tools and are not bundled into the application.
+foundation. Vue and `fflate` are bundled into the editor output; the remaining
+packages are development tools and are not bundled into the application.
 
 | Package | Version | Licence | Copyright / attribution |
 | --- | --- | --- | --- |
@@ -19,6 +19,7 @@ development tools and are not bundled into the application.
 | `@vue/tsconfig` | 0.9.1 | MIT | Vue contributors |
 | `vue-tsc` | 3.3.14 | MIT | Vue.js contributors |
 | `vitest` | 5.1.0 | MIT | Vitest contributors |
+| `fflate` | 0.8.3 | MIT | Copyright (c) 2026 Arjun Barrett |
 | `fake-indexeddb` | 6.2.7 | Apache-2.0 | fake-indexeddb contributors |
 | `i18next` | 26.7.2 | MIT | Copyright (c) Jan Mühlemann and i18next contributors |
 | `i18next-vue` | 5.4.0 | MIT | Konrad Kügler and i18next-vue contributors |
