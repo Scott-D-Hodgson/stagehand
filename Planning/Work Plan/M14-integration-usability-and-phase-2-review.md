@@ -2,7 +2,7 @@
 
 **Status:** Planned; task breakdown and estimate proposed  
 **Estimate:** 4–7 focused human person-days  
-**Depends on:** [M8–M13](M13-unsaved-work-drafts-and-recovery.md)
+**Depends on:** [M8–M13](M13-unsaved-work-drafts-and-recovery.md), [M15](M15-public-website-and-static-deployment.md)
 
 ## Objective
 

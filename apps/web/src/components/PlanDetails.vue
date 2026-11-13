@@ -47,7 +47,7 @@ function validatePlanLocale(): void {
 
 <template>
   <section class="card mb-4 shadow-sm" aria-labelledby="plan-details-heading">
-    <div class="card-header plan-header bg-body py-2">
+    <div class="card-header bg-body py-2">
       <h2 id="plan-details-heading" class="h5 mb-0">
         {{ plan.id }}
       </h2>
@@ -68,9 +68,4 @@ function validatePlanLocale(): void {
 </template>
 
 <style scoped>
-.plan-header {
-  position: sticky;
-  top: 7rem;
-  z-index: 1010;
-}
 </style>

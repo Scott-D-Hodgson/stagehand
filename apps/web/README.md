@@ -66,9 +66,9 @@ Run these commands from the repository root:
   recovery adapter migrates earlier plan-only drafts by creating empty case
   documents for their retained references. Plan/case data remains draft-only
   until M10 adds export.
-- A full-width fixed status footer announces the local-save state. Its current
-  placement can overlap the final controls on a long page; revisit that layout
-  in a later M9 UI slice.
+- A full-width fixed status footer announces the local-save state. The M9
+  integration review verified that it does not obscure an actionable control in
+  the accepted long-page layout.
 - A sticky plan-action bar provides New plan and Reset sample. New plan collects
   a filename-safe ID, starts with default `en-CA` and no cases, and confirms
   replacement of changed work before the recovered bundle is replaced.
@@ -100,4 +100,6 @@ Run these commands from the repository root:
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
   hide cleanup before Vue removes them. Step data is part of the recovered editor
-  bundle.
+  bundle. A two-tab conflict opens a blocking resolution dialog; the author
+  must discard paused local edits or replace the newer saved draft before
+  continuing.

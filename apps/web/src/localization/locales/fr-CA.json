@@ -119,6 +119,7 @@
     "localSaveIdle": "Aucun enregistrement local en cours.",
     "savedLocally": "Enregistré localement.",
     "saveFailed": "Impossible d’enregistrer localement.",
+    "conflictTitle": "Résoudre le conflit de brouillon",
     "conflictDetected": "Un autre onglet a enregistré des modifications plus récentes. Vos modifications locales sont en pause.",
     "discardLocalEdits": "Abandonner les modifications locales",
     "replaceSavedDraft": "Remplacer le brouillon enregistré"

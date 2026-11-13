@@ -4,7 +4,7 @@
 
 ## Objective and prerequisites
 
-Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md) and [M8](M8-editor-foundation-and-document-state.md) are recorded complete. M9 is in progress with basic plan, case, and step authoring. This plan does not claim later editor behaviour is implemented.
+Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md), [M8](M8-editor-foundation-and-document-state.md), and [M9](M9-basic-plan-and-case-authoring.md) are recorded complete. This plan does not claim later editor behaviour is implemented.
 
 The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md) for M8 draft recovery and [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) for technology, localization, and presentation. The owner completed the Vite scaffolding through guided commands in M8.1. This planning document does not authorize or evidence later implementation by itself.
 
@@ -18,8 +18,9 @@ The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-r
 | [M11 — Configuration and localized assertions](M11-configuration-and-localized-assertions.md) | M10 | 4–7 person-days |
 | [M12 — Variables, data sets, and shared steps](M12-variables-data-sets-and-shared-steps.md) | M11 | 6–10 person-days |
 | [M13 — Unsaved work, drafts, and recovery](M13-unsaved-work-drafts-and-recovery.md) | M10–M12 | 4–7 person-days |
-| [M14 — Integration, usability, and Phase 2 review](M14-integration-usability-and-phase-2-review.md) | M8–M13 | 4–7 person-days |
-| **Total** | | **36–62 person-days** |
+| [M15 — Public website and static deployment](M15-public-website-and-static-deployment.md) | M8; may proceed alongside M9–M13 | 3–5 person-days |
+| [M14 — Integration, usability, and Phase 2 review](M14-integration-usability-and-phase-2-review.md) | M8–M13, M15 | 4–7 person-days |
+| **Total** | | **39–67 person-days** |
 
 These are proposed planning ranges, not agreed commitments or calendar dates. A person-day is roughly 6–7 focused hours, including implementation, documentation, appropriate verification, and self-review. They assume one contributor with basic TypeScript knowledge and exclude additional learning time, review waits, substantial redesign, and future features. Re-estimate each milestone before starting; M8 persistence/conflict handling and M13 optional persona loading carry particular uncertainty.
 
@@ -28,6 +29,7 @@ These are proposed planning ranges, not agreed commitments or calendar dates. A 
 - Build in TypeScript inside the existing workspace; consume shared contracts through their public entry point. Browser editing must not depend on the Node filesystem loader or runner.
 - Deliver Canadian English by default and Canadian French, with Neutral guidance. Optional user-loaded personas are assigned provisionally to M13 for review.
 - Use Bootstrap 5 CSS from a CDN initially and keep custom styling minimal. Resolve offline styling by M14; do not silently weaken the offline-after-load requirement.
+- M15 establishes a public Hugo landing site and Cloudflare Pages deployment for both it and the editor. The public site uses the apex domain, `www` redirects to the apex, and the editor uses `app.<project-domain>`. These deployment decisions do not make the editor's offline-after-load requirement complete; M14 retains that verification.
 - Supported editor targets are current stable desktop Chrome and Edge on Windows. Browser execution, CLI work, report-file writing, direct filesystem access, raw JSON editing, and offline cold-start support are outside this phase.
 - Basic autosave, recovery, and multi-tab conflict handling belong to M8. Add protection alongside new destructive actions in M9–M12; do not postpone it all to M13.
 - Preserve contracts and distinguish invalid drafts from valid exportable documents. Later authoring features extend editor integration rather than reopen completed contract milestones automatically.

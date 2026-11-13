@@ -120,6 +120,7 @@
     "localSaveIdle": "No local save activity.",
     "savedLocally": "Saved locally.",
     "saveFailed": "Could not save locally.",
+    "conflictTitle": "Resolve draft conflict",
     "conflictDetected": "Another tab saved newer changes. Your local edits are paused.",
     "discardLocalEdits": "Discard local edits",
     "replaceSavedDraft": "Replace saved draft"
