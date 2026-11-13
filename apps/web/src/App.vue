@@ -5,7 +5,7 @@ import AppHeader from './components/AppHeader.vue'
 import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
 import PlanBundle from './components/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
-import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft } from './document/plan-draft'
+import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, type EditorBundleDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -184,6 +184,17 @@ function createNewPlan(id: string): void {
 }
 
 /*
+Replaces editor state with a validated portable bundle selected by the author.
+---
+Inputs: A plan/case bundle that has passed portable archive validation.
+---
+Output: One detached active editor draft for the existing autosave flow.
+*/
+function importEditorBundle(bundle: EditorBundleDraft): void {
+  editorDraft.value = copyEditorBundleDraft(bundle);
+}
+
+/*
 Starts autosave only after recovery has been resolved for this editor session.
 ---
 Inputs: The resolved recovery-gate state and an available storage boundary.
@@ -284,7 +295,7 @@ watch(resolvedTheme, (theme) => {
     <main class="container-fluid px-4 py-4 pb-5">
       <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
-        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @new-plan="createNewPlan" />
+        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
         <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />
       </template>
     </main>

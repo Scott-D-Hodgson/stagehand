@@ -2,7 +2,7 @@
 
 > “How can a browser understand a plan archive before it is allowed to replace someone’s draft?” — Zadie “ZIP Safety” Zhou, Developer
 
-[← Previous: M9 integration review](22-m9-integration-review.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: M9 integration review](22-m9-integration-review.md) · [Course outline](../README.md) · [Next: Validated bundle import →](24-validated-bundle-import.md)
 
 M10.1 introduces a small boundary between a ZIP archive and editable editor
 state. The boundary is deliberately pure: it receives archive bytes and returns
@@ -47,4 +47,4 @@ valid bundle needs. Then list the first failure reported for each of these:
 - You can distinguish ZIP-entry safety from plan-reference validation.
 - You can explain why M10.1 is safe to test without a file picker or download.
 
-[← Previous: M9 integration review](22-m9-integration-review.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: M9 integration review](22-m9-integration-review.md) · [Course outline](../README.md) · [Next: Validated bundle import →](24-validated-bundle-import.md)
