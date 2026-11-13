@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@stagehand/plan-schema": "0.1.0",
+    "fflate": "^0.8.3",
     "i18next": "26.7.2",
     "i18next-vue": "5.4.0",
     "vue": "3.5.44"

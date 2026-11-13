@@ -7,14 +7,26 @@
 
 Stagehand is local-first: the editor is intended to work without an account or central plan service. A browser can import a file, validate it, let the person edit it, and export a new file.
 
+M10 uses one portable ZIP archive: `plan.json` lives at the archive root and
+each case lives at the exact relative path named by the plan. M10.1 implements
+only the pure browser-safe codec. It rejects unreadable ZIP data, unsafe entry
+paths, malformed JSON, unmatched references, and invalid plan/case bundles.
+The later import UI must inspect that candidate before it replaces the active
+draft; the later export UI may download only a valid bundle.
+
 Browser file permissions differ from ordinary desktop access. The editor should explain what it can read or replace and provide a download fallback where direct saving is unavailable.
 
 ## Try it
 
-Draw the path from choosing a JSON file to validation, editing, and export. Add a recovery path for an invalid import.
+Draw the path from choosing a ZIP file to candidate decoding, validation,
+replacement confirmation, editing, and export. Add a recovery path for an
+invalid import and explain why an invalid draft remains editable but cannot be
+exported as a valid portable bundle.
 
 ## You are ready when
 
-You can describe a local file workflow that asks for clear permission and never assumes a cloud service.
+You can distinguish the pure ZIP codec from the browser controls around it, and
+describe a local file workflow that asks for clear permission and never assumes
+a cloud service.
 
 [← Previous: complex authoring](05-complex-authoring.md) · [Phase outline](../README.md) · [Next: drafts recovery →](07-drafts-recovery.md)
