@@ -2,6 +2,7 @@
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
+import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
 import PlanBundle from './components/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
 import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft } from './document/plan-draft'
@@ -202,25 +203,43 @@ function startAutosave(): void {
   })
 }
 
+/*
+Adopts the newer saved draft after the user resolves a tab conflict.
+---
+Inputs: The stored draft attached to the detected recovery conflict.
+---
+Output: A resumed autosave controller using the newer saved revision.
+*/
 function discardLocalEdits(): void {
-  if (conflictRecord.value === undefined) return
-  skipNextAutosave = true
-  editorDraft.value = copyEditorBundleDraft(conflictRecord.value.draft)
-  recoveryRevision.value = conflictRecord.value.revision
-  conflictRecord.value = undefined
-  autosaveController?.resume()
+  if (conflictRecord.value === undefined) {
+    return;
+  }
+  skipNextAutosave = true;
+  editorDraft.value = copyEditorBundleDraft(conflictRecord.value.draft);
+  recoveryRevision.value = conflictRecord.value.revision;
+  conflictRecord.value = undefined;
+  autosaveController?.resume();
 }
 
+/*
+Replaces the newer saved draft with paused local edits after confirmation.
+---
+Inputs: The stored conflict revision and the current editor draft.
+---
+Output: A resumed autosave controller with a newly saved local revision.
+*/
 async function replaceSavedDraft(): Promise<void> {
-  if (draftStorage === undefined || conflictRecord.value === undefined) return
-  const record = createDraftRecoveryRecord({ draft: copyEditorBundleDraft(editorDraft.value), revision: conflictRecord.value.revision + 1, savedAt: new Date().toISOString() })
-  const result = await draftStorage.save(record, conflictRecord.value.revision)
+  if (draftStorage === undefined || conflictRecord.value === undefined) {
+    return;
+  }
+  const record = createDraftRecoveryRecord({ draft: copyEditorBundleDraft(editorDraft.value), revision: conflictRecord.value.revision + 1, savedAt: new Date().toISOString() });
+  const result = await draftStorage.save(record, conflictRecord.value.revision);
   if (result.kind === 'saved') {
-    recoveryRevision.value = result.revision
-    conflictRecord.value = undefined
-    autosaveController?.resume()
+    recoveryRevision.value = result.revision;
+    conflictRecord.value = undefined;
+    autosaveController?.resume();
   } else {
-    conflictRecord.value = result.record
+    conflictRecord.value = result.record;
   }
 }
 
@@ -266,7 +285,7 @@ watch(resolvedTheme, (theme) => {
       <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
         <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @new-plan="createNewPlan" />
-        <div v-if="conflictRecord" class="alert alert-warning mt-3"><p>{{ t('editor.conflictDetected') }}</p><button class="btn btn-outline-secondary me-2" type="button" @click="discardLocalEdits">{{ t('editor.discardLocalEdits') }}</button><button class="btn btn-warning" type="button" @click="replaceSavedDraft">{{ t('editor.replaceSavedDraft') }}</button></div>
+        <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />
       </template>
     </main>
     <footer class="fixed-bottom border-top bg-body-tertiary px-4 py-2 text-body-secondary" aria-live="polite">

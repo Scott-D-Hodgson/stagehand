@@ -13,7 +13,7 @@ The initial raw text input intentionally accepts what the user types, including
 an invalid BCP 47 language tag. A shared-contract validation result then
 explains the problem. This prevents a UI convenience from silently changing the
 document. The early M11 locale-override slice now uses a maintained JSON
-catalogue shared by Plan Locale and Assert-text overrides. It is distinct from
+catalogue shared by Plan Locale and all three current assertion overrides. It is distinct from
 the editor's two interface languages; reassess a searchable control if the
 catalogue grows.
 
@@ -24,7 +24,7 @@ references, and the shared-contract assessment. Its initial automated and
 forwarded-browser checks have passed, but that evidence does not complete later
 M8 document, recovery, or accessibility work.
 
-The subsequent M8 slices add localization and Neutral guidance (M8.3), one recoverable IndexedDB draft (M8.4), and multiple-tab conflict handling (M8.5). The accepted recovery scope is in [ADR-005](../../../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md); technology and language baselines are in [ADR-006](../../../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md).
+The subsequent M8 slices add localization and Neutral guidance (M8.3), one recoverable IndexedDB draft (M8.4), and multiple-tab conflict handling (M8.5). A detected conflict now presents a blocking choice to discard paused local edits or replace the newer saved draft. The accepted recovery scope is in [ADR-005](../../../../Planning/Backlog/decisions/ADR-005-editor-draft-recovery.md); technology and language baselines are in [ADR-006](../../../../Planning/Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md).
 
 Keep four kinds of information separate: contract data that can eventually be exported, temporary incomplete form values, interface state such as the open panel, and local preferences such as the selected interface language. A storage snapshot must preserve incomplete values without claiming that they are a valid portable plan.
 

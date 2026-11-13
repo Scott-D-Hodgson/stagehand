@@ -5,7 +5,7 @@
 This index covers M0, a separately estimated repository-bootstrap prerequisite, and the phase work plans. The roadmap remains the higher-level sequence.
 
 - **Phase 1:** M1–M7 and their original estimate basis are recorded below.
-- **Phase 2:** [Visual authoring work plan](Phase-2-visual-authoring.md), covering M8–M14, accepted editor decisions, proposed task breakdowns, and separate provisional estimates.
+- **Phase 2:** [Visual authoring work plan](Phase-2-visual-authoring.md), covering M8–M15, accepted editor and deployment decisions, proposed task breakdowns, and separate provisional estimates.
 
 ## Estimate basis
 

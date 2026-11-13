@@ -1,6 +1,6 @@
 # M9 — Basic plan and case authoring
 
-**Status:** In progress; Navigate-, Click-, Type-, Fill-, Select-option-, Assert-text-, Assert-HTML-, Assert-value-step, case-reference-workspace, reordering, and selected-step-validation slices complete
+**Status:** Complete; basic plan and case authoring, recovery/conflict handling, and integration review complete
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md)
 
@@ -8,7 +8,7 @@
 
 Enable controlled creation and editing of basic plans, case references, cases, and ordered action/assertion steps.
 
-## Tasks
+## Tasks completed
 
 - [x] Associate each referenced case with an in-memory version 1 case document and allow its identifier to be edited independently of its path.
 - [x] Add, edit, and remove plan case references while preserving the rest of the draft; require confirmation before removal and prevent duplicate entered paths.
@@ -23,13 +23,58 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 - [x] Provide a recoverable, shared-contract-validated Assert value step with a constrained Role/Accessible-name locator and a literal default expected value, plus Add/Edit/Clone/Remove flows.
 - [x] Reorder authored case steps with localized adjacent-move controls while preserving recovery behaviour.
 - [x] Reorder case references with localized adjacent-move controls while preserving recovery behaviour.
-- [ ] Explain references that lack case data after local file import; entered duplicate paths remain prevented before they are saved.
 - [x] Provide forms for the implemented action vocabulary, locators, required literal inputs, and basic default expected assertion values.
 - [x] Reuse shared validation and map errors to the selected case and step.
-- [ ] Extend recovery and conflict comparison to all newly editable data; confirm destructive changes as they are introduced.
-- [ ] Keep new UI text in Canadian English/French resources and verify keyboard operation.
+- [x] Extend recovery and conflict comparison to all newly editable data; confirm destructive changes as they are introduced.
+- [x] Keep new UI text in Canadian English/French resources and verify keyboard operation.
 
-## Current implementation evidence
+## Decisions made
+
+- Basic case authoring stays in memory until M10 adds local import and export;
+  it does not access the local filesystem directly.
+- The supported M9 action vocabulary is Navigate, Click, Type, Fill, Select
+  option, Assert text, Assert HTML, and Assert value with constrained
+  Role/Accessible-name locators and literal values.
+- IndexedDB recovery and two-tab revision conflicts protect every M9 editable
+  value. A conflict now requires a centred static modal choice to discard the
+  paused local edits or replace the newer saved draft.
+- The fixed status footer was reviewed with long content and does not obscure an
+  actionable control in the accepted M9 layout.
+
+## Deferred work
+
+- Explain references that lack case data after local-file import in M10; M9 has
+  no import workflow from which such references can arise.
+- The optional Assert value associated-label form requires a later focused scope
+  decision.
+- Apply the selected-step validation pattern to later authoring forms as those
+  forms are introduced in their own milestones.
+- Reassess footer placement if a later page design introduces an overlap.
+
+## Completion evidence
+
+The owner completed an integrated browser walkthrough using a fresh
+`m9-integration` plan: case references and independent case IDs; every M9 step
+form; editing, cloning, reordering, and removal; localized expected-value
+overrides and fallback; English/French interface wording; Light/Dark/System
+themes; recovery; reset; keyboard dialog operation; and both two-tab conflict
+resolutions. The walkthrough found that an inline conflict warning could be
+missed below the fold. The corrected blocking conflict-resolution modal was
+then verified, including static backdrop, Escape suppression, initial focus,
+resolution, and normal scrolling after close. The fixed footer was also
+verified not to overlap an actionable control.
+
+The owner reported that the development-container test, type-check, and
+production-build commands passed for the completed integration review.
+
+## Learning plan reference
+
+The [web editor course](../../Learning%20Plan/Apps/web/README.md) documents
+the current editor boundary and the M9 integration-review workflow.
+
+## Supporting detail
+
+### Current implementation evidence
 
 The completed slice adds immutable plan/case bundle drafts. Existing recovery
 records that stored only the plan are migrated on load: their reference paths
@@ -167,21 +212,5 @@ Focused tests cover the index mapping and localized zero, one, and many
 messages. The owner reported that the development-container tests, type check,
 production build, and manual invalid-draft verification all passed.
 
-## Deliverables and completion evidence
-
-A user creates a small plan and case, adds navigation and an assertion, reorders case references and steps, sees actionable validation errors, and recovers edits after reopening.
-
-Deliver the relevant forms, synthetic examples, documentation, and verification records. Add focused automated checks for data preservation and contract integration, plus browser checks for the affected user flows. Follow the localization and presentation baseline in [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) and recovery baseline in [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
-
-## Incremental delivery
-
-Suggested remaining PR slice: an M9 integration review. The optional Assert
-value associated-label form is deliberately deferred for later scope review.
-Missing imported-reference feedback follows M10 because the editor has no local
-file import workflow yet.
-
-## Open decisions and exclusions
-
-Advanced browser/run settings and localized assertion overrides belong to M11; variables and shared steps belong to M12. Resolve identifier generation and reference-update interactions before implementing them.
-
-Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Tasks remain unverified until completion evidence is recorded.
+Historical estimate: 6–10 focused human person-days. It remains the original
+planning range, not a record of actual effort.

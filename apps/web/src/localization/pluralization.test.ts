@@ -25,4 +25,13 @@ describe('validation issue pluralization', () => {
     expect(instance.t('editor.invalidStepSummary', { count: 1 })).toBe('A step needs attention.');
     expect(instance.t('editor.invalidStepSummary', { count: 2 })).toBe('2 steps need attention.');
   })
+
+  it('provides a localized title for the blocking conflict-resolution dialog', async () => {
+    const english = i18next.createInstance();
+    await english.init({ lng: 'en-CA', resources: interfaceResources });
+    const french = i18next.createInstance();
+    await french.init({ lng: 'fr-CA', resources: interfaceResources });
+    expect(english.t('editor.conflictTitle')).toBe('Resolve draft conflict');
+    expect(french.t('editor.conflictTitle')).toBe('Résoudre le conflit de brouillon');
+  });
 })
