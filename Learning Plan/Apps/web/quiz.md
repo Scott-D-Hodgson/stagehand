@@ -26,6 +26,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 22. Why does M10.2 keep a valid imported bundle separate from active editor state until confirmation?
 23. Why does M10.3 prepare and validate the portable ZIP before it asks for a download filename?
 24. Why does Edit/View mode belong to temporary interface state rather than a plan or recovery record?
+25. What does the M10 round-trip walkthrough establish that isolated import and export tests cannot?
 
 ## Answer key
 
@@ -53,3 +54,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 22. Selecting a valid archive does not prove the author meant to discard the currently loaded plan. M10.2 therefore keeps it as a candidate, then opens a static confirmation dialog before replacement. A rejected archive also uses a blocking dialog, so validation feedback cannot be missed below the fold and the active draft remains unchanged.
 23. Filename choice cannot make an invalid plan/case bundle portable. M10.3 first prepares the ZIP through the shared codec, blocks invalid drafts with a localized dialog, then suggests a plan-derived filename for the valid browser download. The browser, rather than the editor footer, communicates the completed download; local recovery remains a separate concern.
 24. It changes only how the current bundle is presented. Saving it in the plan would alter portable contract data, while saving it in recovery would make a momentary inspection preference part of draft-restoration behaviour. The toolbar therefore starts in Edit and keeps the mode in the current interface session only.
+25. It checks the transitions between browser file selection, active draft replacement, editing, filename confirmation, browser download, re-import, recovery, conflicts, and localized dialog behaviour. Focused tests protect individual boundaries, but cannot by themselves demonstrate that the complete author workflow preserves the intended state.

@@ -13,6 +13,10 @@ Give the first user-facing Stagehand capability to the primary intended user—a
 
 This phase does not include browser execution. The CLI and runner follow in Phase 3.
 
+M10 is complete: the editor's browser-only ZIP import/export workflow has
+portable-codec, protected replacement, valid-only export, and representative
+round-trip evidence. Later Phase 2 milestones remain outstanding.
+
 ## Delivery planning
 
-The [Phase 2 work plan](../../Work%20Plan/Phase-2-visual-authoring.md) breaks this scope into M8–M15. [M8](../../Work%20Plan/M8-editor-foundation-and-document-state.md) and [M9](../../Work%20Plan/M9-basic-plan-and-case-authoring.md) are complete. [M15](../../Work%20Plan/M15-public-website-and-static-deployment.md) is a parallel public-website and static-deployment milestone that supports the final integration review. Accepted foundation choices are recorded in [ADR-005](../../Backlog/decisions/ADR-005-editor-draft-recovery.md) and [ADR-006](../../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md); later implementation and completion evidence remain outstanding.
+The [Phase 2 work plan](../../Work%20Plan/Phase-2-visual-authoring.md) breaks this scope into M8–M15. [M8](../../Work%20Plan/M8-editor-foundation-and-document-state.md), [M9](../../Work%20Plan/M9-basic-plan-and-case-authoring.md), and [M10](../../Work%20Plan/M10-local-import-and-export.md) are complete. [M15](../../Work%20Plan/M15-public-website-and-static-deployment.md) is a parallel public-website and static-deployment milestone that supports the final integration review. Accepted foundation choices are recorded in [ADR-005](../../Backlog/decisions/ADR-005-editor-draft-recovery.md) and [ADR-006](../../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md); later implementation and completion evidence remain outstanding.
