@@ -1,7 +1,26 @@
+export interface ViewportDraft {
+  height?: unknown;
+  width?: unknown;
+}
+
+export interface PlanBrowserSettingsDraft {
+  headless?: boolean;
+  timeZone?: string;
+  type?: 'chromium';
+  viewport?: ViewportDraft;
+}
+
+export interface CaseBrowserSettingsDraft {
+  timeZone?: string;
+  type?: 'chromium';
+  viewport?: ViewportDraft;
+}
+
 export interface PlanDraft {
   version: 1;
   id: string;
   defaults: {
+    browser?: PlanBrowserSettingsDraft;
     locale: string;
   };
   cases: Array<{
@@ -11,6 +30,9 @@ export interface PlanDraft {
 
 export interface CaseDraft {
   id: string;
+  settings?: Record<string, unknown> & {
+    browser?: CaseBrowserSettingsDraft;
+  };
   steps: unknown[];
   version: 1;
 }
@@ -19,6 +41,15 @@ export interface EditorBundleDraft {
   cases: Record<string, CaseDraft>;
   plan: PlanDraft;
 }
+
+export const defaultPlanBrowserSettings: PlanBrowserSettingsDraft = {
+  headless: true,
+  timeZone: 'America/Toronto',
+  viewport: {
+    height: 720,
+    width: 1280,
+  },
+};
 
 /*
 Creates the bundled plan used to begin editor-state work.
@@ -32,6 +63,7 @@ export function createBundledPlanDraft(): PlanDraft {
     version: 1,
     id: 'editor-foundation',
     defaults: {
+      browser: copyPlanBrowserSettings(defaultPlanBrowserSettings),
       locale: 'en-CA',
     },
     cases: [
@@ -69,7 +101,7 @@ export function createEmptyEditorDraft(id: string): EditorBundleDraft {
     cases: {},
     plan: {
       cases: [],
-      defaults: { locale: 'en-CA' },
+      defaults: { browser: copyPlanBrowserSettings(defaultPlanBrowserSettings), locale: 'en-CA' },
       id,
       version: 1,
     },
@@ -112,7 +144,10 @@ export function copyPlanDraft(plan: PlanDraft): PlanDraft {
   return {
     version: plan.version,
     id: plan.id,
-    defaults: { locale: plan.defaults.locale },
+    defaults: {
+      ...(plan.defaults.browser === undefined ? {} : { browser: copyPlanBrowserSettings(plan.defaults.browser) }),
+      locale: plan.defaults.locale,
+    },
     cases: plan.cases.map((caseReference) => ({ path: caseReference.path })),
   };
 }
@@ -126,7 +161,11 @@ Output: A detached plan and case-document snapshot.
 */
 export function copyEditorBundleDraft(draft: EditorBundleDraft): EditorBundleDraft {
   return {
-    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, { ...caseDraft, steps: caseDraft.steps.map(copyPlainValue) }])),
+    cases: Object.fromEntries(Object.entries(draft.cases).map(([path, caseDraft]) => [path, {
+      ...caseDraft,
+      ...(caseDraft.settings === undefined ? {} : { settings: copyPlainValue(caseDraft.settings) as CaseDraft['settings'] }),
+      steps: caseDraft.steps.map(copyPlainValue),
+    }])),
     plan: copyPlanDraft(draft.plan),
   };
 }
@@ -146,6 +185,27 @@ function copyPlainValue(value: unknown): unknown {
     return Object.fromEntries(Object.entries(value).map(([key, nestedValue]) => [key, copyPlainValue(nestedValue)]));
   }
   return value;
+}
+
+/*
+Copies browser defaults into independent plain editable data.
+---
+Inputs: Plan-level browser settings from an editor draft.
+---
+Output: An independent browser-settings value.
+*/
+function copyPlanBrowserSettings(settings: PlanBrowserSettingsDraft): PlanBrowserSettingsDraft {
+  return {
+    ...(settings.headless === undefined ? {} : { headless: settings.headless }),
+    ...(settings.timeZone === undefined ? {} : { timeZone: settings.timeZone }),
+    ...(settings.type === undefined ? {} : { type: settings.type }),
+    ...(settings.viewport === undefined ? {} : {
+      viewport: {
+        ...(settings.viewport.height === undefined ? {} : { height: settings.viewport.height }),
+        ...(settings.viewport.width === undefined ? {} : { width: settings.viewport.width }),
+      },
+    }),
+  };
 }
 
 /*
@@ -173,6 +233,57 @@ export function updatePlanLocale(plan: PlanDraft, locale: string): PlanDraft {
     defaults: {
       ...plan.defaults,
       locale,
+    },
+  };
+}
+
+/*
+Replaces plan-level browser defaults while preserving other plan data.
+---
+Inputs: An existing plan draft and replacement browser settings.
+---
+Output: A new draft containing independent browser-default data.
+*/
+export function updatePlanBrowserSettings(plan: PlanDraft, browser: PlanBrowserSettingsDraft): PlanDraft {
+  return {
+    ...plan,
+    defaults: {
+      ...plan.defaults,
+      browser: copyPlanBrowserSettings(browser),
+    },
+  };
+}
+
+/*
+Replaces optional case-level browser overrides without changing case steps.
+---
+Inputs: A case draft and an optional replacement browser override.
+---
+Output: A case draft with browser settings added, replaced, or omitted.
+*/
+export function updateCaseBrowserSettings(caseDraft: CaseDraft, browser: CaseBrowserSettingsDraft | undefined): CaseDraft {
+  if (browser === undefined) {
+    const { browser: _, ...remainingSettings } = caseDraft.settings ?? {};
+    if (Object.keys(remainingSettings).length === 0) {
+      const { settings: _, ...caseWithoutSettings } = caseDraft;
+      return caseWithoutSettings;
+    }
+    return { ...caseDraft, settings: remainingSettings };
+  }
+  return {
+    ...caseDraft,
+    settings: {
+      ...caseDraft.settings,
+      browser: {
+        ...(browser.timeZone === undefined ? {} : { timeZone: browser.timeZone }),
+        ...(browser.type === undefined ? {} : { type: browser.type }),
+        ...(browser.viewport === undefined ? {} : {
+          viewport: {
+            ...(browser.viewport.height === undefined ? {} : { height: browser.viewport.height }),
+            ...(browser.viewport.width === undefined ? {} : { width: browser.viewport.width }),
+          },
+        }),
+      },
     },
   };
 }

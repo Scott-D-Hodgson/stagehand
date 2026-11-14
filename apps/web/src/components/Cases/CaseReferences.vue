@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { CaseDraft, PlanDraft } from '../../document/plan-draft';
-import { getInvalidCaseStepIndexes } from '../../document/validation';
+import type { CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
+import CaseDetails from './CaseDetails.vue';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 
@@ -10,14 +10,23 @@ const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
   cases: PlanDraft['cases'];
   editing: boolean;
+  planBrowser: PlanBrowserSettingsDraft | undefined;
+  planLocale: string;
   selectedPath: string;
 }>();
-const emit = defineEmits<{ add: [path: string]; move: [index: number, direction: -1 | 1]; remove: [index: number]; select: [path: string]; update: [index: number, path: string] }>();
+const emit = defineEmits<{
+  add: [path: string];
+  move: [index: number, direction: -1 | 1];
+  remove: [index: number];
+  'remove:step': [path: string, index: number];
+  select: [path: string];
+  update: [index: number, path: string];
+  'update:browser': [path: string, browser: CaseBrowserSettingsDraft | undefined];
+  'update:case-id': [path: string, id: string];
+  'update:steps': [path: string, steps: unknown[]];
+}>();
 
 const { t } = useTranslation();
-const invalidCasePaths = computed(() => new Set(Object.entries(props.caseDrafts)
-  .filter(([, caseDraft]) => getInvalidCaseStepIndexes(caseDraft).length > 0)
-  .map(([path]) => path)));
 const caseName = ref('');
 const casePath = ref('');
 const editingIndex = ref<number | undefined>();
@@ -88,6 +97,62 @@ function addReference(): void {
     closeDialog();
   }
 }
+
+/*
+Passes a case-reference movement request to the owning plan bundle.
+---
+Inputs: The selected reference index and an adjacent movement direction.
+---
+Output: A case-reference movement event.
+*/
+function moveReference(options: { direction: -1 | 1; index: number }): void {
+  emit('move', options.index, options.direction);
+}
+
+/*
+Passes a case-step removal request to the owning plan bundle.
+---
+Inputs: A case-reference path and selected step index.
+---
+Output: A case-step removal event.
+*/
+function removeStep(path: string, index: number): void {
+  emit('remove:step', path, index);
+}
+
+/*
+Passes a browser override update to the owning plan bundle.
+---
+Inputs: A case-reference path and optional browser override.
+---
+Output: A case-browser update event.
+*/
+function updateBrowserSettings(path: string, browser: CaseBrowserSettingsDraft | undefined): void {
+  emit('update:browser', path, browser);
+}
+
+/*
+Passes a case identifier update to the owning plan bundle.
+---
+Inputs: A case-reference path and replacement identifier.
+---
+Output: A case-ID update event.
+*/
+function updateCaseId(path: string, id: string): void {
+  emit('update:case-id', path, id);
+}
+
+/*
+Passes a replacement case-step list to the owning plan bundle.
+---
+Inputs: A case-reference path and ordered step data.
+---
+Output: A case-step update event.
+*/
+function updateSteps(path: string, steps: unknown[]): void {
+  emit('update:steps', path, steps);
+}
+
 onMounted(() => {
   modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
   modalElement.value?.addEventListener('shown.bs.modal', () => caseNameInput.value?.focus());
@@ -96,44 +161,29 @@ onBeforeUnmount(() => { modal?.dispose(); });
 </script>
 
 <template>
-  <section class="border-top mt-4 pt-3" aria-labelledby="case-references-heading">
+  <section aria-labelledby="case-references-heading">
     <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
     <TransitionGroup name="case-reference" tag="div" class="mb-3">
-      <article v-for="(caseReference, index) in cases" :key="caseReference.path" :class="['card', 'mb-3', { 'border-danger': invalidCasePaths.has(caseReference.path), 'case-reference-active': caseReference.path === selectedPath }]">
-        <div v-if="editing" class="card-header d-flex justify-content-end py-2">
-          <div class="d-flex flex-wrap gap-2">
-            <button
-              class="btn btn-secondary btn-sm"
-              type="button"
-              :disabled="index === 0"
-              @click.stop="emit('move', index, -1)"
-            >
-              {{ t('editor.moveStepUp') }}
-            </button>
-            <button
-              class="btn btn-secondary btn-sm"
-              type="button"
-              :disabled="index === cases.length - 1"
-              @click.stop="emit('move', index, 1)"
-            >
-              {{ t('editor.moveStepDown') }}
-            </button>
-            <button class="btn btn-secondary btn-sm" type="button" @click.stop="openDialog(index)">{{ t('editor.edit') }}</button>
-            <button class="btn btn-danger btn-sm" type="button" @click.stop="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
-          </div>
-        </div>
-        <div class="card-body">
-          <h3 class="h6 mb-0">
-            <button class="btn case-reference-toggle p-0 text-start text-decoration-none" type="button" :aria-controls="`case-reference-panel-${index}`" :aria-expanded="caseReference.path === selectedPath" @click="emit('select', caseReference.path)">
-              <span class="font-monospace text-break">{{ caseReference.path }}</span>
-              <span v-if="caseReference.path !== selectedPath" class="ms-2 text-body-secondary">{{ t('editor.caseStepCount', { count: caseDrafts[caseReference.path]?.steps.length ?? 0 }) }}</span>
-            </button>
-          </h3>
-          <div v-if="caseReference.path === selectedPath" :id="`case-reference-panel-${index}`" class="border-top mt-3 pt-3">
-            <slot name="case-details" :path="caseReference.path" />
-          </div>
-        </div>
-      </article>
+      <CaseDetails
+        v-for="(caseReference, index) in cases"
+        :key="caseReference.path"
+        :case-count="cases.length"
+        :case-drafts="caseDrafts"
+        :case-index="index"
+        :case-path="caseReference.path"
+        :editing="editing"
+        :expanded="!editing || caseReference.path === selectedPath"
+        :plan-browser="planBrowser"
+        :plan-locale="planLocale"
+        @edit-reference="openDialog"
+        @move-reference="moveReference"
+        @remove-reference="emit('remove', $event)"
+        @remove:step="removeStep"
+        @select-reference="emit('select', $event)"
+        @update:browser="updateBrowserSettings"
+        @update:case-id="updateCaseId"
+        @update:steps="updateSteps"
+      />
     </TransitionGroup>
     <button v-if="editing" class="btn btn-secondary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>
     <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="add-case-heading" aria-hidden="true">
@@ -163,9 +213,5 @@ onBeforeUnmount(() => { modal?.dispose(); });
 <style scoped>
 .case-reference-move {
   transition: transform 180ms ease;
-}
-
-.case-reference-active:not(.border-danger) {
-  border-color: var(--bs-emphasis-color);
 }
 </style>

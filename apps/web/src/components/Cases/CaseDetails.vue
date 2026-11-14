@@ -1,24 +1,56 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { CaseDraft } from '../../document/plan-draft';
+import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
+import { defaultPlanBrowserSettings, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
+import { getInvalidCaseStepIndexes } from '../../document/validation';
 import CaseStepEditor from '../Steps/CaseStepEditor.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
+  caseCount: number;
+  caseIndex: number;
+  casePath: string;
   editing: boolean;
+  expanded: boolean;
+  planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
-  selectedPath: string;
 }>();
 
 const emit = defineEmits<{
+  'edit-reference': [index: number];
+  'move-reference': [options: { direction: -1 | 1; index: number }];
+  'remove-reference': [index: number];
+  'select-reference': [path: string];
+  'update:browser': [path: string, browser: CaseBrowserSettingsDraft | undefined];
   'remove:step': [path: string, index: number];
   'update:case-id': [path: string, id: string];
   'update:steps': [path: string, steps: unknown[]];
 }>();
 
 const { t } = useTranslation();
-const selectedCase = computed(() => props.caseDrafts[props.selectedPath]);
+const selectedCase = computed(() => props.caseDrafts[props.casePath]);
+const hasInvalidSteps = computed(() => selectedCase.value === undefined ? false : getInvalidCaseStepIndexes(selectedCase.value).length > 0);
+const selectedDetailsTab = ref<'browser' | 'default'>('default');
+const browserSettingsWereBlurred = ref(false);
+const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
+  ...defaultPlanBrowserSettings,
+  ...props.planBrowser,
+  viewport: {
+    ...defaultPlanBrowserSettings.viewport,
+    ...props.planBrowser?.viewport,
+  },
+}));
+const caseBrowserSettings = computed(() => selectedCase.value?.settings?.browser);
+const hasBrowserOverride = computed(() => caseBrowserSettings.value !== undefined);
+const caseBrowserIssues = computed<ValidationIssue[]>(() => {
+  if (selectedCase.value === undefined) {
+    return [];
+  }
+  const validation = validateCase(selectedCase.value);
+  return validation.valid ? [] : validation.issues.filter((issue) => issue.path.startsWith('/settings/browser'));
+});
+const shouldShowCaseBrowserIssues = computed(() => caseBrowserIssues.value.length > 0 && browserSettingsWereBlurred.value);
 
 /*
 Emits a changed case identifier for the selected case document.
@@ -28,9 +60,78 @@ Inputs: Raw identifier text entered by the author.
 Output: A case-ID update for the owning plan bundle.
 */
 function changeCaseId(id: string): void {
-  if (props.selectedPath) {
-    emit('update:case-id', props.selectedPath, id);
+  if (props.casePath) {
+    emit('update:case-id', props.casePath, id);
   }
+}
+
+/*
+Creates or removes the current case browser override.
+---
+Inputs: The override checkbox state.
+---
+Output: A case-browser update using copied plan values or no override.
+*/
+function changeBrowserOverride(enabled: boolean): void {
+  if (!props.casePath) {
+    return;
+  }
+  browserSettingsWereBlurred.value = false;
+  if (!enabled) {
+    emit('update:browser', props.casePath, undefined);
+    return;
+  }
+  emit('update:browser', props.casePath, {
+    timeZone: effectivePlanBrowser.value.timeZone,
+    viewport: {
+      height: effectivePlanBrowser.value.viewport?.height,
+      width: effectivePlanBrowser.value.viewport?.width,
+    },
+  });
+}
+
+/*
+Updates one explicit case browser override while retaining its other fields.
+---
+Inputs: A partial case-browser settings replacement.
+---
+Output: A replacement browser override for the selected case.
+*/
+function changeCaseBrowserSettings(settings: Partial<CaseBrowserSettingsDraft>): void {
+  if (!props.casePath || caseBrowserSettings.value === undefined) {
+    return;
+  }
+  emit('update:browser', props.casePath, {
+    ...caseBrowserSettings.value,
+    ...settings,
+    viewport: {
+      ...caseBrowserSettings.value.viewport,
+      ...settings.viewport,
+    },
+  });
+}
+
+/*
+Converts a case viewport number-input into raw draft data.
+---
+Inputs: A viewport number-input event.
+---
+Output: A numeric value or raw empty text for shared validation.
+*/
+function readViewportValue(event: Event): number | string {
+  const input = event.target as HTMLInputElement;
+  return input.value === '' ? '' : Number(input.value);
+}
+
+/*
+Marks case browser settings as ready for shared validation feedback.
+---
+Inputs: A blur event from a browser-override control.
+---
+Output: Enables case browser-settings validation feedback.
+*/
+function validateBrowserSettings(): void {
+  browserSettingsWereBlurred.value = true;
 }
 
 /*
@@ -57,13 +158,85 @@ function updateSteps(path: string, steps: unknown[]): void {
 </script>
 
 <template>
-  <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
-    <label class="form-label" for="case-id">
-      <span>{{ t('editor.caseIdPrefix') }}</span>
-      <abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span>
-    </label>
-    <input v-if="editing" id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
-    <p v-else class="form-control-plaintext">{{ selectedCase.id }}</p>
-    <CaseStepEditor :case-drafts="props.caseDrafts" :editing="props.editing" :plan-locale="props.planLocale" :selected-path="props.selectedPath" @remove:step="removeStep" @update:steps="updateSteps" />
-  </section>
+  <article :class="['card', 'mb-3', { 'border-danger': hasInvalidSteps, 'case-reference-active': expanded }]">
+    <div v-if="editing" class="card-header">
+      <h3 class="h6">
+        <button class="btn case-reference-toggle p-0 text-start text-decoration-none" type="button" :aria-controls="`case-reference-panel-${caseIndex}`" :aria-expanded="expanded" @click="emit('select-reference', casePath)">
+          <span class="h6">{{ casePath }}</span>
+        </button>
+      </h3>
+      <ul v-if="expanded" class="nav nav-tabs card-header-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button :id="`case-default-tab-${caseIndex}`" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="`case-default-panel-${caseIndex}`" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button :id="`case-browser-tab-${caseIndex}`" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="`case-browser-panel-${caseIndex}`" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
+        </li>
+      </ul>
+    </div>
+    <div v-if="selectedCase && editing && expanded" class="card-body">
+      <section :id="`case-reference-panel-${caseIndex}`" :aria-label="t('editor.caseDetails')">
+        <section v-if="selectedDetailsTab === 'default'" :id="`case-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-tab-${caseIndex}`">
+          <label class="form-label" :for="`case-id-${caseIndex}`">
+            <span>{{ t('editor.caseIdPrefix') }}</span>
+            <abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span>
+          </label>
+          <input v-if="editing" :id="`case-id-${caseIndex}`" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
+          <p v-else class="form-control-plaintext">{{ selectedCase.id }}</p>
+        </section>
+        <section v-else :id="`case-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-tab-${caseIndex} case-browser-settings-heading-${caseIndex}`">
+          <div v-if="editing">
+            <div class="form-check mb-3">
+              <input :id="`case-browser-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasBrowserOverride" @change="changeBrowserOverride(($event.target as HTMLInputElement).checked)" />
+              <label class="form-check-label" :for="`case-browser-override-${caseIndex}`">{{ t('editor.overridePlanBrowserSettings') }}</label>
+            </div>
+            <div v-if="hasBrowserOverride" class="row g-3">
+              <div class="col-sm-6">
+                <label class="form-label" :for="`case-viewport-width-${caseIndex}`">{{ t('editor.viewportWidth') }}</label>
+                <input :id="`case-viewport-width-${caseIndex}`" class="form-control" min="1" type="number" :value="caseBrowserSettings?.viewport?.width" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+              </div>
+              <div class="col-sm-6">
+                <label class="form-label" :for="`case-viewport-height-${caseIndex}`">{{ t('editor.viewportHeight') }}</label>
+                <input :id="`case-viewport-height-${caseIndex}`" class="form-control" min="1" type="number" :value="caseBrowserSettings?.viewport?.height" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+              </div>
+              <div class="col-12">
+                <label class="form-label" :for="`case-time-zone-${caseIndex}`">{{ t('editor.timeZone') }}</label>
+                <input :id="`case-time-zone-${caseIndex}`" class="form-control" :value="caseBrowserSettings?.timeZone" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+              </div>
+              <div v-if="shouldShowCaseBrowserIssues" class="invalid-feedback d-block">{{ caseBrowserIssues[0]?.message }}</div>
+            </div>
+            <p v-else class="mb-0 text-body-secondary">{{ t('editor.inheritingPlanBrowserSettings') }}</p>
+          </div>
+          <dl v-else class="mb-0">
+            <dt>{{ t('editor.browserSettingsSource') }}</dt>
+            <dd>{{ hasBrowserOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
+            <dt>{{ t('editor.viewport') }}</dt>
+            <dd>{{ (caseBrowserSettings ?? effectivePlanBrowser).viewport?.width }} × {{ (caseBrowserSettings ?? effectivePlanBrowser).viewport?.height }}</dd>
+            <dt>{{ t('editor.timeZone') }}</dt>
+            <dd class="mb-0">{{ (caseBrowserSettings ?? effectivePlanBrowser).timeZone }}</dd>
+          </dl>
+        </section>
+      </section>
+    </div>
+    <div v-else-if="selectedCase" class="card-body">
+      <h3 class="h6 mb-0">{{ selectedCase.id }}</h3>
+    </div>
+    <div v-if="selectedCase" class="card-body border-top">
+      <CaseStepEditor :case-drafts="props.caseDrafts" :editing="props.editing && props.expanded" :plan-locale="props.planLocale" :selected-path="props.casePath" @remove:step="removeStep" @update:steps="updateSteps" />
+    </div>
+    <div v-if="editing" class="card-footer">
+      <div class="d-flex gap-2 justify-content-end">
+        <button class="btn btn-secondary btn-sm" type="button" :disabled="caseIndex === 0" @click.stop="emit('move-reference', { direction: -1, index: caseIndex })">{{ t('editor.moveStepUp') }}</button>
+        <button class="btn btn-secondary btn-sm" type="button" :disabled="caseIndex === caseCount - 1" @click.stop="emit('move-reference', { direction: 1, index: caseIndex })">{{ t('editor.moveStepDown') }}</button>
+        <button class="btn btn-secondary btn-sm" type="button" @click.stop="emit('edit-reference', caseIndex)">{{ t('editor.edit') }}</button>
+        <button class="btn btn-danger btn-sm" type="button" @click.stop="emit('remove-reference', caseIndex)">{{ t('editor.removeCaseReference') }}</button>
+      </div>
+    </div>
+  </article>
 </template>
+
+<style scoped>
+.case-reference-active:not(.border-danger) {
+  border-color: var(--bs-emphasis-color);
+}
+</style>
