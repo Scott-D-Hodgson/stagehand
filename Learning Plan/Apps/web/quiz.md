@@ -24,6 +24,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 20. Why does a two-tab save conflict now require a blocking resolution dialog instead of an inline warning?
 21. What does the M10.1 portable bundle codec validate, and what browser workflow does it deliberately not provide?
 22. Why does M10.2 keep a valid imported bundle separate from active editor state until confirmation?
+23. Why does M10.3 prepare and validate the portable ZIP before it asks for a download filename?
 
 ## Answer key
 
@@ -49,3 +50,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 20. A paused local draft can otherwise be missed below the fold while the author continues to edit stale state. The static dialog puts the choice in focus and prevents further page actions until the author discards the paused local edits or replaces the newer saved draft.
 21. It accepts or produces one ZIP archive with root `plan.json` and case entries at the plan's referenced relative paths. It checks ZIP entry safety, JSON parsing, shared reference matching, and plan/case bundle validity. It deliberately does not open a file picker, replace the active draft, or trigger a browser download; later M10 slices own those user flows.
 22. Selecting a valid archive does not prove the author meant to discard the currently loaded plan. M10.2 therefore keeps it as a candidate, then opens a static confirmation dialog before replacement. A rejected archive also uses a blocking dialog, so validation feedback cannot be missed below the fold and the active draft remains unchanged.
+23. Filename choice cannot make an invalid plan/case bundle portable. M10.3 first prepares the ZIP through the shared codec, blocks invalid drafts with a localized dialog, then suggests a plan-derived filename for the valid browser download. The browser, rather than the editor footer, communicates the completed download; local recovery remains a separate concern.

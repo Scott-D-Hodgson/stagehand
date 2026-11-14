@@ -14,6 +14,10 @@ paths, malformed JSON, unmatched references, and invalid plan/case bundles.
 M10.2 connects that codec to browser ZIP selection, but it keeps a valid result
 as a candidate until the author confirms replacement of the currently loaded
 plan. The later export UI may download only a valid bundle.
+M10.3 now provides that download control. It validates first, asks the author to
+confirm a suggested filename, and lets the browser communicate download
+completion. The editor separately tracks whether later edits have not yet been
+exported and whether local recovery has been saved.
 
 Browser file permissions differ from ordinary desktop access. The editor should explain what it can read or replace and provide a download fallback where direct saving is unavailable.
 

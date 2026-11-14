@@ -2,7 +2,7 @@
 
 > “Why is a valid ZIP not automatically safe to make current?” — Imani “Import Guard” Ibrahim, Developer
 
-[← Previous: Portable bundle codec](23-portable-bundle-codec.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Portable bundle codec](23-portable-bundle-codec.md) · [Course outline](../README.md) · [Next: Valid-only bundle export →](25-valid-only-bundle-export.md)
 
 M10.2 adds the browser-facing half of import without weakening the safety
 boundary from M10.1. The Import button selects a ZIP archive, reads it into a
@@ -39,4 +39,4 @@ Then explain why only the third event should trigger normal autosave.
 - You can explain why both rejection and replacement use blocking dialogs.
 - You can identify why browser import must not use the Node filesystem loader.
 
-[← Previous: Portable bundle codec](23-portable-bundle-codec.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
+[← Previous: Portable bundle codec](23-portable-bundle-codec.md) · [Course outline](../README.md) · [Next: Valid-only bundle export →](25-valid-only-bundle-export.md)

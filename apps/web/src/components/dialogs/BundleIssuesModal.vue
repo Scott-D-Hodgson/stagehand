@@ -22,7 +22,7 @@ const modalElement = ref<HTMLElement>();
 let modal: BootstrapModal | undefined;
 
 /*
-Closes the import-error dialog after the author acknowledges its messages.
+Closes the bundle-validation dialog after the author acknowledges its messages.
 ---
 Inputs: The close button or dialog close control.
 ---
@@ -41,11 +41,11 @@ onBeforeUnmount(() => modal?.dispose());
 </script>
 
 <template>
-  <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="import-issues-heading" aria-hidden="true">
+  <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="bundle-issues-heading" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
-          <h2 id="import-issues-heading" class="h5 modal-title">{{ props.title }}</h2>
+          <h2 id="bundle-issues-heading" class="h5 modal-title">{{ props.title }}</h2>
           <button class="btn-close" type="button" :aria-label="props.closeLabel" @click="close"></button>
         </div>
         <div class="modal-body">

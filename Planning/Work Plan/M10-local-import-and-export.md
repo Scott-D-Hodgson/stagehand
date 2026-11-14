@@ -1,6 +1,6 @@
 # M10 — Local import and export
 
-**Status:** In progress; M10.1 portable bundle codec and M10.2 validated import complete and verified in the development container
+**Status:** In progress; M10.1 portable bundle codec, M10.2 validated import, and M10.3 valid-only export complete and verified in the development container
 **Estimate:** 4–7 focused human person-days  
 **Depends on:** [M9](M9-basic-plan-and-case-authoring.md)
 
@@ -41,6 +41,11 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 - A successful import replaces the active bundle only after the candidate has
   parsed and validated and the author has explicitly confirmed replacement of
   the currently loaded plan.
+- Export validates the active bundle before opening a filename dialog. The
+  dialog suggests `<plan-id>.stagehand.zip`, adds `.zip` when omitted, and asks
+  the browser to download only after the author confirms the filename. Download
+  confirmation is left to the browser; the editor footer reports whether the
+  current draft has unexported changes separately from local recovery status.
 
 ## Incremental delivery
 
@@ -56,10 +61,11 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
    plan. The owner reported passing development-container tests. The
    rejected-bundle dialog is also static and blocks page interaction until
    acknowledged.
-3. **M10.3 — Valid-only export:** add an Export control and download a
+3. **M10.3 — Valid-only export (complete):** add an Export control and download a
    `<plan-id>.stagehand.zip` archive through the browser Blob API. Disable or
    block export for invalid drafts with clear validation feedback, while keeping
-   recovery status distinct from export status.
+   recovery status distinct from export status. The owner reported passing
+   development-container tests.
 4. **M10.4 — Round-trip and integration evidence:** import a synthetic archive,
    edit plan and cases, export, re-import, and verify equivalent content,
    recovery/conflict behaviour, cancellation, failure paths, English/French

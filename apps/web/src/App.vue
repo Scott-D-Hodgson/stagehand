@@ -18,6 +18,7 @@ import {
 import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecoveryRecord, type DraftStorage } from './recovery/draft-storage'
 import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
 import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
+import type { PreparedPortableBundleExport } from './portable-bundle/export';
 
 const { i18next, t } = useTranslation()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
@@ -28,6 +29,8 @@ const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
 const recoveryRevision = ref(0)
 const recoveryActionPending = ref(false)
 const conflictRecord = ref<DraftRecoveryRecord | undefined>()
+const exportedDraft = ref<string | undefined>()
+const exportDownloadFailed = ref(false)
 let autosaveController: AutosaveController | undefined
 let skipNextAutosave = false
 const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
@@ -37,9 +40,15 @@ const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
     : recoverySaveStatus.value === 'failed'
       ? t('editor.saveFailed')
       : t('editor.localSaveIdle'));
-const exportStatusMessage = computed(() => JSON.stringify(editorDraft.value) !== JSON.stringify(createBundledEditorDraft())
-  ? t('editor.changesNotExported')
-  : t('editor.noUnexportedChanges'));
+const exportStatusMessage = computed(() => {
+  if (exportDownloadFailed.value) {
+    return t('editor.exportDownloadFailed');
+  }
+  if (exportedDraft.value === JSON.stringify(editorDraft.value)) {
+    return t('editor.noUnexportedChanges');
+  }
+  return t('editor.changesNotExported');
+});
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -195,6 +204,31 @@ function importEditorBundle(bundle: EditorBundleDraft): void {
 }
 
 /*
+Starts a browser download for an already validated portable ZIP bundle.
+---
+Inputs: ZIP bytes and their plan-derived portable filename.
+---
+Output: An export-status update after the browser download request succeeds or fails.
+*/
+function downloadPortableBundle(bundle: PreparedPortableBundleExport): void {
+  try {
+    const contents = bundle.bytes.buffer.slice(bundle.bytes.byteOffset, bundle.bytes.byteOffset + bundle.bytes.byteLength) as ArrayBuffer;
+    const url = URL.createObjectURL(new Blob([contents], { type: 'application/zip' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = bundle.filename;
+    document.body.append(anchor);
+    anchor.click();
+    anchor.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 0);
+    exportedDraft.value = JSON.stringify(editorDraft.value);
+    exportDownloadFailed.value = false;
+  } catch {
+    exportDownloadFailed.value = true;
+  }
+}
+
+/*
 Starts autosave only after recovery has been resolved for this editor session.
 ---
 Inputs: The resolved recovery-gate state and an available storage boundary.
@@ -295,7 +329,7 @@ watch(resolvedTheme, (theme) => {
     <main class="container-fluid px-4 py-4 pb-5">
       <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
-        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
+        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @export="downloadPortableBundle" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
         <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />
       </template>
     </main>

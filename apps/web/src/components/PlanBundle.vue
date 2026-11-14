@@ -4,11 +4,13 @@ import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
 import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../document/plan-draft';
 import { validateEditorPlan } from '../document/validation';
+import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../portable-bundle/export';
 import { readPortableBundleFile } from '../portable-bundle/import';
 import CaseReferences from './CaseReferences.vue';
 import CaseDetails from './CaseDetails.vue';
 import ConfirmationModal from './dialogs/ConfirmationModal.vue';
-import ImportIssuesModal from './dialogs/ImportIssuesModal.vue';
+import BundleIssuesModal from './dialogs/BundleIssuesModal.vue';
+import ExportBundleDialog from './dialogs/ExportBundleDialog.vue';
 import NewPlanDialog from './dialogs/NewPlanDialog.vue';
 import PlanDetails from './PlanDetails.vue';
 import SharedContractAssessment from './SharedContractAssessment.vue';
@@ -21,6 +23,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   'update:case-drafts': [caseDrafts: Record<string, CaseDraft>];
   'update:plan': [plan: PlanDraft];
+  'export': [bundle: PreparedPortableBundleExport];
   'import-bundle': [bundle: { cases: Record<string, CaseDraft>; plan: PlanDraft }];
   'new-plan': [id: string];
 }>();
@@ -34,7 +37,8 @@ const confirmation = ref<{ bundle?: { cases: Record<string, CaseDraft>; plan: Pl
 const newPlanDialogOpen = ref(false);
 const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
 const importInput = ref<HTMLInputElement>();
-const importIssueMessages = ref<string[]>([]);
+const bundleIssues = ref<{ messages: string[]; message: string; title: string }>();
+const pendingExportBundle = ref<PreparedPortableBundleExport>();
 
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
@@ -213,11 +217,50 @@ async function importSelectedFile(event: Event): Promise<void> {
   }
   const result = await readPortableBundleFile(file);
   if (!result.valid) {
-    importIssueMessages.value = [...new Set(result.issues.map(getImportIssueMessage))];
+    bundleIssues.value = {
+      messages: [...new Set(result.issues.map(getImportIssueMessage))],
+      message: t('editor.importFailed'),
+      title: t('editor.importErrorTitle'),
+    };
     return;
   }
-  importIssueMessages.value = [];
+  bundleIssues.value = undefined;
   confirmation.value = { bundle: result.draft, kind: 'import-bundle' };
+}
+
+/*
+Prepares a valid portable bundle for browser download without changing editor state.
+---
+Inputs: An Export action from the plan toolbar.
+---
+Output: An export event or a blocking validation dialog for an invalid draft.
+*/
+function requestExport(): void {
+  const result = preparePortableBundleExport({ cases: props.caseDrafts, plan: props.plan });
+  if (!result.valid) {
+    bundleIssues.value = {
+      messages: [...new Set(result.issues.map(getExportIssueMessage))],
+      message: t('editor.exportFailed'),
+      title: t('editor.exportErrorTitle'),
+    };
+    return;
+  }
+  pendingExportBundle.value = result.bundle;
+}
+
+/*
+Starts a browser download using the filename confirmed in the export dialog.
+---
+Inputs: The author-selected portable ZIP filename.
+---
+Output: An export event for the prepared bundle and a cleared pending dialog.
+*/
+function downloadExport(filename: string): void {
+  if (pendingExportBundle.value === undefined) {
+    return;
+  }
+  emit('export', { ...pendingExportBundle.value, filename });
+  pendingExportBundle.value = undefined;
 }
 
 /*
@@ -253,6 +296,20 @@ function getImportIssueMessage(issue: ValidationIssue): string {
     return t('editor.importDuplicateReference');
   }
   return t('editor.importInvalidDocument');
+}
+
+/*
+Chooses localized wording for one invalid export condition.
+---
+Inputs: A shared-contract validation issue from export preparation.
+---
+Output: A localized author-facing description of the blocked download.
+*/
+function getExportIssueMessage(issue: ValidationIssue): string {
+  if (issue.keyword === 'missingReference') {
+    return t('editor.exportMissingReference');
+  }
+  return t('editor.exportInvalidDocument');
 }
 
 /*
@@ -331,6 +388,7 @@ function cancelConfirmation(): void {
     <div class="d-flex flex-wrap align-items-center gap-2">
       <button class="btn btn-primary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
       <button class="btn btn-outline-primary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
+      <button class="btn btn-outline-success" type="button" @click="requestExport">{{ t('editor.export') }}</button>
       <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
@@ -352,7 +410,8 @@ function cancelConfirmation(): void {
     @cancel="cancelConfirmation"
     @confirm="confirmAction"
   />
-  <ImportIssuesModal v-if="importIssueMessages.length > 0" :close-label="t('editor.close')" :issues="importIssueMessages" :message="t('editor.importFailed')" :title="t('editor.importErrorTitle')" @close="importIssueMessages = []" />
+  <BundleIssuesModal v-if="bundleIssues" :close-label="t('editor.close')" :issues="bundleIssues.messages" :message="bundleIssues.message" :title="bundleIssues.title" @close="bundleIssues = undefined" />
+  <ExportBundleDialog v-if="pendingExportBundle" :suggested-filename="pendingExportBundle.filename" @close="pendingExportBundle = undefined" @download="downloadExport" />
   <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlan" />
 </template>
 

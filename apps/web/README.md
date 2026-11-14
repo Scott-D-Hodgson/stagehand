@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec, and M10.2 adds validated ZIP selection and protected replacement. Complete step authoring, browser download/export UI, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec, M10.2 adds validated ZIP selection and protected replacement, and M10.3 adds valid-only browser download. Complete step authoring and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -65,17 +65,21 @@ Run these commands from the repository root:
   active styling, and its action controls do not toggle the workspace. The v1
   recovery adapter migrates earlier plan-only drafts by creating empty case
   documents for their retained references. M10.2 can replace the active bundle
-  from a validated browser-selected ZIP only after explicit confirmation; export
-  controls remain later M10 work.
-- A full-width fixed status footer announces the local-save state. The M9
-  integration review verified that it does not obscure an actionable control in
-  the accepted long-page layout.
-- A sticky plan-action bar provides New plan, Import, and Reset sample. Import
-  accepts a ZIP candidate, validates it without changing the active draft, then
-  always requests confirmation before replacement. Rejected candidates present
-  a localized static dialog so their feedback cannot be missed. New plan collects
-  a filename-safe ID, starts with default `en-CA` and no cases, and confirms
-  replacement of changed work before the recovered bundle is replaced.
+  from a validated browser-selected ZIP only after explicit confirmation. M10.3
+  validates the current bundle before it opens a filename-confirmation dialog
+  and requests a browser download.
+- A full-width fixed status footer reports local-save state separately from
+  whether the current draft has unexported changes. The browser communicates a
+  successful download directly. The M9 integration review verified that the
+  footer does not obscure an actionable control in the accepted long-page layout.
+- A sticky plan-action bar provides New plan, Import, Export, and Reset sample.
+  Import accepts a ZIP candidate, validates it without changing the active draft,
+  then always requests confirmation before replacement. Export accepts only a
+  valid bundle, asks for a suggested filename, and then uses the browser download
+  API. Rejected import and export candidates present localized static dialogs so
+  their feedback cannot be missed. New plan collects a filename-safe ID, starts
+  with default `en-CA` and no cases, and confirms replacement of changed work
+  before the recovered bundle is replaced.
 - An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
