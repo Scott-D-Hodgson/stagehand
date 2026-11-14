@@ -4,6 +4,7 @@ import { useTranslation } from 'i18next-vue';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import type { ValidationIssue } from '@stagehand/plan-schema';
 import localeCatalogue from '../../localization/locale-catalogue.json';
+import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
 
 const props = defineProps<{
   editing: boolean;
@@ -184,6 +185,7 @@ function validateBrowserSettings(): void {
             <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="accessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-enabled">{{ t('editor.accessibilityEnabled') }}</label>
           </div>
+          <AccessibilityTagSelector id="plan-accessibility-tags" :model-value="accessibilitySettings.tags" @update:model-value="changeAccessibilitySettings({ tags: $event })" />
           <div class="form-check">
             <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="accessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-fail-on-violation">{{ t('editor.failOnViolation') }}</label>
@@ -193,7 +195,9 @@ function validateBrowserSettings(): void {
           <dt>{{ t('editor.accessibilityEnabled') }}</dt>
           <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
           <dt>{{ t('editor.failOnViolation') }}</dt>
-          <dd class="mb-0">{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
+          <dd>{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
+          <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
+          <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
         </dl>
       </section>
     </div>

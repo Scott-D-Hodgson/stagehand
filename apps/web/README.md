@@ -88,11 +88,11 @@ Run these commands from the repository root:
   the viewport and time zone, beginning from copied effective plan values;
   removing that override restores inheritance without changing unrelated case
   settings. Headless mode remains run-wide and is therefore not a case option.
-- Plan Accessibility authors scan enablement and the failure-on-violation
-  policy. Case Accessibility can explicitly override those values, starting
-  from copied effective plan settings and returning to inheritance when
-  cleared. Axe rule-tag selection is deliberately deferred to a later M11
-  slice.
+- Plan Accessibility authors scan enablement, the failure-on-violation policy,
+  and axe rule tags from the shared schema catalogue. Case Accessibility can
+  explicitly override those values, starting from copied effective plan
+  settings and returning to inheritance when cleared. An explicit empty case
+  tag list clears the inherited filter and uses axe defaults.
 - The same toolbar switches between Edit and View. Edit gives the active case
   its settings tabs and step controls, while other cases use a reduced read-only
   presentation. View presents every Case ID and step body, hides step card

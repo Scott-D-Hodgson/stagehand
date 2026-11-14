@@ -19,6 +19,7 @@ export interface CaseBrowserSettingsDraft {
 export interface AccessibilitySettingsDraft {
   enabled?: boolean;
   failOnViolation?: boolean;
+  tags?: string[];
 }
 
 export interface PlanDraft {
@@ -233,6 +234,7 @@ function copyAccessibilitySettings(settings: AccessibilitySettingsDraft): Access
   return {
     ...(settings.enabled === undefined ? {} : { enabled: settings.enabled }),
     ...(settings.failOnViolation === undefined ? {} : { failOnViolation: settings.failOnViolation }),
+    ...(settings.tags === undefined ? {} : { tags: [...settings.tags] }),
   };
 }
 

@@ -29,7 +29,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 25. What does the M10 round-trip walkthrough establish that isolated import and export tests cannot?
 26. Why can a case override viewport and time zone but not headless mode, and why does enabling the override begin with copied plan values?
 27. Why should `CaseStepEditor` coordinate ordered data and dialogs while step-detail components compose their cards?
-28. What is the difference between enabling accessibility scans and failing on violations, and why are axe rule tags deferred?
+28. What is the difference between enabling accessibility scans and failing on violations, and how do plan and case rule-tag selections differ?
 
 ## Answer key
 
@@ -60,4 +60,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 25. It checks the transitions between browser file selection, active draft replacement, editing, filename confirmation, browser download, re-import, recovery, conflicts, and localized dialog behaviour. Focused tests protect individual boundaries, but cannot by themselves demonstrate that the complete author workflow preserves the intended state.
 26. Headless mode is selected when the run-wide Chromium process launches, while viewport and time zone can vary by case. Copying the effective plan values gives an explicit override a valid, understandable starting point rather than leaving fields blank.
 27. The editor then has one place for ordered immutable updates, dialogs, and recovery-facing events, while each step type keeps its own presentation, tabs, and card details close to the data it displays.
-28. Enablement determines whether scans run; failure policy determines whether detected violations fail the execution. Rule tags need a maintained catalogue and an accessible, clear multi-selection interaction, so they remain a separate slice.
+28. Enablement determines whether scans run; failure policy determines whether detected violations fail the execution. Plan tags use axe defaults when omitted or empty; a case inherits omitted tags, replaces them with a non-empty selection, or explicitly clears the inherited filter with an empty list.

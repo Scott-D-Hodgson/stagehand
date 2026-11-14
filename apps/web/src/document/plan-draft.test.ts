@@ -64,6 +64,13 @@ describe('plan draft', () => {
     expect(cleared.settings).toEqual({ browser: { timeZone: 'UTC' } });
   });
 
+  it('copies accessibility rule tags without sharing the selected array', () => {
+    const draft = updatePlanAccessibilitySettings(createBundledPlanDraft(), { enabled: true, tags: ['wcag2a'] });
+    const snapshot = copyPlanDraft(draft);
+    snapshot.defaults.accessibility!.tags!.push('wcag2aa');
+    expect(draft.defaults.accessibility!.tags).toEqual(['wcag2a']);
+  });
+
   it('creates an independent plain snapshot for local recovery', () => {
     const draft = createBundledPlanDraft();
     const snapshot = copyPlanDraft(draft);

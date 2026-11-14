@@ -5,6 +5,7 @@ import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
 import { getInvalidCaseStepIndexes } from '../../document/validation';
 import CaseStepEditor from '../Steps/CaseStepEditor.vue';
+import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -266,6 +267,7 @@ function updateSteps(path: string, steps: unknown[]): void {
               <input :id="`case-accessibility-enabled-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.enabled" @change="changeCaseAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
               <label class="form-check-label" :for="`case-accessibility-enabled-${caseIndex}`">{{ t('editor.accessibilityEnabled') }}</label>
             </div>
+            <AccessibilityTagSelector :id="`case-accessibility-tags-${caseIndex}`" :model-value="caseAccessibilitySettings?.tags" @update:model-value="changeCaseAccessibilitySettings({ tags: $event })" />
             <div class="form-check">
               <input :id="`case-accessibility-fail-on-violation-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.failOnViolation" @change="changeCaseAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
               <label class="form-check-label" :for="`case-accessibility-fail-on-violation-${caseIndex}`">{{ t('editor.failOnViolation') }}</label>
