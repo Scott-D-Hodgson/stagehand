@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
+import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
 import CaseDetails from './CaseDetails.vue';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
@@ -10,6 +10,7 @@ const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
   cases: PlanDraft['cases'];
   editing: boolean;
+  planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
   selectedPath: string;
@@ -21,6 +22,7 @@ const emit = defineEmits<{
   'remove:step': [path: string, index: number];
   select: [path: string];
   update: [index: number, path: string];
+  'update:accessibility': [path: string, accessibility: AccessibilitySettingsDraft | undefined];
   'update:browser': [path: string, browser: CaseBrowserSettingsDraft | undefined];
   'update:case-id': [path: string, id: string];
   'update:steps': [path: string, steps: unknown[]];
@@ -132,6 +134,17 @@ function updateBrowserSettings(path: string, browser: CaseBrowserSettingsDraft |
 }
 
 /*
+Passes an accessibility override update to the owning plan bundle.
+---
+Inputs: A case-reference path and optional accessibility override.
+---
+Output: A case-accessibility update event.
+*/
+function updateAccessibilitySettings(path: string, accessibility: AccessibilitySettingsDraft | undefined): void {
+  emit('update:accessibility', path, accessibility);
+}
+
+/*
 Passes a case identifier update to the owning plan bundle.
 ---
 Inputs: A case-reference path and replacement identifier.
@@ -173,6 +186,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
         :case-path="caseReference.path"
         :editing="editing"
         :expanded="!editing || caseReference.path === selectedPath"
+        :plan-accessibility="planAccessibility"
         :plan-browser="planBrowser"
         :plan-locale="planLocale"
         @edit-reference="openDialog"
@@ -180,6 +194,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
         @remove-reference="emit('remove', $event)"
         @remove:step="removeStep"
         @select-reference="emit('select', $event)"
+        @update:accessibility="updateAccessibilitySettings"
         @update:browser="updateBrowserSettings"
         @update:case-id="updateCaseId"
         @update:steps="updateSteps"

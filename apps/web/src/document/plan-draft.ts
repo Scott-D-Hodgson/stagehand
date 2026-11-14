@@ -16,10 +16,16 @@ export interface CaseBrowserSettingsDraft {
   viewport?: ViewportDraft;
 }
 
+export interface AccessibilitySettingsDraft {
+  enabled?: boolean;
+  failOnViolation?: boolean;
+}
+
 export interface PlanDraft {
   version: 1;
   id: string;
   defaults: {
+    accessibility?: AccessibilitySettingsDraft;
     browser?: PlanBrowserSettingsDraft;
     locale: string;
   };
@@ -31,6 +37,7 @@ export interface PlanDraft {
 export interface CaseDraft {
   id: string;
   settings?: Record<string, unknown> & {
+    accessibility?: AccessibilitySettingsDraft;
     browser?: CaseBrowserSettingsDraft;
   };
   steps: unknown[];
@@ -51,6 +58,11 @@ export const defaultPlanBrowserSettings: PlanBrowserSettingsDraft = {
   },
 };
 
+export const defaultAccessibilitySettings: AccessibilitySettingsDraft = {
+  enabled: false,
+  failOnViolation: false,
+};
+
 /*
 Creates the bundled plan used to begin editor-state work.
 ---
@@ -63,6 +75,7 @@ export function createBundledPlanDraft(): PlanDraft {
     version: 1,
     id: 'editor-foundation',
     defaults: {
+      accessibility: copyAccessibilitySettings(defaultAccessibilitySettings),
       browser: copyPlanBrowserSettings(defaultPlanBrowserSettings),
       locale: 'en-CA',
     },
@@ -101,7 +114,7 @@ export function createEmptyEditorDraft(id: string): EditorBundleDraft {
     cases: {},
     plan: {
       cases: [],
-      defaults: { browser: copyPlanBrowserSettings(defaultPlanBrowserSettings), locale: 'en-CA' },
+      defaults: { accessibility: copyAccessibilitySettings(defaultAccessibilitySettings), browser: copyPlanBrowserSettings(defaultPlanBrowserSettings), locale: 'en-CA' },
       id,
       version: 1,
     },
@@ -145,6 +158,7 @@ export function copyPlanDraft(plan: PlanDraft): PlanDraft {
     version: plan.version,
     id: plan.id,
     defaults: {
+      ...(plan.defaults.accessibility === undefined ? {} : { accessibility: copyAccessibilitySettings(plan.defaults.accessibility) }),
       ...(plan.defaults.browser === undefined ? {} : { browser: copyPlanBrowserSettings(plan.defaults.browser) }),
       locale: plan.defaults.locale,
     },
@@ -209,6 +223,20 @@ function copyPlanBrowserSettings(settings: PlanBrowserSettingsDraft): PlanBrowse
 }
 
 /*
+Copies supported accessibility settings into independent plain editable data.
+---
+Inputs: Plan or case accessibility settings from an editor draft.
+---
+Output: An independent accessibility-settings value.
+*/
+function copyAccessibilitySettings(settings: AccessibilitySettingsDraft): AccessibilitySettingsDraft {
+  return {
+    ...(settings.enabled === undefined ? {} : { enabled: settings.enabled }),
+    ...(settings.failOnViolation === undefined ? {} : { failOnViolation: settings.failOnViolation }),
+  };
+}
+
+/*
 Derives a safe initial case identifier from a case-reference path.
 ---
 Inputs: A relative case-reference path.
@@ -255,6 +283,23 @@ export function updatePlanBrowserSettings(plan: PlanDraft, browser: PlanBrowserS
 }
 
 /*
+Replaces plan-level accessibility defaults while preserving other plan data.
+---
+Inputs: An existing plan draft and replacement accessibility settings.
+---
+Output: A new draft containing independent accessibility-default data.
+*/
+export function updatePlanAccessibilitySettings(plan: PlanDraft, accessibility: AccessibilitySettingsDraft): PlanDraft {
+  return {
+    ...plan,
+    defaults: {
+      ...plan.defaults,
+      accessibility: copyAccessibilitySettings(accessibility),
+    },
+  };
+}
+
+/*
 Replaces optional case-level browser overrides without changing case steps.
 ---
 Inputs: A case draft and an optional replacement browser override.
@@ -284,6 +329,31 @@ export function updateCaseBrowserSettings(caseDraft: CaseDraft, browser: CaseBro
           },
         }),
       },
+    },
+  };
+}
+
+/*
+Replaces optional case accessibility overrides without changing case steps.
+---
+Inputs: A case draft and an optional replacement accessibility override.
+---
+Output: A case draft with accessibility settings added, replaced, or omitted.
+*/
+export function updateCaseAccessibilitySettings(caseDraft: CaseDraft, accessibility: AccessibilitySettingsDraft | undefined): CaseDraft {
+  if (accessibility === undefined) {
+    const { accessibility: _, ...remainingSettings } = caseDraft.settings ?? {};
+    if (Object.keys(remainingSettings).length === 0) {
+      const { settings: _, ...caseWithoutSettings } = caseDraft;
+      return caseWithoutSettings;
+    }
+    return { ...caseDraft, settings: remainingSettings };
+  }
+  return {
+    ...caseDraft,
+    settings: {
+      ...caseDraft.settings,
+      accessibility: copyAccessibilitySettings(accessibility),
     },
   };
 }
