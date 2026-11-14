@@ -55,7 +55,7 @@ onBeforeUnmount(() => modal?.dispose());
           </ul>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" type="button" @click="close">{{ props.closeLabel }}</button>
+          <button class="btn btn-secondary" type="button" @click="close">{{ props.closeLabel }}</button>
         </div>
       </div>
     </div>

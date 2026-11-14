@@ -188,9 +188,9 @@ onBeforeUnmount(() => modal?.dispose());
           <div v-if="valueValidationVisible && !props.value.trim()" class="invalid-feedback d-block">{{ props.valueValidationMessage }}</div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline-secondary" type="button" @click="reset">{{ t('editor.reset') }}</button>
+          <button class="btn btn-secondary" type="button" @click="reset">{{ t('editor.reset') }}</button>
           <button class="btn btn-secondary" type="button" @mousedown="prepareToClose" @click.prevent="cancel">{{ t('editor.cancel') }}</button>
-          <button class="btn btn-primary" type="submit">{{ t('editor.save') }}</button>
+          <button class="btn btn-secondary" type="submit">{{ t('editor.save') }}</button>
         </div>
       </form>
     </div>

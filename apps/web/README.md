@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) adds the browser-safe portable ZIP codec, M10.2 adds validated ZIP selection and protected replacement, and M10.3 adds valid-only browser download. Complete step authoring and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10.1](../../Planning/Work%20Plan/M10-local-import-and-export.md) introduced the browser-safe portable ZIP codec; M10.2 added validated ZIP selection and protected replacement; and M10.3 added valid-only browser download. Complete step authoring and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -41,8 +41,11 @@ Run these commands from the repository root:
   under `stagehand.interface-language`, separately from plan and recovery data.
 - `App.vue` owns application preferences and the active draft. `AppHeader`
   provides the sticky Stagehand heading, tagline, and shell controls;
-  `PlanBundle` composes the plan details, case-reference workspaces, and
-  shared-contract assessment. Plan Locale uses the maintained JSON catalogue;
+  `Plans/PlanBundle` composes the plan details, case-reference workspaces, and
+  shared-contract assessment. `Plans/`, `Cases/`, and `Steps/` divide those
+  display responsibilities, with one details component per supported step type
+  and reusable dialogs in `components/dialogs/`. Plan Locale uses the
+  maintained JSON catalogue;
   it is separate from the remembered interface language. An out-of-catalogue
   recovered value remains visible as a disabled current option rather than
   being silently changed.
@@ -80,6 +83,11 @@ Run these commands from the repository root:
   their feedback cannot be missed. New plan collects a filename-safe ID, starts
   with default `en-CA` and no cases, and confirms replacement of changed work
   before the recovered bundle is replaced.
+- The same toolbar switches between Edit and View. Edit shows the plan,
+  case-reference, and step card headers and footers with their authoring
+  controls. View hides those controls and presents read-only Plan Locale and
+  Case ID values while preserving expandable case-reference details. The mode
+  is temporary interface state: it is not saved in a plan or recovery record.
 - An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required

@@ -112,7 +112,7 @@ onBeforeUnmount(() => modal?.dispose());
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" @mousedown="prepareToClose" @click.prevent="cancel">{{ t('editor.cancel') }}</button>
-          <button class="btn btn-primary" type="submit">{{ t('editor.download') }}</button>
+          <button class="btn btn-secondary" type="submit">{{ t('editor.download') }}</button>
         </div>
       </form>
     </div>

@@ -76,7 +76,7 @@ onBeforeUnmount(() => modal?.dispose());
           <p id="conflict-resolution-message" class="mb-0">{{ props.message }}</p>
         </div>
         <div class="modal-footer">
-          <button ref="discardButton" class="btn btn-outline-secondary" type="button" @click="discard">{{ props.discardLabel }}</button>
+          <button ref="discardButton" class="btn btn-secondary" type="button" @click="discard">{{ props.discardLabel }}</button>
           <button class="btn btn-warning" type="button" @click="replace">{{ props.replaceLabel }}</button>
         </div>
       </div>

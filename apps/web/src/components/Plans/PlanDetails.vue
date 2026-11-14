@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { PlanDraft } from '../document/plan-draft';
+import type { PlanDraft } from '../../document/plan-draft';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import localeCatalogue from '../localization/locale-catalogue.json';
+import localeCatalogue from '../../localization/locale-catalogue.json';
 
 const props = defineProps<{
+  editing: boolean;
   plan: PlanDraft;
   validationIssues: ValidationIssue[];
   validationRequested: boolean;
@@ -47,21 +48,23 @@ function validatePlanLocale(): void {
 
 <template>
   <section class="card mb-4 shadow-sm" aria-labelledby="plan-details-heading">
-    <div class="card-header bg-body py-2">
-      <h2 id="plan-details-heading" class="h5 mb-0">
-        {{ plan.id }}
-      </h2>
+    <div v-if="editing" class="card-header d-flex justify-content-end py-2">
+      <button class="btn btn-secondary btn-sm" type="button" @click="emit('validate')">{{ t('editor.validate') }}</button>
     </div>
     <div class="card-body">
-      <form @submit.prevent="emit('validate')">
+      <h2 id="plan-details-heading" class="h5 mb-3">{{ plan.id }}</h2>
+      <div v-if="editing">
         <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
         <select id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-error' : undefined" :class="['form-select', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @change="changePlanLocale">
           <option v-if="hasUnknownPlanLocale" :value="plan.defaults.locale" disabled>{{ plan.defaults.locale }}</option>
           <option v-for="locale in localeCatalogue" :key="locale" :value="locale">{{ locale }}</option>
         </select>
         <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
-        <button class="btn btn-primary mt-3" type="submit">{{ t('editor.validate') }}</button>
-      </form>
+      </div>
+      <dl v-else class="mb-3">
+        <dt class="form-label">{{ t('editor.planLocale') }}</dt>
+        <dd class="mb-0">{{ plan.defaults.locale }}</dd>
+      </dl>
       <slot />
     </div>
   </section>
