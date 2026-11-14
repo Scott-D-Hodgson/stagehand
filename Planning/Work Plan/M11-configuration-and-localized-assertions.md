@@ -77,23 +77,25 @@ non-active edit cases use a reduced read-only case and step presentation.
 
 ## Accessibility-configuration slice
 
-Plan Accessibility now authors the supported `enabled` and
-`failOnViolation` defaults. Case Accessibility provides an explicit override
-toggle; enabling it copies the effective plan values, and removing it returns
-the case to inheritance while preserving browser and other future case
-settings. This slice deliberately does not author axe rule tags: that needs a
-maintained catalogue and deliberate multi-selection experience.
+Plan Accessibility now authors the supported `enabled`, `failOnViolation`, and
+axe rule-tag defaults. The editor derives its alphabetized tag catalogue from
+the public shared schema, preventing a divergent browser-only inventory. The
+filter narrows a visible wrapping checkbox list without hiding the catalogue by
+default. Case Accessibility provides an explicit override toggle; enabling it
+copies the effective plan values, including tags, and removing it returns the
+case to inheritance while preserving browser and other future case settings. An
+explicit empty case tag list clears the inherited filter and uses axe defaults.
 
-Focused draft tests cover plan accessibility updates and case override
-creation/removal alongside unrelated browser settings. The owner reported
-passing the web-editor tests, type check, production build, and manual checks
-of plan settings, case inheritance, clearing an override, and the unaffected
-Browser tab.
+Focused draft tests cover plan accessibility updates, tag-array copy isolation,
+and case override creation/removal alongside unrelated browser settings. The
+owner reported passing the web-editor tests, type check, production build, and
+manual checks of plan settings, case inheritance, clearing an override, tag
+filtering, and the unaffected Browser tab.
 
 ## Incremental delivery
 
-Suggested remaining PR slices: accessibility rule tags, remaining run
-configuration, and wait and assertion options.
+Suggested remaining PR slices: remaining run configuration, and wait and
+assertion options.
 
 ## Open decisions and exclusions
 

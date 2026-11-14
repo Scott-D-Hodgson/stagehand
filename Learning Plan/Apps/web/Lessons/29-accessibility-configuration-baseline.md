@@ -1,10 +1,10 @@
-# Lesson 29: Accessibility configuration baseline
+# Lesson 29: Accessibility configuration and rule tags
 
 [← Previous: Browser configuration and step-card ownership](28-browser-configuration-and-step-card-ownership.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
 
 The shared plan and case contracts already describe accessibility settings.
-This M11 slice introduces the smallest useful editor form without pretending
-that rule-tag selection is a solved interaction.
+This M11 slice introduces the supported editor form while keeping its catalogue
+aligned with the shared contract.
 
 ## Defaults and overrides
 
@@ -17,25 +17,31 @@ such as the browser override.
 This mirrors browser configuration but keeps the two settings independent:
 enabling scans is not the same decision as treating findings as failures.
 
-## Deliberate deferral
+## Rule tags without a divergent catalogue
 
-The contract also supports an optional axe rule-tag list. It is not exposed by
-this first editor form. A safe authoring experience needs a maintained tag
-catalogue, clear replacement versus inheritance semantics, keyboard support,
-and a searchable multi-selection design. The absence of that UI must not be
-misrepresented as the contract rejecting tags.
+The optional axe rule-tag list is derived from the public shared schema rather
+than copied into a browser-only list. The editor shows the alphabetized tags as
+a wrapping checkbox list and provides an optional filter. Filtering narrows
+visible choices without hiding the complete list by default.
+
+At plan scope, no selected tags means axe defaults. A case override begins by
+copying the plan tags. A non-empty case selection replaces those tags; an
+explicit empty case list clears the inherited filter and also uses axe defaults.
 
 ## Try it
 
 1. Enable scanning and failing violations at plan scope.
 2. Enable a case override and confirm it copies both values.
-3. Change one case setting, clear the override, and confirm inherited wording
+3. Filter tags, select one or two, then clear the filter and confirm the
+   selected tags remain checked.
+4. Change one case tag, clear the override, and confirm inherited wording
    returns without disturbing Browser settings.
 
 ## You are ready when
 
 - You can distinguish scan enablement from violation outcome policy.
 - You can explain why a case override is copied, then removable.
-- You know why axe rule tags remain a separate authoring slice.
+- You can explain plan inheritance, case replacement, and explicit clearing of
+  rule tags.
 
 [← Previous: Browser configuration and step-card ownership](28-browser-configuration-and-step-card-ownership.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
