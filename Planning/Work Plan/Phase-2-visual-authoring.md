@@ -4,9 +4,9 @@
 
 ## Objective and prerequisites
 
-Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md), [M8](M8-editor-foundation-and-document-state.md), and [M9](M9-basic-plan-and-case-authoring.md) are recorded complete. This plan does not claim later editor behaviour is implemented.
+Deliver the [Phase 2 roadmap](../Roadmap/Phase-2-visual-authoring/README.md) as small, reviewable changes for a non-technical test author. [M7](M7-integration-and-phase-1-review.md), [M8](M8-editor-foundation-and-document-state.md), [M9](M9-basic-plan-and-case-authoring.md), and [M10](M10-local-import-and-export.md) are recorded complete. This plan does not claim later editor behaviour is implemented.
 
-The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md) for M8 draft recovery and [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) for technology, localization, and presentation. The owner completed the Vite scaffolding through guided commands in M8.1. This planning document does not authorize or evidence later implementation by itself.
+The accepted baselines are [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md) for M8 draft recovery and [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) for technology, localization, and presentation. The owner completed the Vite scaffolding through guided commands in M8.1. [M10](M10-local-import-and-export.md) is also complete, with its portable ZIP round-trip evidence recorded in its own milestone file. This planning document does not authorize or evidence later implementation by itself.
 
 ## Milestones and provisional estimates
 

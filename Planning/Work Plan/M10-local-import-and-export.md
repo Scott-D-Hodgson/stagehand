@@ -1,6 +1,6 @@
 # M10 — Local import and export
 
-**Status:** In progress; M10.1 portable bundle codec, M10.2 validated import, and M10.3 valid-only export complete and verified in the development container
+**Status:** Complete; M10.1 portable bundle codec, M10.2 validated import, M10.3 valid-only export, and M10.4 round-trip integration evidence complete
 **Estimate:** 4–7 focused human person-days  
 **Depends on:** [M9](M9-basic-plan-and-case-authoring.md)
 
@@ -11,12 +11,12 @@ and a browser download, without direct filesystem access.
 
 ## Tasks
 
-- [ ] Import a versioned plan and associated cases from one ZIP bundle; retain portable paths relative to the plan.
-- [ ] Use browser-safe shared reference matching and parsed-bundle validation; do not import the Node filesystem loader.
-- [ ] Explain malformed JSON, unsupported versions, missing references, duplicates, and invalid documents without replacing current work silently.
-- [ ] Export a valid plan and case bundle as one ZIP while retaining the reference layout; distinguish invalid drafts from valid plans.
-- [ ] Track local recovery status separately from edits not yet exported, and state what a download does and does not confirm.
-- [ ] Protect current work before replacement and verify cancellation and failed imports.
+- [x] Import a versioned plan and associated cases from one ZIP bundle; retain portable paths relative to the plan.
+- [x] Use browser-safe shared reference matching and parsed-bundle validation; do not import the Node filesystem loader.
+- [x] Explain malformed JSON, unsupported versions, missing references, duplicates, and invalid documents without replacing current work silently.
+- [x] Export a valid plan and case bundle as one ZIP while retaining the reference layout; distinguish invalid drafts from valid plans.
+- [x] Track local recovery status separately from edits not yet exported, and state what a download does and does not confirm.
+- [x] Protect current work before replacement and verify cancellation and failed imports.
 
 ## Deliverables and completion evidence
 
@@ -26,6 +26,21 @@ missing/duplicate reference feedback and that an invalid draft cannot be
 exported as a valid portable bundle.
 
 Deliver the relevant forms, synthetic examples, documentation, and verification records. Add focused automated checks for data preservation and contract integration, plus browser checks for the affected user flows. Follow the localization and presentation baseline in [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) and recovery baseline in [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
+
+### Completion evidence
+
+- M10.1–M10.3 established the browser-safe ZIP codec, protected validated
+  import, and valid-only browser download. The owner reported passing
+  development-container tests, type checks, and production builds for those
+  implementation slices.
+- For M10.4, the owner completed the browser walkthrough: import a synthetic
+  archive; edit the plan and cases; export and re-import it; then exercise
+  recovery, two-tab conflict handling, cancellation, failure paths, Canadian
+  English/French wording, keyboard/dialog operation, and browser download
+  semantics. The walkthrough tested cleanly.
+- The editor still uses browser-selected/downloaded ZIP files only. It does not
+  claim direct filesystem access, remote storage, archive signing, or cold
+  offline start support.
 
 ## Decisions made
 
@@ -66,10 +81,11 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
    block export for invalid drafts with clear validation feedback, while keeping
    recovery status distinct from export status. The owner reported passing
    development-container tests.
-4. **M10.4 — Round-trip and integration evidence:** import a synthetic archive,
+4. **M10.4 — Round-trip and integration evidence (complete):** import a synthetic archive,
    edit plan and cases, export, re-import, and verify equivalent content,
    recovery/conflict behaviour, cancellation, failure paths, English/French
-   wording, keyboard operation, and download semantics.
+   wording, keyboard operation, and download semantics. The owner completed
+   this walkthrough with clean results.
 
 ## Open decisions and exclusions
 
@@ -78,4 +94,10 @@ storage, or cryptographic signature in M10. Direct filesystem access remains
 deferred; no permission-based filesystem integration is included. Reassess
 future archive metadata only when a concrete compatibility need arises.
 
-Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Tasks remain unverified until completion evidence is recorded.
+## Learning plan reference
+
+- [Web editor course](../../Learning%20Plan/Apps/web/README.md)
+- [Portable bundle codec](../../Learning%20Plan/Apps/web/Lessons/23-portable-bundle-codec.md)
+- [Validated bundle import](../../Learning%20Plan/Apps/web/Lessons/24-validated-bundle-import.md)
+- [Valid-only bundle export](../../Learning%20Plan/Apps/web/Lessons/25-valid-only-bundle-export.md)
+- [M10 round-trip integration review](../../Learning%20Plan/Apps/web/Lessons/27-m10-round-trip-integration-review.md)
