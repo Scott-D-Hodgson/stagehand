@@ -1,7 +1,7 @@
 # M11 — Configuration and localized assertions
 
-**Status:** In progress; early assertion locale-override slices complete out of
-sequence
+**Status:** In progress; browser-configuration and early localized-assertion
+slices complete out of sequence
 **Estimate:** 4–7 focused human person-days  
 **Depends on:** [M10](M10-local-import-and-export.md) for the broader milestone; the early localized-assertion slices are accepted exceptions
 
@@ -11,11 +11,11 @@ Author supported plan/case configuration and localized assertion values without 
 
 ## Tasks
 
-- [ ] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
+- [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
 - [ ] Cover supported timeouts, waits, interaction options, hard/soft assertions, and accessibility configuration.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
-- [ ] Preserve configured values through recovery and import/export; recovery is complete for all implemented assertion locale-override slices, while import/export remains M10 work.
+- [ ] Preserve configured values through recovery and M10 import/export; recovery is complete for all implemented assertion locale-override slices, while their portable-file preservation remains to be verified.
 - [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
 ## Deliverables and completion evidence
@@ -51,10 +51,34 @@ passing web-editor tests, a passing type check and production build, and passing
 manual validation of the catalogue, override dialogs, preview, save, refresh,
 and recovery.
 
+## Browser-configuration slice
+
+Plan Default and Browser tabs now author the supported plan browser defaults:
+Chromium headless mode, viewport width and height, and IANA time zone. Case
+Browser offers an explicit override toggle. An enabled override begins as a
+copy of the effective plan viewport and time zone; removing it returns the
+case to inherited settings without disturbing other case settings. Case
+overrides deliberately do not offer run-wide headless mode.
+
+The draft helpers copy browser settings without sharing nested viewport data
+and preserve unrelated case settings when an override is removed. The existing
+recovery and portable-bundle paths carry the draft fields; end-to-end
+configuration preservation remains part of M11 integration evidence. Shared
+validation supplies field feedback for invalid browser values. The owner
+reported passing the web-editor tests, type check, production build, and
+manual checks of browser settings, case inheritance, card presentation, and
+case switching.
+
+This slice also clarified presentation ownership: plan and case details own
+their cards, each step detail composes the reusable step-card presentation,
+and `CaseStepEditor` coordinates ordered data, dialogs, and draft updates.
+Edit mode exposes authoring controls only for the active case; View mode and
+non-active edit cases use a reduced read-only case and step presentation.
+
 ## Incremental delivery
 
-Suggested remaining PR slices: plan/case configuration; wait and assertion
-options.
+Suggested remaining PR slices: remaining run configuration, wait and assertion
+options, and accessibility configuration.
 
 ## Open decisions and exclusions
 

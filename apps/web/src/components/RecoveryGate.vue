@@ -18,7 +18,7 @@ const savedAt = computed(() => props.state.kind === 'restore-or-discard' ? new D
       <h2 id="recovery-heading" class="h5">{{ t('editor.recoveryAvailable') }}</h2>
       <p>{{ t('editor.recoveryAvailableDetail', { savedAt }) }}</p>
       <div class="d-flex gap-2">
-        <button class="btn btn-secondary" :disabled="pending" type="button" @click="emit('restore')">{{ t('editor.restoreRecovery') }}</button>
+        <button class="btn btn-primary" :disabled="pending" type="button" @click="emit('restore')">{{ t('editor.restoreRecovery') }}</button>
         <button class="btn btn-danger" :disabled="pending" type="button" @click="emit('discard')">{{ pending ? t('editor.discardingRecovery') : t('editor.discardRecovery') }}</button>
       </div>
     </div>
@@ -34,7 +34,7 @@ const savedAt = computed(() => props.state.kind === 'restore-or-discard' ? new D
     <div class="card-body">
       <h2 id="recovery-heading" class="h5">{{ t('editor.recoveryUnavailable') }}</h2>
       <p>{{ t('editor.recoveryUnavailableDetail') }}</p>
-      <button class="btn btn-secondary" type="button" @click="emit('continue')">{{ t('editor.continueWithoutRecovery') }}</button>
+      <button class="btn btn-primary" type="button" @click="emit('continue')">{{ t('editor.continueWithoutRecovery') }}</button>
     </div>
   </section>
 </template>

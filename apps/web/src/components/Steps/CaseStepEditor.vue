@@ -95,7 +95,6 @@ const assertTextRoleBlurred = ref(false);
 const assertTextExpectedBlurred = ref(false);
 const assertTextRoleValidationMessage = computed(() => assertTextRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
 const assertTextExpectedValidationMessage = computed(() => assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined);
-const expandedLocaleOverrideStepIndexes = ref<number[]>([]);
 const localeOverrideDialogOpen = ref(false);
 const localeOverrideLocale = ref('');
 const localeOverrideStepIndex = ref<number | undefined>();
@@ -151,6 +150,7 @@ async function animateStepCardListHeight(): Promise<void> {
   }
   const token = heightTransitionToken + 1;
   heightTransitionToken = token;
+  element.style.height = '';
   const startingHeight = element.getBoundingClientRect().height;
   await nextTick();
   if (token !== heightTransitionToken || element !== stepCardList.value) {
@@ -168,6 +168,11 @@ async function animateStepCardListHeight(): Promise<void> {
       element.style.height = '';
     }
   }, { once: true });
+  setTimeout(() => {
+    if (token === heightTransitionToken) {
+      element.style.height = '';
+    }
+  }, 250);
 }
 
 watch(() => props.editing, () => {
@@ -522,18 +527,12 @@ function getLocaleOverrideValueValidationMessage(): string {
 }
 
 /*
-Toggles the locale-override panel for one localized assertion step card.
+Returns whether the locale-override tab is selected for a step.
 ---
 Inputs: The selected case-step index.
 ---
-Output: An expanded or collapsed locale-override panel.
+Output: Whether the Locale overrides tab is active for that step.
 */
-function toggleLocaleOverrides(index: number): void {
-  expandedLocaleOverrideStepIndexes.value = expandedLocaleOverrideStepIndexes.value.includes(index)
-    ? expandedLocaleOverrideStepIndexes.value.filter((candidateIndex) => candidateIndex !== index)
-    : [...expandedLocaleOverrideStepIndexes.value, index];
-}
-
 /*
 Opens a blank locale-override dialog for one localized assertion step.
 ---
@@ -1153,7 +1152,6 @@ function confirmStepRemoval(): void {
   if (pendingStepRemoval.value !== undefined && props.selectedPath) {
     emit('remove:step', props.selectedPath, pendingStepRemoval.value);
   }
-  expandedLocaleOverrideStepIndexes.value = [];
   pendingStepRemoval.value = undefined;
 }
 
@@ -1168,7 +1166,36 @@ function moveStep(index: number, direction: -1 | 1): void {
   if (selectedCase.value !== undefined && props.selectedPath) {
     emit('update:steps', props.selectedPath, moveCaseStep(selectedCase.value.steps, index, index + direction));
   }
-  expandedLocaleOverrideStepIndexes.value = [];
+}
+
+/*
+Returns the step-detail component for an authored action.
+---
+Inputs: A raw case-step value.
+---
+Output: The component that renders that step's card.
+*/
+function getStepDetailComponent(step: unknown) {
+  const action = getStepAction(step);
+  if (action === 'click') return ClickStepDetails;
+  if (action === 'type') return TypeStepDetails;
+  if (action === 'fill') return FillStepDetails;
+  if (action === 'selectOption') return SelectOptionStepDetails;
+  if (action === 'assertText') return AssertTextStepDetails;
+  if (action === 'assertHtml') return AssertHtmlStepDetails;
+  if (action === 'assertValue') return AssertValueStepDetails;
+  return NavigateStepDetails;
+}
+
+/*
+Returns sorted locale overrides annotated for the configured plan locale.
+---
+Inputs: A raw localized assertion step.
+---
+Output: Display-ready locale override values.
+*/
+function getLocaleOverrideItems(step: unknown): Array<LocaleOverride & { active: boolean }> {
+  return getSortedExpectedLocaleOverrides(step).map((override) => ({ ...override, active: isConfiguredLocaleOverride(override) }));
 }
 
 /*
@@ -1195,227 +1222,192 @@ function getStepKey(step: unknown): string {
 <template>
   <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
     <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
-    <div class="border-top mt-4 pt-3">
-      <h3 class="h6">{{ t('editor.steps') }}</h3>
-      <div ref="stepCardList" class="step-card-list">
-        <TransitionGroup name="step" tag="div">
-          <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" :class="['card', 'mb-3', { 'border-danger': invalidStepIndexes.includes(index) }]">
-            <div v-if="editing" class="card-header d-flex justify-content-end align-items-center gap-3 py-2">
-              <div class="d-flex gap-2">
-                <button
-                  class="btn btn-secondary btn-sm"
-                  type="button"
-                  :disabled="index === 0"
-                  @click="moveStep(index, -1)"
-                >
-                  {{ t('editor.moveStepUp') }}
-                </button>
-                <button
-                  class="btn btn-secondary btn-sm"
-                  type="button"
-                  :disabled="index === selectedCase.steps.length - 1"
-                  @click="moveStep(index, 1)"
-                >
-                  {{ t('editor.moveStepDown') }}
-                </button>
-                <button class="btn btn-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
-                <button class="btn btn-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
-                <button class="btn btn-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
-              </div>
-            </div>
-            <div class="card-body">
-              <h4 class="h6 mb-2">{{ index + 1 }}. {{ getStepActionLabel(step) }}</h4>
-              <NavigateStepDetails v-if="getStepAction(step) === 'navigate'" :step="step" />
-              <ClickStepDetails v-else-if="getStepAction(step) === 'click'" :step="step" />
-              <TypeStepDetails v-else-if="getStepAction(step) === 'type'" :step="step" />
-              <FillStepDetails v-else-if="getStepAction(step) === 'fill'" :step="step" />
-              <SelectOptionStepDetails v-else-if="getStepAction(step) === 'selectOption'" :step="step" />
-              <AssertTextStepDetails v-else-if="getStepAction(step) === 'assertText'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
-              <AssertHtmlStepDetails v-else-if="getStepAction(step) === 'assertHtml'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
-              <AssertValueStepDetails v-else-if="getStepAction(step) === 'assertValue'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
-            </div>
-            <div v-if="editing && isLocalizedExpectedValueStep(step)" class="card-footer">
-              <button class="btn btn-secondary btn-sm" type="button" :aria-expanded="expandedLocaleOverrideStepIndexes.includes(index)" :aria-controls="`locale-overrides-${index}`" @click="toggleLocaleOverrides(index)">{{ t('editor.localeOverrides') }}</button>
-              <div v-if="expandedLocaleOverrideStepIndexes.includes(index)" :id="`locale-overrides-${index}`" class="mt-3">
-                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-                  <h4 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h4>
-                  <button class="btn btn-secondary btn-sm" type="button" @click="addLocaleOverride(index)">{{ t('editor.add') }}</button>
-                </div>
-                <p v-if="getSortedExpectedLocaleOverrides(step).length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
-                <ul v-else class="list-group">
-                  <li v-for="override in getSortedExpectedLocaleOverrides(step)" :key="override.locale" :class="['list-group-item', 'd-flex', 'align-items-center', 'justify-content-between', 'gap-3', { 'border-primary': isConfiguredLocaleOverride(override), 'locale-override-active': isConfiguredLocaleOverride(override) }]">
-                    <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
-                    <span class="d-flex gap-2">
-                      <button class="btn btn-secondary btn-sm" type="button" @click="editLocaleOverride(index, override)">{{ t('editor.edit') }}</button>
-                      <button class="btn btn-danger btn-sm" type="button" @click="requestLocaleOverrideRemoval(index, override)">{{ t('editor.remove') }}</button>
-                    </span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-            <div v-if="editing && invalidStepIndexes.includes(index)" class="card-footer text-danger">{{ t('editor.invalidStepMessage') }}</div>
-          </div>
-        </TransitionGroup>
-      </div>
-      <button v-if="editing" class="btn btn-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
-      <NavigateStepDialog
-        v-if="navigateDialogOpen"
-        :url="navigateUrl"
-        :validation-issues="navigateValidationIssues"
-        :validation-visible="navigateUrlBlurred"
-        @blur="navigateUrlBlurred = true"
-        @close="navigateDialogOpen = false"
-        @reset="resetNavigateDialog"
-        @save="saveNavigateStep"
-        @update:url="navigateUrl = $event"
-      />
-      <ClickStepDialog
-        v-if="clickDialogOpen"
-        :name="clickName"
-        :role="clickRole"
-        :validation-message="clickRoleValidationMessage"
-        :validation-visible="clickRoleBlurred"
-        @blur="clickRoleBlurred = true"
-        @close="clickDialogOpen = false"
-        @reset="resetClickDialog"
-        @save="saveClickStep"
-        @update:name="clickName = $event"
-        @update:role="clickRole = $event"
-      />
-      <TypeStepDialog
-        v-if="typeDialogOpen"
-        :name="typeName"
-        :role="typeRole"
-        :role-validation-message="typeRoleValidationMessage"
-        :role-validation-visible="typeRoleBlurred"
-        :text="typeText"
-        :text-validation-message="typeTextValidationMessage"
-        :text-validation-visible="typeTextBlurred"
-        @blur:role="typeRoleBlurred = true"
-        @blur:text="typeTextBlurred = true"
-        @close="typeDialogOpen = false"
-        @reset="resetTypeDialog"
-        @save="saveTypeStep"
-        @update:name="typeName = $event"
-        @update:role="typeRole = $event"
-        @update:text="typeText = $event"
-        @validate="typeRoleBlurred = true; typeTextBlurred = true"
-      />
-      <FillStepDialog
-        v-if="fillDialogOpen"
-        :name="fillName"
-        :role="fillRole"
-        :role-validation-message="fillRoleValidationMessage"
-        :role-validation-visible="fillRoleBlurred"
-        :value="fillValue"
-        :value-validation-message="fillValueValidationMessage"
-        :value-validation-visible="fillValueBlurred"
-        @blur:role="fillRoleBlurred = true"
-        @blur:value="fillValueBlurred = true"
-        @close="fillDialogOpen = false"
-        @reset="resetFillDialog"
-        @save="saveFillStep"
-        @update:name="fillName = $event"
-        @update:role="fillRole = $event"
-        @update:value="fillValue = $event"
-        @validate="fillRoleBlurred = true; fillValueBlurred = true"
-      />
-      <SelectOptionStepDialog
-        v-if="selectOptionDialogOpen"
-        :name="selectOptionName"
-        :role="selectOptionRole"
-        :role-validation-message="selectOptionRoleValidationMessage"
-        :role-validation-visible="selectOptionRoleBlurred"
-        :selection="selectOptionSelection"
-        :selection-mode="selectOptionMode"
-        :selection-validation-message="selectOptionSelectionValidationMessage"
-        :selection-validation-visible="selectOptionSelectionBlurred"
-        @blur:role="selectOptionRoleBlurred = true"
-        @blur:selection="selectOptionSelectionBlurred = true"
-        @close="selectOptionDialogOpen = false"
-        @reset="resetSelectOptionDialog"
-        @save="saveSelectOptionStep"
-        @update:name="selectOptionName = $event"
-        @update:role="selectOptionRole = $event"
-        @update:selection="selectOptionSelection = $event"
-        @update:selection-mode="selectOptionMode = $event"
-        @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
-      />
-      <AssertTextStepDialog
-        v-if="assertTextDialogOpen"
-        :expected="assertTextExpected"
-        :expected-validation-message="assertTextExpectedValidationMessage"
-        :expected-validation-visible="assertTextExpectedBlurred"
-        :name="assertTextName"
-        :role="assertTextRole"
-        :role-validation-message="assertTextRoleValidationMessage"
-        :role-validation-visible="assertTextRoleBlurred"
-        @blur:expected="assertTextExpectedBlurred = true"
-        @blur:role="assertTextRoleBlurred = true"
-        @close="assertTextDialogOpen = false"
-        @reset="resetAssertTextDialog"
-        @save="saveAssertTextStep"
-        @update:expected="assertTextExpected = $event"
-        @update:name="assertTextName = $event"
-        @update:role="assertTextRole = $event"
-        @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"
-      />
-      <LocaleOverrideDialog
-        v-if="localeOverrideDialogOpen"
-        :locale="localeOverrideLocale"
-        :multiline="getLocaleOverrideAction() === 'assertHtml'"
-        :unavailable-locales="localeOverrideStepIndex === undefined || selectedCase === undefined ? [] : readExpectedLocaleOverrides(selectedCase.steps[localeOverrideStepIndex]).filter((override) => override.locale !== editingLocaleOverrideLocale).map((override) => override.locale)"
-        :value="localeOverrideValue"
-        :value-label="getLocaleOverrideValueLabel()"
-        :value-validation-message="getLocaleOverrideValueValidationMessage()"
-        @close="localeOverrideDialogOpen = false"
-        @reset="localeOverrideLocale = ''; localeOverrideValue = ''"
-        @save="saveLocaleOverride"
-        @update:locale="localeOverrideLocale = $event"
-        @update:value="localeOverrideValue = $event"
-      />
-      <AssertHtmlStepDialog
-        v-if="assertHtmlDialogOpen"
-        :expected="assertHtmlExpected"
-        :expected-validation-message="assertHtmlExpectedValidationMessage"
-        :expected-validation-visible="assertHtmlExpectedBlurred"
-        :name="assertHtmlName"
-        :role="assertHtmlRole"
-        :role-validation-message="assertHtmlRoleValidationMessage"
-        :role-validation-visible="assertHtmlRoleBlurred"
-        @blur:expected="assertHtmlExpectedBlurred = true"
-        @blur:role="assertHtmlRoleBlurred = true"
-        @close="assertHtmlDialogOpen = false"
-        @reset="resetAssertHtmlDialog"
-        @save="saveAssertHtmlStep"
-        @update:expected="assertHtmlExpected = $event"
-        @update:name="assertHtmlName = $event"
-        @update:role="assertHtmlRole = $event"
-        @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"
-      />
-      <AssertValueStepDialog
-        v-if="assertValueDialogOpen"
-        :expected="assertValueExpected"
-        :expected-validation-message="assertValueExpectedValidationMessage"
-        :expected-validation-visible="assertValueExpectedBlurred"
-        :name="assertValueName"
-        :role="assertValueRole"
-        :role-validation-message="assertValueRoleValidationMessage"
-        :role-validation-visible="assertValueRoleBlurred"
-        @blur:expected="assertValueExpectedBlurred = true"
-        @blur:role="assertValueRoleBlurred = true"
-        @close="assertValueDialogOpen = false"
-        @reset="resetAssertValueDialog"
-        @save="saveAssertValueStep"
-        @update:expected="assertValueExpected = $event"
-        @update:name="assertValueName = $event"
-        @update:role="assertValueRole = $event"
-        @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"
-      />
-      <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
-      <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />
-      <ConfirmationModal v-if="pendingLocaleOverrideRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeLocaleOverrideConfirmation', { locale: pendingLocaleOverrideRemoval.locale })" :title="t('editor.confirmationTitle')" @cancel="pendingLocaleOverrideRemoval = undefined" @confirm="confirmLocaleOverrideRemoval" />
+    <h3 v-if="selectedCase.steps.length > 0" class="h6">{{ t('editor.steps') }}</h3>
+    <p v-else class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
+    <div v-if="selectedCase.steps.length > 0" ref="stepCardList" class="step-card-list">
+      <TransitionGroup name="step" tag="div">
+        <component
+          :is="getStepDetailComponent(step)"
+          v-for="(step, index) in selectedCase.steps"
+          :key="getStepKey(step)"
+          :action-label="getStepActionLabel(step)"
+          :editing="editing"
+          :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale"
+          :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)"
+          :has-locale-override="getConfiguredLocaleOverride(step) !== undefined"
+          :index="index"
+          :invalid="invalidStepIndexes.includes(index)"
+          :locale-overrides="getLocaleOverrideItems(step)"
+          :step="step"
+          :step-count="selectedCase.steps.length"
+          @add-locale-override="addLocaleOverride(index)"
+          @clone="cloneStep(step)"
+          @edit="editStep(index, step)"
+          @edit-locale-override="editLocaleOverride(index, $event)"
+          @move="moveStep(index, $event)"
+          @remove="requestStepRemoval(index)"
+          @remove-locale-override="requestLocaleOverrideRemoval(index, $event)"
+        />
+      </TransitionGroup>
     </div>
+    <button v-if="editing" class="btn btn-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
+    <NavigateStepDialog
+      v-if="navigateDialogOpen"
+      :url="navigateUrl"
+      :validation-issues="navigateValidationIssues"
+      :validation-visible="navigateUrlBlurred"
+      @blur="navigateUrlBlurred = true"
+      @close="navigateDialogOpen = false"
+      @reset="resetNavigateDialog"
+      @save="saveNavigateStep"
+      @update:url="navigateUrl = $event"
+    />
+    <ClickStepDialog
+      v-if="clickDialogOpen"
+      :name="clickName"
+      :role="clickRole"
+      :validation-message="clickRoleValidationMessage"
+      :validation-visible="clickRoleBlurred"
+      @blur="clickRoleBlurred = true"
+      @close="clickDialogOpen = false"
+      @reset="resetClickDialog"
+      @save="saveClickStep"
+      @update:name="clickName = $event"
+      @update:role="clickRole = $event"
+    />
+    <TypeStepDialog
+      v-if="typeDialogOpen"
+      :name="typeName"
+      :role="typeRole"
+      :role-validation-message="typeRoleValidationMessage"
+      :role-validation-visible="typeRoleBlurred"
+      :text="typeText"
+      :text-validation-message="typeTextValidationMessage"
+      :text-validation-visible="typeTextBlurred"
+      @blur:role="typeRoleBlurred = true"
+      @blur:text="typeTextBlurred = true"
+      @close="typeDialogOpen = false"
+      @reset="resetTypeDialog"
+      @save="saveTypeStep"
+      @update:name="typeName = $event"
+      @update:role="typeRole = $event"
+      @update:text="typeText = $event"
+      @validate="typeRoleBlurred = true; typeTextBlurred = true"
+    />
+    <FillStepDialog
+      v-if="fillDialogOpen"
+      :name="fillName"
+      :role="fillRole"
+      :role-validation-message="fillRoleValidationMessage"
+      :role-validation-visible="fillRoleBlurred"
+      :value="fillValue"
+      :value-validation-message="fillValueValidationMessage"
+      :value-validation-visible="fillValueBlurred"
+      @blur:role="fillRoleBlurred = true"
+      @blur:value="fillValueBlurred = true"
+      @close="fillDialogOpen = false"
+      @reset="resetFillDialog"
+      @save="saveFillStep"
+      @update:name="fillName = $event"
+      @update:role="fillRole = $event"
+      @update:value="fillValue = $event"
+      @validate="fillRoleBlurred = true; fillValueBlurred = true"
+    />
+    <SelectOptionStepDialog
+      v-if="selectOptionDialogOpen"
+      :name="selectOptionName"
+      :role="selectOptionRole"
+      :role-validation-message="selectOptionRoleValidationMessage"
+      :role-validation-visible="selectOptionRoleBlurred"
+      :selection="selectOptionSelection"
+      :selection-mode="selectOptionMode"
+      :selection-validation-message="selectOptionSelectionValidationMessage"
+      :selection-validation-visible="selectOptionSelectionBlurred"
+      @blur:role="selectOptionRoleBlurred = true"
+      @blur:selection="selectOptionSelectionBlurred = true"
+      @close="selectOptionDialogOpen = false"
+      @reset="resetSelectOptionDialog"
+      @save="saveSelectOptionStep"
+      @update:name="selectOptionName = $event"
+      @update:role="selectOptionRole = $event"
+      @update:selection="selectOptionSelection = $event"
+      @update:selection-mode="selectOptionMode = $event"
+      @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
+    />
+    <AssertTextStepDialog
+      v-if="assertTextDialogOpen"
+      :expected="assertTextExpected"
+      :expected-validation-message="assertTextExpectedValidationMessage"
+      :expected-validation-visible="assertTextExpectedBlurred"
+      :name="assertTextName"
+      :role="assertTextRole"
+      :role-validation-message="assertTextRoleValidationMessage"
+      :role-validation-visible="assertTextRoleBlurred"
+      @blur:expected="assertTextExpectedBlurred = true"
+      @blur:role="assertTextRoleBlurred = true"
+      @close="assertTextDialogOpen = false"
+      @reset="resetAssertTextDialog"
+      @save="saveAssertTextStep"
+      @update:expected="assertTextExpected = $event"
+      @update:name="assertTextName = $event"
+      @update:role="assertTextRole = $event"
+      @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"
+    />
+    <LocaleOverrideDialog
+      v-if="localeOverrideDialogOpen"
+      :locale="localeOverrideLocale"
+      :multiline="getLocaleOverrideAction() === 'assertHtml'"
+      :unavailable-locales="localeOverrideStepIndex === undefined || selectedCase === undefined ? [] : readExpectedLocaleOverrides(selectedCase.steps[localeOverrideStepIndex]).filter((override) => override.locale !== editingLocaleOverrideLocale).map((override) => override.locale)"
+      :value="localeOverrideValue"
+      :value-label="getLocaleOverrideValueLabel()"
+      :value-validation-message="getLocaleOverrideValueValidationMessage()"
+      @close="localeOverrideDialogOpen = false"
+      @reset="localeOverrideLocale = ''; localeOverrideValue = ''"
+      @save="saveLocaleOverride"
+      @update:locale="localeOverrideLocale = $event"
+      @update:value="localeOverrideValue = $event"
+    />
+    <AssertHtmlStepDialog
+      v-if="assertHtmlDialogOpen"
+      :expected="assertHtmlExpected"
+      :expected-validation-message="assertHtmlExpectedValidationMessage"
+      :expected-validation-visible="assertHtmlExpectedBlurred"
+      :name="assertHtmlName"
+      :role="assertHtmlRole"
+      :role-validation-message="assertHtmlRoleValidationMessage"
+      :role-validation-visible="assertHtmlRoleBlurred"
+      @blur:expected="assertHtmlExpectedBlurred = true"
+      @blur:role="assertHtmlRoleBlurred = true"
+      @close="assertHtmlDialogOpen = false"
+      @reset="resetAssertHtmlDialog"
+      @save="saveAssertHtmlStep"
+      @update:expected="assertHtmlExpected = $event"
+      @update:name="assertHtmlName = $event"
+      @update:role="assertHtmlRole = $event"
+      @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"
+    />
+    <AssertValueStepDialog
+      v-if="assertValueDialogOpen"
+      :expected="assertValueExpected"
+      :expected-validation-message="assertValueExpectedValidationMessage"
+      :expected-validation-visible="assertValueExpectedBlurred"
+      :name="assertValueName"
+      :role="assertValueRole"
+      :role-validation-message="assertValueRoleValidationMessage"
+      :role-validation-visible="assertValueRoleBlurred"
+      @blur:expected="assertValueExpectedBlurred = true"
+      @blur:role="assertValueRoleBlurred = true"
+      @close="assertValueDialogOpen = false"
+      @reset="resetAssertValueDialog"
+      @save="saveAssertValueStep"
+      @update:expected="assertValueExpected = $event"
+      @update:name="assertValueName = $event"
+      @update:role="assertValueRole = $event"
+      @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"
+    />
+    <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
+    <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />
+    <ConfirmationModal v-if="pendingLocaleOverrideRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeLocaleOverrideConfirmation', { locale: pendingLocaleOverrideRemoval.locale })" :title="t('editor.confirmationTitle')" @cancel="pendingLocaleOverrideRemoval = undefined" @confirm="confirmLocaleOverrideRemoval" />
   </section>
 </template>
 

@@ -2,12 +2,11 @@
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../../document/plan-draft';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseBrowserSettings, updateCaseReference, updatePlanBrowserSettings, updatePlanLocale, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import { validateEditorPlan } from '../../document/validation';
 import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
 import { readPortableBundleFile } from '../../portable-bundle/import';
 import CaseReferences from '../Cases/CaseReferences.vue';
-import CaseDetails from '../Cases/CaseDetails.vue';
 import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import BundleIssuesModal from '../dialogs/BundleIssuesModal.vue';
 import ExportBundleDialog from '../dialogs/ExportBundleDialog.vue';
@@ -56,6 +55,17 @@ Output: An updated plan draft.
 */
 function changePlanLocale(locale: string): void {
   emit('update:plan', updatePlanLocale(props.plan, locale));
+}
+
+/*
+Updates plan-level browser defaults from plan details.
+---
+Inputs: A replacement plan-browser settings value.
+---
+Output: An immutable plan draft update.
+*/
+function changePlanBrowserSettings(browser: PlanBrowserSettingsDraft): void {
+  emit('update:plan', updatePlanBrowserSettings(props.plan, browser));
 }
 
 /*
@@ -123,6 +133,20 @@ function changeCaseId(path: string, id: string): void {
 }
 
 /*
+Updates or clears browser overrides for one case document.
+---
+Inputs: A case-reference path and optional case-browser settings.
+---
+Output: An immutable case-draft collection update.
+*/
+function changeCaseBrowserSettings(path: string, browser: CaseBrowserSettingsDraft | undefined): void {
+  const caseDraft = props.caseDrafts[path];
+  if (caseDraft !== undefined) {
+    emit('update:case-drafts', { ...props.caseDrafts, [path]: updateCaseBrowserSettings(caseDraft, browser) });
+  }
+}
+
+/*
 Updates ordered step data for one selected case document.
 ---
 Inputs: A case-reference path and replacement raw steps.
@@ -136,6 +160,13 @@ function changeCaseSteps(path: string, steps: unknown[]): void {
   }
 }
 
+/*
+Removes one step from a case document.
+---
+Inputs: A case-reference path and the selected step index.
+---
+Output: An immutable case-draft collection update without that step.
+*/
 function removeCaseStep(path: string, index: number): void {
   const caseDraft = props.caseDrafts[path];
   if (caseDraft !== undefined) {
@@ -406,12 +437,8 @@ function cancelConfirmation(): void {
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
-  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
-    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference">
-      <template #case-details="{ path }">
-        <CaseDetails :case-drafts="caseDrafts" :editing="editing" :plan-locale="plan.defaults.locale" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
-      </template>
-    </CaseReferences>
+  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @validate="requestPlanValidation">
+    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
   </PlanDetails>
   <SharedContractAssessment :validation="planValidation" />
   <ConfirmationModal

@@ -27,6 +27,8 @@ Use this quiz after completing the web editor course. Check answers against the 
 23. Why does M10.3 prepare and validate the portable ZIP before it asks for a download filename?
 24. Why does Edit/View mode belong to temporary interface state rather than a plan or recovery record?
 25. What does the M10 round-trip walkthrough establish that isolated import and export tests cannot?
+26. Why can a case override viewport and time zone but not headless mode, and why does enabling the override begin with copied plan values?
+27. Why should `CaseStepEditor` coordinate ordered data and dialogs while step-detail components compose their cards?
 
 ## Answer key
 
@@ -55,3 +57,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 23. Filename choice cannot make an invalid plan/case bundle portable. M10.3 first prepares the ZIP through the shared codec, blocks invalid drafts with a localized dialog, then suggests a plan-derived filename for the valid browser download. The browser, rather than the editor footer, communicates the completed download; local recovery remains a separate concern.
 24. It changes only how the current bundle is presented. Saving it in the plan would alter portable contract data, while saving it in recovery would make a momentary inspection preference part of draft-restoration behaviour. The toolbar therefore starts in Edit and keeps the mode in the current interface session only.
 25. It checks the transitions between browser file selection, active draft replacement, editing, filename confirmation, browser download, re-import, recovery, conflicts, and localized dialog behaviour. Focused tests protect individual boundaries, but cannot by themselves demonstrate that the complete author workflow preserves the intended state.
+26. Headless mode is selected when the run-wide Chromium process launches, while viewport and time zone can vary by case. Copying the effective plan values gives an explicit override a valid, understandable starting point rather than leaving fields blank.
+27. The editor then has one place for ordered immutable updates, dialogs, and recovery-facing events, while each step type keeps its own presentation, tabs, and card details close to the data it displays.

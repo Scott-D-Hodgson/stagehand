@@ -17,17 +17,19 @@ remain in `components/dialogs/` because they are temporary interactions rather
 than part of a rendered plan, case, or step card.
 
 This arrangement makes a step card easier to read: its numbered action and
-details remain in the card body, while authoring actions belong in the header
-and action-specific panels belong in the footer. A component boundary does not
-move validation, recovery, or document ownership into the child component.
+details remain in the card body, while authoring actions belong in the footer.
+The later M11 browser-configuration slice refines this further: individual
+step-detail components compose their cards while `CaseStepEditor` coordinates
+ordered data and dialogs. A component boundary does not move validation,
+recovery, or document ownership into the child component.
 
 ## Inspect without authoring controls
 
-The sticky plan toolbar has a temporary Edit/View switch. Edit mode shows the
-plan, case-reference, and step card headers and footers, including their
-authoring controls. View mode hides those card sections, presents Plan Locale
-and Case ID as values, and keeps case-reference expansion available for
-inspection.
+The sticky plan toolbar has a temporary Edit/View switch. Edit mode gives the
+active case its settings and controls; other cases use reduced read-only step
+cards. View mode shows every Case ID and step body, but hides step tabs,
+headers, and footers. A localized assertion shows its Default content in this
+reduced presentation.
 
 The switch is not Stagehand document data and is not a recovery preference. It
 starts in Edit each time the interface loads. That keeps a portable plan focused
@@ -36,11 +38,11 @@ must survive a close or refresh.
 
 ## Try it
 
-1. Open a plan with at least one expanded case and several step cards.
-2. Switch to View and confirm that headers, footers, and authoring controls are
-   absent while step details remain visible.
-3. Expand or collapse a case reference in View, then return to Edit and confirm
-   that the controls return without changing plan data.
+1. Open a plan with at least two cases and several step cards.
+2. Switch the active case in Edit and confirm that the other case reduces to
+   its Case ID and read-only steps.
+3. Switch to View and confirm that every case shows those reduced cards without
+   changing plan data.
 
 ## You are ready when
 

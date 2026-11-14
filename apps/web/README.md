@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Complete step authoring and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values and supported plan/case browser configuration. Complete run configuration, remaining step authoring, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -58,10 +58,10 @@ Run these commands from the repository root:
   the affected tab pauses autosave until the author discards local edits or
   explicitly replaces the saved draft.
 - `PlanBundle` composes case-reference workspaces inside Plan details. A
-  reference-card header expands or collapses its case; only one case workspace
-  is open at a time. Collapsed cards show localized 0/1/many step wording;
-  the expanded card contains the independently stored Case ID, steps, and
-  authoring controls. Add and Edit use a Bootstrap dialog with a filename-safe
+  reference-card header selects its active editing case. The active card
+  contains the independently stored Case ID, settings, steps, and authoring
+  controls; non-active cards retain a reduced read-only case and step display.
+  Add and Edit use a Bootstrap dialog with a filename-safe
   path suggestion; removal and sample reset require a Bootstrap confirmation
   dialog. Adjacent move controls reorder reference cards immutably and animate
   their exchanged positions. The expanded card uses Bootstrap theme-aware
@@ -83,11 +83,17 @@ Run these commands from the repository root:
   their feedback cannot be missed. New plan collects a filename-safe ID, starts
   with default `en-CA` and no cases, and confirms replacement of changed work
   before the recovered bundle is replaced.
-- The same toolbar switches between Edit and View. Edit shows the plan,
-  case-reference, and step card headers and footers with their authoring
-  controls. View hides those controls and presents read-only Plan Locale and
-  Case ID values while preserving expandable case-reference details. The mode
-  is temporary interface state: it is not saved in a plan or recovery record.
+- Plan Browser authors supported Chromium run defaults: headless mode,
+  viewport dimensions, and IANA time zone. Case Browser can explicitly override
+  the viewport and time zone, beginning from copied effective plan values;
+  removing that override restores inheritance without changing unrelated case
+  settings. Headless mode remains run-wide and is therefore not a case option.
+- The same toolbar switches between Edit and View. Edit gives the active case
+  its settings tabs and step controls, while other cases use a reduced read-only
+  presentation. View presents every Case ID and step body, hides step card
+  tabs, headers, and footers, and always shows an assertion's Default content.
+  The mode is temporary interface state: it is not saved in a plan or recovery
+  record.
 - An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
@@ -106,7 +112,9 @@ Run these commands from the repository root:
   option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
   for their target fields, but retain their action-specific dialogs and
   validation.
-  Add, Edit, Clone, Remove, and adjacent Move up/Move down controls preserve
+  Each step-detail component composes its own card presentation; `CaseStepEditor`
+  coordinates ordered data, dialogs, and draft updates. Add, Edit, Clone,
+  Remove, and adjacent Move up/Move down controls preserve
   recovery and confirmation behaviour. Reordered step and reference cards
   animate into their new positions; the first and last cards disable the
   unavailable direction. The shared case validator identifies invalid authored

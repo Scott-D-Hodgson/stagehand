@@ -1,12 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseReference, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseBrowserSettings, updateCaseReference, updatePlanBrowserSettings, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
     expect(createBundledPlanDraft()).toEqual({
       version: 1,
       id: 'editor-foundation',
-      defaults: { locale: 'en-CA' },
+      defaults: {
+        browser: {
+          headless: true,
+          timeZone: 'America/Toronto',
+          viewport: { height: 720, width: 1280 },
+        },
+        locale: 'en-CA',
+      },
       cases: [{ path: 'cases/landing-page.json' }],
     });
   });
@@ -18,6 +25,27 @@ describe('plan draft', () => {
     expect(updated.id).toBe(draft.id);
     expect(updated.cases).toEqual(draft.cases);
     expect(draft.defaults.locale).toBe('en-CA');
+  });
+
+  it('updates plan browser defaults without changing the source draft', () => {
+    const draft = createBundledPlanDraft();
+    const updated = updatePlanBrowserSettings(draft, { headless: false, timeZone: 'UTC', viewport: { height: 1080, width: 1920 } });
+    expect(updated.defaults.browser).toEqual({ headless: false, timeZone: 'UTC', viewport: { height: 1080, width: 1920 } });
+    expect(draft.defaults.browser).toEqual({ headless: true, timeZone: 'America/Toronto', viewport: { height: 720, width: 1280 } });
+  });
+
+  it('adds and clears an independent case browser override', () => {
+    const caseDraft = createBundledEditorDraft().cases['cases/landing-page.json']!;
+    const updated = updateCaseBrowserSettings(caseDraft, { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } });
+    const cleared = updateCaseBrowserSettings(updated, undefined);
+    expect(updated.settings).toEqual({ browser: { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } } });
+    expect(cleared.settings).toBeUndefined();
+    expect(caseDraft.settings).toBeUndefined();
+  });
+
+  it('retains unrelated case settings when clearing a browser override', () => {
+    const caseDraft = { ...createBundledEditorDraft().cases['cases/landing-page.json']!, settings: { accessibility: { enabled: false }, browser: { timeZone: 'UTC' } } };
+    expect(updateCaseBrowserSettings(caseDraft, undefined).settings).toEqual({ accessibility: { enabled: false } });
   });
 
   it('creates an independent plain snapshot for local recovery', () => {
@@ -34,6 +62,16 @@ describe('plan draft', () => {
     snapshot.plan.defaults.locale = 'fr-CA';
     snapshot.cases['cases/landing-page.json']!.id = 'changed';
     expect(draft).toEqual(createBundledEditorDraft());
+  });
+
+  it('copies plan defaults and case browser overrides into an independent recovery snapshot', () => {
+    const draft = createBundledEditorDraft();
+    draft.cases['cases/landing-page.json']!.settings = { browser: { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } } };
+    const snapshot = copyEditorBundleDraft(draft);
+    snapshot.plan.defaults.browser!.viewport!.width = 1440;
+    (snapshot.cases['cases/landing-page.json']!.settings!.browser as { viewport: { width: number } }).viewport.width = 1440;
+    expect(draft.plan.defaults.browser!.viewport!.width).toBe(1280);
+    expect((draft.cases['cases/landing-page.json']!.settings!.browser as { viewport: { width: number } }).viewport.width).toBe(1920);
   });
 
   it('copies nested Click locator data into an independent recovery snapshot', () => {
@@ -101,7 +139,19 @@ describe('plan draft', () => {
   it('creates a new empty plan bundle with the supplied identifier', () => {
     expect(createEmptyEditorDraft('new-plan')).toEqual({
       cases: {},
-      plan: { cases: [], defaults: { locale: 'en-CA' }, id: 'new-plan', version: 1 },
+      plan: {
+        cases: [],
+        defaults: {
+          browser: {
+            headless: true,
+            timeZone: 'America/Toronto',
+            viewport: { height: 720, width: 1280 },
+          },
+          locale: 'en-CA',
+        },
+        id: 'new-plan',
+        version: 1,
+      },
     });
   });
 

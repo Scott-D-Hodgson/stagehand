@@ -1,12 +1,14 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import StepCard from './StepCard.vue';
 
-const props = defineProps<{ step: unknown }>();
+const props = defineProps<{ actionLabel: string; editing: boolean; index: number; invalid: boolean; step: unknown; stepCount: number }>();
+const emit = defineEmits<{ clone: []; edit: []; move: [direction: -1 | 1]; remove: [] }>();
 const url = computed(() => (props.step as { url?: string }).url ?? '');
 </script>
 
 <template>
-  <div>
+  <StepCard :action-label="props.actionLabel" :editing="props.editing" :index="props.index" :invalid="props.invalid" :step-count="props.stepCount" @clone="emit('clone')" @edit="emit('edit')" @move="emit('move', $event)" @remove="emit('remove')">
     <p class="mb-0 text-body-secondary text-break">{{ url }}</p>
-  </div>
+  </StepCard>
 </template>
