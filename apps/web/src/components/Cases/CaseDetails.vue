@@ -2,7 +2,7 @@
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
-import { defaultPlanBrowserSettings, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
+import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
 import { getInvalidCaseStepIndexes } from '../../document/validation';
 import CaseStepEditor from '../Steps/CaseStepEditor.vue';
 
@@ -13,6 +13,7 @@ const props = defineProps<{
   casePath: string;
   editing: boolean;
   expanded: boolean;
+  planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
 }>();
@@ -22,6 +23,7 @@ const emit = defineEmits<{
   'move-reference': [options: { direction: -1 | 1; index: number }];
   'remove-reference': [index: number];
   'select-reference': [path: string];
+  'update:accessibility': [path: string, accessibility: AccessibilitySettingsDraft | undefined];
   'update:browser': [path: string, browser: CaseBrowserSettingsDraft | undefined];
   'remove:step': [path: string, index: number];
   'update:case-id': [path: string, id: string];
@@ -31,7 +33,7 @@ const emit = defineEmits<{
 const { t } = useTranslation();
 const selectedCase = computed(() => props.caseDrafts[props.casePath]);
 const hasInvalidSteps = computed(() => selectedCase.value === undefined ? false : getInvalidCaseStepIndexes(selectedCase.value).length > 0);
-const selectedDetailsTab = ref<'browser' | 'default'>('default');
+const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
 const browserSettingsWereBlurred = ref(false);
 const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
   ...defaultPlanBrowserSettings,
@@ -51,6 +53,9 @@ const caseBrowserIssues = computed<ValidationIssue[]>(() => {
   return validation.valid ? [] : validation.issues.filter((issue) => issue.path.startsWith('/settings/browser'));
 });
 const shouldShowCaseBrowserIssues = computed(() => caseBrowserIssues.value.length > 0 && browserSettingsWereBlurred.value);
+const effectivePlanAccessibility = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.planAccessibility }));
+const caseAccessibilitySettings = computed(() => selectedCase.value?.settings?.accessibility);
+const hasAccessibilityOverride = computed(() => caseAccessibilitySettings.value !== undefined);
 
 /*
 Emits a changed case identifier for the selected case document.
@@ -109,6 +114,38 @@ function changeCaseBrowserSettings(settings: Partial<CaseBrowserSettingsDraft>):
       ...settings.viewport,
     },
   });
+}
+
+/*
+Creates or removes the current case accessibility override.
+---
+Inputs: The override checkbox state.
+---
+Output: A case-accessibility update using copied plan values or no override.
+*/
+function changeAccessibilityOverride(enabled: boolean): void {
+  if (!props.casePath) {
+    return;
+  }
+  if (!enabled) {
+    emit('update:accessibility', props.casePath, undefined);
+    return;
+  }
+  emit('update:accessibility', props.casePath, { ...effectivePlanAccessibility.value });
+}
+
+/*
+Updates one explicit case accessibility override while retaining its other fields.
+---
+Inputs: A partial case-accessibility settings replacement.
+---
+Output: A replacement accessibility override for the selected case.
+*/
+function changeCaseAccessibilitySettings(settings: Partial<AccessibilitySettingsDraft>): void {
+  if (!props.casePath || caseAccessibilitySettings.value === undefined) {
+    return;
+  }
+  emit('update:accessibility', props.casePath, { ...caseAccessibilitySettings.value, ...settings });
 }
 
 /*
@@ -172,6 +209,9 @@ function updateSteps(path: string, steps: unknown[]): void {
         <li class="nav-item" role="presentation">
           <button :id="`case-browser-tab-${caseIndex}`" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="`case-browser-panel-${caseIndex}`" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button :id="`case-accessibility-tab-${caseIndex}`" :class="['nav-link', { active: selectedDetailsTab === 'accessibility' }]" type="button" role="tab" :aria-controls="`case-accessibility-panel-${caseIndex}`" :aria-selected="selectedDetailsTab === 'accessibility'" @click="selectedDetailsTab = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
+        </li>
       </ul>
     </div>
     <div v-if="selectedCase && editing && expanded" class="card-body">
@@ -184,7 +224,7 @@ function updateSteps(path: string, steps: unknown[]): void {
           <input v-if="editing" :id="`case-id-${caseIndex}`" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
           <p v-else class="form-control-plaintext">{{ selectedCase.id }}</p>
         </section>
-        <section v-else :id="`case-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-tab-${caseIndex} case-browser-settings-heading-${caseIndex}`">
+        <section v-else-if="selectedDetailsTab === 'browser'" :id="`case-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-tab-${caseIndex} case-browser-settings-heading-${caseIndex}`">
           <div v-if="editing">
             <div class="form-check mb-3">
               <input :id="`case-browser-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasBrowserOverride" @change="changeBrowserOverride(($event.target as HTMLInputElement).checked)" />
@@ -215,6 +255,23 @@ function updateSteps(path: string, steps: unknown[]): void {
             <dt>{{ t('editor.timeZone') }}</dt>
             <dd class="mb-0">{{ (caseBrowserSettings ?? effectivePlanBrowser).timeZone }}</dd>
           </dl>
+        </section>
+        <section v-else :id="`case-accessibility-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-accessibility-tab-${caseIndex}`">
+          <div class="form-check mb-3">
+            <input :id="`case-accessibility-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasAccessibilityOverride" @change="changeAccessibilityOverride(($event.target as HTMLInputElement).checked)" />
+            <label class="form-check-label" :for="`case-accessibility-override-${caseIndex}`">{{ t('editor.overridePlanAccessibilitySettings') }}</label>
+          </div>
+          <div v-if="hasAccessibilityOverride" class="d-grid gap-3">
+            <div class="form-check">
+              <input :id="`case-accessibility-enabled-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.enabled" @change="changeCaseAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
+              <label class="form-check-label" :for="`case-accessibility-enabled-${caseIndex}`">{{ t('editor.accessibilityEnabled') }}</label>
+            </div>
+            <div class="form-check">
+              <input :id="`case-accessibility-fail-on-violation-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.failOnViolation" @change="changeCaseAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
+              <label class="form-check-label" :for="`case-accessibility-fail-on-violation-${caseIndex}`">{{ t('editor.failOnViolation') }}</label>
+            </div>
+          </div>
+          <p v-else class="mb-0 text-body-secondary">{{ t('editor.inheritingPlanAccessibilitySettings') }}</p>
         </section>
       </section>
     </div>

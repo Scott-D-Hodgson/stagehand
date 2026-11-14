@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseBrowserSettings, updateCaseReference, updatePlanBrowserSettings, updatePlanLocale, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import { validateEditorPlan } from '../../document/validation';
 import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
 import { readPortableBundleFile } from '../../portable-bundle/import';
@@ -66,6 +66,17 @@ Output: An immutable plan draft update.
 */
 function changePlanBrowserSettings(browser: PlanBrowserSettingsDraft): void {
   emit('update:plan', updatePlanBrowserSettings(props.plan, browser));
+}
+
+/*
+Updates plan-level accessibility defaults from plan details.
+---
+Inputs: A replacement plan-accessibility settings value.
+---
+Output: An immutable plan draft update.
+*/
+function changePlanAccessibilitySettings(accessibility: AccessibilitySettingsDraft): void {
+  emit('update:plan', updatePlanAccessibilitySettings(props.plan, accessibility));
 }
 
 /*
@@ -143,6 +154,20 @@ function changeCaseBrowserSettings(path: string, browser: CaseBrowserSettingsDra
   const caseDraft = props.caseDrafts[path];
   if (caseDraft !== undefined) {
     emit('update:case-drafts', { ...props.caseDrafts, [path]: updateCaseBrowserSettings(caseDraft, browser) });
+  }
+}
+
+/*
+Updates or clears accessibility overrides for one case document.
+---
+Inputs: A case-reference path and optional accessibility settings.
+---
+Output: An immutable case-draft collection update.
+*/
+function changeCaseAccessibilitySettings(path: string, accessibility: AccessibilitySettingsDraft | undefined): void {
+  const caseDraft = props.caseDrafts[path];
+  if (caseDraft !== undefined) {
+    emit('update:case-drafts', { ...props.caseDrafts, [path]: updateCaseAccessibilitySettings(caseDraft, accessibility) });
   }
 }
 
@@ -437,8 +462,8 @@ function cancelConfirmation(): void {
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
-  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @validate="requestPlanValidation">
-    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
+  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:accessibility="changePlanAccessibilitySettings" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @validate="requestPlanValidation">
+    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
   </PlanDetails>
   <SharedContractAssessment :validation="planValidation" />
   <ConfirmationModal

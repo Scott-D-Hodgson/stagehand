@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import { defaultPlanBrowserSettings, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
+import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import type { ValidationIssue } from '@stagehand/plan-schema';
 import localeCatalogue from '../../localization/locale-catalogue.json';
 
@@ -14,12 +14,13 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   'update:browser': [browser: PlanBrowserSettingsDraft];
+  'update:accessibility': [accessibility: AccessibilitySettingsDraft];
   'update:locale': [locale: string];
   validate: [];
 }>();
 
 const { t } = useTranslation();
-const selectedDetailsTab = ref<'browser' | 'default'>('default');
+const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
 const localeWasBlurred = ref(false);
 const browserSettingsWereBlurred = ref(false);
 const planLocaleIssues = computed(() => props.validationIssues.filter((issue) => issue.path === '/defaults/locale'));
@@ -35,6 +36,7 @@ const browserSettings = computed<PlanBrowserSettingsDraft>(() => ({
 }));
 const browserSettingIssues = computed(() => props.validationIssues.filter((issue) => issue.path.startsWith('/defaults/browser')));
 const shouldShowBrowserSettingIssues = computed(() => browserSettingIssues.value.length > 0 && (browserSettingsWereBlurred.value || props.validationRequested));
+const accessibilitySettings = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.plan.defaults.accessibility }));
 
 /*
 Emits a selected locale from the maintained application catalogue.
@@ -77,6 +79,17 @@ function changeBrowserSettings(settings: Partial<PlanBrowserSettingsDraft>): voi
 }
 
 /*
+Emits changed plan-level accessibility defaults while retaining other fields.
+---
+Inputs: A partial accessibility-settings replacement from plan details.
+---
+Output: A complete plan-accessibility settings update.
+*/
+function changeAccessibilitySettings(settings: Partial<AccessibilitySettingsDraft>): void {
+  emit('update:accessibility', { ...accessibilitySettings.value, ...settings });
+}
+
+/*
 Converts a browser numeric input into raw draft data.
 ---
 Inputs: A viewport number-input event.
@@ -114,6 +127,9 @@ function validateBrowserSettings(): void {
         <li class="nav-item" role="presentation">
           <button id="plan-browser-tab" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="'plan-browser-panel'" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
         </li>
+        <li class="nav-item" role="presentation">
+          <button id="plan-accessibility-tab" :class="['nav-link', { active: selectedDetailsTab === 'accessibility' }]" type="button" role="tab" :aria-controls="'plan-accessibility-panel'" :aria-selected="selectedDetailsTab === 'accessibility'" @click="selectedDetailsTab = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
+        </li>
       </ul>
     </div>
     <div class="card-body">
@@ -131,7 +147,7 @@ function validateBrowserSettings(): void {
           <dd class="mb-0">{{ plan.defaults.locale }}</dd>
         </dl>
       </section>
-      <section v-else id="plan-browser-panel" role="tabpanel" aria-labelledby="plan-browser-tab browser-settings-heading">
+      <section v-else-if="selectedDetailsTab === 'browser'" id="plan-browser-panel" role="tabpanel" aria-labelledby="plan-browser-tab browser-settings-heading">
         <div v-if="editing" class="row g-3">
           <div class="col-12">
             <div class="form-check">
@@ -160,6 +176,24 @@ function validateBrowserSettings(): void {
           <dd>{{ browserSettings.viewport?.width }} × {{ browserSettings.viewport?.height }}</dd>
           <dt>{{ t('editor.timeZone') }}</dt>
           <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
+        </dl>
+      </section>
+      <section v-else id="plan-accessibility-panel" role="tabpanel" aria-labelledby="plan-accessibility-tab">
+        <div v-if="editing" class="d-grid gap-3">
+          <div class="form-check">
+            <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="accessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
+            <label class="form-check-label" for="accessibility-enabled">{{ t('editor.accessibilityEnabled') }}</label>
+          </div>
+          <div class="form-check">
+            <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="accessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
+            <label class="form-check-label" for="accessibility-fail-on-violation">{{ t('editor.failOnViolation') }}</label>
+          </div>
+        </div>
+        <dl v-else class="mb-0">
+          <dt>{{ t('editor.accessibilityEnabled') }}</dt>
+          <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
+          <dt>{{ t('editor.failOnViolation') }}</dt>
+          <dd class="mb-0">{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
         </dl>
       </section>
     </div>

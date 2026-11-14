@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseBrowserSettings, updateCaseReference, updatePlanBrowserSettings, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -7,6 +7,7 @@ describe('plan draft', () => {
       version: 1,
       id: 'editor-foundation',
       defaults: {
+        accessibility: { enabled: false, failOnViolation: false },
         browser: {
           headless: true,
           timeZone: 'America/Toronto',
@@ -34,6 +35,13 @@ describe('plan draft', () => {
     expect(draft.defaults.browser).toEqual({ headless: true, timeZone: 'America/Toronto', viewport: { height: 720, width: 1280 } });
   });
 
+  it('updates plan accessibility defaults without changing the source draft', () => {
+    const draft = createBundledPlanDraft();
+    const updated = updatePlanAccessibilitySettings(draft, { enabled: true, failOnViolation: true });
+    expect(updated.defaults.accessibility).toEqual({ enabled: true, failOnViolation: true });
+    expect(draft.defaults.accessibility).toEqual({ enabled: false, failOnViolation: false });
+  });
+
   it('adds and clears an independent case browser override', () => {
     const caseDraft = createBundledEditorDraft().cases['cases/landing-page.json']!;
     const updated = updateCaseBrowserSettings(caseDraft, { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } });
@@ -46,6 +54,14 @@ describe('plan draft', () => {
   it('retains unrelated case settings when clearing a browser override', () => {
     const caseDraft = { ...createBundledEditorDraft().cases['cases/landing-page.json']!, settings: { accessibility: { enabled: false }, browser: { timeZone: 'UTC' } } };
     expect(updateCaseBrowserSettings(caseDraft, undefined).settings).toEqual({ accessibility: { enabled: false } });
+  });
+
+  it('adds and clears an accessibility override without changing browser settings', () => {
+    const caseDraft = { ...createBundledEditorDraft().cases['cases/landing-page.json']!, settings: { browser: { timeZone: 'UTC' } } };
+    const updated = updateCaseAccessibilitySettings(caseDraft, { enabled: true, failOnViolation: false });
+    const cleared = updateCaseAccessibilitySettings(updated, undefined);
+    expect(updated.settings).toEqual({ accessibility: { enabled: true, failOnViolation: false }, browser: { timeZone: 'UTC' } });
+    expect(cleared.settings).toEqual({ browser: { timeZone: 'UTC' } });
   });
 
   it('creates an independent plain snapshot for local recovery', () => {
@@ -142,6 +158,7 @@ describe('plan draft', () => {
       plan: {
         cases: [],
         defaults: {
+          accessibility: { enabled: false, failOnViolation: false },
           browser: {
             headless: true,
             timeZone: 'America/Toronto',
