@@ -83,7 +83,7 @@ onBeforeUnmount(() => modal?.dispose());
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>
-          <button class="btn btn-primary" type="submit">{{ t('editor.create') }}</button>
+          <button class="btn btn-secondary" type="submit">{{ t('editor.create') }}</button>
         </div>
       </form>
     </div>

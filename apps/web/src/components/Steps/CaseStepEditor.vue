@@ -1,20 +1,28 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import { moveCaseStep, type CaseDraft } from '../document/plan-draft';
-import { getInvalidCaseStepIndexes } from '../document/validation';
-import ConfirmationModal from './dialogs/ConfirmationModal.vue';
-import AssertHtmlStepDialog from './dialogs/AssertHtmlStepDialog.vue';
-import AssertTextStepDialog from './dialogs/AssertTextStepDialog.vue';
-import AssertValueStepDialog from './dialogs/AssertValueStepDialog.vue';
-import ClickStepDialog from './dialogs/ClickStepDialog.vue';
-import FillStepDialog from './dialogs/FillStepDialog.vue';
-import LocaleOverrideDialog from './dialogs/LocaleOverrideDialog.vue';
-import NavigateStepDialog from './dialogs/NavigateStepDialog.vue';
-import SelectOptionStepDialog from './dialogs/SelectOptionStepDialog.vue';
-import StepChooserDialog from './dialogs/StepChooserDialog.vue';
-import TypeStepDialog from './dialogs/TypeStepDialog.vue';
+import { moveCaseStep, type CaseDraft } from '../../document/plan-draft';
+import { getInvalidCaseStepIndexes } from '../../document/validation';
+import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
+import AssertHtmlStepDialog from '../dialogs/AssertHtmlStepDialog.vue';
+import AssertTextStepDialog from '../dialogs/AssertTextStepDialog.vue';
+import AssertValueStepDialog from '../dialogs/AssertValueStepDialog.vue';
+import ClickStepDialog from '../dialogs/ClickStepDialog.vue';
+import FillStepDialog from '../dialogs/FillStepDialog.vue';
+import LocaleOverrideDialog from '../dialogs/LocaleOverrideDialog.vue';
+import NavigateStepDialog from '../dialogs/NavigateStepDialog.vue';
+import SelectOptionStepDialog from '../dialogs/SelectOptionStepDialog.vue';
+import StepChooserDialog from '../dialogs/StepChooserDialog.vue';
+import TypeStepDialog from '../dialogs/TypeStepDialog.vue';
+import AssertHtmlStepDetails from './AssertHtmlStepDetails.vue';
+import AssertTextStepDetails from './AssertTextStepDetails.vue';
+import AssertValueStepDetails from './AssertValueStepDetails.vue';
+import ClickStepDetails from './ClickStepDetails.vue';
+import FillStepDetails from './FillStepDetails.vue';
+import NavigateStepDetails from './NavigateStepDetails.vue';
+import SelectOptionStepDetails from './SelectOptionStepDetails.vue';
+import TypeStepDetails from './TypeStepDetails.vue';
 
 interface LocaleOverride {
   locale: string;
@@ -23,12 +31,12 @@ interface LocaleOverride {
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
+  editing: boolean;
   planLocale: string;
   selectedPath: string;
 }>();
 
 const emit = defineEmits<{
-  'update:case-id': [path: string, id: string];
   'remove:step': [path: string, index: number];
   'update:steps': [path: string, steps: unknown[]];
 }>();
@@ -114,6 +122,8 @@ const assertValueRoleValidationMessage = computed(() => assertValueRole.value.tr
 const assertValueExpectedValidationMessage = computed(() => assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined);
 const stepKeys = new WeakMap<object, number>();
 let nextStepKey = 0;
+const stepCardList = ref<HTMLElement>();
+let heightTransitionToken = 0;
 
 const navigateUrlBlurred = ref(false);
 const navigateValidationIssues = computed(() => {
@@ -128,17 +138,41 @@ const navigateValidationIssues = computed(() => {
 });
 
 /*
-Emits a changed case identifier for the selected case document.
+Animates the step-card list height while Edit/View controls change its content.
 ---
-Inputs: Raw identifier text entered by the author.
+Inputs: The current rendered list height before Vue applies an editing-mode update.
 ---
-Output: A case-ID update for the owning bundle.
+Output: A height transition that finishes at the updated rendered list size.
 */
-function changeCaseId(id: string): void {
-  if (props.selectedPath) {
-    emit('update:case-id', props.selectedPath, id);
+async function animateStepCardListHeight(): Promise<void> {
+  const element = stepCardList.value;
+  if (element === undefined) {
+    return;
   }
+  const token = heightTransitionToken + 1;
+  heightTransitionToken = token;
+  const startingHeight = element.getBoundingClientRect().height;
+  await nextTick();
+  if (token !== heightTransitionToken || element !== stepCardList.value) {
+    return;
+  }
+  const endingHeight = element.getBoundingClientRect().height;
+  if (startingHeight === endingHeight) {
+    return;
+  }
+  element.style.height = `${startingHeight}px`;
+  void element.offsetHeight;
+  element.style.height = `${endingHeight}px`;
+  element.addEventListener('transitionend', (event) => {
+    if (event.propertyName === 'height' && token === heightTransitionToken) {
+      element.style.height = '';
+    }
+  }, { once: true });
 }
+
+watch(() => props.editing, () => {
+  void animateStepCardListHeight();
+}, { flush: 'pre' });
 
 /*
 Adds an incomplete Navigate step for the author to complete.
@@ -651,18 +685,6 @@ function isConfiguredLocaleOverride(override: LocaleOverride): boolean {
 }
 
 /*
-Returns the target portion of a localized assertion step summary.
----
-Inputs: A raw Assert text step.
----
-Output: The displayed locator target.
-*/
-function getExpectedValueTargetSummary(step: unknown): string {
-  const locator = (step as { locator?: { name?: string; role?: string } }).locator;
-  return `${locator?.role ?? ''}${locator?.name ? `: ${locator.name}` : ''}`;
-}
-
-/*
 Returns the default expected value from a localized assertion step.
 ---
 Inputs: A raw Assert text step.
@@ -897,14 +919,25 @@ function resetSelectOptionDialog(): void {
 }
 
 /*
-Returns the localized action label for a supported authored step.
+Identifies which dedicated step-details component renders a raw step.
 ---
 Inputs: A raw case-step value.
 ---
-Output: The action label shown on a step card.
+Output: Its action identifier, or Navigate as the legacy display fallback.
+*/
+function getStepAction(step: unknown): string {
+  return (step as { action?: string }).action ?? 'navigate';
+}
+
+/*
+Returns the localized header label for a supported authored step.
+---
+Inputs: A raw case-step value.
+---
+Output: The action label shown in the step card header.
 */
 function getStepActionLabel(step: unknown): string {
-  const action = (step as { action?: string }).action;
+  const action = getStepAction(step);
   if (action === 'assertValue') {
     return t('editor.assertValue');
   }
@@ -927,42 +960,6 @@ function getStepActionLabel(step: unknown): string {
     return t('editor.selectOption');
   }
   return t('editor.navigate');
-}
-
-/*
-Returns a concise description for a supported authored step.
----
-Inputs: A raw case-step value.
----
-Output: A card subtitle describing its target and authored value.
-*/
-function getStepSummary(step: unknown): string | undefined {
-  const action = (step as { action?: string }).action;
-  if (action === 'navigate') {
-    return (step as { url?: string }).url;
-  }
-  const locator = (step as { locator?: { name?: string; role?: string } }).locator;
-  const target = `${locator?.role ?? ''}${locator?.name ? `: ${locator.name}` : ''}`;
-  if (action === 'type') {
-    return `${target} → ${(step as { text?: string }).text ?? ''}`;
-  }
-  if (action === 'fill') {
-    return `${target} → ${(step as { value?: string }).value ?? ''}`;
-  }
-  if (action === 'selectOption') {
-    const selection = step as { label?: string; value?: string };
-    return `${target} → ${selection.value === undefined ? t('editor.label') : t('editor.value')}: ${selection.value ?? selection.label ?? ''}`;
-  }
-  if (action === 'assertText') {
-    return `${target} → ${(step as { expected?: { default?: string } }).expected?.default ?? ''}`;
-  }
-  if (action === 'assertHtml') {
-    return `${target} → ${(step as { expected?: { default?: string } }).expected?.default ?? ''}`;
-  }
-  if (action === 'assertValue') {
-    return `${target} → ${(step as { expected?: { default?: string } }).expected?.default ?? ''}`;
-  }
-  return target;
 }
 
 /*
@@ -1197,71 +1194,70 @@ function getStepKey(step: unknown): string {
 
 <template>
   <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
-    <label class="form-label" for="case-id">
-      <span>{{ t('editor.caseIdPrefix') }}</span>
-      <abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span>
-    </label>
-    <input id="case-id" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
-    <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger mt-3" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
+    <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
     <div class="border-top mt-4 pt-3">
       <h3 class="h6">{{ t('editor.steps') }}</h3>
-      <TransitionGroup name="step" tag="div">
-        <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" :class="['card', 'mb-3', { 'border-danger': invalidStepIndexes.includes(index) }]">
-          <div class="card-body d-flex justify-content-between align-items-start gap-3">
-            <div>
-              <p class="mb-1 fw-semibold">{{ index + 1 }}. {{ getStepActionLabel(step) }}</p>
-              <p v-if="isLocalizedExpectedValueStep(step)" class="mb-0 text-break">
-                <span class="text-body-secondary">{{ getExpectedValueTargetSummary(step) }} &rarr; </span>
-                <span class="text-primary fw-bold">{{ getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step) }}</span>
-                <span :class="['badge', 'rounded-pill', 'bg-body-secondary', 'border', 'ms-2', 'text-body', { invisible: getConfiguredLocaleOverride(step) === undefined }]">{{ getConfiguredLocaleOverride(step)?.locale ?? props.planLocale }}</span>
-              </p>
-              <p v-else class="mb-0 text-body-secondary text-break">{{ getStepSummary(step) }}</p>
-            </div>
-            <div class="d-flex gap-2">
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                type="button"
-                :disabled="index === 0"
-                @click="moveStep(index, -1)"
-              >
-                {{ t('editor.moveStepUp') }}
-              </button>
-              <button
-                class="btn btn-outline-secondary btn-sm"
-                type="button"
-                :disabled="index === selectedCase.steps.length - 1"
-                @click="moveStep(index, 1)"
-              >
-                {{ t('editor.moveStepDown') }}
-              </button>
-              <button class="btn btn-outline-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
-              <button class="btn btn-outline-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
-              <button class="btn btn-outline-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
-            </div>
-          </div>
-          <div v-if="isLocalizedExpectedValueStep(step)" class="card-footer">
-            <button class="btn btn-outline-secondary btn-sm" type="button" :aria-expanded="expandedLocaleOverrideStepIndexes.includes(index)" :aria-controls="`locale-overrides-${index}`" @click="toggleLocaleOverrides(index)">{{ t('editor.localeOverrides') }}</button>
-            <div v-if="expandedLocaleOverrideStepIndexes.includes(index)" :id="`locale-overrides-${index}`" class="mt-3">
-              <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-                <h4 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h4>
-                <button class="btn btn-outline-primary btn-sm" type="button" @click="addLocaleOverride(index)">{{ t('editor.add') }}</button>
+      <div ref="stepCardList" class="step-card-list">
+        <TransitionGroup name="step" tag="div">
+          <div v-for="(step, index) in selectedCase.steps" :key="getStepKey(step)" :class="['card', 'mb-3', { 'border-danger': invalidStepIndexes.includes(index) }]">
+            <div v-if="editing" class="card-header d-flex justify-content-end align-items-center gap-3 py-2">
+              <div class="d-flex gap-2">
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  :disabled="index === 0"
+                  @click="moveStep(index, -1)"
+                >
+                  {{ t('editor.moveStepUp') }}
+                </button>
+                <button
+                  class="btn btn-secondary btn-sm"
+                  type="button"
+                  :disabled="index === selectedCase.steps.length - 1"
+                  @click="moveStep(index, 1)"
+                >
+                  {{ t('editor.moveStepDown') }}
+                </button>
+                <button class="btn btn-secondary btn-sm" type="button" @click="editStep(index, step)">{{ t('editor.edit') }}</button>
+                <button class="btn btn-secondary btn-sm" type="button" @click="cloneStep(step)">{{ t('editor.clone') }}</button>
+                <button class="btn btn-danger btn-sm" type="button" @click="requestStepRemoval(index)">{{ t('editor.removeCaseReference') }}</button>
               </div>
-              <p v-if="getSortedExpectedLocaleOverrides(step).length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
-              <ul v-else class="list-group">
-                <li v-for="override in getSortedExpectedLocaleOverrides(step)" :key="override.locale" :class="['list-group-item', 'd-flex', 'align-items-center', 'justify-content-between', 'gap-3', { 'border-primary': isConfiguredLocaleOverride(override), 'locale-override-active': isConfiguredLocaleOverride(override) }]">
-                  <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
-                  <span class="d-flex gap-2">
-                    <button class="btn btn-outline-secondary btn-sm" type="button" @click="editLocaleOverride(index, override)">{{ t('editor.edit') }}</button>
-                    <button class="btn btn-outline-danger btn-sm" type="button" @click="requestLocaleOverrideRemoval(index, override)">{{ t('editor.remove') }}</button>
-                  </span>
-                </li>
-              </ul>
             </div>
+            <div class="card-body">
+              <h4 class="h6 mb-2">{{ index + 1 }}. {{ getStepActionLabel(step) }}</h4>
+              <NavigateStepDetails v-if="getStepAction(step) === 'navigate'" :step="step" />
+              <ClickStepDetails v-else-if="getStepAction(step) === 'click'" :step="step" />
+              <TypeStepDetails v-else-if="getStepAction(step) === 'type'" :step="step" />
+              <FillStepDetails v-else-if="getStepAction(step) === 'fill'" :step="step" />
+              <SelectOptionStepDetails v-else-if="getStepAction(step) === 'selectOption'" :step="step" />
+              <AssertTextStepDetails v-else-if="getStepAction(step) === 'assertText'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
+              <AssertHtmlStepDetails v-else-if="getStepAction(step) === 'assertHtml'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
+              <AssertValueStepDetails v-else-if="getStepAction(step) === 'assertValue'" :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale" :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)" :has-locale-override="getConfiguredLocaleOverride(step) !== undefined" :step="step" />
+            </div>
+            <div v-if="editing && isLocalizedExpectedValueStep(step)" class="card-footer">
+              <button class="btn btn-secondary btn-sm" type="button" :aria-expanded="expandedLocaleOverrideStepIndexes.includes(index)" :aria-controls="`locale-overrides-${index}`" @click="toggleLocaleOverrides(index)">{{ t('editor.localeOverrides') }}</button>
+              <div v-if="expandedLocaleOverrideStepIndexes.includes(index)" :id="`locale-overrides-${index}`" class="mt-3">
+                <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
+                  <h4 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h4>
+                  <button class="btn btn-secondary btn-sm" type="button" @click="addLocaleOverride(index)">{{ t('editor.add') }}</button>
+                </div>
+                <p v-if="getSortedExpectedLocaleOverrides(step).length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
+                <ul v-else class="list-group">
+                  <li v-for="override in getSortedExpectedLocaleOverrides(step)" :key="override.locale" :class="['list-group-item', 'd-flex', 'align-items-center', 'justify-content-between', 'gap-3', { 'border-primary': isConfiguredLocaleOverride(override), 'locale-override-active': isConfiguredLocaleOverride(override) }]">
+                    <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
+                    <span class="d-flex gap-2">
+                      <button class="btn btn-secondary btn-sm" type="button" @click="editLocaleOverride(index, override)">{{ t('editor.edit') }}</button>
+                      <button class="btn btn-danger btn-sm" type="button" @click="requestLocaleOverrideRemoval(index, override)">{{ t('editor.remove') }}</button>
+                    </span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div v-if="editing && invalidStepIndexes.includes(index)" class="card-footer text-danger">{{ t('editor.invalidStepMessage') }}</div>
           </div>
-          <div v-if="invalidStepIndexes.includes(index)" class="card-footer text-danger">{{ t('editor.invalidStepMessage') }}</div>
-        </div>
-      </TransitionGroup>
-      <button class="btn btn-outline-primary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
+        </TransitionGroup>
+      </div>
+      <button v-if="editing" class="btn btn-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
       <NavigateStepDialog
         v-if="navigateDialogOpen"
         :url="navigateUrl"
@@ -1426,6 +1422,11 @@ function getStepKey(step: unknown): string {
 <style scoped>
 .step-move {
   transition: transform 180ms ease-in-out;
+}
+
+.step-card-list {
+  overflow: clip;
+  transition: height 180ms ease-in-out;
 }
 
 .locale-override-active {

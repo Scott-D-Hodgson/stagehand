@@ -3,7 +3,7 @@ import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
-import PlanBundle from './components/PlanBundle.vue'
+import PlanBundle from './components/Plans/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
 import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, type EditorBundleDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'

@@ -19,6 +19,10 @@ This course explains the foundation of the local-first Stagehand web editor. The
   editor state until the author confirms replacement.
 - How valid-only export separates portable-bundle preparation, filename
   confirmation, browser download, and local recovery state.
+- How the editor separates plan, case, step, and dialog components without
+  changing the document ownership boundary.
+- How a temporary Edit/View mode separates authoring controls from focused
+  inspection of the current plan, cases, and steps.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -30,7 +34,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. M10.1 adds a pure browser-safe ZIP codec that validates a portable `plan.json` and its case entries. M10.2 adds browser ZIP selection, localized blocking rejection feedback, and confirmation before the selected valid bundle replaces active editor state. M10.3 adds valid-only portable ZIP download after filename confirmation. Early M11 slices add a maintained locale catalogue and localized Assert-text, Assert-HTML, and Assert-value expected values. The editor does not yet provide the remaining step forms or execute plans.
+M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. The editor separates plan, case, step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10.1 introduced a pure browser-safe ZIP codec that validates a portable `plan.json` and its case entries. M10.2 added browser ZIP selection, localized blocking rejection feedback, and confirmation before the selected valid bundle replaces active editor state. M10.3 added valid-only portable ZIP download after filename confirmation. Early M11 slices have added a maintained locale catalogue and localized Assert-text, Assert-HTML, and Assert-value expected values. The editor does not yet provide the remaining step forms or execute plans.
 
 ## Lessons
 
@@ -59,5 +63,6 @@ M8 and M9 are complete: the application has a Vite/Vue/TypeScript foundation, Bo
 23. [Portable bundle codec](Lessons/23-portable-bundle-codec.md)
 24. [Validated bundle import](Lessons/24-validated-bundle-import.md)
 25. [Valid-only bundle export](Lessons/25-valid-only-bundle-export.md)
+26. [Component boundaries and inspection mode](Lessons/26-component-boundaries-and-inspection-mode.md)
 
 Finish with the [course skill check](quiz.md).

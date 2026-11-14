@@ -2,18 +2,18 @@
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../document/plan-draft';
-import { validateEditorPlan } from '../document/validation';
-import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../portable-bundle/export';
-import { readPortableBundleFile } from '../portable-bundle/import';
-import CaseReferences from './CaseReferences.vue';
-import CaseDetails from './CaseDetails.vue';
-import ConfirmationModal from './dialogs/ConfirmationModal.vue';
-import BundleIssuesModal from './dialogs/BundleIssuesModal.vue';
-import ExportBundleDialog from './dialogs/ExportBundleDialog.vue';
-import NewPlanDialog from './dialogs/NewPlanDialog.vue';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseReference, updatePlanLocale, type CaseDraft, type PlanDraft } from '../../document/plan-draft';
+import { validateEditorPlan } from '../../document/validation';
+import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
+import { readPortableBundleFile } from '../../portable-bundle/import';
+import CaseReferences from '../Cases/CaseReferences.vue';
+import CaseDetails from '../Cases/CaseDetails.vue';
+import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
+import BundleIssuesModal from '../dialogs/BundleIssuesModal.vue';
+import ExportBundleDialog from '../dialogs/ExportBundleDialog.vue';
+import NewPlanDialog from '../dialogs/NewPlanDialog.vue';
 import PlanDetails from './PlanDetails.vue';
-import SharedContractAssessment from './SharedContractAssessment.vue';
+import SharedContractAssessment from '../SharedContractAssessment.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -39,6 +39,7 @@ const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
 const importInput = ref<HTMLInputElement>();
 const bundleIssues = ref<{ messages: string[]; message: string; title: string }>();
 const pendingExportBundle = ref<PreparedPortableBundleExport>();
+const editing = ref(true);
 
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
@@ -55,6 +56,17 @@ Output: An updated plan draft.
 */
 function changePlanLocale(locale: string): void {
   emit('update:plan', updatePlanLocale(props.plan, locale));
+}
+
+/*
+Switches between authoring controls and a details-only plan view.
+---
+Inputs: A toolbar mode-toggle activation.
+---
+Output: The current plan bundle display mode is inverted.
+*/
+function toggleEditing(): void {
+  editing.value = !editing.value;
 }
 
 /*
@@ -386,17 +398,18 @@ function cancelConfirmation(): void {
 <template>
   <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
     <div class="d-flex flex-wrap align-items-center gap-2">
-      <button class="btn btn-primary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
-      <button class="btn btn-outline-primary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
-      <button class="btn btn-outline-success" type="button" @click="requestExport">{{ t('editor.export') }}</button>
-      <button class="btn btn-outline-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
+      <button class="btn btn-secondary" type="button" @click="toggleEditing">{{ editing ? t('editor.viewMode') : t('editor.editMode') }}</button>
+      <button class="btn btn-secondary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
+      <button class="btn btn-secondary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
+      <button class="btn btn-secondary" type="button" @click="requestExport">{{ t('editor.export') }}</button>
+      <button class="btn btn-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
-  <PlanDetails :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
-    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference">
+  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:locale="changePlanLocale" @validate="requestPlanValidation">
+    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @select="selectCase" @update="changeReference">
       <template #case-details="{ path }">
-        <CaseDetails :case-drafts="caseDrafts" :plan-locale="plan.defaults.locale" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
+        <CaseDetails :case-drafts="caseDrafts" :editing="editing" :plan-locale="plan.defaults.locale" :selected-path="path" @remove:step="removeCaseStep" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
       </template>
     </CaseReferences>
   </PlanDetails>
