@@ -42,8 +42,8 @@ hugo server --source apps/site --buildDrafts
 
 1. Why is `HUGO_VERSION` pinned in the development-container image instead of
    installing Hugo interactively?
-2. Why is a successful local build not evidence that Cloudflare Pages or the
-   production domain works?
+2. Why is a successful local build alone not evidence that a hosted deployment
+   or the custom production domain works?
 
 ## Next lesson
 

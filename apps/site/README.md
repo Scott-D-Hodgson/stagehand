@@ -32,7 +32,9 @@ committed.
 
 ## Deployment boundary
 
-Cloudflare Pages deployment, preview behaviour, custom-domain configuration,
-and rollback procedures are deliberately documented and configured in later
-M15 slices. Do not add Cloudflare API tokens, registrar credentials, or other
+The Git-connected Cloudflare Pages project and its pull-request previews are
+configured and verified. See [deployment guidance](DEPLOYMENT.md) for the
+observed build settings and preview behaviour. Custom-domain configuration,
+DNS migration, editor deployment, and rollback procedures remain later M15
+work. Do not add Cloudflare API tokens, registrar credentials, or other
 deployment secrets to this repository.
