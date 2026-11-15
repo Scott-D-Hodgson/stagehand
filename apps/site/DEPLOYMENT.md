@@ -20,6 +20,14 @@ Set `HUGO_VERSION=0.170.0` in both the Production and Preview environments.
 The Pages configuration must match the version pinned in
 `.devcontainer/Dockerfile`.
 
+## Build watch paths
+
+Set the Pages project's include path to `apps/site/*` and leave its exclude
+paths empty. The trailing wildcard includes nested files and directories, so
+site content, layouts, assets, configuration, and future localization changes
+all trigger a build. Unrelated editor, package, planning, and development-
+container changes do not.
+
 ## Deployment behaviour
 
 Cloudflare Pages deploys commits to `main` to the production `pages.dev` URL.
