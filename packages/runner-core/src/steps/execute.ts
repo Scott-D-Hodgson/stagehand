@@ -1,5 +1,4 @@
 import { errors, type Page } from "playwright";
-import { DEFAULT_LOCATOR_TIMEOUT } from "../defaults.js";
 import { LocatorResolutionError } from "../locators.js";
 import { executeWaitList } from "../waits.js";
 import {
@@ -74,6 +73,7 @@ export async function executeCaseSteps(options: {
   caseId: string;
   steps: readonly ExecutableStep[];
   locale: string;
+  defaultTimeout: number;
   afterStep: (stepIndex: number) => Promise<void>;
   stepIdentities?: readonly StepExecutionIdentity[];
   protectedValues?: readonly string[];
@@ -90,14 +90,14 @@ export async function executeCaseSteps(options: {
       switch (step.action) {
         case "navigate":
           await executeNavigation(options.page, step.url, {
-            timeout: step.timeout,
+            timeout: step.timeout ?? options.defaultTimeout,
             waitUntil: step.waitUntil,
           });
           break;
         case "click":
           await executeWaitList(options.page, step.before ?? []);
           await executeClick(options.page, step.locator, {
-            timeout: step.timeout,
+            timeout: step.timeout ?? options.defaultTimeout,
             scrollIntoView: step.scrollIntoView,
           });
           await executeWaitList(options.page, step.after ?? []);
@@ -105,7 +105,7 @@ export async function executeCaseSteps(options: {
         case "type":
           await executeWaitList(options.page, step.before ?? []);
           await executeType(options.page, step.locator, step.text, {
-            timeout: step.timeout,
+            timeout: step.timeout ?? options.defaultTimeout,
             scrollIntoView: step.scrollIntoView,
           });
           await executeWaitList(options.page, step.after ?? []);
@@ -113,7 +113,7 @@ export async function executeCaseSteps(options: {
         case "fill":
           await executeWaitList(options.page, step.before ?? []);
           await executeFill(options.page, step.locator, step.value, {
-            timeout: step.timeout,
+            timeout: step.timeout ?? options.defaultTimeout,
             scrollIntoView: step.scrollIntoView,
           });
           await executeWaitList(options.page, step.after ?? []);
@@ -127,7 +127,7 @@ export async function executeCaseSteps(options: {
               ? { value: step.value }
               : { label: step.label as string },
             {
-              timeout: step.timeout,
+              timeout: step.timeout ?? options.defaultTimeout,
               scrollIntoView: step.scrollIntoView,
             },
           );
@@ -136,14 +136,15 @@ export async function executeCaseSteps(options: {
         case "assertText":
         case "assertHtml":
         case "assertValue": {
-          const deadline = performance.now() + (step.timeout ?? DEFAULT_LOCATOR_TIMEOUT);
+          const timeout = step.timeout ?? options.defaultTimeout;
+          const deadline = performance.now() + timeout;
           try {
             await executeStringAssertion({
               page: options.page,
               definition: step.locator,
               expected: step.expected,
               locale: options.locale,
-              timeout: step.timeout,
+              timeout,
               action: step.action,
             });
           } catch (error) {

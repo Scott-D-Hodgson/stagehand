@@ -2,7 +2,7 @@
 import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import { validateEditorPlan } from '../../document/validation';
 import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
 import { readPortableBundleFile } from '../../portable-bundle/import';
@@ -77,6 +77,17 @@ Output: An immutable plan draft update.
 */
 function changePlanAccessibilitySettings(accessibility: AccessibilitySettingsDraft): void {
   emit('update:plan', updatePlanAccessibilitySettings(props.plan, accessibility));
+}
+
+/*
+Updates the plan-wide step timeout from plan details.
+---
+Inputs: A raw timeout value.
+---
+Output: An immutable plan draft update.
+*/
+function changePlanTimeout(timeout: number | string | undefined): void {
+  emit('update:plan', updatePlanTimeout(props.plan, timeout));
 }
 
 /*
@@ -168,6 +179,20 @@ function changeCaseAccessibilitySettings(path: string, accessibility: Accessibil
   const caseDraft = props.caseDrafts[path];
   if (caseDraft !== undefined) {
     emit('update:case-drafts', { ...props.caseDrafts, [path]: updateCaseAccessibilitySettings(caseDraft, accessibility) });
+  }
+}
+
+/*
+Updates or clears a step-timeout override for one case document.
+---
+Inputs: A case-reference path and optional timeout override.
+---
+Output: An immutable case-draft collection update.
+*/
+function changeCaseTimeout(path: string, timeout: unknown | undefined): void {
+  const caseDraft = props.caseDrafts[path];
+  if (caseDraft !== undefined) {
+    emit('update:case-drafts', { ...props.caseDrafts, [path]: updateCaseTimeout(caseDraft, timeout) });
   }
 }
 
@@ -462,8 +487,8 @@ function cancelConfirmation(): void {
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
-  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:accessibility="changePlanAccessibilitySettings" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @validate="requestPlanValidation">
-    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" />
+  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:accessibility="changePlanAccessibilitySettings" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @update:timeout="changePlanTimeout" @validate="requestPlanValidation">
+    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :plan-timeout="plan.defaults.timeout" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" @update:timeout="changeCaseTimeout" />
   </PlanDetails>
   <SharedContractAssessment :validation="planValidation" />
   <ConfirmationModal

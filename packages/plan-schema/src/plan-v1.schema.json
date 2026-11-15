@@ -106,9 +106,15 @@
       "additionalProperties": false,
       "properties": {
         "locale": { "type": "string", "minLength": 1, "default": "en-CA" },
+        "timeout": { "$ref": "#/$defs/timeout" },
         "browser": { "$ref": "#/$defs/browserSettings" },
         "accessibility": { "$ref": "#/$defs/accessibilitySettings" }
       }
+    },
+    "timeout": {
+      "type": "integer",
+      "minimum": 1,
+      "default": 30000
     },
     "browserSettings": {
       "type": "object",

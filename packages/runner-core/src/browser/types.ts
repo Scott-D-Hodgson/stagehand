@@ -37,11 +37,13 @@ export interface BrowserContextSettings {
 
 export interface BrowserRunSettings {
   locale?: string;
+  timeout?: number;
   browser?: BrowserContextSettings & { headless?: boolean };
   accessibility?: AccessibilitySettings;
 }
 
 export interface CaseSettings {
+  timeout?: number;
   browser?: BrowserContextSettings;
   accessibility?: AccessibilitySettings;
 }

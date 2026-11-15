@@ -16,6 +16,7 @@ const props = defineProps<{
   localeOverrides: LocaleOverride[];
   step: unknown;
   stepCount: number;
+  timeout: unknown;
 }>();
 const emit = defineEmits<{
   'add-locale-override': [];
@@ -25,6 +26,7 @@ const emit = defineEmits<{
   edit: [];
   move: [direction: -1 | 1];
   remove: [];
+  'update:timeout': [timeout: number | string];
 }>();
 const { t } = useTranslation();
 const localeOverridesSelected = ref(false);
@@ -35,7 +37,7 @@ const target = computed(() => {
 </script>
 
 <template>
-  <StepCard :action-label="props.actionLabel" :editing="props.editing" :index="props.index" :invalid="props.invalid" :step-count="props.stepCount" @clone="emit('clone')" @edit="emit('edit')" @move="emit('move', $event)" @remove="emit('remove')">
+  <StepCard :action-label="props.actionLabel" :editing="props.editing" :index="props.index" :invalid="props.invalid" :step-count="props.stepCount" :timeout="props.timeout" @clone="emit('clone')" @edit="emit('edit')" @move="emit('move', $event)" @remove="emit('remove')" @update:timeout="emit('update:timeout', $event)">
     <template v-if="props.editing" #tabs>
       <ul class="nav nav-tabs card-header-tabs" role="tablist">
         <li class="nav-item" role="presentation">

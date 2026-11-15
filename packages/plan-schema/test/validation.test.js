@@ -48,6 +48,8 @@ test("publishes browser defaults without inserting them into validated input", (
   const plan = { version: 1, id: "defaults-test", cases: [] };
   const originalPlan = structuredClone(plan);
   assert.equal(planSchemaV1.$defs.planDefaults.properties.locale.default, "en-CA");
+  assert.equal(planSchemaV1.$defs.planDefaults.properties.timeout.$ref, "#/$defs/timeout");
+  assert.equal(planSchemaV1.$defs.timeout.default, 30000);
   assert.equal(planSchemaV1.$defs.browserSettings.properties.type.default, "chromium");
   assert.equal(planSchemaV1.$defs.browserSettings.properties.headless.default, true);
   assert.equal(planSchemaV1.$defs.browserSettings.properties.timeZone.default, "UTC");
@@ -65,6 +67,15 @@ test("publishes browser defaults without inserting them into validated input", (
   );
   assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.enabled.default, false);
   assert.equal(caseSchemaV1.$defs.accessibilitySettings.properties.failOnViolation.default, false);
+});
+
+test("accepts positive plan and case step-timeout settings", () => {
+  const plan = { version: 1, id: "timeout-test", defaults: { timeout: 5000 }, cases: [] };
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  assert.deepEqual(validatePlan(plan), { valid: true });
+  assert.deepEqual(validateCase({ ...exampleCase, settings: { timeout: 1000 } }), { valid: true });
+  assert.equal(validatePlan({ ...plan, defaults: { timeout: 0 } }).valid, false);
+  assert.equal(validateCase({ ...exampleCase, settings: { timeout: 1.5 } }).valid, false);
 });
 
 test("rejects malformed BCP 47 plan locales and case-level locale overrides", () => {

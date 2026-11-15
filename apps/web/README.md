@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values and supported plan/case browser configuration. Complete run configuration, remaining step authoring, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, and plan/case/step timeout inheritance. Remaining wait and assertion options, further step authoring, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -93,12 +93,18 @@ Run these commands from the repository root:
   explicitly override those values, starting from copied effective plan
   settings and returning to inheritance when cleared. An explicit empty case
   tag list clears the inherited filter and uses axe defaults.
+- Plan Default can explicitly override Stagehand's built-in 30,000 ms step
+  timeout; Case Default can override the effective plan value; and each
+  supported action or assertion card can provide the final override. Omitted
+  plan and case fields remain absent from portable data while the editor shows
+  their effective fallback. Wait-list item timeouts remain independent.
 - The same toolbar switches between Edit and View. Edit gives the active case
   its settings tabs and step controls, while other cases use a reduced read-only
-  presentation. View presents every Case ID and step body, hides step card
-  tabs, headers, and footers, and always shows an assertion's Default content.
-  The mode is temporary interface state: it is not saved in a plan or recovery
-  record.
+  presentation. View presents plan and case Default, Browser, and Accessibility
+  summaries in Bootstrap-style accordions that reset to Default when View mode
+  begins. It hides step card tabs, headers, and footers, and always shows an
+  assertion's Default content. The mode is temporary interface state: it is not
+  saved in a plan or recovery record.
 - An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
   Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required

@@ -18,7 +18,7 @@ import { scanAccessibility } from "../accessibility/scan.js";
 /*
 Creates one isolated case-session API.
 ---
-Inputs: Context, page, run settings, accessibility settings, and close callback.
+Inputs: Context, page, run settings, resolved timeout, accessibility settings, and close callback.
 ---
 Output: A case browser session.
 */
@@ -26,6 +26,7 @@ export function createCaseBrowserSession(input: {
   context: BrowserContext;
   page: Page;
   settings: BrowserRunSettings;
+  timeout: number;
   accessibility: EffectiveAccessibilitySettings;
   onClose: (session: CaseBrowserSession) => void;
 }): CaseBrowserSession {
@@ -121,6 +122,7 @@ export function createCaseBrowserSession(input: {
         caseId,
         steps,
         locale: input.settings.locale ?? "en-CA",
+        defaultTimeout: input.timeout,
         afterStep: async (stepIndex) => {
           if (!session.accessibility.enabled || session.page.isClosed()) {
             return;

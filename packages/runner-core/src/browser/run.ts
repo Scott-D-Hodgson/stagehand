@@ -3,6 +3,7 @@ import type { BrowserRunSettings, BrowserRun, CaseSettings, CaseBrowserSession }
 import { DEFAULT_VIEWPORT } from "../defaults.js";
 import { resolveAccessibilitySettings } from "../accessibility/settings.js";
 import { createCaseBrowserSession } from "./case-session.js";
+import { resolveStepTimeout } from "../steps/timeout.js";
 
 /*
 Launches Chromium and manages isolated case sessions.
@@ -32,6 +33,7 @@ export async function startBrowserRun(
   */
   async function createSession(caseSettings: CaseSettings): Promise<CaseBrowserSession> {
     const accessibility = resolveAccessibilitySettings(runAccessibility, caseSettings.accessibility);
+    const timeout = resolveStepTimeout(settings.timeout, caseSettings.timeout);
     let context: BrowserContext | undefined;
     try {
       const createdContext = await browser.newContext({
@@ -51,6 +53,7 @@ export async function startBrowserRun(
         context: createdContext,
         page,
         settings,
+        timeout,
         accessibility,
         onClose: (closedSession) => {
           activeSessions.delete(closedSession);
