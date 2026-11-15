@@ -36,6 +36,14 @@ deployment without changing production. Record the observed preview URL and
 status-check behaviour in the M15 work plan after the first successful
 verification.
 
+## Preview verification
+
+Use a pull request that changes a file under `apps/site/` to verify the Git
+integration. Confirm that Cloudflare creates a preview build, GitHub reports
+the corresponding check, the unique preview URL loads, and
+`https://stagehand-site.pages.dev/` remains unchanged. Check the preview build
+log for Hugo `0.170.0` before recording the result as M15 evidence.
+
 ## Boundaries
 
 Do not add Cloudflare API tokens, registrar credentials, or other deployment
