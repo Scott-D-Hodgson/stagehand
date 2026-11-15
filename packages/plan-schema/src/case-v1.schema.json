@@ -387,6 +387,7 @@
       "type": "object",
       "additionalProperties": false,
       "properties": {
+        "timeout": { "$ref": "#/$defs/timeout" },
         "browser": { "$ref": "#/$defs/browserSettings" },
         "accessibility": { "$ref": "#/$defs/accessibilitySettings" }
       }

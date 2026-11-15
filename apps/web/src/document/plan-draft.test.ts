@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -35,6 +35,14 @@ describe('plan draft', () => {
     expect(draft.defaults.browser).toEqual({ headless: true, timeZone: 'America/Toronto', viewport: { height: 720, width: 1280 } });
   });
 
+  it('updates the plan-wide step timeout without changing the source draft', () => {
+    const draft = createBundledPlanDraft();
+    const updated = updatePlanTimeout(draft, 5_000);
+    expect(updated.defaults.timeout).toBe(5_000);
+    expect(updatePlanTimeout(updated, undefined).defaults.timeout).toBeUndefined();
+    expect(draft.defaults.timeout).toBeUndefined();
+  });
+
   it('updates plan accessibility defaults without changing the source draft', () => {
     const draft = createBundledPlanDraft();
     const updated = updatePlanAccessibilitySettings(draft, { enabled: true, failOnViolation: true });
@@ -47,6 +55,15 @@ describe('plan draft', () => {
     const updated = updateCaseBrowserSettings(caseDraft, { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } });
     const cleared = updateCaseBrowserSettings(updated, undefined);
     expect(updated.settings).toEqual({ browser: { timeZone: 'UTC', viewport: { height: 1080, width: 1920 } } });
+    expect(cleared.settings).toBeUndefined();
+    expect(caseDraft.settings).toBeUndefined();
+  });
+
+  it('adds and clears an independent case timeout override', () => {
+    const caseDraft = createBundledEditorDraft().cases['cases/landing-page.json']!;
+    const updated = updateCaseTimeout(caseDraft, 5_000);
+    const cleared = updateCaseTimeout(updated, undefined);
+    expect(updated.settings).toEqual({ timeout: 5_000 });
     expect(cleared.settings).toBeUndefined();
     expect(caseDraft.settings).toBeUndefined();
   });
@@ -191,6 +208,14 @@ describe('plan draft', () => {
     const steps = [{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }];
     expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
     expect(moveCaseStep(steps, 0, 2)).toEqual(steps);
+    expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+  });
+
+  it('updates and clears a case step timeout without changing the source list', () => {
+    const steps = [{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }];
+    const withTimeout = updateCaseStepTimeout(steps, 0, 5_000);
+    expect(withTimeout).toEqual([{ action: 'navigate', url: 'https://example.com', timeout: 5_000 }, { action: 'click', locator: { role: 'button' } }]);
+    expect(updateCaseStepTimeout(withTimeout, 0, '')).toEqual(steps);
     expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
   });
 

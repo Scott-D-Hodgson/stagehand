@@ -93,6 +93,40 @@ test("uses Stagehand browser defaults when settings are omitted", async () => {
   await session.close();
   assert.equal(browserDouble.contexts[0].closeCount, 1);
 });
+test("applies the case timeout before the plan timeout and honours a step override", async () => {
+  const capturedTimeouts = [];
+  const browser = {
+    async newContext() {
+      return {
+        async newPage() {
+          return {
+            async goto(url, options) {
+              capturedTimeouts.push({ url, timeout: options.timeout, waitUntil: options.waitUntil });
+              return null;
+            },
+            isClosed() {
+              return false;
+            },
+          };
+        },
+        async close() {},
+      };
+    },
+    async close() {},
+  };
+  mock.method(chromium, "launch", async () => browser);
+  const run = await startBrowserRun({ timeout: 5000 });
+  const session = await run.createCaseSession({ timeout: 1000 });
+  await session.executeSteps("timeout-case", [
+    { action: "navigate", url: "https://example.test/inherited" },
+    { action: "navigate", url: "https://example.test/overridden", timeout: 250 },
+  ]);
+  assert.deepEqual(capturedTimeouts, [
+    { url: "https://example.test/inherited", timeout: 1000, waitUntil: "domcontentloaded" },
+    { url: "https://example.test/overridden", timeout: 250, waitUntil: "domcontentloaded" },
+  ]);
+  await run.close();
+});
 test("closes the context if page setup fails", async () => {
   let contextCloseCount = 0;
   let browserCloseCount = 0;

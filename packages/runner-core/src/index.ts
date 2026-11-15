@@ -18,6 +18,7 @@ export type {
   BrowserRun,
 } from "./browser/types.js";
 export { resolveAccessibilitySettings } from "./accessibility/settings.js";
+export { resolveStepTimeout } from "./steps/timeout.js";
 export type { LocatorDefinition, LocatorResolutionOptions } from "./locators.js";
 export type { ClickOptions } from "./actions/interactions/click.js";
 export type { TypeOptions } from "./actions/interactions/type.js";

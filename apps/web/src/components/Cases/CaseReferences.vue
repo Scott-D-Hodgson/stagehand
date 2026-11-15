@@ -13,6 +13,7 @@ const props = defineProps<{
   planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
+  planTimeout: unknown;
   selectedPath: string;
 }>();
 const emit = defineEmits<{
@@ -26,6 +27,7 @@ const emit = defineEmits<{
   'update:browser': [path: string, browser: CaseBrowserSettingsDraft | undefined];
   'update:case-id': [path: string, id: string];
   'update:steps': [path: string, steps: unknown[]];
+  'update:timeout': [path: string, timeout: unknown | undefined];
 }>();
 
 const { t } = useTranslation();
@@ -166,6 +168,17 @@ function updateSteps(path: string, steps: unknown[]): void {
   emit('update:steps', path, steps);
 }
 
+/*
+Passes a case timeout override update to the owning plan bundle.
+---
+Inputs: A case-reference path and optional timeout override.
+---
+Output: A case-timeout update event.
+*/
+function updateTimeout(path: string, timeout: unknown | undefined): void {
+  emit('update:timeout', path, timeout);
+}
+
 onMounted(() => {
   modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
   modalElement.value?.addEventListener('shown.bs.modal', () => caseNameInput.value?.focus());
@@ -189,6 +202,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
         :plan-accessibility="planAccessibility"
         :plan-browser="planBrowser"
         :plan-locale="planLocale"
+        :plan-timeout="planTimeout"
         @edit-reference="openDialog"
         @move-reference="moveReference"
         @remove-reference="emit('remove', $event)"
@@ -198,6 +212,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
         @update:browser="updateBrowserSettings"
         @update:case-id="updateCaseId"
         @update:steps="updateSteps"
+        @update:timeout="updateTimeout"
       />
     </TransitionGroup>
     <button v-if="editing" class="btn btn-secondary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>

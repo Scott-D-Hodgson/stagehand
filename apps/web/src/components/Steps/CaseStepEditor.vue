@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, watch } from 'vue';
+import { computed, nextTick, ref, toRaw, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import { moveCaseStep, type CaseDraft } from '../../document/plan-draft';
+import { moveCaseStep, updateCaseStepTimeout, type CaseDraft } from '../../document/plan-draft';
 import { getInvalidCaseStepIndexes } from '../../document/validation';
 import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import AssertHtmlStepDialog from '../dialogs/AssertHtmlStepDialog.vue';
@@ -309,7 +309,8 @@ function saveClickStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = clickName.value.trim() ? { name: clickName.value.trim(), role: clickRole.value.trim() } : { role: clickRole.value.trim() };
-    const steps = editingClickIndex.value === undefined ? [...selectedCase.value.steps, { action: 'click', locator }] : selectedCase.value.steps.map((step, index) => index === editingClickIndex.value ? { action: 'click', locator } : step);
+    const step = preserveEditedStepTimeout(editingClickIndex.value, { action: 'click', locator });
+    const steps = editingClickIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingClickIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
 }
@@ -359,7 +360,7 @@ function saveTypeStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = typeName.value.trim() ? { name: typeName.value.trim(), role: typeRole.value.trim() } : { role: typeRole.value.trim() };
-    const step = { action: 'type', locator, text: typeText.value };
+    const step = preserveEditedStepTimeout(editingTypeIndex.value, { action: 'type', locator, text: typeText.value });
     const steps = editingTypeIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingTypeIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -415,7 +416,7 @@ function saveAssertTextStep(): void {
     const locator = assertTextName.value.trim() ? { name: assertTextName.value.trim(), role: assertTextRole.value.trim() } : { role: assertTextRole.value.trim() };
     const locales = Object.fromEntries(assertTextLocaleOverrides.value.map((override) => [override.locale, override.value]));
     const expected = Object.keys(locales).length === 0 ? { default: assertTextExpected.value } : { default: assertTextExpected.value, locales };
-    const step = { action: 'assertText', expected, locator };
+    const step = preserveEditedStepTimeout(editingAssertTextIndex.value, { action: 'assertText', expected, locator });
     const steps = editingAssertTextIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertTextIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -729,7 +730,7 @@ function saveAssertHtmlStep(): void {
     const locator = assertHtmlName.value.trim() ? { name: assertHtmlName.value.trim(), role: assertHtmlRole.value.trim() } : { role: assertHtmlRole.value.trim() };
     const locales = Object.fromEntries(assertHtmlLocaleOverrides.value.map((override) => [override.locale, override.value]));
     const expected = Object.keys(locales).length === 0 ? { default: assertHtmlExpected.value } : { default: assertHtmlExpected.value, locales };
-    const step = { action: 'assertHtml', expected, locator };
+    const step = preserveEditedStepTimeout(editingAssertHtmlIndex.value, { action: 'assertHtml', expected, locator });
     const steps = editingAssertHtmlIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertHtmlIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -786,7 +787,7 @@ function saveAssertValueStep(): void {
     const locator = assertValueName.value.trim() ? { name: assertValueName.value.trim(), role: assertValueRole.value.trim() } : { role: assertValueRole.value.trim() };
     const locales = Object.fromEntries(assertValueLocaleOverrides.value.map((override) => [override.locale, override.value]));
     const expected = Object.keys(locales).length === 0 ? { default: assertValueExpected.value } : { default: assertValueExpected.value, locales };
-    const step = { action: 'assertValue', expected, locator };
+    const step = preserveEditedStepTimeout(editingAssertValueIndex.value, { action: 'assertValue', expected, locator });
     const steps = editingAssertValueIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertValueIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -840,7 +841,7 @@ function saveFillStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = fillName.value.trim() ? { name: fillName.value.trim(), role: fillRole.value.trim() } : { role: fillRole.value.trim() };
-    const step = { action: 'fill', locator, value: fillValue.value };
+    const step = preserveEditedStepTimeout(editingFillIndex.value, { action: 'fill', locator, value: fillValue.value });
     const steps = editingFillIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingFillIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -895,7 +896,7 @@ function saveSelectOptionStep(): void {
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = selectOptionName.value.trim() ? { name: selectOptionName.value.trim(), role: selectOptionRole.value.trim() } : { role: selectOptionRole.value.trim() };
     const selection = selectOptionMode.value === 'value' ? { value: selectOptionSelection.value } : { label: selectOptionSelection.value };
-    const step = { action: 'selectOption', locator, ...selection };
+    const step = preserveEditedStepTimeout(editingSelectOptionIndex.value, { action: 'selectOption', locator, ...selection });
     const steps = editingSelectOptionIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingSelectOptionIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -1169,6 +1170,47 @@ function moveStep(index: number, direction: -1 | 1): void {
 }
 
 /*
+Retains an existing step timeout when an action-specific dialog saves an edit.
+---
+Inputs: An optional edited step index and replacement action data.
+---
+Output: Replacement action data carrying the prior timeout when one exists.
+*/
+function preserveEditedStepTimeout(index: number | undefined, step: Record<string, unknown>): Record<string, unknown> {
+  if (index === undefined || selectedCase.value === undefined) {
+    return step;
+  }
+  const currentStep = selectedCase.value.steps[index];
+  if (typeof currentStep !== 'object' || currentStep === null || !('timeout' in currentStep)) {
+    return step;
+  }
+  return { ...step, timeout: (currentStep as { timeout: unknown }).timeout };
+}
+
+/*
+Updates or clears one step timeout without changing its action data.
+---
+Inputs: A step index and raw timeout value from its card.
+---
+Output: An updated case-step list with an optional timeout property.
+*/
+function changeStepTimeout(index: number, timeout: number | string): void {
+  if (selectedCase.value === undefined || props.selectedPath === '') {
+    return;
+  }
+  const currentStep = selectedCase.value.steps[index];
+  const steps = updateCaseStepTimeout(selectedCase.value.steps, index, timeout);
+  const updatedStep = steps[index];
+  if (typeof currentStep === 'object' && currentStep !== null && typeof updatedStep === 'object' && updatedStep !== null) {
+    const key = stepKeys.get(toRaw(currentStep));
+    if (key !== undefined) {
+      stepKeys.set(toRaw(updatedStep), key);
+    }
+  }
+  emit('update:steps', props.selectedPath, steps);
+}
+
+/*
 Returns the step-detail component for an authored action.
 ---
 Inputs: A raw case-step value.
@@ -1209,11 +1251,12 @@ function getStepKey(step: unknown): string {
   if (typeof step !== 'object' || step === null) {
     return `invalid-${String(step)}`;
   }
-  let key = stepKeys.get(step);
+  const rawStep = toRaw(step);
+  let key = stepKeys.get(rawStep);
   if (key === undefined) {
     key = nextStepKey;
     nextStepKey += 1;
-    stepKeys.set(step, key);
+    stepKeys.set(rawStep, key);
   }
   return `step-${key}`;
 }
@@ -1240,6 +1283,7 @@ function getStepKey(step: unknown): string {
           :locale-overrides="getLocaleOverrideItems(step)"
           :step="step"
           :step-count="selectedCase.steps.length"
+          :timeout="typeof step === 'object' && step !== null ? (step as { timeout?: unknown }).timeout : undefined"
           @add-locale-override="addLocaleOverride(index)"
           @clone="cloneStep(step)"
           @edit="editStep(index, step)"
@@ -1247,6 +1291,7 @@ function getStepKey(step: unknown): string {
           @move="moveStep(index, $event)"
           @remove="requestStepRemoval(index)"
           @remove-locale-override="requestLocaleOverrideRemoval(index, $event)"
+          @update:timeout="changeStepTimeout(index, $event)"
         />
       </TransitionGroup>
     </div>

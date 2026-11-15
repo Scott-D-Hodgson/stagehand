@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
@@ -17,6 +17,7 @@ const props = defineProps<{
   planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
+  planTimeout: unknown;
 }>();
 
 const emit = defineEmits<{
@@ -29,13 +30,16 @@ const emit = defineEmits<{
   'remove:step': [path: string, index: number];
   'update:case-id': [path: string, id: string];
   'update:steps': [path: string, steps: unknown[]];
+  'update:timeout': [path: string, timeout: unknown | undefined];
 }>();
 
 const { t } = useTranslation();
 const selectedCase = computed(() => props.caseDrafts[props.casePath]);
 const hasInvalidSteps = computed(() => selectedCase.value === undefined ? false : getInvalidCaseStepIndexes(selectedCase.value).length > 0);
 const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
+const viewDetailsSection = ref<'accessibility' | 'browser' | 'default' | undefined>('default');
 const browserSettingsWereBlurred = ref(false);
+const timeoutWasBlurred = ref(false);
 const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
   ...defaultPlanBrowserSettings,
   ...props.planBrowser,
@@ -57,6 +61,23 @@ const shouldShowCaseBrowserIssues = computed(() => caseBrowserIssues.value.lengt
 const effectivePlanAccessibility = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.planAccessibility }));
 const caseAccessibilitySettings = computed(() => selectedCase.value?.settings?.accessibility);
 const hasAccessibilityOverride = computed(() => caseAccessibilitySettings.value !== undefined);
+const caseTimeout = computed(() => selectedCase.value?.settings?.timeout);
+const hasTimeoutOverride = computed(() => caseTimeout.value !== undefined);
+const effectivePlanTimeout = computed(() => typeof props.planTimeout === 'number' ? props.planTimeout : 30_000);
+const caseTimeoutIssues = computed<ValidationIssue[]>(() => {
+  if (selectedCase.value === undefined) {
+    return [];
+  }
+  const validation = validateCase(selectedCase.value);
+  return validation.valid ? [] : validation.issues.filter((issue) => issue.path === '/settings/timeout');
+});
+const shouldShowCaseTimeoutIssues = computed(() => caseTimeoutIssues.value.length > 0 && timeoutWasBlurred.value);
+
+watch(() => props.editing, (editing) => {
+  if (!editing) {
+    viewDetailsSection.value = 'default';
+  }
+});
 
 /*
 Emits a changed case identifier for the selected case document.
@@ -150,6 +171,47 @@ function changeCaseAccessibilitySettings(settings: Partial<AccessibilitySettings
 }
 
 /*
+Creates or removes the current case step-timeout override.
+---
+Inputs: The override checkbox state.
+---
+Output: A case-timeout update using the plan value or no override.
+*/
+function changeTimeoutOverride(enabled: boolean): void {
+  if (!props.casePath) {
+    return;
+  }
+  timeoutWasBlurred.value = false;
+  emit('update:timeout', props.casePath, enabled ? effectivePlanTimeout.value : undefined);
+}
+
+/*
+Emits a raw case timeout override from the editor control.
+---
+Inputs: A timeout number-input event.
+---
+Output: A numeric timeout or raw empty text for shared validation.
+*/
+function changeCaseTimeout(event: Event): void {
+  if (!props.casePath) {
+    return;
+  }
+  const input = event.target as HTMLInputElement;
+  emit('update:timeout', props.casePath, input.value === '' ? '' : Number(input.value));
+}
+
+/*
+Marks the case timeout field as ready to show shared validation feedback.
+---
+Inputs: The case timeout blur event.
+---
+Output: Enables field-level validation feedback.
+*/
+function validateCaseTimeout(): void {
+  timeoutWasBlurred.value = true;
+}
+
+/*
 Converts a case viewport number-input into raw draft data.
 ---
 Inputs: A viewport number-input event.
@@ -224,6 +286,16 @@ function updateSteps(path: string, steps: unknown[]): void {
           </label>
           <input v-if="editing" :id="`case-id-${caseIndex}`" :value="selectedCase.id" class="form-control" @input="changeCaseId(($event.target as HTMLInputElement).value)" />
           <p v-else class="form-control-plaintext">{{ selectedCase.id }}</p>
+          <div v-if="editing" class="form-check mt-3">
+            <input :id="`case-timeout-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasTimeoutOverride" @change="changeTimeoutOverride(($event.target as HTMLInputElement).checked)" />
+            <label class="form-check-label" :for="`case-timeout-override-${caseIndex}`">{{ t('editor.overridePlanStepTimeout') }}</label>
+          </div>
+          <template v-if="editing && hasTimeoutOverride">
+            <label class="form-label mt-3" :for="`case-timeout-${caseIndex}`">{{ t('editor.stepTimeout') }}</label>
+            <input :id="`case-timeout-${caseIndex}`" :class="['form-control', { 'is-invalid': shouldShowCaseTimeoutIssues }]" min="1" type="number" :value="caseTimeout" @blur="validateCaseTimeout" @input="changeCaseTimeout" />
+            <div v-if="shouldShowCaseTimeoutIssues" class="invalid-feedback d-block">{{ caseTimeoutIssues[0]?.message }}</div>
+          </template>
+          <p v-else-if="editing" class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingPlanStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
         </section>
         <section v-else-if="selectedDetailsTab === 'browser'" :id="`case-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-tab-${caseIndex} case-browser-settings-heading-${caseIndex}`">
           <div v-if="editing">
@@ -278,7 +350,61 @@ function updateSteps(path: string, steps: unknown[]): void {
       </section>
     </div>
     <div v-else-if="selectedCase" class="card-body">
-      <h3 class="h6 mb-0">{{ selectedCase.id }}</h3>
+      <div class="accordion" :id="`case-view-details-${caseIndex}`">
+        <div class="accordion-item">
+          <h3 :id="`case-view-default-heading-${caseIndex}`" class="accordion-header">
+            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'default' }]" type="button" :aria-expanded="viewDetailsSection === 'default'" :aria-controls="`case-view-default-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'default' ? undefined : 'default'">{{ t('editor.defaultTab') }}</button>
+          </h3>
+          <div :id="`case-view-default-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'default' }]" :aria-labelledby="`case-view-default-heading-${caseIndex}`">
+            <div class="accordion-body">
+              <dl class="mb-0">
+                <dt><span>{{ t('editor.caseIdPrefix') }}</span><abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span></dt>
+                <dd>{{ selectedCase.id }}</dd>
+                <dt>{{ t('editor.stepTimeout') }}</dt>
+                <dd>{{ caseTimeout ?? effectivePlanTimeout }}</dd>
+                <dt>{{ t('editor.stepTimeoutSource') }}</dt>
+                <dd class="mb-0">{{ hasTimeoutOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 :id="`case-view-browser-heading-${caseIndex}`" class="accordion-header">
+            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'browser' }]" type="button" :aria-expanded="viewDetailsSection === 'browser'" :aria-controls="`case-view-browser-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'browser' ? undefined : 'browser'">{{ t('editor.browserTab') }}</button>
+          </h3>
+          <div :id="`case-view-browser-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'browser' }]" :aria-labelledby="`case-view-browser-heading-${caseIndex}`">
+            <div class="accordion-body">
+              <dl class="mb-0">
+                <dt>{{ t('editor.browserSettingsSource') }}</dt>
+                <dd>{{ hasBrowserOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
+                <dt>{{ t('editor.viewport') }}</dt>
+                <dd>{{ (caseBrowserSettings ?? effectivePlanBrowser).viewport?.width }} × {{ (caseBrowserSettings ?? effectivePlanBrowser).viewport?.height }}</dd>
+                <dt>{{ t('editor.timeZone') }}</dt>
+                <dd class="mb-0">{{ (caseBrowserSettings ?? effectivePlanBrowser).timeZone }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+        <div class="accordion-item">
+          <h3 :id="`case-view-accessibility-heading-${caseIndex}`" class="accordion-header">
+            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'accessibility' }]" type="button" :aria-expanded="viewDetailsSection === 'accessibility'" :aria-controls="`case-view-accessibility-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'accessibility' ? undefined : 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
+          </h3>
+          <div :id="`case-view-accessibility-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'accessibility' }]" :aria-labelledby="`case-view-accessibility-heading-${caseIndex}`">
+            <div class="accordion-body">
+              <dl class="mb-0">
+                <dt>{{ t('editor.accessibilitySettingsSource') }}</dt>
+                <dd>{{ hasAccessibilityOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
+                <dt>{{ t('editor.accessibilityEnabled') }}</dt>
+                <dd>{{ (caseAccessibilitySettings ?? effectivePlanAccessibility).enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
+                <dt>{{ t('editor.failOnViolation') }}</dt>
+                <dd>{{ (caseAccessibilitySettings ?? effectivePlanAccessibility).failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
+                <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
+                <dd class="mb-0">{{ (caseAccessibilitySettings ?? effectivePlanAccessibility).tags?.length ? (caseAccessibilitySettings ?? effectivePlanAccessibility).tags?.join(', ') : t('editor.allRules') }}</dd>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
     <div v-if="selectedCase" class="card-body border-top">
       <CaseStepEditor :case-drafts="props.caseDrafts" :editing="props.editing && props.expanded" :plan-locale="props.planLocale" :selected-path="props.casePath" @remove:step="removeStep" @update:steps="updateSteps" />

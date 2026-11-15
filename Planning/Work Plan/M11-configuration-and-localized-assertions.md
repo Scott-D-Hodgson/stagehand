@@ -12,10 +12,10 @@ Author supported plan/case configuration and localized assertion values without 
 ## Tasks
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover supported timeouts, waits, interaction options, hard/soft assertions, and accessibility configuration.
+- [ ] Cover supported waits, interaction options, and hard/soft assertions; the supported plan, case, and step timeout hierarchy is complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
-- [ ] Preserve configured values through recovery and M10 import/export; recovery is complete for all implemented assertion locale-override slices, while their portable-file preservation remains to be verified.
+- [ ] Verify recovery and M10 import/export preservation for all implemented configuration; existing draft-copy paths retain the current fields, but cross-flow evidence remains outstanding.
 - [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
 ## Deliverables and completion evidence
@@ -92,13 +92,45 @@ owner reported passing the web-editor tests, type check, production build, and
 manual checks of plan settings, case inheritance, clearing an override, tag
 filtering, and the unaffected Browser tab.
 
+## Step-timeout hierarchy slice
+
+The v1 contract now permits an optional `defaults.timeout` on a plan and an
+optional `settings.timeout` on a case. A supported step's existing `timeout`
+field remains the most-specific setting. The effective action/assertion timeout
+is therefore step, then case, then plan, then Stagehand's built-in 30,000 ms
+fallback. Wait-list entries retain their independently authored timeout
+semantics.
+
+The editor makes the plan and case settings explicit opt-in overrides: an
+omitted plan value displays the Stagehand fallback, and an omitted case value
+displays the effective plan or fallback value. Step cards offer the final,
+optional override and preserve it through action-dialog edits and cloning.
+Runner-core resolves supplied run-level and case settings before dispatching
+supported actions and assertions; a future CLI must map the serialized plan
+and case settings into that public API. The owner reported passing schema, runner-core, and
+web-editor tests, type checks, production build, and manual verification of
+the inheritance controls, validation, and View-mode summaries.
+
+View mode now presents plan and case Default, Browser, and Accessibility
+settings as Bootstrap-style read-only accordions. Entering View mode opens
+Default, rather than retaining whichever Edit-mode tab was last selected.
+
 ## Incremental delivery
 
-Suggested remaining PR slices: remaining run configuration, and wait and
-assertion options.
+Suggested remaining PR slices: wait and assertion options, then M11
+integration evidence.
 
 ## Open decisions and exclusions
 
 Do not add unsupported browser types, actions, or execution controls. Review the form grouping and inheritance presentation before building complex controls.
 
+The editor can export the timeout settings, but no CLI currently maps an
+exported plan/case bundle into runner-core settings; execution integration
+remains later work.
+
 Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Tasks remain unverified until completion evidence is recorded.
+
+## Learning plan reference
+
+- [Web editor course](../../Learning%20Plan/Apps/web/README.md)
+- [Step-timeout inheritance and View summaries](../../Learning%20Plan/Apps/web/Lessons/30-step-timeout-inheritance-and-view-summaries.md)

@@ -30,6 +30,8 @@ Use this quiz after completing the web editor course. Check answers against the 
 26. Why can a case override viewport and time zone but not headless mode, and why does enabling the override begin with copied plan values?
 27. Why should `CaseStepEditor` coordinate ordered data and dialogs while step-detail components compose their cards?
 28. What is the difference between enabling accessibility scans and failing on violations, and how do plan and case rule-tag selections differ?
+29. What is the timeout precedence for an action or assertion, and why does an omitted plan timeout still display 30,000 ms in the editor?
+30. Why does View mode use a Default-open accordion instead of retaining the last Edit-mode tab?
 
 ## Answer key
 
@@ -61,3 +63,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 26. Headless mode is selected when the run-wide Chromium process launches, while viewport and time zone can vary by case. Copying the effective plan values gives an explicit override a valid, understandable starting point rather than leaving fields blank.
 27. The editor then has one place for ordered immutable updates, dialogs, and recovery-facing events, while each step type keeps its own presentation, tabs, and card details close to the data it displays.
 28. Enablement determines whether scans run; failure policy determines whether detected violations fail the execution. Plan tags use axe defaults when omitted or empty; a case inherits omitted tags, replaces them with a non-empty selection, or explicitly clears the inherited filter with an empty list.
+29. A step timeout wins over a case timeout, which wins over a plan timeout; when none is stored, runner-core uses its 30,000 ms fallback. The editor displays that fallback so authors can understand execution behaviour without silently adding a plan setting to the portable document.
+30. View mode is a summary of all settings, not a continuation of one authoring tab. Resetting its accordion to Default prevents a hidden Edit-mode selection from deciding the read-only starting context.

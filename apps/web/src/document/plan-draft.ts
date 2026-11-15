@@ -29,6 +29,7 @@ export interface PlanDraft {
     accessibility?: AccessibilitySettingsDraft;
     browser?: PlanBrowserSettingsDraft;
     locale: string;
+    timeout?: unknown;
   };
   cases: Array<{
     path: string;
@@ -40,6 +41,7 @@ export interface CaseDraft {
   settings?: Record<string, unknown> & {
     accessibility?: AccessibilitySettingsDraft;
     browser?: CaseBrowserSettingsDraft;
+    timeout?: unknown;
   };
   steps: unknown[];
   version: 1;
@@ -162,6 +164,7 @@ export function copyPlanDraft(plan: PlanDraft): PlanDraft {
       ...(plan.defaults.accessibility === undefined ? {} : { accessibility: copyAccessibilitySettings(plan.defaults.accessibility) }),
       ...(plan.defaults.browser === undefined ? {} : { browser: copyPlanBrowserSettings(plan.defaults.browser) }),
       locale: plan.defaults.locale,
+      ...(plan.defaults.timeout === undefined ? {} : { timeout: plan.defaults.timeout }),
     },
     cases: plan.cases.map((caseReference) => ({ path: caseReference.path })),
   };
@@ -302,6 +305,27 @@ export function updatePlanAccessibilitySettings(plan: PlanDraft, accessibility: 
 }
 
 /*
+Replaces the plan-wide step timeout while preserving other plan defaults.
+---
+Inputs: An existing plan draft and an optional raw timeout value.
+---
+Output: A new plan draft with its timeout default replaced or omitted.
+*/
+export function updatePlanTimeout(plan: PlanDraft, timeout: unknown | undefined): PlanDraft {
+  if (timeout === undefined) {
+    const { timeout: _, ...defaultsWithoutTimeout } = plan.defaults;
+    return { ...plan, defaults: defaultsWithoutTimeout };
+  }
+  return {
+    ...plan,
+    defaults: {
+      ...plan.defaults,
+      timeout,
+    },
+  };
+}
+
+/*
 Replaces optional case-level browser overrides without changing case steps.
 ---
 Inputs: A case draft and an optional replacement browser override.
@@ -356,6 +380,31 @@ export function updateCaseAccessibilitySettings(caseDraft: CaseDraft, accessibil
     settings: {
       ...caseDraft.settings,
       accessibility: copyAccessibilitySettings(accessibility),
+    },
+  };
+}
+
+/*
+Adds, replaces, or removes one case-level step timeout override.
+---
+Inputs: A case draft and an optional raw timeout value.
+---
+Output: A case draft with timeout settings added, replaced, or omitted.
+*/
+export function updateCaseTimeout(caseDraft: CaseDraft, timeout: unknown | undefined): CaseDraft {
+  if (timeout === undefined) {
+    const { timeout: _, ...remainingSettings } = caseDraft.settings ?? {};
+    if (Object.keys(remainingSettings).length === 0) {
+      const { settings: _, ...caseWithoutSettings } = caseDraft;
+      return caseWithoutSettings;
+    }
+    return { ...caseDraft, settings: remainingSettings };
+  }
+  return {
+    ...caseDraft,
+    settings: {
+      ...caseDraft.settings,
+      timeout,
     },
   };
 }
@@ -428,4 +477,21 @@ export function moveCaseStep(steps: unknown[], fromIndex: number, toIndex: numbe
   const [step] = reordered.splice(fromIndex, 1);
   reordered.splice(toIndex, 0, step);
   return reordered;
+}
+
+/*
+Updates or clears one case-step timeout without changing its action data.
+---
+Inputs: A step list, target index, and raw timeout value.
+---
+Output: A copied step list with the target timeout updated or removed.
+*/
+export function updateCaseStepTimeout(steps: unknown[], index: number, timeout: number | string): unknown[] {
+  return steps.map((step, candidateIndex) => {
+    if (candidateIndex !== index || typeof step !== 'object' || step === null) {
+      return step;
+    }
+    const { timeout: _, ...stepWithoutTimeout } = step as Record<string, unknown>;
+    return timeout === '' ? stepWithoutTimeout : { ...stepWithoutTimeout, timeout };
+  });
 }

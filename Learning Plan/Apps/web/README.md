@@ -31,6 +31,10 @@ This course explains the foundation of the local-first Stagehand web editor. The
   coordinates ordered data and dialogs.
 - How plan accessibility defaults, rule tags, and optional case overrides
   distinguish scan enablement from violation outcome policy.
+- How plan, case, and step timeouts form an explicit override hierarchy while
+  preserving Stagehand's 30,000 ms fallback.
+- Why View mode summarizes all settings in a resettable read-only accordion
+  rather than retaining an Edit-mode tab selection.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -42,7 +46,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. The editor separates plan, case, step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. Early M11 slices have added a maintained locale catalogue, localized Assert-text, Assert-HTML, and Assert-value expected values, plan browser defaults with case viewport/time-zone overrides, and plan/case accessibility enablement, failure-policy, and rule-tag controls. The editor does not yet provide remaining run configuration, step forms, or plan execution.
+M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. The editor separates plan, case, step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. Early M11 slices have added a maintained locale catalogue, localized Assert-text, Assert-HTML, and Assert-value expected values, plan browser defaults with case viewport/time-zone overrides, plan/case accessibility enablement, failure-policy, and rule-tag controls, and plan/case/step timeout inheritance for supported actions and assertions. View mode summarizes plan and case Default, Browser, and Accessibility settings in Default-open Bootstrap-style accordions. The editor does not yet provide remaining waits and assertion options, further step forms, or plan execution.
 
 ## Lessons
 
@@ -75,5 +79,6 @@ M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundati
 27. [M10 round-trip integration review](Lessons/27-m10-round-trip-integration-review.md)
 28. [Browser configuration and step-card ownership](Lessons/28-browser-configuration-and-step-card-ownership.md)
 29. [Accessibility configuration baseline](Lessons/29-accessibility-configuration-baseline.md)
+30. [Step-timeout inheritance and View summaries](Lessons/30-step-timeout-inheritance-and-view-summaries.md)
 
 Finish with the [course skill check](quiz.md).
