@@ -23,7 +23,7 @@ The MVP result format is JSON. JUnit and HTML reports, screenshots, production-s
 
 ## Project status
 
-**Current status:** M0 through M10 are complete. M11 configuration and localized-assertion work remains in progress. M15 provides a Hugo landing page with verified Cloudflare Pages production and pull-request previews; custom domains and editor deployment are later slices. The runner, CLI, reporting, and editor continue to be delivered incrementally through reviewable pull requests.
+**Current status:** M0 through M10 are complete. M11 configuration and localized-assertion work remains in progress. M15 provides a Hugo landing page at `getstagehand.ca`, a canonical `www` redirect, and the static editor at `app.getstagehand.ca`, with verified Cloudflare Pages production, pull-request previews, HTTPS, and rollback readiness. The runner, CLI, reporting, and editor continue to be delivered incrementally through reviewable pull requests.
 
 The repository contains planning and learning documents, npm workspaces, a Hugo public-site source, shared plan/result contracts, a visual editor, and browser-runner building blocks. The editor is local-first and its initial public presentation does not introduce a Stagehand account service, central plan store, or remote browser execution. The CLI, report-file writing, full production orchestration, and real-browser accessibility verification remain future work. The intended workflow is to send changes through a pull request and review them before merging. While working solo, the owner uses a manual self-review checklist; automated review-policy enforcement is deferred until the project has more developers.
 

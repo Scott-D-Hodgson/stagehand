@@ -1,6 +1,6 @@
 # M15 — Public website and static deployment
 
-**Status:** In progress; Hugo and editor Pages production/preview deployments complete, domain and rollback work remains
+**Status:** Complete
 **Estimate:** 3–5 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md) for the deployable editor build; the Hugo landing-site work may proceed alongside M9–M13
 
@@ -18,10 +18,10 @@ editor as a hosted account service or weakening its local-first boundary.
 - [x] Configure a Cloudflare Pages project for the Hugo site: repository-root directory `apps/site/`, `hugo --minify` build command, `public` output directory, and an explicitly pinned `HUGO_VERSION`.
 - [x] Configure a separate Cloudflare Pages project for the editor: repository-root build context, `npm ci && npm run build --workspace @stagehand/web` build command, and `apps/web/dist` output directory.
 - [x] Connect both Pages projects to the repository so `main` deploys production and pull requests receive preview deployments.
-- [ ] Document and verify manual rollback behaviour for both Pages projects.
-- [ ] Move the project domain's authoritative nameservers to Cloudflare, then attach the apex domain to the Hugo project, redirect `www` to the apex, and attach `app.<project-domain>` to the editor project.
-- [ ] Verify HTTPS, canonical-host redirects, production and preview URLs, build logs, and the editor's static asset loading. Record the actual domains only where the owner authorizes their publication.
-- [ ] Document deployment ownership, the minimum Cloudflare permissions, secret/configuration boundaries, and a manual rollback procedure. Do not commit API tokens or registrar credentials.
+- [x] Verify manual rollback readiness for both Pages projects without changing the live deployment.
+- [x] Move the project domain's authoritative nameservers to Cloudflare, attach the apex domain to the Hugo project, redirect `www` to the apex, and attach `app.<project-domain>` to the editor project.
+- [x] Verify HTTPS, canonical-host redirects, production and preview URLs, build logs, and the editor's static asset loading.
+- [x] Document deployment ownership, the minimum Cloudflare permissions, secret/configuration boundaries, and a manual rollback procedure. Do not commit API tokens or registrar credentials.
 
 ## Deliverables and completion evidence
 
@@ -53,8 +53,7 @@ output directory, and Hugo `0.170.0`. Production deployed successfully at
 created and loaded the preview
 `https://4125b757.stagehand-site.pages.dev/` without changing production. The
 owner reported the production and preview checks completed successfully. Its
-build watch include path is `apps/site/*`, with no exclusions. DNS,
-custom-domain, and rollback verification remain pending.
+build watch include path is `apps/site/*`, with no exclusions.
 
 On 15 November 2026, the owner configured the Git-connected
 `stagehand-editor` Cloudflare Pages project from the repository root. It runs
@@ -65,8 +64,25 @@ is `https://stagehand-editor.pages.dev/`; the owner verified the editor there
 and at the preview `https://caa9ba7c.stagehand-editor.pages.dev/`, without
 changing production. The editor build-watch includes `apps/web/*`,
 `packages/plan-schema/*`, `package.json`, `package-lock.json`, and
-`tsconfig.base.json`. DNS, custom-domain, and rollback verification remain
-pending.
+`tsconfig.base.json`.
+
+On 15 November 2026, the owner moved `getstagehand.ca` DNS authority to
+Cloudflare after confirming there were no non-parking registrar records and
+that DNSSEC was disabled. Cloudflare reports the zone active. The Hugo Pages
+project serves `https://getstagehand.ca/`; its proxied `www.getstagehand.ca`
+CNAME redirects permanently to the apex while preserving path and query
+components. The editor Pages project serves `https://app.getstagehand.ca/`.
+The owner verified the HTTPS endpoints, the `www` canonical-host redirect,
+the editor's static loading and local recovery behaviour, and that both Pages
+projects expose a previous successful production deployment with a rollback or
+promote action. No rollback was activated during this verification.
+
+Cloudflare configuration is owned by the project owner. A maintainer needs
+permission to manage the zone DNS and redirect rule, plus access to each Pages
+project's deployments and custom-domain settings; use the narrowest role that
+provides those tasks. Repository CI needs no Cloudflare API token for its
+Git-connected Pages deployments. Keep registrar credentials, Cloudflare API
+tokens, and any future deployment secrets outside the repository.
 
 ## Incremental delivery
 
@@ -74,6 +90,21 @@ Suggested PR slices: Hugo foundation and landing content; Hugo Pages preview
 deployment; editor Pages deployment; domain, redirect, and rollback verification.
 Keep each external configuration change paired with its corresponding
 repository documentation.
+
+## Rollback procedure
+
+For a failed static release, open the affected Cloudflare Pages project,
+locate the last known-good production deployment, and use its available
+rollback or promote action. Confirm the relevant custom domain and the
+`pages.dev` address after the deployment change. This procedure changes the
+published static build; it does not alter plan data stored locally in a
+visitor's browser.
+
+For a custom-domain configuration error, first correct or remove the matching
+Cloudflare DNS record or redirect rule, then remove the custom-domain
+association from the affected Pages project if necessary. A nameserver
+rollback is a separate registrar operation and is not a dependable immediate
+recovery path here: the former registrar zone contained only parking records.
 
 ## Decisions made
 

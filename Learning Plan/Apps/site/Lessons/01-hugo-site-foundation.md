@@ -13,8 +13,9 @@ The development-container Dockerfile pins Hugo `0.170.0`; the site therefore
 does not rely on whichever Hugo version happens to be available through a Linux
 package repository.
 
-The canonical public URL is `https://getstagehand.ca/`. That configuration does
-not mean the domain is attached or live yet.
+The canonical public URL is `https://getstagehand.ca/`. Its Cloudflare custom
+domain is active; the configuration keeps local Hugo output aligned with the
+published address.
 
 ## Practice
 

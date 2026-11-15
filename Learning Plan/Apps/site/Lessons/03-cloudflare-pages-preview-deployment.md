@@ -1,5 +1,9 @@
 # Lesson 3: Cloudflare Pages preview deployment
 
+> “How can I test the public site without changing what visitors already see?” — Priya Preview
+
+[Previous: Landing-page structure and accessibility](02-landing-page-structure.md) | [Course outline](../README.md) | [Next: Custom domains and rollback](04-custom-domains-and-rollback.md)
+
 ## Goal
 
 Understand the Git-connected Cloudflare Pages configuration for the Hugo site
@@ -27,12 +31,12 @@ path, so unrelated monorepo changes do not trigger Hugo builds.
 4. Confirm the preview build log reports Hugo `0.170.0`.
 5. Confirm the production `pages.dev` URL is unchanged.
 
-## Boundaries
+## Next step
 
-The `pages.dev` deployment does not attach `getstagehand.ca`, configure the
-`www` redirect, deploy the editor, or define a rollback procedure. Those tasks
-remain later M15 work. Do not put Cloudflare API tokens or registrar credentials
-in repository files.
+The production and preview workflow is now joined by the public domain,
+canonical redirect, editor subdomain, and rollback readiness described in
+[custom domains and rollback](04-custom-domains-and-rollback.md). Do not put
+Cloudflare API tokens or registrar credentials in repository files.
 
 ## Check your understanding
 
@@ -40,3 +44,5 @@ in repository files.
    container?
 2. Why are preview URLs useful before a change reaches `main`?
 3. Why should the Hugo build watch path be limited to `apps/site/*`?
+
+[Previous: Landing-page structure and accessibility](02-landing-page-structure.md) | [Course outline](../README.md) | [Next: Custom domains and rollback](04-custom-domains-and-rollback.md)
