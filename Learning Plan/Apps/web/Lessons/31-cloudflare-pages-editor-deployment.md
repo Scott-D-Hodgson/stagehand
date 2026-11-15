@@ -24,7 +24,9 @@ The project watches `apps/web/*`, `packages/plan-schema/*`, `package.json`,
 `package-lock.json`, and `tsconfig.base.json`. This captures the editor and its
 browser-safe contract dependency while avoiding deployments for unrelated
 repository changes. The first verified preview was
-`https://caa9ba7c.stagehand-editor.pages.dev/`.
+`https://caa9ba7c.stagehand-editor.pages.dev/`. The production custom domain
+is `https://app.getstagehand.ca/`; its HTTPS loading, local recovery behaviour,
+and deployment rollback readiness were verified separately from the preview.
 
 ## Practice
 
@@ -40,8 +42,7 @@ repository changes. The first verified preview was
 
 The Pages project publishes static editor assets only. It does not introduce a
 Stagehand account, central plan storage, remote browser execution, or a hosted
-plan service. `app.getstagehand.ca`, DNS migration, manual rollback evidence,
-and offline-after-load verification remain later work.
+plan service. The public hostname does not change that boundary.
 
 ## Check your understanding
 

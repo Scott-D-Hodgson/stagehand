@@ -39,8 +39,10 @@ includes are `apps/web/*`, `packages/plan-schema/*`, `package.json`,
 Pull requests from this repository receive a separate preview deployment
 without changing production. The first verified editor preview was
 `https://caa9ba7c.stagehand-editor.pages.dev/` and used Node.js `26.12.1`.
-Custom-domain configuration, DNS migration, rollback evidence, and the
-editor's offline-after-load verification remain later work. Do not add
+The editor custom domain is `https://app.getstagehand.ca/`. The owner has
+verified its HTTPS static loading and browser-local recovery behaviour, plus
+the availability of a previous production deployment to roll back or promote.
+The editor's offline-after-load verification remains later work. Do not add
 Cloudflare API tokens, registrar credentials, or other deployment secrets to
 this repository.
 

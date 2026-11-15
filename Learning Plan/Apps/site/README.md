@@ -1,8 +1,7 @@
 # Course: Stagehand public site
 
-This course introduces the Hugo public site at `apps/site/`. It begins with
-the local landing-page foundation and keeps deployment learning separate from
-unverified Cloudflare configuration.
+This course introduces the Hugo public site at `apps/site/`, from its local
+landing-page foundation through its public Cloudflare deployment.
 
 ## In this course you will learn
 
@@ -11,8 +10,8 @@ unverified Cloudflare configuration.
   builds.
 - How the landing page preserves Stagehand's local-first boundary in public
   copy.
-- How later Cloudflare Pages, preview, custom-domain, and rollback work fit
-  into the delivery plan.
+- How Cloudflare Pages previews, custom domains, canonical redirects, and
+  deployment rollback fit together.
 
 ## Do I need this course?
 
@@ -32,16 +31,16 @@ before working on the site.
 1. [Hugo site foundation](Lessons/01-hugo-site-foundation.md)
 2. [Landing-page structure and accessibility](Lessons/02-landing-page-structure.md)
 3. [Cloudflare Pages preview deployment](Lessons/03-cloudflare-pages-preview-deployment.md)
-4. Custom domains and rollback — future M15 slice
+4. [Custom domains and rollback](Lessons/04-custom-domains-and-rollback.md)
 
 ## Current boundary
 
 The local Hugo site, Canadian-English landing page, Cloudflare Pages
-production deployment, and pull-request previews are implemented. HTTPS on the
-`pages.dev` address is supplied by Pages; custom-domain setup, editor
-deployment, and rollback evidence remain future work. Do not infer a hosted
-service, account system, central plan storage, or remote browser execution from
-the public landing page.
+production deployment, pull-request previews, custom domain, canonical `www`
+redirect, and deployment rollback readiness are implemented. The editor is
+separately available at `app.getstagehand.ca`. Do not infer a hosted service,
+account system, central plan storage, or remote browser execution from the
+public landing page.
 
 Finish the implemented lessons, then verify the local preview and production
 build before proposing a public-site change.

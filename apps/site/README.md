@@ -30,11 +30,13 @@ hugo --source apps/site --minify
 The generated output is `apps/site/public/`, which is ignored and must not be
 committed.
 
-## Deployment boundary
+## Deployment
 
 The Git-connected Cloudflare Pages project and its pull-request previews are
-configured and verified. See [deployment guidance](DEPLOYMENT.md) for the
-observed build settings and preview behaviour. Custom-domain configuration,
-DNS migration, editor deployment, and rollback procedures remain later M15
-work. Do not add Cloudflare API tokens, registrar credentials, or other
-deployment secrets to this repository.
+configured and verified. The canonical public address is
+`https://getstagehand.ca/`; `https://www.getstagehand.ca/` permanently
+redirects there. The separate editor deployment is available at
+`https://app.getstagehand.ca/`. See [deployment guidance](DEPLOYMENT.md) for
+the observed build settings, preview behaviour, domain configuration, and
+rollback boundary. Do not add Cloudflare API tokens, registrar credentials, or
+other deployment secrets to this repository.

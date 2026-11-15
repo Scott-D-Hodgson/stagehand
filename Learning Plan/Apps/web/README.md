@@ -36,7 +36,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - Why View mode summarizes all settings in a resettable read-only accordion
   rather than retaining an Edit-mode tab selection.
 - How the editor's separate Cloudflare Pages project builds the workspace from
-  the repository root and provides isolated pull-request previews.
+  the repository root, provides isolated pull-request previews, and reaches
+  the public `app.getstagehand.ca` hostname without becoming a hosted service.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -51,9 +52,9 @@ This course explains the foundation of the local-first Stagehand web editor. The
 M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, expandable case-reference workspaces, and concise shared-validation feedback on affected steps and cases. The editor separates plan, case, step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. Early M11 slices have added a maintained locale catalogue, localized Assert-text, Assert-HTML, and Assert-value expected values, plan browser defaults with case viewport/time-zone overrides, plan/case accessibility enablement, failure-policy, and rule-tag controls, and plan/case/step timeout inheritance for supported actions and assertions. View mode summarizes plan and case Default, Browser, and Accessibility settings in Default-open Bootstrap-style accordions. The editor does not yet provide remaining waits and assertion options, further step forms, or plan execution.
 
 The Git-connected `stagehand-editor` Cloudflare Pages project now provides a
-verified `main` production build and pull-request previews; it does not make
-the editor hosted, offline after load, or available at its planned custom
-domain.
+verified `main` production build, pull-request previews, and the
+`app.getstagehand.ca` custom domain. It does not make the editor hosted or
+offline after load.
 
 ## Lessons
 
