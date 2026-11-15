@@ -22,19 +22,20 @@ The Pages configuration must match the version pinned in
 
 ## Build watch paths
 
-Set the Pages project's include path to `apps/site/*` and leave its exclude
-paths empty. The trailing wildcard includes nested files and directories, so
-site content, layouts, assets, configuration, and future localization changes
-all trigger a build. Unrelated editor, package, planning, and development-
-container changes do not.
+The Pages project's include path is `apps/site/*`, with no exclude paths. The
+trailing wildcard includes nested files and directories, so site content,
+layouts, assets, configuration, and future localization changes all trigger a
+build. Unrelated editor, package, planning, and development-container changes
+do not.
 
 ## Deployment behaviour
 
 Cloudflare Pages deploys commits to `main` to the production `pages.dev` URL.
-Pull requests originating from this repository should receive their own preview
-deployment without changing production. Record the observed preview URL and
-status-check behaviour in the M15 work plan after the first successful
-verification.
+Pull requests originating from this repository receive their own preview
+deployment without changing production. The first verified preview was
+`https://4125b757.stagehand-site.pages.dev/`; it loaded correctly while the
+production URL remained available. The corresponding build used Hugo
+`0.170.0`.
 
 ## Boundaries
 

@@ -1,6 +1,6 @@
 # M15 — Public website and static deployment
 
-**Status:** In progress; Hugo foundation and landing content complete locally, deployment work remains
+**Status:** In progress; Hugo foundation and Pages preview deployment complete, editor and domain work remains
 **Estimate:** 3–5 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md) for the deployable editor build; the Hugo landing-site work may proceed alongside M9–M13
 
@@ -15,7 +15,7 @@ editor as a hosted account service or weakening its local-first boundary.
 - [x] Create a Hugo site at `apps/site/` with documented local build and preview commands.
 - [x] Deliver one accessible, responsive landing page that explains Stagehand's purpose, local-first boundary, current development status, and links to the source repository and project documentation.
 - [x] Keep the initial landing-page content in Canadian English; record any future public-site localization scope before adding French content or language switching.
-- [ ] Configure a Cloudflare Pages project for the Hugo site: repository-root directory `apps/site/`, `hugo --minify` build command, `public` output directory, and an explicitly pinned `HUGO_VERSION`.
+- [x] Configure a Cloudflare Pages project for the Hugo site: repository-root directory `apps/site/`, `hugo --minify` build command, `public` output directory, and an explicitly pinned `HUGO_VERSION`.
 - [ ] Configure a separate Cloudflare Pages project for the editor: repository-root build context, `npm ci && npm run build --workspace @stagehand/web` build command, and `apps/web/dist` output directory.
 - [ ] Connect both Pages projects to the repository so `main` deploys production and pull requests receive preview deployments; document the observed branch and rollback behaviour.
 - [ ] Move the project domain's authoritative nameservers to Cloudflare, then attach the apex domain to the Hugo project, redirect `www` to the apex, and attach `app.<project-domain>` to the editor project.
@@ -42,9 +42,18 @@ The Hugo foundation and landing-content slice uses Hugo `v0.170.0`, pinned in
 the development-container image. The owner ran `hugo version`, built the site
 with `hugo --source apps/site --minify`, and manually checked the local preview
 at its responsive layouts, keyboard skip link, colour modes, and public links.
-The generated `public/` directory is ignored. This is local evidence only; no
-Cloudflare Pages project, preview deployment, DNS change, or public-domain
-verification has occurred yet.
+The generated `public/` directory is ignored.
+
+On 15 November 2026, the owner configured the Git-connected `stagehand-site`
+Cloudflare Pages project with `main` as its production branch, `apps/site/` as
+its root directory, `hugo --minify` as its build command, `public` as its
+output directory, and Hugo `0.170.0`. Production deployed successfully at
+`https://stagehand-site.pages.dev/`. A pull request from this repository
+created and loaded the preview
+`https://4125b757.stagehand-site.pages.dev/` without changing production. The
+owner reported the production and preview checks completed successfully. Its
+build watch include path is `apps/site/*`, with no exclusions. DNS,
+custom-domain, editor-deployment, and rollback verification remain pending.
 
 ## Incremental delivery
 
