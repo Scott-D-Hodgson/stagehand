@@ -1,0 +1,259 @@
+:root {
+  color-scheme: light dark;
+  --canvas: light-dark(#f7f7f5, #151716);
+  --surface: light-dark(#ffffff, #20231f);
+  --ink: light-dark(#20231f, #f3f4ef);
+  --muted: light-dark(#5c635b, #c2c8bf);
+  --line: light-dark(#d8ddd5, #394038);
+  --accent: light-dark(#0e6b4f, #80d1b0);
+  --accent-ink: light-dark(#ffffff, #10271e);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--canvas);
+}
+
+body {
+  min-width: 20rem;
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+a {
+  color: inherit;
+}
+
+a:focus-visible {
+  outline: 0.2rem solid var(--accent);
+  outline-offset: 0.2rem;
+}
+
+.site-shell {
+  width: min(100% - 2rem, 70rem);
+  margin: 0 auto;
+}
+
+.skip-link {
+  position: fixed;
+  z-index: 2;
+  top: 0.75rem;
+  left: 0.75rem;
+  padding: 0.6rem 0.8rem;
+  background: var(--accent);
+  color: var(--accent-ink);
+  transform: translateY(-4rem);
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.site-header {
+  border-bottom: 1px solid var(--line);
+}
+
+.header-content,
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4.5rem;
+}
+
+.wordmark {
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  text-decoration: none;
+}
+
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+nav a,
+.text-link,
+.site-footer a {
+  color: var(--muted);
+  text-underline-offset: 0.2em;
+}
+
+nav a:hover,
+.text-link:hover,
+.site-footer a:hover {
+  color: var(--accent);
+}
+
+.hero {
+  padding: clamp(5rem, 14vw, 10rem) 0 clamp(4rem, 9vw, 7rem);
+  border-bottom: 1px solid var(--line);
+}
+
+.hero-content {
+  max-width: 52rem;
+}
+
+.eyebrow {
+  margin: 0 0 1rem;
+  color: var(--accent);
+  font-size: 0.82rem;
+  font-weight: 750;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin-top: 0;
+}
+
+h1,
+h2,
+h3 {
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  line-height: 1.05;
+}
+
+h1 {
+  max-width: 15ch;
+  margin-bottom: 1.5rem;
+  font-size: clamp(3rem, 9vw, 6.2rem);
+}
+
+h2 {
+  max-width: 22ch;
+  margin-bottom: 1.25rem;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+}
+
+h3 {
+  margin-bottom: 0.75rem;
+  font-size: 1.3rem;
+}
+
+.hero-copy {
+  max-width: 43rem;
+  color: var(--muted);
+  font-size: clamp(1.15rem, 2vw, 1.4rem);
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-top: 2.25rem;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.8rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--accent);
+  border-radius: 0.35rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.button-primary {
+  background: var(--accent);
+  color: var(--accent-ink);
+}
+
+.button-primary:hover {
+  filter: brightness(1.1);
+}
+
+.button-secondary {
+  color: var(--accent);
+}
+
+.button-secondary:hover {
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+}
+
+.section {
+  padding: clamp(3.5rem, 8vw, 6rem) 0;
+}
+
+.section-heading {
+  margin-bottom: 2rem;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.feature {
+  padding: 1.5rem;
+  border: 1px solid var(--line);
+  border-radius: 0.5rem;
+  background: var(--surface);
+}
+
+.feature p,
+.split-section p {
+  margin-bottom: 0;
+  color: var(--muted);
+}
+
+.split-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 8vw, 8rem);
+  border-top: 1px solid var(--line);
+}
+
+.text-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.site-footer {
+  border-top: 1px solid var(--line);
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 42rem) {
+  .header-content,
+  .footer-content {
+    align-items: flex-start;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 0;
+  }
+
+  nav {
+    justify-content: flex-start;
+  }
+
+  .feature-grid,
+  .split-section {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,45 @@
+{{ define "main" }}
+<main id="main-content">
+  <section class="hero">
+    <div class="site-shell hero-content">
+      <p class="eyebrow">Local-first browser testing</p>
+      <h1>{{ .Title }}</h1>
+      <div class="hero-copy">{{ .Content }}</div>
+      <div class="hero-actions">
+        <a class="button button-primary" href="{{ site.Params.repositoryURL }}">Explore the project</a>
+        <a class="button button-secondary" href="{{ site.Params.planningURL }}">Read the plan</a>
+      </div>
+    </div>
+  </section>
+  <section class="site-shell section" aria-labelledby="approach-heading">
+    <div class="section-heading">
+      <p class="eyebrow">The approach</p>
+      <h2 id="approach-heading">A testing toolkit that keeps plans close to their authors.</h2>
+    </div>
+    <div class="feature-grid">
+      <article class="feature">
+        <h3>Versioned plans</h3>
+        <p>Describe browser checks as reviewable JSON documents that can evolve with the systems they test.</p>
+      </article>
+      <article class="feature">
+        <h3>Visual authoring</h3>
+        <p>Build plans in a focused editor designed for people who should not need to hand-edit JSON.</p>
+      </article>
+      <article class="feature">
+        <h3>Local control</h3>
+        <p>There is no Stagehand account service, central plan store, or hosted browser execution in the initial design.</p>
+      </article>
+    </div>
+  </section>
+  <section class="site-shell section split-section" aria-labelledby="status-heading">
+    <div>
+      <p class="eyebrow">Current status</p>
+      <h2 id="status-heading">Under active development.</h2>
+    </div>
+    <div>
+      <p>The visual editor is being developed before the command-line execution and reporting experience. The project documents its decisions, learning material, and incremental delivery plan openly.</p>
+      <a class="text-link" href="{{ site.Params.planningURL }}">Follow the work in project planning <span aria-hidden="true">&rarr;</span></a>
+    </div>
+  </section>
+</main>
+{{ end }}

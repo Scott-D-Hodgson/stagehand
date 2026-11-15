@@ -15,7 +15,7 @@ The learning materials are grouped into courses by the milestone or package they
 - [Phase 3 course](Phase%203/README.md): full-plan execution, case lifecycle, CLI configuration, and automation behaviour.
 - [Phase 4 course](Phase%204/README.md): results and accessibility, Azure Pipelines, diagnostics, documentation, and adoption.
 - [Package courses](Packages/README.md): short, single-subject lessons and final skill checks for [`plan-schema`](Packages/plan-schema/README.md), [`plan-engine`](Packages/plan-engine/README.md), [`result-model`](Packages/result-model/README.md), and [`runner-core`](Packages/runner-core/README.md).
-- [Application courses](Apps/README.md): focused application guides, beginning with the [`@stagehand/web` editor](Apps/web/README.md).
+- [Application courses](Apps/README.md): focused guides for the [`@stagehand/web` editor](Apps/web/README.md) and [Hugo public site](Apps/site/README.md).
 - [Acronyms](acronyms.md) - abbreviations used across the Learning Plan.
 
 ## How to use each course
