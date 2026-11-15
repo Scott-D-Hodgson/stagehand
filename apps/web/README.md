@@ -19,6 +19,29 @@ Run these commands from the repository root:
 - `npm run preview --workspace @stagehand/web` serves an existing production
   bundle for local inspection.
 
+## Cloudflare Pages deployment
+
+The Git-connected `stagehand-editor` Cloudflare Pages project deploys `main`
+to `https://stagehand-editor.pages.dev/`. It builds from the repository root
+with:
+
+```bash
+npm ci && npm run build --workspace @stagehand/web
+```
+
+Its output directory is `apps/web/dist`. Set `NODE_VERSION=26.12.1` and
+`SKIP_DEPENDENCY_INSTALL=true` in both the Production and Preview
+environments, so Cloudflare uses the repository's Node.js version and the
+explicit `npm ci` command is the only dependency installation. The intended
+build-watch includes are `apps/web/*`, `packages/plan-schema/*`, `package.json`,
+`package-lock.json`, and `tsconfig.base.json`.
+
+Pull requests from this repository should receive a separate preview deployment
+without changing production. Custom-domain configuration, DNS migration,
+rollback evidence, and the editor's offline-after-load verification remain
+later work. Do not add Cloudflare API tokens, registrar credentials, or other
+deployment secrets to this repository.
+
 ## Current foundation
 
 - Vue 3.5.44, Vite 8.3.6, and TypeScript 6.0.3 are pinned exactly.
