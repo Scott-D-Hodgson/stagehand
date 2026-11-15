@@ -32,15 +32,17 @@ npm ci && npm run build --workspace @stagehand/web
 Its output directory is `apps/web/dist`. Set `NODE_VERSION=26.12.1` and
 `SKIP_DEPENDENCY_INSTALL=true` in both the Production and Preview
 environments, so Cloudflare uses the repository's Node.js version and the
-explicit `npm ci` command is the only dependency installation. The intended
-build-watch includes are `apps/web/*`, `packages/plan-schema/*`, `package.json`,
+explicit `npm ci` command is the only dependency installation. Its build-watch
+includes are `apps/web/*`, `packages/plan-schema/*`, `package.json`,
 `package-lock.json`, and `tsconfig.base.json`.
 
-Pull requests from this repository should receive a separate preview deployment
-without changing production. Custom-domain configuration, DNS migration,
-rollback evidence, and the editor's offline-after-load verification remain
-later work. Do not add Cloudflare API tokens, registrar credentials, or other
-deployment secrets to this repository.
+Pull requests from this repository receive a separate preview deployment
+without changing production. The first verified editor preview was
+`https://caa9ba7c.stagehand-editor.pages.dev/` and used Node.js `26.12.1`.
+Custom-domain configuration, DNS migration, rollback evidence, and the
+editor's offline-after-load verification remain later work. Do not add
+Cloudflare API tokens, registrar credentials, or other deployment secrets to
+this repository.
 
 ## Current foundation
 
