@@ -1,6 +1,6 @@
 # M15 — Public website and static deployment
 
-**Status:** In progress; Hugo foundation and Pages preview deployment complete, editor and domain work remains
+**Status:** In progress; Hugo and editor Pages production/preview deployments complete, domain and rollback work remains
 **Estimate:** 3–5 focused human person-days  
 **Depends on:** [M8](M8-editor-foundation-and-document-state.md) for the deployable editor build; the Hugo landing-site work may proceed alongside M9–M13
 
@@ -16,8 +16,9 @@ editor as a hosted account service or weakening its local-first boundary.
 - [x] Deliver one accessible, responsive landing page that explains Stagehand's purpose, local-first boundary, current development status, and links to the source repository and project documentation.
 - [x] Keep the initial landing-page content in Canadian English; record any future public-site localization scope before adding French content or language switching.
 - [x] Configure a Cloudflare Pages project for the Hugo site: repository-root directory `apps/site/`, `hugo --minify` build command, `public` output directory, and an explicitly pinned `HUGO_VERSION`.
-- [ ] Configure a separate Cloudflare Pages project for the editor: repository-root build context, `npm ci && npm run build --workspace @stagehand/web` build command, and `apps/web/dist` output directory.
-- [ ] Connect both Pages projects to the repository so `main` deploys production and pull requests receive preview deployments; document the observed branch and rollback behaviour.
+- [x] Configure a separate Cloudflare Pages project for the editor: repository-root build context, `npm ci && npm run build --workspace @stagehand/web` build command, and `apps/web/dist` output directory.
+- [x] Connect both Pages projects to the repository so `main` deploys production and pull requests receive preview deployments.
+- [ ] Document and verify manual rollback behaviour for both Pages projects.
 - [ ] Move the project domain's authoritative nameservers to Cloudflare, then attach the apex domain to the Hugo project, redirect `www` to the apex, and attach `app.<project-domain>` to the editor project.
 - [ ] Verify HTTPS, canonical-host redirects, production and preview URLs, build logs, and the editor's static asset loading. Record the actual domains only where the owner authorizes their publication.
 - [ ] Document deployment ownership, the minimum Cloudflare permissions, secret/configuration boundaries, and a manual rollback procedure. Do not commit API tokens or registrar credentials.
@@ -53,7 +54,19 @@ created and loaded the preview
 `https://4125b757.stagehand-site.pages.dev/` without changing production. The
 owner reported the production and preview checks completed successfully. Its
 build watch include path is `apps/site/*`, with no exclusions. DNS,
-custom-domain, editor-deployment, and rollback verification remain pending.
+custom-domain, and rollback verification remain pending.
+
+On 15 November 2026, the owner configured the Git-connected
+`stagehand-editor` Cloudflare Pages project from the repository root. It runs
+`npm ci && npm run build --workspace @stagehand/web`, publishes
+`apps/web/dist`, and pins Node.js `26.12.1` with
+`SKIP_DEPENDENCY_INSTALL=true` in Production and Preview. Its production URL
+is `https://stagehand-editor.pages.dev/`; the owner verified the editor there
+and at the preview `https://caa9ba7c.stagehand-editor.pages.dev/`, without
+changing production. The editor build-watch includes `apps/web/*`,
+`packages/plan-schema/*`, `package.json`, `package-lock.json`, and
+`tsconfig.base.json`. DNS, custom-domain, and rollback verification remain
+pending.
 
 ## Incremental delivery
 
@@ -95,3 +108,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 ## Learning plan reference
 
 - [Public site course](../../Learning%20Plan/Apps/site/README.md)
+- [Web editor course](../../Learning%20Plan/Apps/web/README.md)

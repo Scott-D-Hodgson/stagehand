@@ -32,6 +32,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 28. What is the difference between enabling accessibility scans and failing on violations, and how do plan and case rule-tag selections differ?
 29. What is the timeout precedence for an action or assertion, and why does an omitted plan timeout still display 30,000 ms in the editor?
 30. Why does View mode use a Default-open accordion instead of retaining the last Edit-mode tab?
+31. Why does the editor Pages project build from the repository root, and which files must its build-watch paths include?
 
 ## Answer key
 
@@ -65,3 +66,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 28. Enablement determines whether scans run; failure policy determines whether detected violations fail the execution. Plan tags use axe defaults when omitted or empty; a case inherits omitted tags, replaces them with a non-empty selection, or explicitly clears the inherited filter with an empty list.
 29. A step timeout wins over a case timeout, which wins over a plan timeout; when none is stored, runner-core uses its 30,000 ms fallback. The editor displays that fallback so authors can understand execution behaviour without silently adding a plan setting to the portable document.
 30. View mode is a summary of all settings, not a continuation of one authoring tab. Resetting its accordion to Default prevents a hidden Edit-mode selection from deciding the read-only starting context.
+31. The editor is an npm workspace and its build first runs `npm ci` from the repository root, where the lockfile and workspace links are defined. Its watch paths include `apps/web/*`, `packages/plan-schema/*`, `package.json`, `package-lock.json`, and `tsconfig.base.json`, so changes that can affect the editor build trigger a preview while unrelated work does not.
