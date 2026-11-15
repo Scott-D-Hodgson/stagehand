@@ -5,5 +5,6 @@ Each course teaches one Stagehand application through short, focused lessons and
 ## Applications
 
 - [Web editor course](web/README.md) - Vite/Vue foundation, shared-contract use, local development, focused tests, and the path into M8 document state.
+- [Public site course](site/README.md) - Hugo configuration, accessible landing-page structure, local preview/build, and the path into Cloudflare Pages deployment.
 
 Add an application course once an application has enough implemented behaviour to teach. Label planned work as future work and keep the course aligned with its application README and relevant work-plan milestone.

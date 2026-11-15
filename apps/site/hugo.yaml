@@ -1,0 +1,9 @@
+baseURL: https://getstagehand.ca/
+languageCode: en-CA
+title: Stagehand
+enableRobotsTXT: true
+
+params:
+  description: A local-first toolkit for authoring and running repeatable browser tests.
+  repositoryURL: https://github.com/Scott-D-Hodgson/stagehand
+  planningURL: https://github.com/Scott-D-Hodgson/stagehand/tree/main/Planning

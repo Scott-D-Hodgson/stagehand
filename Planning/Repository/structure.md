@@ -32,6 +32,7 @@ stagehand/
 ├── apps/
 │   ├── cli/                 # CLI app; npm workspace scaffold
 │   ├── web/                 # Vue editor app; npm workspace package
+│   ├── site/                # Hugo public-site source
 │   ├── api/                 # optional/later
 │   └── desktop/             # Electron, later
 ├── packages/
