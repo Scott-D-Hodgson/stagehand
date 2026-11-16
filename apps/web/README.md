@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, and plan/case/step timeout inheritance. Remaining wait and assertion options, further step authoring, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, initial expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, plan/case/step timeout inheritance, and the current route-oriented presentation refactor. Remaining wait and assertion options, further step authoring, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -66,12 +66,14 @@ this repository.
   default) and Canadian French (`fr-CA`) shell resources. Each locale has its
   own JSON file in `src/localization/locales/`; the selected language is stored
   under `stagehand.interface-language`, separately from plan and recovery data.
-- `App.vue` owns application preferences and the active draft. `AppHeader`
-  provides the sticky Stagehand heading, tagline, and shell controls;
-  `Plans/PlanBundle` composes the plan details, case-reference workspaces, and
-  shared-contract assessment. `Plans/`, `Cases/`, and `Steps/` divide those
-  display responsibilities, with one details component per supported step type
-  and reusable dialogs in `components/dialogs/`. Plan Locale uses the
+- `App.vue` owns application preferences, the active draft, recovery, and the
+  breadcrumb shell. Vue Router provides Home (`/`), Plan (`/plan`), Case
+  (`/plan/card/:cardIndex`), and Step
+  (`/plan/card/:cardIndex/step/:stepIndex`) contexts. The recovery-aware Home
+  route offers New, Import, and (only for a discovered readable draft) Recover.
+  `Plans/`, `Cases/`, and `Steps/` divide route-page responsibilities, with one
+  editable details component per supported step type and reusable dialogs in
+  `components/dialogs/`. Plan Locale uses the
   maintained JSON catalogue;
   it is separate from the remembered interface language. An out-of-catalogue
   recovered value remains visible as a disabled current option rather than
@@ -84,25 +86,26 @@ this repository.
   local status. Conditional IndexedDB writes detect multiple-tab conflicts;
   the affected tab pauses autosave until the author discards local edits or
   explicitly replaces the saved draft.
-- `PlanBundle` composes case-reference workspaces inside Plan details. A
-  reference-card header selects its active editing case. The active card
-  contains the independently stored Case ID, settings, steps, and authoring
-  controls; non-active cards retain a reduced read-only case and step display.
-  Add and Edit use a Bootstrap dialog with a filename-safe
-  path suggestion; removal and sample reset require a Bootstrap confirmation
-  dialog. Adjacent move controls reorder reference cards immutably and animate
-  their exchanged positions. The expanded card uses Bootstrap theme-aware
-  active styling, and its action controls do not toggle the workspace. The v1
-  recovery adapter migrates earlier plan-only drafts by creating empty case
-  documents for their retained references. M10.2 can replace the active bundle
-  from a validated browser-selected ZIP only after explicit confirmation. M10.3
-  validates the current bundle before it opens a filename-confirmation dialog
-  and requests a browser download.
+- The Plan route presents plan settings and responsive Case summary cards. A
+  Case route presents that case's settings and responsive Step summary cards.
+  Selecting a card navigates to the corresponding Case or Step route; Step
+  fields are edited only on their dedicated Step route. The breadcrumb records
+  Plan, indexed Case, and indexed action context, so the browser Back button
+  returns from Step to Case to Plan. Add and Edit use Bootstrap dialogs with a
+  filename-safe path suggestion; removal and reset require a Bootstrap
+  confirmation dialog. Adjacent move controls reorder Case and Step cards
+  immutably and animate their exchanged positions. The v1 recovery adapter
+  migrates earlier plan-only drafts by creating empty case documents for their
+  retained references. M10.2 can replace the active bundle from a validated
+  browser-selected ZIP only after explicit confirmation. M10.3 validates the
+  current bundle before it opens a filename-confirmation dialog and requests a
+  browser download.
 - A full-width fixed status footer reports local-save state separately from
   whether the current draft has unexported changes. The browser communicates a
   successful download directly. The M9 integration review verified that the
   footer does not obscure an actionable control in the accepted long-page layout.
-- A sticky plan-action bar provides New plan, Import, Export, and Reset sample.
+- A sticky plan-action toolbar groups New/Reset, Import/Export/Validate, and
+  View/Edit.
   Import accepts a ZIP candidate, validates it without changing the active draft,
   then always requests confirmation before replacement. Export accepts only a
   valid bundle, asks for a suggested filename, and then uses the browser download
@@ -125,15 +128,16 @@ this repository.
   supported action or assertion card can provide the final override. Omitted
   plan and case fields remain absent from portable data while the editor shows
   their effective fallback. Wait-list item timeouts remain independent.
-- The same toolbar switches between Edit and View. Edit gives the active case
-  its settings tabs and step controls, while other cases use a reduced read-only
-  presentation. View presents plan and case Default, Browser, and Accessibility
-  summaries in Bootstrap-style accordions that reset to Default when View mode
-  begins. It hides step card tabs, headers, and footers, and always shows an
-  assertion's Default content. The mode is temporary interface state: it is not
-  saved in a plan or recovery record.
-- An expanded case-reference workspace supports Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps. Steps appear as numbered
-  Bootstrap cards. Navigate validates the shared absolute HTTP/HTTPS URL rule;
+- View/Edit is temporary interface state: it is not saved in a plan or recovery
+  record. It affects the settings shown in the current route. Case and Step
+  cards remain read-only navigational summaries, while their parent routes
+  retain contextual move, edit, clone, and remove controls. View presents plan
+  and case Default, Browser, and Accessibility summaries through the same
+  Bootstrap-style tab controls, resetting to Default when View mode begins.
+- Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
+  Assert value have dedicated editable Step routes. Case-route cards appear as
+  numbered Bootstrap summaries. Navigate validates the shared absolute
+  HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
   Text, and Fill uses it plus required literal Value. Select option uses the
@@ -150,18 +154,20 @@ this repository.
   option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
   for their target fields, but retain their action-specific dialogs and
   validation.
-  Each step-detail component composes its own card presentation; `CaseStepEditor`
-  coordinates ordered data, dialogs, and draft updates. Add, Edit, Clone,
-  Remove, and adjacent Move up/Move down controls preserve
+  Each step-detail component owns its dedicated route-page fields;
+  `CaseStepEditor` coordinates ordered data, dialogs, and draft updates for
+  Case-route cards. Add, Edit, Clone, Remove, and adjacent Promote/Demote
+  controls preserve
   recovery and confirmation behaviour. Reordered step and reference cards
   animate into their new positions; the first and last cards disable the
   unavailable direction. The shared case validator identifies invalid authored
-  steps through their issue paths. The expanded case shows a concise localized
-  summary and an actionable message on each affected step card; its enclosing
-  reference card has a red border, including while collapsed.
+  steps through their issue paths. A Case card with an invalid step has a red
+  border, while the Step page provides the field-level editing context.
   The dialog components live in `src/components/dialogs/`; Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
-  hide cleanup before Vue removes them. Step data is part of the recovered editor
+  hide cleanup before Vue removes them. Secondary dialog actions use Bootstrap
+  outlined styling while Save, Create, Download, and destructive confirmations
+  retain primary semantic emphasis. Step data is part of the recovered editor
   bundle. A two-tab conflict opens a blocking resolution dialog; the author
   must discard paused local edits or replace the newer saved draft before
   continuing.

@@ -67,18 +67,18 @@ onBeforeUnmount(() => modal?.dispose());
         </div>
         <div class="modal-body">
           <div class="d-grid gap-2">
-            <button ref="navigateButton" class="btn btn-secondary" type="button" @click="choose('navigate')">{{ t('editor.navigate') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('click')">{{ t('editor.click') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('type')">{{ t('editor.type') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('fill')">{{ t('editor.fill') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('selectOption')">{{ t('editor.selectOption') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('assertText')">{{ t('editor.assertText') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('assertHtml')">{{ t('editor.assertHtml') }}</button>
-            <button class="btn btn-secondary" type="button" @click="choose('assertValue')">{{ t('editor.assertValue') }}</button>
+            <button ref="navigateButton" class="btn btn-outline-secondary" type="button" @click="choose('navigate')">{{ t('editor.navigate') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('click')">{{ t('editor.click') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('type')">{{ t('editor.type') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('fill')">{{ t('editor.fill') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('selectOption')">{{ t('editor.selectOption') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('assertText')">{{ t('editor.assertText') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('assertHtml')">{{ t('editor.assertHtml') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="choose('assertValue')">{{ t('editor.assertValue') }}</button>
           </div>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>
         </div>
       </div>
     </div>

@@ -82,7 +82,7 @@ onBeforeUnmount(() => modal?.dispose());
           <input id="new-plan-id" ref="planIdInput" v-model="planId" class="form-control" required />
         </div>
         <div class="modal-footer">
-          <button class="btn btn-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click="cancel">{{ t('editor.cancel') }}</button>
           <button class="btn btn-primary" type="submit">{{ t('editor.create') }}</button>
         </div>
       </form>

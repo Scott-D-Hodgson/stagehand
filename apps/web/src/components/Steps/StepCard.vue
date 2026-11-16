@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, inject, ref, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 
 const props = defineProps<{
@@ -22,6 +22,10 @@ const emit = defineEmits<{
 const { t } = useTranslation();
 const timeoutWasBlurred = ref(false);
 const timeoutIsInvalid = computed(() => props.timeout !== '' && props.timeout !== undefined && (typeof props.timeout !== 'number' || !Number.isInteger(props.timeout) || props.timeout < 1));
+const isSummary = inject<ComputedRef<boolean>>('stagehandStepSummary', computed(() => false));
+const isStepPage = inject<ComputedRef<boolean>>('stagehandStepPage', computed(() => false));
+const caseIndex = inject<number>('stagehandCaseIndex');
+const selectedDetailsTab = ref<'default' | 'overrides'>('default');
 
 /*
 Converts a timeout number-input into raw draft data.
@@ -38,28 +42,40 @@ function readTimeout(event: Event): number | string {
 
 <template>
   <article :class="['card', 'mb-3', { 'border-danger': props.invalid }]">
-    <div v-if="props.editing" class="card-header">
-      <h4 class="h6 mb-2">{{ props.index + 1 }}. {{ props.actionLabel }}</h4>
-      <template v-if="$slots.tabs">
+    <div v-if="props.editing && $slots.tabs" class="card-header">
+      <ul v-if="isStepPage" class="nav nav-tabs card-header-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button :class="['nav-link', { active: selectedDetailsTab === 'overrides' }]" type="button" @click="selectedDetailsTab = 'overrides'">{{ t('editor.overridesTab') }}</button>
+        </li>
+      </ul>
+      <template v-else-if="$slots.tabs">
         <slot name="tabs" />
       </template>
     </div>
     <div class="card-body">
-      <h4 v-if="!props.editing" class="h6 mb-2">{{ props.index + 1 }}. {{ props.actionLabel }}</h4>
-      <slot />
-      <div v-if="props.editing" class="mt-3">
+      <h3 class="h6 mb-2">
+        <RouterLink v-if="caseIndex !== undefined" :to="{ name: 'step', params: { cardIndex: caseIndex, stepIndex: props.index } }" class="text-decoration-none">{{ props.index + 1 }}. {{ props.actionLabel }}</RouterLink>
+        <span v-else>{{ props.index + 1 }}. {{ props.actionLabel }}</span>
+      </h3>
+      <slot v-if="!isStepPage || selectedDetailsTab === 'default'" />
+      <div v-if="props.editing && !isSummary && (!isStepPage || selectedDetailsTab === 'overrides')" :class="{ 'mt-3': !isStepPage }">
         <label class="form-label" :for="`step-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
         <input :id="`step-timeout-${props.index}`" :class="['form-control', { 'is-invalid': timeoutWasBlurred && timeoutIsInvalid }]" min="1" type="number" :value="props.timeout" @blur="timeoutWasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
         <div v-if="timeoutWasBlurred && timeoutIsInvalid" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
       </div>
     </div>
     <div v-if="props.editing" class="card-footer">
-      <div class="d-flex flex-wrap gap-2 justify-content-end">
-        <button class="btn btn-secondary btn-sm" type="button" :disabled="props.index === 0" @click="emit('move', -1)">{{ t('editor.moveStepUp') }}</button>
-        <button class="btn btn-secondary btn-sm" type="button" :disabled="props.index === props.stepCount - 1" @click="emit('move', 1)">{{ t('editor.moveStepDown') }}</button>
-        <button class="btn btn-secondary btn-sm" type="button" @click="emit('edit')">{{ t('editor.edit') }}</button>
-        <button class="btn btn-secondary btn-sm" type="button" @click="emit('clone')">{{ t('editor.clone') }}</button>
-        <button class="btn btn-danger btn-sm" type="button" @click="emit('remove')">{{ t('editor.removeCaseReference') }}</button>
+      <div class="d-flex justify-content-end">
+        <div class="btn-group btn-group-sm" role="group">
+          <button class="btn btn-outline-secondary" type="button" :disabled="props.index === 0" @click="emit('move', -1)">{{ t('editor.moveStepUp') }}</button>
+          <button class="btn btn-outline-secondary" type="button" :disabled="props.index === props.stepCount - 1" @click="emit('move', 1)">{{ t('editor.moveStepDown') }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click="emit('edit')">{{ t('editor.edit') }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click="emit('clone')">{{ t('editor.clone') }}</button>
+          <button class="btn btn-outline-danger" type="button" @click="emit('remove')">{{ t('editor.removeCaseReference') }}</button>
+        </div>
       </div>
       <div v-if="props.invalid" class="mt-2 text-danger">{{ t('editor.invalidStepMessage') }}</div>
     </div>

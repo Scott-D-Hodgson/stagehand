@@ -73,7 +73,7 @@ onBeforeUnmount(() => modal?.dispose());
           <p class="mb-0">{{ props.message }}</p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-primary" type="button" @click="cancel">{{ props.cancelLabel }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click="cancel">{{ props.cancelLabel }}</button>
           <button class="btn btn-danger" type="button" @click="confirm">{{ props.confirmLabel }}</button>
         </div>
       </div>

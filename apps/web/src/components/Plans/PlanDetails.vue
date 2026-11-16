@@ -8,6 +8,7 @@ import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
 
 const props = defineProps<{
   editing: boolean;
+  framed?: boolean;
   plan: PlanDraft;
   validationIssues: ValidationIssue[];
   validationRequested: boolean;
@@ -23,7 +24,6 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
-const viewDetailsSection = ref<'accessibility' | 'browser' | 'default' | undefined>('default');
 const localeWasBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
 const browserSettingsWereBlurred = ref(false);
@@ -45,10 +45,11 @@ const browserSettings = computed<PlanBrowserSettingsDraft>(() => ({
 const browserSettingIssues = computed(() => props.validationIssues.filter((issue) => issue.path.startsWith('/defaults/browser')));
 const shouldShowBrowserSettingIssues = computed(() => browserSettingIssues.value.length > 0 && (browserSettingsWereBlurred.value || props.validationRequested));
 const accessibilitySettings = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.plan.defaults.accessibility }));
+const usesCardFrame = computed(() => props.framed !== false);
 
 watch(() => props.editing, (editing) => {
   if (!editing) {
-    viewDetailsSection.value = 'default';
+    selectedDetailsTab.value = 'default';
   }
 });
 
@@ -163,13 +164,10 @@ function validateBrowserSettings(): void {
 </script>
 
 <template>
-  <section class="card mb-4 shadow-sm" aria-labelledby="plan-details-heading">
-    <div v-if="!editing" class="card-header">
-      <h2 id="plan-details-heading" class="h5">{{ plan.id }}</h2>
-    </div>
-    <div v-if="editing" class="card-header">
-      <h2 id="plan-details-heading" class="h5">{{ plan.id }}</h2>
-      <ul class="nav nav-tabs card-header-tabs" role="tablist">
+  <section :class="usesCardFrame ? 'card mb-4 shadow-sm' : 'mb-4'" aria-labelledby="plan-details-heading">
+    <div v-if="!editing" :class="usesCardFrame ? 'card-header' : 'mb-3'">
+      <component :is="usesCardFrame ? 'h2' : 'h1'" id="plan-details-heading" :class="usesCardFrame ? 'h5' : 'h2'">{{ plan.id }}</component>
+      <ul class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button id="plan-default-tab" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="'plan-default-panel'" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
         </li>
@@ -181,7 +179,21 @@ function validateBrowserSettings(): void {
         </li>
       </ul>
     </div>
-    <div v-if="editing" class="card-body">
+    <div v-if="editing" :class="usesCardFrame ? 'card-header' : 'mb-3'">
+      <component :is="usesCardFrame ? 'h2' : 'h1'" id="plan-details-heading" :class="usesCardFrame ? 'h5' : 'h2'">{{ plan.id }}</component>
+      <ul class="nav nav-tabs" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button id="plan-default-tab" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="'plan-default-panel'" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button id="plan-browser-tab" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="'plan-browser-panel'" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button id="plan-accessibility-tab" :class="['nav-link', { active: selectedDetailsTab === 'accessibility' }]" type="button" role="tab" :aria-controls="'plan-accessibility-panel'" :aria-selected="selectedDetailsTab === 'accessibility'" @click="selectedDetailsTab = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
+        </li>
+      </ul>
+    </div>
+    <div v-if="editing" :class="usesCardFrame ? 'card-body' : ''">
       <section v-if="selectedDetailsTab === 'default'" id="plan-default-panel" role="tabpanel" aria-labelledby="plan-default-tab">
         <div v-if="editing">
           <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
@@ -261,29 +273,20 @@ function validateBrowserSettings(): void {
         </dl>
       </section>
     </div>
-    <div v-else class="card-body">
-      <div class="accordion" id="plan-view-details">
-        <div class="accordion-item">
-          <h3 id="plan-view-default-heading" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'default' }]" type="button" :aria-expanded="viewDetailsSection === 'default'" aria-controls="plan-view-default-panel" @click="viewDetailsSection = viewDetailsSection === 'default' ? undefined : 'default'">{{ t('editor.defaultTab') }}</button>
-          </h3>
-          <div id="plan-view-default-panel" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'default' }]" aria-labelledby="plan-view-default-heading">
-            <div class="accordion-body">
+    <div v-else :class="usesCardFrame ? 'card-body' : ''">
+      <div>
+        <section v-if="selectedDetailsTab === 'default'" id="plan-default-panel" role="tabpanel" aria-labelledby="plan-default-tab">
+          <div>
               <dl class="mb-0">
                 <dt>{{ t('editor.planLocale') }}</dt>
                 <dd>{{ plan.defaults.locale }}</dd>
                 <dt>{{ t('editor.defaultStepTimeout') }}</dt>
                 <dd class="mb-0">{{ effectivePlanTimeout }}</dd>
               </dl>
-            </div>
           </div>
-        </div>
-        <div class="accordion-item">
-          <h3 id="plan-view-browser-heading" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'browser' }]" type="button" :aria-expanded="viewDetailsSection === 'browser'" aria-controls="plan-view-browser-panel" @click="viewDetailsSection = viewDetailsSection === 'browser' ? undefined : 'browser'">{{ t('editor.browserTab') }}</button>
-          </h3>
-          <div id="plan-view-browser-panel" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'browser' }]" aria-labelledby="plan-view-browser-heading">
-            <div class="accordion-body">
+        </section>
+        <section v-else-if="selectedDetailsTab === 'browser'" id="plan-browser-panel" role="tabpanel" aria-labelledby="plan-browser-tab">
+          <div>
               <dl class="mb-0">
                 <dt>{{ t('editor.headless') }}</dt>
                 <dd>{{ browserSettings.headless ? t('editor.enabled') : t('editor.disabled') }}</dd>
@@ -292,15 +295,10 @@ function validateBrowserSettings(): void {
                 <dt>{{ t('editor.timeZone') }}</dt>
                 <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
               </dl>
-            </div>
           </div>
-        </div>
-        <div class="accordion-item">
-          <h3 id="plan-view-accessibility-heading" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'accessibility' }]" type="button" :aria-expanded="viewDetailsSection === 'accessibility'" aria-controls="plan-view-accessibility-panel" @click="viewDetailsSection = viewDetailsSection === 'accessibility' ? undefined : 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
-          </h3>
-          <div id="plan-view-accessibility-panel" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'accessibility' }]" aria-labelledby="plan-view-accessibility-heading">
-            <div class="accordion-body">
+        </section>
+        <section v-else id="plan-accessibility-panel" role="tabpanel" aria-labelledby="plan-accessibility-tab">
+          <div>
               <dl class="mb-0">
                 <dt>{{ t('editor.accessibilityEnabled') }}</dt>
                 <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
@@ -309,18 +307,12 @@ function validateBrowserSettings(): void {
                 <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
                 <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
               </dl>
-            </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
-    <div class="card-body border-top">
+    <div :class="usesCardFrame ? 'card-body border-top' : 'border-top pt-4 mt-4'">
       <slot />
-    </div>
-    <div v-if="editing" class="card-footer">
-      <div class="d-flex gap-2 justify-content-end">
-        <button class="btn btn-secondary btn-sm" type="button" @click="emit('validate')">{{ t('editor.validate') }}</button>
-      </div>
     </div>
   </section>
 </template>

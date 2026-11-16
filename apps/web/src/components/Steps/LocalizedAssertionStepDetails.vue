@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, inject, ref, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import StepCard from './StepCard.vue';
 
@@ -30,6 +30,7 @@ const emit = defineEmits<{
 }>();
 const { t } = useTranslation();
 const localeOverridesSelected = ref(false);
+const isSummary = inject<ComputedRef<boolean>>('stagehandStepSummary', computed(() => false));
 const target = computed(() => {
   const locator = (props.step as { locator?: { name?: string; role?: string } }).locator;
   return `${locator?.role ?? ''}${locator?.name ? `: ${locator.name}` : ''}`;
@@ -38,7 +39,7 @@ const target = computed(() => {
 
 <template>
   <StepCard :action-label="props.actionLabel" :editing="props.editing" :index="props.index" :invalid="props.invalid" :step-count="props.stepCount" :timeout="props.timeout" @clone="emit('clone')" @edit="emit('edit')" @move="emit('move', $event)" @remove="emit('remove')" @update:timeout="emit('update:timeout', $event)">
-    <template v-if="props.editing" #tabs>
+    <template v-if="props.editing && !isSummary" #tabs>
       <ul class="nav nav-tabs card-header-tabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button :id="`step-default-tab-${props.index}`" :class="['nav-link', { active: !localeOverridesSelected }]" type="button" role="tab" :aria-controls="`step-default-panel-${props.index}`" :aria-selected="!localeOverridesSelected" @click="localeOverridesSelected = false">{{ t('editor.defaultTab') }}</button>
@@ -48,7 +49,7 @@ const target = computed(() => {
         </li>
       </ul>
     </template>
-    <section v-if="!props.editing || !localeOverridesSelected" :id="props.editing ? `step-default-panel-${props.index}` : undefined" :aria-labelledby="props.editing ? `step-default-tab-${props.index}` : undefined" :role="props.editing ? 'tabpanel' : undefined">
+    <section v-if="!props.editing || isSummary || !localeOverridesSelected" :id="props.editing && !isSummary ? `step-default-panel-${props.index}` : undefined" :aria-labelledby="props.editing && !isSummary ? `step-default-tab-${props.index}` : undefined" :role="props.editing && !isSummary ? 'tabpanel' : undefined">
       <p class="mb-0 text-break">
         <span class="text-body-secondary">{{ target }} → </span>
         <span class="text-primary fw-bold">{{ props.effectiveValue }}</span>
@@ -57,16 +58,16 @@ const target = computed(() => {
     </section>
     <section v-else :id="`step-locale-overrides-panel-${props.index}`" role="tabpanel" :aria-labelledby="`step-locale-overrides-tab-${props.index}`">
       <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
-        <h5 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h5>
+        <h4 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h4>
         <button v-if="props.editing" class="btn btn-secondary btn-sm" type="button" @click="emit('add-locale-override')">{{ t('editor.add') }}</button>
       </div>
       <p v-if="props.localeOverrides.length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
       <ul v-else class="list-group">
         <li v-for="override in props.localeOverrides" :key="override.locale" :class="['list-group-item', 'd-flex', 'align-items-center', 'justify-content-between', 'gap-3', { 'border-primary': override.active, 'locale-override-active': override.active }]">
           <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
-          <span v-if="props.editing" class="d-flex gap-2">
-            <button class="btn btn-secondary btn-sm" type="button" @click="emit('edit-locale-override', override)">{{ t('editor.edit') }}</button>
-            <button class="btn btn-danger btn-sm" type="button" @click="emit('remove-locale-override', override)">{{ t('editor.remove') }}</button>
+          <span v-if="props.editing" class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-outline-secondary" type="button" @click="emit('edit-locale-override', override)">{{ t('editor.edit') }}</button>
+            <button class="btn btn-outline-danger" type="button" @click="emit('remove-locale-override', override)">{{ t('editor.remove') }}</button>
           </span>
         </li>
       </ul>

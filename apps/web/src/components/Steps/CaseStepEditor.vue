@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, toRaw, watch } from 'vue';
+import { computed, nextTick, provide, ref, toRaw, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
 import { moveCaseStep, updateCaseStepTimeout, type CaseDraft } from '../../document/plan-draft';
@@ -31,6 +32,7 @@ interface LocaleOverride {
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
+  caseIndex: number;
   editing: boolean;
   planLocale: string;
   selectedPath: string;
@@ -42,8 +44,24 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useTranslation();
+const route = useRoute();
+const router = useRouter();
 const selectedCase = computed(() => props.caseDrafts[props.selectedPath]);
 const invalidStepIndexes = computed(() => selectedCase.value === undefined ? [] : getInvalidCaseStepIndexes(selectedCase.value));
+const displayedSteps = computed(() => {
+  if (selectedCase.value === undefined) {
+    return [];
+  }
+  if (route.name !== 'step') {
+    return selectedCase.value.steps.map((step, index) => ({ index, step }));
+  }
+  const index = Number(route.params.stepIndex);
+  const step = selectedCase.value.steps[index];
+  return step === undefined ? [] : [{ index, step }];
+});
+provide('stagehandStepSummary', computed(() => route.name === 'case'));
+provide('stagehandStepPage', computed(() => route.name === 'step'));
+provide('stagehandCaseIndex', props.caseIndex);
 const editingStepIndex = ref<number | undefined>();
 const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
@@ -1260,42 +1278,57 @@ function getStepKey(step: unknown): string {
   }
   return `step-${key}`;
 }
+
+/*
+Opens one step in its own route without intercepting an editor control.
+---
+Inputs: The selected step index and its click event.
+---
+Output: Navigation to the matching step route.
+*/
+function openStep(index: number, event: MouseEvent): void {
+  if ((event.target as HTMLElement).closest('button, input, select, textarea, a')) {
+    return;
+  }
+  void router.push({ name: 'step', params: { cardIndex: props.caseIndex, stepIndex: index } });
+}
 </script>
 
 <template>
   <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
     <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
-    <h3 v-if="selectedCase.steps.length > 0" class="h6">{{ t('editor.steps') }}</h3>
+    <h2 v-if="selectedCase.steps.length > 0" class="h5">{{ t('editor.steps') }}</h2>
+    <button v-if="selectedCase.steps.length > 0 && editing && route.name !== 'step'" class="btn btn-outline-secondary mb-3" type="button" @click="stepChooserOpen = true">{{ t('editor.add') }}</button>
     <p v-else class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
     <div v-if="selectedCase.steps.length > 0" ref="stepCardList" class="step-card-list">
-      <TransitionGroup name="step" tag="div">
-        <component
-          :is="getStepDetailComponent(step)"
-          v-for="(step, index) in selectedCase.steps"
-          :key="getStepKey(step)"
-          :action-label="getStepActionLabel(step)"
-          :editing="editing"
-          :effective-locale="getConfiguredLocaleOverride(step)?.locale ?? props.planLocale"
-          :effective-value="getConfiguredLocaleOverride(step)?.value ?? getExpectedDefaultValue(step)"
-          :has-locale-override="getConfiguredLocaleOverride(step) !== undefined"
-          :index="index"
-          :invalid="invalidStepIndexes.includes(index)"
-          :locale-overrides="getLocaleOverrideItems(step)"
-          :step="step"
-          :step-count="selectedCase.steps.length"
-          :timeout="typeof step === 'object' && step !== null ? (step as { timeout?: unknown }).timeout : undefined"
-          @add-locale-override="addLocaleOverride(index)"
-          @clone="cloneStep(step)"
-          @edit="editStep(index, step)"
-          @edit-locale-override="editLocaleOverride(index, $event)"
-          @move="moveStep(index, $event)"
-          @remove="requestStepRemoval(index)"
-          @remove-locale-override="requestLocaleOverrideRemoval(index, $event)"
-          @update:timeout="changeStepTimeout(index, $event)"
-        />
+      <TransitionGroup name="step" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
+        <div v-for="item in displayedSteps" :key="getStepKey(item.step)" class="col" @click="openStep(item.index, $event)">
+          <component
+            :is="getStepDetailComponent(item.step)"
+            :action-label="getStepActionLabel(item.step)"
+            :editing="editing"
+            :effective-locale="getConfiguredLocaleOverride(item.step)?.locale ?? props.planLocale"
+            :effective-value="getConfiguredLocaleOverride(item.step)?.value ?? getExpectedDefaultValue(item.step)"
+            :has-locale-override="getConfiguredLocaleOverride(item.step) !== undefined"
+            :index="item.index"
+            :invalid="invalidStepIndexes.includes(item.index)"
+            :locale-overrides="getLocaleOverrideItems(item.step)"
+            :step="item.step"
+            :step-count="selectedCase.steps.length"
+            :timeout="typeof item.step === 'object' && item.step !== null ? (item.step as { timeout?: unknown }).timeout : undefined"
+            @add-locale-override="addLocaleOverride(item.index)"
+            @clone="cloneStep(item.step)"
+            @edit="editStep(item.index, item.step)"
+            @edit-locale-override="editLocaleOverride(item.index, $event)"
+            @move="moveStep(item.index, $event)"
+            @remove="requestStepRemoval(item.index)"
+            @remove-locale-override="requestLocaleOverrideRemoval(item.index, $event)"
+            @update:timeout="changeStepTimeout(item.index, $event)"
+          />
+        </div>
       </TransitionGroup>
     </div>
-    <button v-if="editing" class="btn btn-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.addStep') }}</button>
+    <button v-if="selectedCase.steps.length === 0 && editing && route.name !== 'step'" class="btn btn-outline-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.add') }}</button>
     <NavigateStepDialog
       v-if="navigateDialogOpen"
       :url="navigateUrl"
@@ -1461,9 +1494,8 @@ function getStepKey(step: unknown): string {
   transition: transform 180ms ease-in-out;
 }
 
-.step-card-list {
-  overflow: clip;
-  transition: height 180ms ease-in-out;
+.step-card-list :deep(.card) {
+  height: calc(100% - 1rem);
 }
 
 .locale-override-active {
