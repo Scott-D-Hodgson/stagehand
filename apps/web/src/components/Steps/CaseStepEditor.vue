@@ -16,6 +16,7 @@ import NavigateStepDialog from '../dialogs/NavigateStepDialog.vue';
 import SelectOptionStepDialog from '../dialogs/SelectOptionStepDialog.vue';
 import StepChooserDialog from '../dialogs/StepChooserDialog.vue';
 import TypeStepDialog from '../dialogs/TypeStepDialog.vue';
+import IconOnlyButton from '../IconOnlyButton.vue';
 import AssertHtmlStepDetails from './AssertHtmlStepDetails.vue';
 import AssertTextStepDetails from './AssertTextStepDetails.vue';
 import AssertValueStepDetails from './AssertValueStepDetails.vue';
@@ -1297,10 +1298,10 @@ function openStep(index: number, event: MouseEvent): void {
 <template>
   <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
     <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
-    <h2 v-if="selectedCase.steps.length > 0" class="h5">{{ t('editor.steps') }}</h2>
-    <button v-if="selectedCase.steps.length > 0 && editing && route.name !== 'step'" class="btn btn-outline-secondary mb-3" type="button" @click="stepChooserOpen = true">{{ t('editor.add') }}</button>
-    <p v-else class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
-    <div v-if="selectedCase.steps.length > 0" ref="stepCardList" class="step-card-list">
+    <h2 class="h5">{{ t('editor.steps') }}</h2>
+    <IconOnlyButton v-if="editing && route.name !== 'step'" class="btn btn-outline-secondary mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="stepChooserOpen = true" />
+    <p v-if="selectedCase.steps.length === 0" class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
+    <div v-else ref="stepCardList" class="step-card-list">
       <TransitionGroup name="step" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
         <div v-for="item in displayedSteps" :key="getStepKey(item.step)" class="col" @click="openStep(item.index, $event)">
           <component
@@ -1328,7 +1329,6 @@ function openStep(index: number, event: MouseEvent): void {
         </div>
       </TransitionGroup>
     </div>
-    <button v-if="selectedCase.steps.length === 0 && editing && route.name !== 'step'" class="btn btn-outline-secondary" type="button" @click="stepChooserOpen = true">{{ t('editor.add') }}</button>
     <NavigateStepDialog
       v-if="navigateDialogOpen"
       :url="navigateUrl"

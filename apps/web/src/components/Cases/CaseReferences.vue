@@ -2,6 +2,7 @@
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
+import IconOnlyButton from '../IconOnlyButton.vue';
 import CaseDetails from './CaseDetails.vue';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
@@ -190,7 +191,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
 <template>
   <section aria-labelledby="case-references-heading">
     <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
-    <button v-if="editing" class="btn btn-outline-secondary mb-3" type="button" @click="() => openDialog()">{{ t('editor.add') }}</button>
+    <IconOnlyButton v-if="editing" class="btn btn-outline-secondary mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="() => openDialog()" />
     <TransitionGroup v-if="!props.overview" name="case-reference" tag="div" class="mb-3">
       <CaseDetails
         v-for="(caseReference, index) in cases"
@@ -229,10 +230,10 @@ onBeforeUnmount(() => { modal?.dispose(); });
           <div v-if="editing" class="card-footer position-relative z-1">
             <div class="d-flex justify-content-end">
               <div class="btn-group btn-group-sm" role="group">
-                <button class="btn btn-outline-secondary" type="button" :disabled="index === 0" @click="moveReference({ direction: -1, index })">{{ t('editor.moveStepUp') }}</button>
-                <button class="btn btn-outline-secondary" type="button" :disabled="index === cases.length - 1" @click="moveReference({ direction: 1, index })">{{ t('editor.moveStepDown') }}</button>
-                <button class="btn btn-outline-secondary" type="button" @click="openDialog(index)">{{ t('editor.edit') }}</button>
-                <button class="btn btn-outline-danger" type="button" @click="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
+                <IconOnlyButton class="btn btn-outline-secondary" :disabled="index === 0" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click="moveReference({ direction: -1, index })" />
+                <IconOnlyButton class="btn btn-outline-secondary" :disabled="index === cases.length - 1" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click="moveReference({ direction: 1, index })" />
+                <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click="openDialog(index)" />
+                <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.removeCaseReference')" @click="emit('remove', index)" />
               </div>
             </div>
           </div>

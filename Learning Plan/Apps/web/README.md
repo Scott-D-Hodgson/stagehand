@@ -40,6 +40,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
   the public `app.getstagehand.ca` hostname without becoming a hosted service.
 - How route-specific Plan, Case, and Step authoring contexts reduce nested-card
   density on small screens without changing the local-first document boundary.
+- How a shared icon-only control retains an accessible localized action name
+  while a Font Awesome kit and Bootstrap popover provide compact visual affordances.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -92,5 +94,6 @@ offline after load.
 30. [Step-timeout inheritance and View summaries](Lessons/30-step-timeout-inheritance-and-view-summaries.md)
 31. [Cloudflare Pages editor deployment](Lessons/31-cloudflare-pages-editor-deployment.md)
 32. [Route-oriented authoring presentation](Lessons/32-route-oriented-authoring-presentation.md)
+33. [Accessible icon controls](Lessons/33-accessible-icon-controls.md)
 
 Finish with the [course skill check](quiz.md).
