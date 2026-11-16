@@ -15,6 +15,7 @@ Author supported plan/case configuration and localized assertion values without 
 - [ ] Cover supported waits, interaction options, and hard/soft assertions; the supported plan, case, and step timeout hierarchy is complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
+- [ ] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, and Step routes; responsive summary-card grids; editable step detail pages; breadcrumbs; and temporary View/Edit presentation state.
 - [ ] Verify recovery and M10 import/export preservation for all implemented configuration; existing draft-copy paths retain the current fields, but cross-flow evidence remains outstanding.
 - [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
@@ -112,13 +113,44 @@ web-editor tests, type checks, production build, and manual verification of
 the inheritance controls, validation, and View-mode summaries.
 
 View mode now presents plan and case Default, Browser, and Accessibility
-settings as Bootstrap-style read-only accordions. Entering View mode opens
-Default, rather than retaining whichever Edit-mode tab was last selected.
+settings through the same Bootstrap-style tab controls used for Edit mode, but
+with read-only panel content. Entering View mode opens Default, rather than
+retaining whichever Edit-mode tab was last selected.
+
+## Route-oriented authoring presentation slice
+
+The current presentation refactor replaces the nested expandable-workspace
+layout with Vue Router routes that provide one authoring context at a time:
+Home (`/`), Plan (`/plan`), Case (`/plan/card/:cardIndex`), and Step
+(`/plan/card/:cardIndex/step/:stepIndex`). The Home route offers New and
+Import, and exposes Recover only when the startup recovery check finds a
+readable local draft. After recovery resolves, the Plan route presents plan
+Default, Browser, and Accessibility settings alongside responsive Case summary
+cards. A Case route presents its settings and responsive read-only Step cards;
+card navigation opens the dedicated Step route, where that step's settings are
+editable.
+
+Breadcrumbs expose the Plan, indexed Case, and indexed action name while
+preserving browser Back navigation through the nested route history. View/Edit
+remains temporary interface state. It affects only the settings for the current
+route; Case and Step cards remain navigational summaries. Case and Step
+authoring controls stay on their parent route cards so that moving, editing,
+cloning, and removing do not require nested cards inside a mobile viewport.
+
+The assertion Step routes use Default, Overrides, and Locales tabs. Their
+shared Locales panel supports the same canonical locale catalogue and dialog
+workflow for Assert text, Assert HTML, and Assert value. The card and dialog
+presentation uses compact Bootstrap button groups and outlined secondary
+actions; Save, Create, Download, and destructive confirmation actions retain
+their primary semantic emphasis.
+
+This slice is implemented in the current editor work but has not yet recorded
+its focused automated, type-check, build, and manual responsive-route evidence.
 
 ## Incremental delivery
 
-Suggested remaining PR slices: wait and assertion options, then M11
-integration evidence.
+Suggested remaining PR slices: verify the route-oriented presentation, add
+wait and assertion options, then collect M11 integration evidence.
 
 ## Open decisions and exclusions
 
@@ -134,3 +166,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 
 - [Web editor course](../../Learning%20Plan/Apps/web/README.md)
 - [Step-timeout inheritance and View summaries](../../Learning%20Plan/Apps/web/Lessons/30-step-timeout-inheritance-and-view-summaries.md)
+- [Route-oriented authoring presentation](../../Learning%20Plan/Apps/web/Lessons/32-route-oriented-authoring-presentation.md)

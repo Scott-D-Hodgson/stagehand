@@ -15,6 +15,7 @@ const props = defineProps<{
   planLocale: string;
   planTimeout: unknown;
   selectedPath: string;
+  overview?: boolean;
 }>();
 const emit = defineEmits<{
   add: [path: string];
@@ -189,7 +190,8 @@ onBeforeUnmount(() => { modal?.dispose(); });
 <template>
   <section aria-labelledby="case-references-heading">
     <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
-    <TransitionGroup name="case-reference" tag="div" class="mb-3">
+    <button v-if="editing" class="btn btn-outline-secondary mb-3" type="button" @click="() => openDialog()">{{ t('editor.add') }}</button>
+    <TransitionGroup v-if="!props.overview" name="case-reference" tag="div" class="mb-3">
       <CaseDetails
         v-for="(caseReference, index) in cases"
         :key="caseReference.path"
@@ -215,7 +217,28 @@ onBeforeUnmount(() => { modal?.dispose(); });
         @update:timeout="updateTimeout"
       />
     </TransitionGroup>
-    <button v-if="editing" class="btn btn-secondary" type="button" @click="() => openDialog()">{{ t('editor.addCaseReference') }}</button>
+    <TransitionGroup v-else name="case-reference" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-3">
+      <div v-for="(caseReference, index) in cases" :key="caseReference.path" class="col">
+        <article class="card h-100">
+          <div class="card-body">
+            <h3 class="h6 mb-2">
+              <RouterLink :to="{ name: 'case', params: { cardIndex: index } }" class="stretched-link text-decoration-none">{{ index + 1 }}. {{ caseDrafts[caseReference.path]?.id ?? caseReference.path }}</RouterLink>
+            </h3>
+            <p class="mb-0 text-body-secondary text-break">{{ caseReference.path }}</p>
+          </div>
+          <div v-if="editing" class="card-footer position-relative z-1">
+            <div class="d-flex justify-content-end">
+              <div class="btn-group btn-group-sm" role="group">
+                <button class="btn btn-outline-secondary" type="button" :disabled="index === 0" @click="moveReference({ direction: -1, index })">{{ t('editor.moveStepUp') }}</button>
+                <button class="btn btn-outline-secondary" type="button" :disabled="index === cases.length - 1" @click="moveReference({ direction: 1, index })">{{ t('editor.moveStepDown') }}</button>
+                <button class="btn btn-outline-secondary" type="button" @click="openDialog(index)">{{ t('editor.edit') }}</button>
+                <button class="btn btn-outline-danger" type="button" @click="emit('remove', index)">{{ t('editor.removeCaseReference') }}</button>
+              </div>
+            </div>
+          </div>
+        </article>
+      </div>
+    </TransitionGroup>
     <div ref="modalElement" class="modal fade" tabindex="-1" aria-labelledby="add-case-heading" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content" @submit.prevent="addReference">
@@ -231,8 +254,8 @@ onBeforeUnmount(() => { modal?.dispose(); });
             <div v-if="pathError" class="invalid-feedback d-block">{{ pathError }}</div>
           </div>
           <div class="modal-footer">
-            <button class="btn btn-secondary" type="button" @click="closeDialog">{{ t('editor.cancel') }}</button>
-            <button class="btn btn-secondary" type="submit">{{ t('editor.save') }}</button>
+            <button class="btn btn-outline-secondary" type="button" @click="closeDialog">{{ t('editor.cancel') }}</button>
+            <button class="btn btn-primary" type="submit">{{ t('editor.save') }}</button>
           </div>
         </form>
       </div>

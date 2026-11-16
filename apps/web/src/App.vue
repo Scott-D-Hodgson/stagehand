@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router'
 import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
+import HeroPage from './components/HeroPage.vue'
 import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
 import PlanBundle from './components/Plans/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
@@ -19,8 +21,11 @@ import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecov
 import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
 import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
 import type { PreparedPortableBundleExport } from './portable-bundle/export';
+import { readPortableBundleFile } from './portable-bundle/import';
 
 const { i18next, t } = useTranslation()
+const route = useRoute()
+const router = useRouter()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
 const editorDraft = ref(createBundledEditorDraft())
 const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
@@ -48,6 +53,24 @@ const exportStatusMessage = computed(() => {
     return t('editor.noUnexportedChanges');
   }
   return t('editor.changesNotExported');
+});
+const breadcrumbs = computed<Array<{ label: string; to: RouteLocationRaw }>>(() => {
+  if (route.name === 'home') {
+    return [];
+  }
+  const items: Array<{ label: string; to: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
+  const caseIndex = Number(route.params.cardIndex);
+  const caseReference = editorDraft.value.plan.cases[caseIndex];
+  if (caseReference !== undefined) {
+    items.push({ label: `${caseIndex + 1}. ${editorDraft.value.cases[caseReference.path]?.id ?? caseReference.path}`, to: { name: 'case', params: { cardIndex: caseIndex } } });
+  }
+  if (route.name === 'step') {
+    const stepIndex = Number(route.params.stepIndex);
+    const step = editorDraft.value.cases[caseReference?.path ?? '']?.steps[stepIndex] as { action?: string } | undefined;
+    const action = step?.action?.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()) ?? 'Step';
+    items.push({ label: `${stepIndex + 1}. ${action}`, to: { name: 'step', params: { cardIndex: caseIndex, stepIndex: route.params.stepIndex } } });
+  }
+  return items;
 });
 
 /*
@@ -193,6 +216,48 @@ function createNewPlan(id: string): void {
 }
 
 /*
+Starts a new plan from the route-level welcome page.
+---
+Inputs: A user activation of the New option.
+---
+Output: An empty plan is opened at the plan route.
+*/
+function startNewPlan(): void {
+  editorDraft.value = createEmptyEditorDraft('new-plan');
+  recoveryState.value = { kind: 'ready' };
+  void router.push({ name: 'plan' });
+}
+
+/*
+Restores the discovered local draft from the route-level welcome page.
+---
+Inputs: A user activation of the Recover option.
+---
+Output: The recovered plan is opened at the plan route.
+*/
+function recoverFromHero(): void {
+  restoreRecovery();
+  void router.push({ name: 'plan' });
+}
+
+/*
+Imports a portable bundle selected from the route-level welcome page.
+---
+Inputs: One browser-selected ZIP file.
+---
+Output: A validated imported plan is opened at the plan route.
+*/
+async function importFromHero(file: File): Promise<void> {
+  const result = await readPortableBundleFile(file);
+  if (!result.valid) {
+    return;
+  }
+  importEditorBundle(result.draft);
+  recoveryState.value = { kind: 'ready' };
+  await router.push({ name: 'plan' });
+}
+
+/*
 Replaces editor state with a validated portable bundle selected by the author.
 ---
 Inputs: A plan/case bundle that has passed portable archive validation.
@@ -327,7 +392,22 @@ watch(resolvedTheme, (theme) => {
   <div class="min-vh-100 bg-body">
     <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
     <main class="container-fluid px-4 py-4 pb-5">
-      <RecoveryGate v-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
+      <nav v-if="breadcrumbs.length > 0" class="mb-4" aria-label="Breadcrumb">
+        <ol class="breadcrumb mb-0">
+          <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
+            <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
+            <RouterLink v-else :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
+          </li>
+        </ol>
+      </nav>
+      <HeroPage
+        v-if="route.name === 'home'"
+        :recovery-available="recoveryState.kind === 'restore-or-discard'"
+        @import="importFromHero"
+        @new="startNewPlan"
+        @recover="recoverFromHero"
+      />
+      <RecoveryGate v-else-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
       <template v-else>
         <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @export="downloadPortableBundle" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
         <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />

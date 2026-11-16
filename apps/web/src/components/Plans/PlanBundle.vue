@@ -1,18 +1,19 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
 import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import { validateEditorPlan } from '../../document/validation';
 import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
 import { readPortableBundleFile } from '../../portable-bundle/import';
-import CaseReferences from '../Cases/CaseReferences.vue';
+import CasePage from '../Cases/CasePage.vue';
+import StepPage from '../Steps/StepPage.vue';
 import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import BundleIssuesModal from '../dialogs/BundleIssuesModal.vue';
 import ExportBundleDialog from '../dialogs/ExportBundleDialog.vue';
 import NewPlanDialog from '../dialogs/NewPlanDialog.vue';
-import PlanDetails from './PlanDetails.vue';
-import SharedContractAssessment from '../SharedContractAssessment.vue';
+import PlanPage from './PlanPage.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -28,6 +29,8 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useTranslation();
+const route = useRoute();
+const router = useRouter();
 const validationRequested = ref(false);
 const planValidation = computed(() => validateEditorPlan(props.plan));
 const validationIssues = computed(() => planValidation.value.valid ? [] : planValidation.value.issues);
@@ -39,12 +42,22 @@ const importInput = ref<HTMLInputElement>();
 const bundleIssues = ref<{ messages: string[]; message: string; title: string }>();
 const pendingExportBundle = ref<PreparedPortableBundleExport>();
 const editing = ref(true);
+const selectedCaseIndex = computed(() => Number(route.params.cardIndex));
+const selectedCaseReference = computed(() => props.plan.cases[selectedCaseIndex.value]);
 
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
     selectedCasePath.value = references[0]?.path ?? '';
   }
 }, { deep: true });
+
+watch(() => route.params.cardIndex, (routeIndex) => {
+  const index = Number(routeIndex);
+  const reference = props.plan.cases[index];
+  if (reference !== undefined) {
+    selectedCasePath.value = reference.path;
+  }
+}, { immediate: true });
 
 /*
 Emits a draft with the raw plan-locale text preserved.
@@ -91,14 +104,14 @@ function changePlanTimeout(timeout: number | string | undefined): void {
 }
 
 /*
-Switches between authoring controls and a details-only plan view.
+Sets the plan workspace display mode.
 ---
-Inputs: A toolbar mode-toggle activation.
+Inputs: Whether authoring controls should be available.
 ---
-Output: The current plan bundle display mode is inverted.
+Output: The selected View or Edit mode is shown.
 */
-function toggleEditing(): void {
-  editing.value = !editing.value;
+function setEditing(editingMode: boolean): void {
+  editing.value = editingMode;
 }
 
 /*
@@ -232,7 +245,12 @@ Inputs: A case-reference path selected in the case-reference panel.
 Output: The matching case details become visible.
 */
 function selectCase(path: string): void {
-  selectedCasePath.value = selectedCasePath.value === path ? '' : path;
+  const index = props.plan.cases.findIndex((reference) => reference.path === path);
+  if (index < 0) {
+    return;
+  }
+  selectedCasePath.value = path;
+  void router.push({ name: 'case', params: { cardIndex: index } });
 }
 
 /*
@@ -478,19 +496,46 @@ function cancelConfirmation(): void {
 
 <template>
   <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
-    <div class="d-flex flex-wrap align-items-center gap-2">
-      <button class="btn btn-secondary" type="button" @click="toggleEditing">{{ editing ? t('editor.viewMode') : t('editor.editMode') }}</button>
-      <button class="btn btn-secondary" type="button" @click="requestNewPlan">{{ t('editor.newPlan') }}</button>
-      <button class="btn btn-secondary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
-      <button class="btn btn-secondary" type="button" @click="requestExport">{{ t('editor.export') }}</button>
-      <button class="btn btn-secondary" type="button" @click="resetPlanDraft">{{ t('editor.resetSample') }}</button>
+    <div class="btn-toolbar flex-wrap gap-2" role="toolbar" :aria-label="t('editor.planActions')">
+      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+        <button class="btn btn-outline-secondary" type="button" @click="requestNewPlan">{{ t('editor.new') }}</button>
+        <button class="btn btn-outline-danger" type="button" @click="resetPlanDraft">{{ t('editor.reset') }}</button>
+      </div>
+      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+        <button class="btn btn-outline-secondary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
+        <button class="btn btn-outline-secondary" type="button" @click="requestExport">{{ t('editor.export') }}</button>
+        <button class="btn btn-outline-secondary" type="button" @click="requestPlanValidation">{{ t('editor.validate') }}</button>
+      </div>
+      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+        <button class="btn btn-outline-secondary" type="button" :aria-pressed="!editing" @click="setEditing(false)">{{ t('editor.viewMode') }}</button>
+        <button class="btn btn-outline-secondary" type="button" :aria-pressed="editing" @click="setEditing(true)">{{ t('editor.editMode') }}</button>
+      </div>
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
   </nav>
-  <PlanDetails :editing="editing" :plan="plan" :validation-issues="validationIssues" :validation-requested="validationRequested" @update:accessibility="changePlanAccessibilitySettings" @update:browser="changePlanBrowserSettings" @update:locale="changePlanLocale" @update:timeout="changePlanTimeout" @validate="requestPlanValidation">
-    <CaseReferences :case-drafts="caseDrafts" :cases="plan.cases" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :plan-timeout="plan.defaults.timeout" :selected-path="selectedCasePath" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:steps="changeCaseSteps" @update:timeout="changeCaseTimeout" />
-  </PlanDetails>
-  <SharedContractAssessment :validation="planValidation" />
+  <PlanPage v-if="route.name === 'plan'" :case-drafts="caseDrafts" :editing="editing" :plan="plan" :selected-case-path="selectedCasePath" :validation-issues="validationIssues" :validation-requested="validationRequested" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:plan-accessibility="changePlanAccessibilitySettings" @update:plan-browser="changePlanBrowserSettings" @update:plan-locale="changePlanLocale" @update:plan-timeout="changePlanTimeout" @update:steps="changeCaseSteps" @update:timeout="changeCaseTimeout" @validate="requestPlanValidation" />
+  <CasePage
+    v-else-if="route.name === 'case' && selectedCaseReference"
+    :case-count="plan.cases.length"
+    :case-drafts="caseDrafts"
+    :case-index="selectedCaseIndex"
+    :case-path="selectedCaseReference.path"
+    :editing="editing"
+    :plan-accessibility="plan.defaults.accessibility"
+    :plan-browser="plan.defaults.browser"
+    :plan-locale="plan.defaults.locale"
+    :plan-timeout="plan.defaults.timeout"
+    @move="moveReference"
+    @remove="requestReferenceRemoval"
+    @remove:step="removeCaseStep"
+    @select="selectCase"
+    @update:accessibility="changeCaseAccessibilitySettings"
+    @update:browser="changeCaseBrowserSettings"
+    @update:case-id="changeCaseId"
+    @update:steps="changeCaseSteps"
+    @update:timeout="changeCaseTimeout"
+  />
+  <StepPage v-else-if="route.name === 'step' && selectedCaseReference" :case-count="plan.cases.length" :case-drafts="caseDrafts" :case-index="selectedCaseIndex" :case-path="selectedCaseReference.path" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :plan-timeout="plan.defaults.timeout" @remove:step="removeCaseStep" @update:steps="changeCaseSteps" />
   <ConfirmationModal
     v-if="confirmation"
     :cancel-label="t('editor.cancel')"

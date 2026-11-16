@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { useRoute } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
@@ -14,6 +15,7 @@ const props = defineProps<{
   casePath: string;
   editing: boolean;
   expanded: boolean;
+  framed?: boolean;
   planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
@@ -34,10 +36,19 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useTranslation();
+const route = useRoute();
 const selectedCase = computed(() => props.caseDrafts[props.casePath]);
+const stepPageTitle = computed(() => {
+  if (route.name !== 'step') {
+    return undefined;
+  }
+  const index = Number(route.params.stepIndex);
+  const step = selectedCase.value?.steps[index] as { action?: string } | undefined;
+  return step === undefined ? undefined : `${index + 1}. ${step.action ?? 'Step'}`;
+});
+const isStepRoute = computed(() => route.name === 'step');
 const hasInvalidSteps = computed(() => selectedCase.value === undefined ? false : getInvalidCaseStepIndexes(selectedCase.value).length > 0);
 const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
-const viewDetailsSection = ref<'accessibility' | 'browser' | 'default' | undefined>('default');
 const browserSettingsWereBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
 const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
@@ -72,10 +83,11 @@ const caseTimeoutIssues = computed<ValidationIssue[]>(() => {
   return validation.valid ? [] : validation.issues.filter((issue) => issue.path === '/settings/timeout');
 });
 const shouldShowCaseTimeoutIssues = computed(() => caseTimeoutIssues.value.length > 0 && timeoutWasBlurred.value);
+const usesCardFrame = computed(() => props.framed !== false);
 
 watch(() => props.editing, (editing) => {
   if (!editing) {
-    viewDetailsSection.value = 'default';
+    selectedDetailsTab.value = 'default';
   }
 });
 
@@ -258,14 +270,15 @@ function updateSteps(path: string, steps: unknown[]): void {
 </script>
 
 <template>
-  <article :class="['card', 'mb-3', { 'border-danger': hasInvalidSteps, 'case-reference-active': expanded }]">
-    <div v-if="editing" class="card-header">
-      <h3 class="h6">
-        <button class="btn case-reference-toggle p-0 text-start text-decoration-none" type="button" :aria-controls="`case-reference-panel-${caseIndex}`" :aria-expanded="expanded" @click="emit('select-reference', casePath)">
-          <span class="h6">{{ casePath }}</span>
+  <article :class="[usesCardFrame ? 'card mb-3' : 'mb-4', { 'border-danger': usesCardFrame && hasInvalidSteps, 'case-reference-active': usesCardFrame && expanded }]">
+    <div v-if="!isStepRoute" :class="usesCardFrame ? 'card-header' : 'mb-3'">
+      <component :is="usesCardFrame ? 'h3' : 'h1'" :class="usesCardFrame ? 'h6' : 'h2'">
+        <button v-if="usesCardFrame && editing" class="btn case-reference-toggle p-0 text-start text-decoration-none" type="button" :aria-controls="`case-reference-panel-${caseIndex}`" :aria-expanded="expanded" @click="emit('select-reference', casePath)">
+          {{ stepPageTitle ?? `${caseIndex + 1}. ${selectedCase?.id ?? casePath}` }}
         </button>
-      </h3>
-      <ul v-if="expanded" class="nav nav-tabs card-header-tabs" role="tablist">
+        <span v-else>{{ stepPageTitle ?? `${caseIndex + 1}. ${selectedCase?.id ?? casePath}` }}</span>
+      </component>
+      <ul v-if="expanded" class="nav nav-tabs" role="tablist">
         <li class="nav-item" role="presentation">
           <button :id="`case-default-tab-${caseIndex}`" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="`case-default-panel-${caseIndex}`" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
         </li>
@@ -277,7 +290,8 @@ function updateSteps(path: string, steps: unknown[]): void {
         </li>
       </ul>
     </div>
-    <div v-if="selectedCase && editing && expanded" class="card-body">
+    <div v-if="selectedCase && editing && expanded && !isStepRoute" :class="usesCardFrame ? 'card-body' : ''">
+      <p class="text-body-secondary text-break">{{ casePath }}</p>
       <section :id="`case-reference-panel-${caseIndex}`" :aria-label="t('editor.caseDetails')">
         <section v-if="selectedDetailsTab === 'default'" :id="`case-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-tab-${caseIndex}`">
           <label class="form-label" :for="`case-id-${caseIndex}`">
@@ -349,14 +363,14 @@ function updateSteps(path: string, steps: unknown[]): void {
         </section>
       </section>
     </div>
-    <div v-else-if="selectedCase" class="card-body">
-      <div class="accordion" :id="`case-view-details-${caseIndex}`">
-        <div class="accordion-item">
-          <h3 :id="`case-view-default-heading-${caseIndex}`" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'default' }]" type="button" :aria-expanded="viewDetailsSection === 'default'" :aria-controls="`case-view-default-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'default' ? undefined : 'default'">{{ t('editor.defaultTab') }}</button>
-          </h3>
-          <div :id="`case-view-default-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'default' }]" :aria-labelledby="`case-view-default-heading-${caseIndex}`">
-            <div class="accordion-body">
+    <div v-else-if="selectedCase && !isStepRoute" :class="usesCardFrame ? 'card-body' : ''">
+      <div>
+        <section v-if="selectedDetailsTab === 'default'">
+          <h2 :id="`case-view-default-heading-${caseIndex}`" class="visually-hidden">
+            {{ t('editor.defaultTab') }}
+          </h2>
+          <div :id="`case-view-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-tab-${caseIndex}`">
+            <div>
               <dl class="mb-0">
                 <dt><span>{{ t('editor.caseIdPrefix') }}</span><abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span></dt>
                 <dd>{{ selectedCase.id }}</dd>
@@ -367,13 +381,13 @@ function updateSteps(path: string, steps: unknown[]): void {
               </dl>
             </div>
           </div>
-        </div>
-        <div class="accordion-item">
-          <h3 :id="`case-view-browser-heading-${caseIndex}`" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'browser' }]" type="button" :aria-expanded="viewDetailsSection === 'browser'" :aria-controls="`case-view-browser-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'browser' ? undefined : 'browser'">{{ t('editor.browserTab') }}</button>
-          </h3>
-          <div :id="`case-view-browser-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'browser' }]" :aria-labelledby="`case-view-browser-heading-${caseIndex}`">
-            <div class="accordion-body">
+        </section>
+        <section v-else-if="selectedDetailsTab === 'browser'">
+          <h2 :id="`case-view-browser-heading-${caseIndex}`" class="visually-hidden">
+            {{ t('editor.browserTab') }}
+          </h2>
+          <div :id="`case-view-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-tab-${caseIndex}`">
+            <div>
               <dl class="mb-0">
                 <dt>{{ t('editor.browserSettingsSource') }}</dt>
                 <dd>{{ hasBrowserOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
@@ -384,13 +398,13 @@ function updateSteps(path: string, steps: unknown[]): void {
               </dl>
             </div>
           </div>
-        </div>
-        <div class="accordion-item">
-          <h3 :id="`case-view-accessibility-heading-${caseIndex}`" class="accordion-header">
-            <button :class="['accordion-button', { collapsed: viewDetailsSection !== 'accessibility' }]" type="button" :aria-expanded="viewDetailsSection === 'accessibility'" :aria-controls="`case-view-accessibility-panel-${caseIndex}`" @click="viewDetailsSection = viewDetailsSection === 'accessibility' ? undefined : 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
-          </h3>
-          <div :id="`case-view-accessibility-panel-${caseIndex}`" :class="['accordion-collapse', 'collapse', { show: viewDetailsSection === 'accessibility' }]" :aria-labelledby="`case-view-accessibility-heading-${caseIndex}`">
-            <div class="accordion-body">
+        </section>
+        <section v-else>
+          <h2 :id="`case-view-accessibility-heading-${caseIndex}`" class="visually-hidden">
+            {{ t('editor.accessibilityTab') }}
+          </h2>
+          <div :id="`case-view-accessibility-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-accessibility-tab-${caseIndex}`">
+            <div>
               <dl class="mb-0">
                 <dt>{{ t('editor.accessibilitySettingsSource') }}</dt>
                 <dd>{{ hasAccessibilityOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
@@ -403,18 +417,20 @@ function updateSteps(path: string, steps: unknown[]): void {
               </dl>
             </div>
           </div>
-        </div>
+        </section>
       </div>
     </div>
-    <div v-if="selectedCase" class="card-body border-top">
-      <CaseStepEditor :case-drafts="props.caseDrafts" :editing="props.editing && props.expanded" :plan-locale="props.planLocale" :selected-path="props.casePath" @remove:step="removeStep" @update:steps="updateSteps" />
+    <div v-if="selectedCase" :class="usesCardFrame ? 'card-body border-top' : 'border-top pt-4 mt-4'">
+      <CaseStepEditor :case-drafts="props.caseDrafts" :case-index="props.caseIndex" :editing="props.editing && props.expanded" :plan-locale="props.planLocale" :selected-path="props.casePath" @remove:step="removeStep" @update:steps="updateSteps" />
     </div>
-    <div v-if="editing" class="card-footer">
-      <div class="d-flex gap-2 justify-content-end">
-        <button class="btn btn-secondary btn-sm" type="button" :disabled="caseIndex === 0" @click.stop="emit('move-reference', { direction: -1, index: caseIndex })">{{ t('editor.moveStepUp') }}</button>
-        <button class="btn btn-secondary btn-sm" type="button" :disabled="caseIndex === caseCount - 1" @click.stop="emit('move-reference', { direction: 1, index: caseIndex })">{{ t('editor.moveStepDown') }}</button>
-        <button class="btn btn-secondary btn-sm" type="button" @click.stop="emit('edit-reference', caseIndex)">{{ t('editor.edit') }}</button>
-        <button class="btn btn-danger btn-sm" type="button" @click.stop="emit('remove-reference', caseIndex)">{{ t('editor.removeCaseReference') }}</button>
+    <div v-if="editing && usesCardFrame && !isStepRoute" :class="usesCardFrame ? 'card-footer' : 'border-top pt-3 mt-4'">
+      <div class="d-flex justify-content-end">
+        <div class="btn-group btn-group-sm" role="group">
+          <button class="btn btn-outline-secondary" type="button" :disabled="caseIndex === 0" @click.stop="emit('move-reference', { direction: -1, index: caseIndex })">{{ t('editor.moveStepUp') }}</button>
+          <button class="btn btn-outline-secondary" type="button" :disabled="caseIndex === caseCount - 1" @click.stop="emit('move-reference', { direction: 1, index: caseIndex })">{{ t('editor.moveStepDown') }}</button>
+          <button class="btn btn-outline-secondary" type="button" @click.stop="emit('edit-reference', caseIndex)">{{ t('editor.edit') }}</button>
+          <button class="btn btn-outline-danger" type="button" @click.stop="emit('remove-reference', caseIndex)">{{ t('editor.removeCaseReference') }}</button>
+        </div>
       </div>
     </div>
   </article>

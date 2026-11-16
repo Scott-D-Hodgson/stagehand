@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import I18NextVue from 'i18next-vue'
 import App from './App.vue'
 import { i18nInitialized, i18next } from './localization/i18n'
+import { router } from './router'
 
 /*
 Initializes translations before mounting the editor.
@@ -12,7 +13,7 @@ Output: A mounted editor with translation support.
 */
 async function startEditor(): Promise<void> {
   await i18nInitialized
-  createApp(App).use(I18NextVue, { i18next }).mount('#app')
+  createApp(App).use(router).use(I18NextVue, { i18next }).mount('#app')
 }
 
 void startEditor()

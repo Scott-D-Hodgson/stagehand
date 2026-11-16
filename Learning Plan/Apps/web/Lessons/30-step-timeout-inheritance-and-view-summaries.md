@@ -26,10 +26,11 @@ an existing step timeout.
 ## View mode is a summary
 
 Edit-mode tabs are useful for authoring but should not decide what someone
-sees in View mode. Plan and case details therefore become Bootstrap-style
-accordions in View mode, with Default, Browser, and Accessibility sections.
-Default opens every time View mode begins. The view state remains temporary
-interface state and is not added to the plan or recovery record.
+sees in View mode. Plan and case details therefore retain the same
+Bootstrap-style Default, Browser, and Accessibility tabs in View mode, while
+their panels become read-only. Default opens every time View mode begins. The
+view state remains temporary interface state and is not added to the plan or
+recovery record.
 
 ## Try it
 
@@ -40,7 +41,7 @@ interface state and is not added to the plan or recovery record.
 3. Set one step to `250`, edit the step through its action dialog, and confirm
    the step-level value remains.
 4. Switch from Browser or Accessibility in Edit mode to View mode and confirm
-   Default opens in the read-only accordion.
+   Default opens in the read-only tabs.
 
 ## You are ready when
 
