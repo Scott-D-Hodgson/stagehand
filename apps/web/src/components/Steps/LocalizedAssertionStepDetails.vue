@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import IconOnlyButton from '../IconOnlyButton.vue';
 import StepCard from './StepCard.vue';
 
 interface LocaleOverride { active: boolean; locale: string; value: string }
@@ -59,15 +60,15 @@ const target = computed(() => {
     <section v-else :id="`step-locale-overrides-panel-${props.index}`" role="tabpanel" :aria-labelledby="`step-locale-overrides-tab-${props.index}`">
       <div class="d-flex align-items-center justify-content-between gap-3 mb-3">
         <h4 class="h6 mb-0">{{ t('editor.localeOverrides') }}</h4>
-        <button v-if="props.editing" class="btn btn-secondary btn-sm" type="button" @click="emit('add-locale-override')">{{ t('editor.add') }}</button>
+        <IconOnlyButton v-if="props.editing" class="btn btn-secondary btn-sm" icon="fa-solid fa-plus" :label="t('editor.add')" @click="emit('add-locale-override')" />
       </div>
       <p v-if="props.localeOverrides.length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
       <ul v-else class="list-group">
         <li v-for="override in props.localeOverrides" :key="override.locale" :class="['list-group-item', 'd-flex', 'align-items-center', 'justify-content-between', 'gap-3', { 'border-primary': override.active, 'locale-override-active': override.active }]">
           <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
           <span v-if="props.editing" class="btn-group btn-group-sm" role="group">
-            <button class="btn btn-outline-secondary" type="button" @click="emit('edit-locale-override', override)">{{ t('editor.edit') }}</button>
-            <button class="btn btn-outline-danger" type="button" @click="emit('remove-locale-override', override)">{{ t('editor.remove') }}</button>
+            <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click="emit('edit-locale-override', override)" />
+            <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.remove')" @click="emit('remove-locale-override', override)" />
           </span>
         </li>
       </ul>

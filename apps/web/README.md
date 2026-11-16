@@ -55,6 +55,12 @@ this repository.
   state while Bootstrap owns the demonstrated modal mechanics. This keeps the
   initial presentation lightweight, but a cold offline start is not yet
   supported; M14 owns the offline styling follow-through.
+- The Font Awesome kit browser script supplies the current icon set. Its
+  `IconOnlyButton.vue` wrapper uses the icon as decoration, preserves the
+  localized action name in visually hidden text, and initializes a Bootstrap
+  popover for sighted hover and keyboard-focus feedback. Keep an action's
+  accessible text even when its button has no visible text. This kit, like the
+  Bootstrap CDN dependency, is not available on a cold offline start.
 - Vitest 5.1.0 is the selected unit-test runner. Focused tests cover shared
   plan/case validation, affected-step mapping, portable ZIP codec behaviour,
   and browser-selected archive-read failures.
@@ -171,3 +177,14 @@ this repository.
   bundle. A two-tab conflict opens a blocking resolution dialog; the author
   must discard paused local edits or replace the newer saved draft before
   continuing.
+
+## Font Awesome package access
+
+The root `.npmrc` directs the `@fortawesome` and `@awesome.me` scopes to Font
+Awesome's private registry and reads its credential only from
+`FONTAWESOME_PACKAGE_TOKEN`. For local package-manager access, set that value
+in the ignored root `.env` file before rebuilding the development container.
+The container passes `.env` at runtime, so its `npm ci` command can read the
+token without putting it in the image, source, or lockfile. Do not commit the
+token or pass it inline in a command. The currently loaded browser kit does
+not require the token at page-load time.

@@ -160,8 +160,6 @@
     "confirmationTitle": "Please Confirm",
     "changesNotExported": "Changes have not been exported.",
     "noUnexportedChanges": "No changes to export.",
-    "resetSample": "Reset sample",
-    "resetConfirmation": "Discard the current plan-locale edit and restore the sample?",
     "reset": "Reset",
     "checkingRecovery": "Checking local recovery…",
     "recoveryAvailable": "A local recovery copy is available",

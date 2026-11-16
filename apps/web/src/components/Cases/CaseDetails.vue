@@ -7,6 +7,7 @@ import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type Accessib
 import { getInvalidCaseStepIndexes } from '../../document/validation';
 import CaseStepEditor from '../Steps/CaseStepEditor.vue';
 import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
+import IconOnlyButton from '../IconOnlyButton.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -426,10 +427,10 @@ function updateSteps(path: string, steps: unknown[]): void {
     <div v-if="editing && usesCardFrame && !isStepRoute" :class="usesCardFrame ? 'card-footer' : 'border-top pt-3 mt-4'">
       <div class="d-flex justify-content-end">
         <div class="btn-group btn-group-sm" role="group">
-          <button class="btn btn-outline-secondary" type="button" :disabled="caseIndex === 0" @click.stop="emit('move-reference', { direction: -1, index: caseIndex })">{{ t('editor.moveStepUp') }}</button>
-          <button class="btn btn-outline-secondary" type="button" :disabled="caseIndex === caseCount - 1" @click.stop="emit('move-reference', { direction: 1, index: caseIndex })">{{ t('editor.moveStepDown') }}</button>
-          <button class="btn btn-outline-secondary" type="button" @click.stop="emit('edit-reference', caseIndex)">{{ t('editor.edit') }}</button>
-          <button class="btn btn-outline-danger" type="button" @click.stop="emit('remove-reference', caseIndex)">{{ t('editor.removeCaseReference') }}</button>
+          <IconOnlyButton class="btn btn-outline-secondary" :disabled="caseIndex === 0" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click.stop="emit('move-reference', { direction: -1, index: caseIndex })" />
+          <IconOnlyButton class="btn btn-outline-secondary" :disabled="caseIndex === caseCount - 1" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click.stop="emit('move-reference', { direction: 1, index: caseIndex })" />
+          <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click.stop="emit('edit-reference', caseIndex)" />
+          <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.removeCaseReference')" @click.stop="emit('remove-reference', caseIndex)" />
         </div>
       </div>
     </div>

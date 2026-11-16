@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, inject, ref, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import IconOnlyButton from '../IconOnlyButton.vue';
 
 const props = defineProps<{
   actionLabel: string;
@@ -70,11 +71,11 @@ function readTimeout(event: Event): number | string {
     <div v-if="props.editing" class="card-footer">
       <div class="d-flex justify-content-end">
         <div class="btn-group btn-group-sm" role="group">
-          <button class="btn btn-outline-secondary" type="button" :disabled="props.index === 0" @click="emit('move', -1)">{{ t('editor.moveStepUp') }}</button>
-          <button class="btn btn-outline-secondary" type="button" :disabled="props.index === props.stepCount - 1" @click="emit('move', 1)">{{ t('editor.moveStepDown') }}</button>
-          <button class="btn btn-outline-secondary" type="button" @click="emit('edit')">{{ t('editor.edit') }}</button>
-          <button class="btn btn-outline-secondary" type="button" @click="emit('clone')">{{ t('editor.clone') }}</button>
-          <button class="btn btn-outline-danger" type="button" @click="emit('remove')">{{ t('editor.removeCaseReference') }}</button>
+          <IconOnlyButton class="btn btn-outline-secondary" :disabled="props.index === 0" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click="emit('move', -1)" />
+          <IconOnlyButton class="btn btn-outline-secondary" :disabled="props.index === props.stepCount - 1" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click="emit('move', 1)" />
+          <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click="emit('edit')" />
+          <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-clone" :label="t('editor.clone')" @click="emit('clone')" />
+          <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.removeCaseReference')" @click="emit('remove')" />
         </div>
       </div>
       <div v-if="props.invalid" class="mt-2 text-danger">{{ t('editor.invalidStepMessage') }}</div>

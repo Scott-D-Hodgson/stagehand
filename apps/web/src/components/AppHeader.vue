@@ -2,6 +2,7 @@
 import { useTranslation } from 'i18next-vue';
 import type { InterfaceLanguage } from '../localization/resources';
 import type { ThemePreference } from '../preferences/theme';
+import IconOnlyButton from './IconOnlyButton.vue';
 
 defineProps<{
   interfaceLanguage: InterfaceLanguage;
@@ -47,7 +48,7 @@ function selectThemePreference(preference: ThemePreference): void {
       </div>
       <ul class="nav">
         <li class="nav-item dropdown">
-          <button id="language-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">{{ t('editor.language') }}</button>
+          <IconOnlyButton id="language-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-language" :label="t('editor.language')" />
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="language-preference">
             <li>
               <button :class="['dropdown-item', { active: interfaceLanguage === 'en-CA' }]" type="button" @click="selectInterfaceLanguage('en-CA')">{{ t('editor.englishCanada') }}</button>
@@ -58,7 +59,7 @@ function selectThemePreference(preference: ThemePreference): void {
           </ul>
         </li>
         <li class="nav-item dropdown">
-          <button id="theme-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" type="button" aria-expanded="false">{{ t('editor.theme') }}</button>
+          <IconOnlyButton id="theme-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-palette" :label="t('editor.theme')" />
           <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="theme-preference">
             <li>
               <button :class="['dropdown-item', { active: themePreference === 'system' }]" type="button" @click="selectThemePreference('system')">{{ t('editor.systemTheme') }}</button>

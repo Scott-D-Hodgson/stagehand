@@ -13,6 +13,7 @@ import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import BundleIssuesModal from '../dialogs/BundleIssuesModal.vue';
 import ExportBundleDialog from '../dialogs/ExportBundleDialog.vue';
 import NewPlanDialog from '../dialogs/NewPlanDialog.vue';
+import IconOnlyButton from '../IconOnlyButton.vue';
 import PlanPage from './PlanPage.vue';
 
 const props = defineProps<{
@@ -35,7 +36,7 @@ const validationRequested = ref(false);
 const planValidation = computed(() => validateEditorPlan(props.plan));
 const validationIssues = computed(() => planValidation.value.valid ? [] : planValidation.value.issues);
 const hasUnexportedChanges = computed(() => JSON.stringify(props.plan) !== JSON.stringify(createBundledEditorDraft().plan) || JSON.stringify(props.caseDrafts) !== JSON.stringify(createBundledEditorDraft().cases));
-const confirmation = ref<{ bundle?: { cases: Record<string, CaseDraft>; plan: PlanDraft }; id?: string; index?: number; kind: 'import-bundle' | 'new-plan' | 'remove-reference' | 'reset-sample' }>();
+const confirmation = ref<{ bundle?: { cases: Record<string, CaseDraft>; plan: PlanDraft }; id?: string; index?: number; kind: 'import-bundle' | 'new-plan' | 'remove-reference' }>();
 const newPlanDialogOpen = ref(false);
 const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
 const importInput = ref<HTMLInputElement>();
@@ -276,21 +277,6 @@ function requestPlanValidation(): void {
 }
 
 /*
-Restores the bundled plan after confirmation when it has unexported changes.
----
-Inputs: A reset-button activation.
----
-Output: A fresh bundled plan or the existing plan when cancelled.
-*/
-function resetPlanDraft(): void {
-  if (hasUnexportedChanges.value) {
-    confirmation.value = { kind: 'reset-sample' };
-    return;
-  }
-  restoreBundledPlan();
-}
-
-/*
 Opens the dialog used to collect a new plan identifier.
 ---
 Inputs: A New plan action.
@@ -440,25 +426,11 @@ function createNewPlan(id: string): void {
 }
 
 /*
-Restores the bundled sample as the current plan draft.
----
-Inputs: A reset that does not require confirmation.
----
-Output: A fresh bundled plan and cleared validation request.
-*/
-function restoreBundledPlan(): void {
-  const bundle = createBundledEditorDraft();
-  emit('update:plan', bundle.plan);
-  emit('update:case-drafts', bundle.cases);
-  validationRequested.value = false;
-}
-
-/*
 Applies the action accepted in the active confirmation modal.
 ---
 Inputs: The pending confirmation action.
 ---
-Output: A removed reference or restored bundled plan.
+Output: A removed reference, replacement bundle, or new plan.
 */
 function confirmAction(): void {
   const action = confirmation.value;
@@ -470,9 +442,6 @@ function confirmAction(): void {
       const { [path]: _, ...remainingCases } = props.caseDrafts;
       emit('update:case-drafts', remainingCases);
     }
-  }
-  if (action?.kind === 'reset-sample') {
-    restoreBundledPlan();
   }
   if (action?.kind === 'new-plan' && action.id !== undefined) {
     emit('new-plan', action.id);
@@ -498,17 +467,16 @@ function cancelConfirmation(): void {
   <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
     <div class="btn-toolbar flex-wrap gap-2" role="toolbar" :aria-label="t('editor.planActions')">
       <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <button class="btn btn-outline-secondary" type="button" @click="requestNewPlan">{{ t('editor.new') }}</button>
-        <button class="btn btn-outline-danger" type="button" @click="resetPlanDraft">{{ t('editor.reset') }}</button>
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-sparkles" :label="t('editor.new')" @click="requestNewPlan" />
       </div>
       <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <button class="btn btn-outline-secondary" type="button" @click="requestImport">{{ t('editor.import') }}</button>
-        <button class="btn btn-outline-secondary" type="button" @click="requestExport">{{ t('editor.export') }}</button>
-        <button class="btn btn-outline-secondary" type="button" @click="requestPlanValidation">{{ t('editor.validate') }}</button>
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-upload" :label="t('editor.import')" @click="requestImport" />
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-download" :label="t('editor.export')" @click="requestExport" />
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-ballot-check" :label="t('editor.validate')" @click="requestPlanValidation" />
       </div>
       <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <button class="btn btn-outline-secondary" type="button" :aria-pressed="!editing" @click="setEditing(false)">{{ t('editor.viewMode') }}</button>
-        <button class="btn btn-outline-secondary" type="button" :aria-pressed="editing" @click="setEditing(true)">{{ t('editor.editMode') }}</button>
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-eye" :label="t('editor.viewMode')" :pressed="!editing" @click="setEditing(false)" />
+        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.editMode')" :pressed="editing" @click="setEditing(true)" />
       </div>
       <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
     </div>
@@ -539,8 +507,8 @@ function cancelConfirmation(): void {
   <ConfirmationModal
     v-if="confirmation"
     :cancel-label="t('editor.cancel')"
-    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : confirmation.kind === 'new-plan' ? t('editor.create') : confirmation.kind === 'import-bundle' ? t('editor.import') : t('editor.reset')"
-    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : confirmation.kind === 'new-plan' ? t('editor.newPlanConfirmation') : confirmation.kind === 'import-bundle' ? t('editor.importConfirmation') : t('editor.resetConfirmation')"
+    :confirm-label="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReference') : confirmation.kind === 'new-plan' ? t('editor.create') : t('editor.import')"
+    :message="confirmation.kind === 'remove-reference' ? t('editor.removeCaseReferenceConfirmation') : confirmation.kind === 'new-plan' ? t('editor.newPlanConfirmation') : t('editor.importConfirmation')"
     :title="t('editor.confirmationTitle')"
     @cancel="cancelConfirmation"
     @confirm="confirmAction"

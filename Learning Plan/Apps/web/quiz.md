@@ -34,6 +34,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 30. Why does View mode use Default-open read-only tabs instead of retaining the last Edit-mode tab?
 31. Why does the editor Pages project build from the repository root, and which files must its build-watch paths include?
 32. Why does route-specific Plan, Case, and Step authoring avoid nested-card density, and where does temporary View/Edit state belong?
+33. Why must an icon-only editor action keep a localized accessible name, and why does the shared component dispose its Bootstrap popover?
 
 ## Answer key
 
@@ -69,3 +70,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 30. View mode is a summary of all settings, not a continuation of one authoring tab. Resetting its read-only tabs to Default prevents a hidden Edit-mode selection from deciding the read-only starting context.
 31. The editor is an npm workspace and its build first runs `npm ci` from the repository root, where the lockfile and workspace links are defined. Its watch paths include `apps/web/*`, `packages/plan-schema/*`, `package.json`, `package-lock.json`, and `tsconfig.base.json`, so changes that can affect the editor build trigger a preview while unrelated work does not.
 32. Each route gives a phone-sized viewport one editing context: Plan cards link to Cases, and Case cards link to Steps instead of containing their descendant forms. View/Edit is temporary interface state, so it must not be stored in the portable plan, case, or recovery document.
+33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology and shows the same text in a popover for sighted hover or keyboard-focus feedback. Disposing its popover when Vue removes the button prevents a detached Popper element and stale event handling.
