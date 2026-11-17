@@ -1,7 +1,6 @@
 {
   "editor": {
     "heading": "Stagehand",
-    "tagline": "Plan authoring starts here.",
     "sharedContract": "Shared contract",
     "validPlan": "The bundled sample satisfies the shared plan contract.",
     "invalidPlan_zero": "No validation issues found in the bundled sample.",

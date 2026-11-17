@@ -464,24 +464,46 @@ function cancelConfirmation(): void {
 </script>
 
 <template>
-  <nav class="plan-actions bg-body py-2 mb-3" :aria-label="t('editor.planActions')">
-    <div class="btn-toolbar flex-wrap gap-2" role="toolbar" :aria-label="t('editor.planActions')">
-      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-sparkles" :label="t('editor.new')" @click="requestNewPlan" />
-      </div>
-      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-upload" :label="t('editor.import')" @click="requestImport" />
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-download" :label="t('editor.export')" @click="requestExport" />
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-ballot-check" :label="t('editor.validate')" @click="requestPlanValidation" />
-      </div>
-      <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-eye" :label="t('editor.viewMode')" :pressed="!editing" @click="setEditing(false)" />
-        <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.editMode')" :pressed="editing" @click="setEditing(true)" />
-      </div>
-      <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
+  <div class="btn-toolbar flex-wrap gap-2 my-3" role="toolbar" :aria-label="t('editor.planActions')">
+    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-sparkles" :label="t('editor.new')" @click="requestNewPlan" />
     </div>
-  </nav>
-  <PlanPage v-if="route.name === 'plan'" :case-drafts="caseDrafts" :editing="editing" :plan="plan" :selected-case-path="selectedCasePath" :validation-issues="validationIssues" :validation-requested="validationRequested" @add="addReference" @move="moveReference" @remove="requestReferenceRemoval" @remove:step="removeCaseStep" @select="selectCase" @update="changeReference" @update:accessibility="changeCaseAccessibilitySettings" @update:browser="changeCaseBrowserSettings" @update:case-id="changeCaseId" @update:plan-accessibility="changePlanAccessibilitySettings" @update:plan-browser="changePlanBrowserSettings" @update:plan-locale="changePlanLocale" @update:plan-timeout="changePlanTimeout" @update:steps="changeCaseSteps" @update:timeout="changeCaseTimeout" @validate="requestPlanValidation" />
+    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-upload" :label="t('editor.import')" @click="requestImport" />
+      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-download" :label="t('editor.export')" @click="requestExport" />
+      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-ballot-check" :label="t('editor.validate')" @click="requestPlanValidation" />
+    </div>
+    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
+      <IconOnlyButton v-if="editing" class="btn btn-outline-secondary" icon="fa-solid fa-eye" :label="t('editor.viewMode')" @click="setEditing(false)" />
+      <IconOnlyButton v-if="!editing" class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.editMode')" @click="setEditing(true)" />
+    </div>
+    <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
+  </div>
+  <PlanPage
+    v-if="route.name === 'plan'"
+    :case-drafts="caseDrafts"
+    :editing="editing"
+    :plan="plan"
+    :selected-case-path="selectedCasePath"
+    :validation-issues="validationIssues"
+    :validation-requested="validationRequested"
+    @add="addReference"
+    @move="moveReference"
+    @remove="requestReferenceRemoval"
+    @remove:step="removeCaseStep"
+    @select="selectCase"
+    @update="changeReference"
+    @update:accessibility="changeCaseAccessibilitySettings"
+    @update:browser="changeCaseBrowserSettings"
+    @update:case-id="changeCaseId"
+    @update:plan-accessibility="changePlanAccessibilitySettings"
+    @update:plan-browser="changePlanBrowserSettings"
+    @update:plan-locale="changePlanLocale"
+    @update:plan-timeout="changePlanTimeout"
+    @update:steps="changeCaseSteps"
+    @update:timeout="changeCaseTimeout"
+    @validate="requestPlanValidation"
+  />
   <CasePage
     v-else-if="route.name === 'case' && selectedCaseReference"
     :case-count="plan.cases.length"
@@ -503,7 +525,20 @@ function cancelConfirmation(): void {
     @update:steps="changeCaseSteps"
     @update:timeout="changeCaseTimeout"
   />
-  <StepPage v-else-if="route.name === 'step' && selectedCaseReference" :case-count="plan.cases.length" :case-drafts="caseDrafts" :case-index="selectedCaseIndex" :case-path="selectedCaseReference.path" :editing="editing" :plan-accessibility="plan.defaults.accessibility" :plan-browser="plan.defaults.browser" :plan-locale="plan.defaults.locale" :plan-timeout="plan.defaults.timeout" @remove:step="removeCaseStep" @update:steps="changeCaseSteps" />
+  <StepPage
+    v-else-if="route.name === 'step' && selectedCaseReference"
+    :case-count="plan.cases.length"
+    :case-drafts="caseDrafts"
+    :case-index="selectedCaseIndex"
+    :case-path="selectedCaseReference.path"
+    :editing="editing"
+    :plan-accessibility="plan.defaults.accessibility"
+    :plan-browser="plan.defaults.browser"
+    :plan-locale="plan.defaults.locale"
+    :plan-timeout="plan.defaults.timeout"
+    @remove:step="removeCaseStep"
+    @update:steps="changeCaseSteps"
+  />
   <ConfirmationModal
     v-if="confirmation"
     :cancel-label="t('editor.cancel')"
@@ -519,9 +554,4 @@ function cancelConfirmation(): void {
 </template>
 
 <style scoped>
-.plan-actions {
-  position: sticky;
-  top: 3.5rem;
-  z-index: 1020;
-}
 </style>

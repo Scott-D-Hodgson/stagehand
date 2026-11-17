@@ -2,7 +2,7 @@
 import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 
-const props = defineProps<{ index: number; name: string; role: string; timeout: unknown }>();
+const props = defineProps<{ editing: boolean; index: number; name: string; role: string; timeout: unknown }>();
 const emit = defineEmits<{ 'update:locator': [locator: { name?: string; role: string }]; 'update:timeout': [timeout: number | string] }>();
 const { t } = useTranslation();
 const selectedTab = ref<'default' | 'overrides'>('default');
@@ -42,7 +42,7 @@ function readTimeout(event: Event): number | string {
 
 <template>
   <section aria-label="Click step details">
-    <ul class="nav nav-tabs mb-3" role="tablist">
+    <ul class="nav nav-pills my-3" role="tablist">
       <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'default' }]" type="button" @click="selectedTab = 'default'">{{ t('editor.defaultTab') }}</button>
       </li>
@@ -50,15 +50,31 @@ function readTimeout(event: Event): number | string {
         <button :class="['nav-link', { active: selectedTab === 'overrides' }]" type="button" @click="selectedTab = 'overrides'">{{ t('editor.overridesTab') }}</button>
       </li>
     </ul>
-    <section v-if="selectedTab === 'default'">
-      <label class="form-label" :for="`click-role-${props.index}`">Role</label>
-      <input :id="`click-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
-      <label class="form-label mt-3" :for="`click-name-${props.index}`">Accessible name</label>
-      <input :id="`click-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
-    </section>
-    <section v-else>
-      <label class="form-label" :for="`click-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-      <input :id="`click-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
-    </section>
+    <div class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="props.editing">
+          <section v-if="selectedTab === 'default'">
+            <label class="form-label" :for="`click-role-${props.index}`">Role</label>
+            <input :id="`click-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
+            <label class="form-label mt-3" :for="`click-name-${props.index}`">Accessible name</label>
+            <input :id="`click-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
+          </section>
+          <section v-else>
+            <label class="form-label" :for="`click-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
+            <input :id="`click-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+          </section>
+        </template>
+        <dl v-else-if="selectedTab === 'default'" class="mb-0">
+          <dt>Role</dt>
+          <dd>{{ props.role }}</dd>
+          <dt>{{ t('editor.accessibleName') }}</dt>
+          <dd class="mb-0"><template v-if="props.name">{{ props.name }}</template><template v-else>&mdash;</template></dd>
+        </dl>
+        <dl v-else class="mb-0">
+          <dt>{{ t('editor.stepTimeout') }}</dt>
+          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+        </dl>
+      </div>
+    </div>
   </section>
 </template>

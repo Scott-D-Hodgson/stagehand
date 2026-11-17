@@ -390,16 +390,20 @@ watch(resolvedTheme, (theme) => {
 
 <template>
   <div class="min-vh-100 bg-body">
-    <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
-    <main class="container-fluid px-4 py-4 pb-5">
-      <nav v-if="breadcrumbs.length > 0" class="mb-4" aria-label="Breadcrumb">
-        <ol class="breadcrumb mb-0">
-          <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
-            <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
-            <RouterLink v-else :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
-          </li>
-        </ol>
-      </nav>
+    <div class="app-navigation">
+      <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
+      <div class="container-fluid border-bottom py-1 bg-body-tertiary">
+        <nav v-if="breadcrumbs.length > 0" class="my-1" aria-label="Breadcrumb">
+          <ol class="breadcrumb mb-0">
+            <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
+              <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
+              <RouterLink v-else :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
+            </li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+    <main class="container-fluid pt-1 bg-body">
       <HeroPage
         v-if="route.name === 'home'"
         :recovery-available="recoveryState.kind === 'restore-or-discard'"
@@ -421,3 +425,11 @@ watch(resolvedTheme, (theme) => {
     </footer>
   </div>
 </template>
+
+<style scoped>
+.app-navigation {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+</style>

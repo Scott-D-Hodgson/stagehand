@@ -18,10 +18,10 @@ than part of a rendered plan, case, or step card.
 
 This arrangement makes a step card easier to read: its numbered action and
 details remain in the card body, while authoring actions belong in the footer.
-The later M11 browser-configuration slice refines this further: individual
-step-detail components compose their cards while `CaseStepEditor` coordinates
-ordered data and dialogs. A component boundary does not move validation,
-recovery, or document ownership into the child component.
+The later M11 presentation slice refines this further: individual Step-page
+components own their route details while `StepReferences` coordinates ordered
+data and dialogs for Case-route cards. A component boundary does not move
+validation, recovery, or document ownership into the child component.
 
 ## Inspect without authoring controls
 

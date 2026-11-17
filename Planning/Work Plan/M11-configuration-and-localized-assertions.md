@@ -71,10 +71,10 @@ manual checks of browser settings, case inheritance, card presentation, and
 case switching.
 
 This slice also clarified presentation ownership: plan and case details own
-their cards, each step detail composes the reusable step-card presentation,
-and `CaseStepEditor` coordinates ordered data, dialogs, and draft updates.
-Edit mode exposes authoring controls only for the active case; View mode and
-non-active edit cases use a reduced read-only case and step presentation.
+their cards, each Step detail owns its route-page fields, and
+`StepReferences` coordinates ordered data, dialogs, and draft updates for
+Case-route cards. Edit mode exposes authoring controls only in the current
+route context; View mode uses read-only summaries.
 
 ## Accessibility-configuration slice
 
@@ -112,10 +112,10 @@ and case settings into that public API. The owner reported passing schema, runne
 web-editor tests, type checks, production build, and manual verification of
 the inheritance controls, validation, and View-mode summaries.
 
-View mode now presents plan and case Default, Browser, and Accessibility
-settings through the same Bootstrap-style tab controls used for Edit mode, but
-with read-only panel content. Entering View mode opens Default, rather than
-retaining whichever Edit-mode tab was last selected.
+View mode now presents plan, case, and Step settings through the same
+Bootstrap-style tab controls used for Edit mode, but with read-only summary
+content. Changing modes retains the selected tab rather than replacing the
+author's current context.
 
 ## Route-oriented authoring presentation slice
 
@@ -128,7 +128,7 @@ readable local draft. After recovery resolves, the Plan route presents plan
 Default, Browser, and Accessibility settings alongside responsive Case summary
 cards. A Case route presents its settings and responsive read-only Step cards;
 card navigation opens the dedicated Step route, where that step's settings are
-editable.
+editable in Edit mode and summarized as plain read-only details in View mode.
 
 Breadcrumbs expose the Plan, indexed Case, and indexed action name while
 preserving browser Back navigation through the nested route history. View/Edit
@@ -169,3 +169,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Web editor course](../../Learning%20Plan/Apps/web/README.md)
 - [Step-timeout inheritance and View summaries](../../Learning%20Plan/Apps/web/Lessons/30-step-timeout-inheritance-and-view-summaries.md)
 - [Route-oriented authoring presentation](../../Learning%20Plan/Apps/web/Lessons/32-route-oriented-authoring-presentation.md)
+- [Step View/Edit summaries](../../Learning%20Plan/Apps/web/Lessons/34-step-view-edit-summaries.md)

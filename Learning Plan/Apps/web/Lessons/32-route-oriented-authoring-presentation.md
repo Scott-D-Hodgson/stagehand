@@ -18,7 +18,8 @@ Vue Router separates the editor into four contexts:
 - `/plan/card/:cardIndex` presents the indexed Case ID, its settings, and
   responsive Step summary cards.
 - `/plan/card/:cardIndex/step/:stepIndex` presents the indexed step action and
-  its editable fields.
+  its fields, which are editable in Edit mode and shown as read-only summaries
+  in View mode.
 
 The shell derives a Plan → Case → Step breadcrumb from the active route. Each
 card links to its next more-specific route, so browser Back returns from a Step
@@ -58,7 +59,8 @@ confirmation actions retain their primary semantic emphasis.
 4. Confirm a Step page edits only its selected step, including all three
    localized assertion Locales panels.
 5. Switch View/Edit and confirm only the current route's settings controls
-   change.
+   change, while the selected tab remains open with a read-only summary in
+   View mode.
 6. Run the editor test, type-check, and production-build commands in the
    development container before claiming the slice is verified.
 

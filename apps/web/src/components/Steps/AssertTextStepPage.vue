@@ -9,6 +9,7 @@ interface LocaleOverride {
 }
 
 const props = defineProps<{
+  editing: boolean;
   expected: string;
   index: number;
   name: string;
@@ -60,7 +61,7 @@ function readTimeout(event: Event): number | string {
 
 <template>
   <section aria-label="Assert text step details">
-    <ul class="nav nav-tabs mb-3" role="tablist">
+    <ul class="nav nav-pills my-3" role="tablist">
       <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'default' }]" type="button" @click="selectedTab = 'default'">{{ t('editor.defaultTab') }}</button>
       </li>
@@ -71,18 +72,36 @@ function readTimeout(event: Event): number | string {
         <button :class="['nav-link', { active: selectedTab === 'locales' }]" type="button" @click="selectedTab = 'locales'">{{ t('editor.localeOverrides') }}</button>
       </li>
     </ul>
-    <section v-if="selectedTab === 'default'">
-      <label class="form-label" :for="`assert-text-role-${props.index}`">Role</label>
-      <input :id="`assert-text-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
-      <label class="form-label mt-3" :for="`assert-text-name-${props.index}`">Accessible name</label>
-      <input :id="`assert-text-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
-      <label class="form-label mt-3" :for="`assert-text-expected-${props.index}`">Expected text</label>
-      <input :id="`assert-text-expected-${props.index}`" v-model="expected" class="form-control" required @change="emit('update:expected', expected)" />
-    </section>
-    <section v-else-if="selectedTab === 'overrides'">
-      <label class="form-label" :for="`assert-text-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-      <input :id="`assert-text-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
-    </section>
-    <LocaleOverridesTab v-else :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
+    <div class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="props.editing && selectedTab !== 'locales'">
+          <section v-if="selectedTab === 'default'">
+            <label class="form-label" :for="`assert-text-role-${props.index}`">Role</label>
+            <input :id="`assert-text-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
+            <label class="form-label mt-3" :for="`assert-text-name-${props.index}`">Accessible name</label>
+            <input :id="`assert-text-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
+            <label class="form-label mt-3" :for="`assert-text-expected-${props.index}`">Expected text</label>
+            <input :id="`assert-text-expected-${props.index}`" v-model="expected" class="form-control" required @change="emit('update:expected', expected)" />
+          </section>
+          <section v-else>
+            <label class="form-label" :for="`assert-text-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
+            <input :id="`assert-text-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+          </section>
+        </template>
+        <dl v-else-if="!props.editing && selectedTab === 'default'" class="mb-0">
+          <dt>Role</dt>
+          <dd>{{ props.role }}</dd>
+          <dt>{{ t('editor.accessibleName') }}</dt>
+          <dd><template v-if="props.name">{{ props.name }}</template><template v-else>&mdash;</template></dd>
+          <dt>{{ t('editor.expectedText') }}</dt>
+          <dd class="mb-0 text-break">{{ props.expected }}</dd>
+        </dl>
+        <dl v-else-if="!props.editing && selectedTab === 'overrides'" class="mb-0">
+          <dt>{{ t('editor.stepTimeout') }}</dt>
+          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+        </dl>
+        <LocaleOverridesTab v-else :editing="props.editing" :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
+      </div>
+    </div>
   </section>
 </template>

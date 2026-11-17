@@ -190,8 +190,14 @@ onBeforeUnmount(() => { modal?.dispose(); });
 
 <template>
   <section aria-labelledby="case-references-heading">
-    <h2 id="case-references-heading" class="h5">{{ t('editor.caseReferences') }}</h2>
-    <IconOnlyButton v-if="editing" class="btn btn-outline-secondary mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="() => openDialog()" />
+    <h2 id="case-references-heading" class="h3 my-3">{{ t('editor.caseReferences') }}</h2>
+    <IconOnlyButton
+      v-if="editing"
+      class="btn btn-outline-secondary mb-3"
+      icon="fa-solid fa-plus"
+      :label="t('editor.add')"
+      @click="() => openDialog()"
+    />
     <TransitionGroup v-if="!props.overview" name="case-reference" tag="div" class="mb-3">
       <CaseDetails
         v-for="(caseReference, index) in cases"
@@ -220,20 +226,18 @@ onBeforeUnmount(() => { modal?.dispose(); });
     </TransitionGroup>
     <TransitionGroup v-else name="case-reference" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-3">
       <div v-for="(caseReference, index) in cases" :key="caseReference.path" class="col">
-        <article class="card h-100">
+        <article class="card shadow-sm h-100 bg-body-tertiary">
           <div class="card-body">
-            <h3 class="h6 mb-2">
+            <h3 class="h4">
               <RouterLink :to="{ name: 'case', params: { cardIndex: index } }" class="stretched-link text-decoration-none">{{ index + 1 }}. {{ caseDrafts[caseReference.path]?.id ?? caseReference.path }}</RouterLink>
             </h3>
-            <p class="mb-0 text-body-secondary text-break">{{ caseReference.path }}</p>
-          </div>
-          <div v-if="editing" class="card-footer position-relative z-1">
-            <div class="d-flex justify-content-end">
+            <p class="mb-2 text-body-secondary text-break">{{ caseReference.path }}</p>
+            <div v-if="editing" class="d-flex justify-content-end position-relative z-1">
               <div class="btn-group btn-group-sm" role="group">
-                <IconOnlyButton class="btn btn-outline-secondary" :disabled="index === 0" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click="moveReference({ direction: -1, index })" />
-                <IconOnlyButton class="btn btn-outline-secondary" :disabled="index === cases.length - 1" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click="moveReference({ direction: 1, index })" />
-                <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click="openDialog(index)" />
-                <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.removeCaseReference')" @click="emit('remove', index)" />
+                <IconOnlyButton v-if="index !== 0" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click.stop="moveReference({ direction: -1, index })" />
+                <IconOnlyButton v-if="index !== cases.length - 1" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click.stop="moveReference({ direction: 1, index })" />
+                <IconOnlyButton class="btn btn-outline-secondary bg-body" icon="fa-solid fa-pen" :label="t('editor.edit')" @click.stop="openDialog(index)" />
+                <IconOnlyButton class="btn btn-outline-danger bg-body" icon="fa-solid fa-minus" :label="t('editor.removeCaseReference')" @click.stop="emit('remove', index)" />
               </div>
             </div>
           </div>
@@ -244,7 +248,7 @@ onBeforeUnmount(() => { modal?.dispose(); });
       <div class="modal-dialog modal-dialog-centered">
         <form class="modal-content" @submit.prevent="addReference">
           <div class="modal-header">
-            <h2 id="add-case-heading" class="h5 modal-title">{{ t('editor.caseReference') }}</h2>
+            <h4 id="add-case-heading" class="h5 modal-title">{{ t('editor.caseReference') }}</h4>
             <button class="btn-close" type="button" :aria-label="t('editor.close')" @click="closeDialog"></button>
           </div>
           <div class="modal-body">

@@ -1298,7 +1298,7 @@ function openStep(index: number, event: MouseEvent): void {
 <template>
   <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
     <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
-    <h2 class="h5">{{ t('editor.steps') }}</h2>
+    <h2 id="case-references-heading" class="h3 my-3">{{ t('editor.steps') }}</h2>
     <IconOnlyButton v-if="editing && route.name !== 'step'" class="btn btn-outline-secondary mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="stepChooserOpen = true" />
     <p v-if="selectedCase.steps.length === 0" class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
     <div v-else ref="stepCardList" class="step-card-list">

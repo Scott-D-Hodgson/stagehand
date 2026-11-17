@@ -7,7 +7,7 @@ export interface LocaleOverrideItem {
   value: string;
 }
 
-const props = defineProps<{ overrides: LocaleOverrideItem[] }>();
+const props = defineProps<{ editing: boolean; overrides: LocaleOverrideItem[] }>();
 const emit = defineEmits<{
   add: [];
   edit: [override: LocaleOverrideItem];
@@ -19,12 +19,12 @@ const { t } = useTranslation();
 <template>
   <section aria-label="Locale overrides">
     <h2 class="h6 mb-3">{{ t('editor.localeOverrides') }}</h2>
-    <IconOnlyButton class="btn btn-outline-secondary btn-sm mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="emit('add')" />
+    <IconOnlyButton v-if="props.editing" class="btn btn-outline-secondary btn-sm mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="emit('add')" />
     <p v-if="props.overrides.length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
     <ul v-else class="list-group">
       <li v-for="override in props.overrides" :key="override.locale" class="list-group-item d-flex align-items-center justify-content-between gap-3">
         <span class="text-break"><span class="font-monospace">{{ override.locale }}</span>: {{ override.value }}</span>
-        <span class="btn-group btn-group-sm" role="group">
+        <span v-if="props.editing" class="btn-group btn-group-sm" role="group">
           <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.edit')" @click="emit('edit', override)" />
           <IconOnlyButton class="btn btn-outline-danger" icon="fa-solid fa-minus" :label="t('editor.remove')" @click="emit('remove', override)" />
         </span>

@@ -13,7 +13,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. What does the current M9 case-reference dialog save, and what does it not create?
 10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
 11. Which Type-step fields are currently authorable, and which supported text form remains deferred?
-12. Why is `LocatorFields.vue` shared by Click, Type, Fill, Select option, and the three current assertion forms while their action-specific fields remain separate?
+12. Why do dedicated Step pages keep their locator and action-specific fields together instead of adding another shared form component?
 13. Why does the Select option dialog use a Value-or-Label mode rather than show both fields at once?
 14. What is the current Assert text expected-value shape, and how does its Locale overrides panel select the value previewed on the card?
 15. How does Assert HTML reuse the localized expected-value pattern while preserving practical HTML authoring?
@@ -28,13 +28,14 @@ Use this quiz after completing the web editor course. Check answers against the 
 24. Why does Edit/View mode belong to temporary interface state rather than a plan or recovery record?
 25. What does the M10 round-trip walkthrough establish that isolated import and export tests cannot?
 26. Why can a case override viewport and time zone but not headless mode, and why does enabling the override begin with copied plan values?
-27. Why should `CaseStepEditor` coordinate ordered data and dialogs while step-detail components compose their cards?
+27. Why should `StepReferences` coordinate ordered data and dialogs while step-detail components compose their cards?
 28. What is the difference between enabling accessibility scans and failing on violations, and how do plan and case rule-tag selections differ?
 29. What is the timeout precedence for an action or assertion, and why does an omitted plan timeout still display 30,000 ms in the editor?
-30. Why does View mode use Default-open read-only tabs instead of retaining the last Edit-mode tab?
+30. Why does View mode preserve the selected tab while replacing form controls with read-only summaries?
 31. Why does the editor Pages project build from the repository root, and which files must its build-watch paths include?
 32. Why does route-specific Plan, Case, and Step authoring avoid nested-card density, and where does temporary View/Edit state belong?
 33. Why must an icon-only editor action keep a localized accessible name, and why does the shared component dispose its Bootstrap popover?
+34. Why does a Step page use plain summaries instead of disabled controls in View mode?
 
 ## Answer key
 
@@ -49,7 +50,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
 11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
-12. The seven forms repeat the same Role/Accessible-name target behaviour, so one component keeps it consistent. Their action-specific inputs have different meanings and validation states, so their owning dialogs retain those fields.
+12. A dedicated Step page has one action-specific editing context. Keeping its locator and action-specific fields together makes the editable and read-only presentations easier to understand without introducing a second form-owner boundary.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
 14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its card-level Locale overrides panel. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
 15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, card-level override management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
@@ -64,10 +65,11 @@ Use this quiz after completing the web editor course. Check answers against the 
 24. It changes only how the current bundle is presented. Saving it in the plan would alter portable contract data, while saving it in recovery would make a momentary inspection preference part of draft-restoration behaviour. The toolbar therefore starts in Edit and keeps the mode in the current interface session only.
 25. It checks the transitions between browser file selection, active draft replacement, editing, filename confirmation, browser download, re-import, recovery, conflicts, and localized dialog behaviour. Focused tests protect individual boundaries, but cannot by themselves demonstrate that the complete author workflow preserves the intended state.
 26. Headless mode is selected when the run-wide Chromium process launches, while viewport and time zone can vary by case. Copying the effective plan values gives an explicit override a valid, understandable starting point rather than leaving fields blank.
-27. The editor then has one place for ordered immutable updates, dialogs, and recovery-facing events, while each step type keeps its own presentation, tabs, and card details close to the data it displays.
+27. `StepReferences` gives the editor one place for ordered immutable updates, dialogs, and recovery-facing events, while each step type keeps its own presentation, tabs, and route details close to the data it displays.
 28. Enablement determines whether scans run; failure policy determines whether detected violations fail the execution. Plan tags use axe defaults when omitted or empty; a case inherits omitted tags, replaces them with a non-empty selection, or explicitly clears the inherited filter with an empty list.
 29. A step timeout wins over a case timeout, which wins over a plan timeout; when none is stored, runner-core uses its 30,000 ms fallback. The editor displays that fallback so authors can understand execution behaviour without silently adding a plan setting to the portable document.
-30. View mode is a summary of all settings, not a continuation of one authoring tab. Resetting its read-only tabs to Default prevents a hidden Edit-mode selection from deciding the read-only starting context.
+30. Retaining the selected tab preserves the author's current context. View mode changes the selected panel from authoring controls to a plain read-only summary without storing the temporary mode or tab choice in the plan or recovery record.
 31. The editor is an npm workspace and its build first runs `npm ci` from the repository root, where the lockfile and workspace links are defined. Its watch paths include `apps/web/*`, `packages/plan-schema/*`, `package.json`, `package-lock.json`, and `tsconfig.base.json`, so changes that can affect the editor build trigger a preview while unrelated work does not.
 32. Each route gives a phone-sized viewport one editing context: Plan cards link to Cases, and Case cards link to Steps instead of containing their descendant forms. View/Edit is temporary interface state, so it must not be stored in the portable plan, case, or recovery document.
 33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology and shows the same text in a popover for sighted hover or keyboard-focus feedback. Disposing its popover when Vue removes the button prevents a detached Popper element and stale event handling.
+34. Disabled controls still look like unavailable forms and make compact pages harder to scan. A definition list communicates inspection clearly while preserving the selected tab and leaving no editable control behind.

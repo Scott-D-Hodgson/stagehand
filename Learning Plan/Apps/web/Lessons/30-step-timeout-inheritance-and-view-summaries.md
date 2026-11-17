@@ -25,12 +25,12 @@ an existing step timeout.
 
 ## View mode is a summary
 
-Edit-mode tabs are useful for authoring but should not decide what someone
-sees in View mode. Plan and case details therefore retain the same
-Bootstrap-style Default, Browser, and Accessibility tabs in View mode, while
-their panels become read-only. Default opens every time View mode begins. The
-view state remains temporary interface state and is not added to the plan or
-recovery record.
+Edit-mode tabs are useful for authoring, and their selected context remains
+useful while inspecting the same settings. Plan, case, and Step details retain
+their Bootstrap-style tabs in View mode, while their panels become plain
+read-only summaries. Changing modes preserves the selected tab. The view state
+remains temporary interface state and is not added to the plan or recovery
+record.
 
 ## Try it
 
@@ -41,13 +41,13 @@ recovery record.
 3. Set one step to `250`, edit the step through its action dialog, and confirm
    the step-level value remains.
 4. Switch from Browser or Accessibility in Edit mode to View mode and confirm
-   Default opens in the read-only tabs.
+   the selected tab remains open with read-only content.
 
 ## You are ready when
 
 - You can explain step, case, plan, and built-in timeout precedence.
 - You can distinguish a portable omitted setting from a displayed fallback.
-- You can explain why View mode resets its read-only summary independently of
-  Edit-mode tabs.
+- You can explain why View mode preserves the author's current tab while
+  replacing form controls with summaries.
 
 [← Previous: Accessibility configuration and rule tags](29-accessibility-configuration-baseline.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)

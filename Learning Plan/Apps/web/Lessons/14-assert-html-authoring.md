@@ -30,14 +30,14 @@ stored contract.
 
 Role and Expected HTML are required and independently blur-gated; Accessible
 name remains optional. The early M11 workflow adds optional localized expected
-values; [Lesson 20](20-localized-assert-html.md) covers that card-level flow.
+values; [Lesson 20](20-localized-assert-html.md) covers that dedicated Step-page flow.
 
 ## Shared target and recovery
 
 The constrained Role/Accessible-name target is the same current target used by
-the other authored actions and assertions, so Assert HTML reuses
-`LocatorFields.vue`. Its HTML-specific expected field remains owned by the
-dialog. The nested locator and `expected.default` are copied into the plain
+the other authored actions and assertions. Its HTML-specific expected field
+remains owned by the dedicated Step page. The nested locator and
+`expected.default` are copied into the plain
 recovery snapshot. Focused checks protect detached expected-HTML copying and
 IndexedDB autosave.
 
