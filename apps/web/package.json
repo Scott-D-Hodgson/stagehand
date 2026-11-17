@@ -3,9 +3,6 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@awesome.me/kit-d542487fdc": "^1.0.4",
-    "@fortawesome/fontawesome-svg-core": "^7.3.1",
-    "@fortawesome/vue-fontawesome": "^3.3.3",
     "@stagehand/plan-schema": "0.1.0",
     "fflate": "^0.8.3",
     "i18next": "26.7.2",
