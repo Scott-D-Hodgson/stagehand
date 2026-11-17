@@ -1,7 +1,6 @@
 {
   "editor": {
     "heading": "Stagehand",
-    "tagline": "La création de plans commence ici.",
     "sharedContract": "Contrat partagé",
     "validPlan": "L’exemple intégré respecte le contrat de plan partagé.",
     "invalidPlan_zero": "Aucun problème de validation n’a été trouvé dans l’exemple intégré.",

@@ -29,7 +29,7 @@ belongs to M12. This is deliberate scope, not a limitation of the contract.
 
 ## Reuse after repetition
 
-Click, Type, and Fill now use a shared `LocatorFields.vue` component for their
+Click, Type, and Fill use the same constrained locator shape for their
 Role/Accessible-name target fields. Each dialog keeps its action-specific field
 and validation state: Text for Type and Value for Fill. This is a useful middle
 ground: common target behaviour has one owner, without hiding the meaningful

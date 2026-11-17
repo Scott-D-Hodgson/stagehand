@@ -19,11 +19,10 @@ explain the issue. It does not silently repair a time zone or viewport value.
 
 ## Keep card ownership local
 
-`CaseStepEditor` coordinates the ordered case-step array, dialogs, and emitted
-draft changes. It does not define every card. Each step-detail component
-composes the reusable Bootstrap step-card presentation and supplies the
-action-specific body. Localized assertion cards additionally own their Default
-and Locale overrides tabs.
+`StepReferences` coordinates the ordered case-step array, dialogs, and emitted
+draft changes. It does not define every card. Dedicated Step-page components
+own their action-specific route details and tabs. Localized assertion Step
+pages additionally own their Default, Overrides, and Locales tabs.
 
 This separation means a change to a step card's presentation stays with that
 step type, while list movement, recovery, and document updates retain one

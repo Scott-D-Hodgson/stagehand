@@ -26,7 +26,7 @@ The dialog requires Role and Expected value, while Accessible name remains
 optional. Each field’s feedback is independently blur-gated. The form saves a
 literal `expected.default` value, like the other current assertion forms.
 The early M11 workflow adds optional localized expected values; [Lesson
-21](21-localized-assert-value.md) covers that card-level flow.
+21](21-localized-assert-value.md) covers that dedicated Step-page flow.
 
 ## The associated-label boundary
 
@@ -37,7 +37,7 @@ a focused decision rather than being folded into this basic assertion slice.
 
 ## Shared target and recovery
 
-Assert value reuses `LocatorFields.vue` for the same constrained
+Assert value uses the same constrained
 Role/Accessible-name target as the other current forms. Its Expected value
 field belongs in the assertion dialog. The nested locator and expected value
 are copied into the plain recovery snapshot; focused checks cover detached

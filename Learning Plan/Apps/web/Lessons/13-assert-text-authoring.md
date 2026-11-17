@@ -34,7 +34,7 @@ localized assertion behaviour is already authorable.
 
 ## Reuse and recovery
 
-Assert text shares `LocatorFields.vue` with the existing actions because the
+Assert text uses the same constrained locator shape as the existing actions because the
 current authoring target is the same constrained Role/Accessible-name locator.
 Expected text remains an Assert-text concern, so its input and feedback belong
 to the assertion dialog.

@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 
 const props = defineProps<{
+  editing: boolean;
   index: number;
   timeout: unknown;
   url: string;
@@ -32,7 +33,7 @@ function readTimeout(event: Event): number | string {
 
 <template>
   <section aria-label="Navigate step details">
-    <ul class="nav nav-tabs mb-3" role="tablist">
+    <ul class="nav nav-pills my-3" role="tablist">
       <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'default' }]" type="button" @click="selectedTab = 'default'">{{ t('editor.defaultTab') }}</button>
       </li>
@@ -40,14 +41,28 @@ function readTimeout(event: Event): number | string {
         <button :class="['nav-link', { active: selectedTab === 'overrides' }]" type="button" @click="selectedTab = 'overrides'">{{ t('editor.overridesTab') }}</button>
       </li>
     </ul>
-    <section v-if="selectedTab === 'default'">
-      <label class="form-label" :for="`navigate-url-${props.index}`">URL</label>
-      <input :id="`navigate-url-${props.index}`" v-model="url" class="form-control" type="url" @change="emit('update:url', url)" />
-    </section>
-    <section v-else>
-      <label class="form-label" :for="`navigate-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-      <input :id="`navigate-timeout-${props.index}`" :class="['form-control', { 'is-invalid': timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1) }]" min="1" type="number" :value="props.timeout" @blur="timeoutWasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
-      <div v-if="timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
-    </section>
+    <div class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="props.editing">
+          <section v-if="selectedTab === 'default'">
+            <label class="form-label" :for="`navigate-url-${props.index}`">URL</label>
+            <input :id="`navigate-url-${props.index}`" v-model="url" class="form-control" type="url" @change="emit('update:url', url)" />
+          </section>
+          <section v-else>
+            <label class="form-label" :for="`navigate-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
+            <input :id="`navigate-timeout-${props.index}`" :class="['form-control', { 'is-invalid': timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1) }]" min="1" type="number" :value="props.timeout" @blur="timeoutWasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
+            <div v-if="timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
+          </section>
+        </template>
+        <dl v-else-if="selectedTab === 'default'" class="mb-0">
+          <dt>URL</dt>
+          <dd class="mb-0 text-break">{{ props.url }}</dd>
+        </dl>
+        <dl v-else class="mb-0">
+          <dt>{{ t('editor.stepTimeout') }}</dt>
+          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+        </dl>
+      </div>
+    </div>
   </section>
 </template>

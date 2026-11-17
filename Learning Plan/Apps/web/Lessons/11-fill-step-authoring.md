@@ -26,7 +26,7 @@ authoring capability belongs to M12 with variables and data sets.
 ## Shared locator fields
 
 Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value all need the same current target: required Role plus
-optional Accessible name. `LocatorFields.vue` owns those inputs, their
+optional Accessible name. The dedicated Step pages own those inputs, their
 localized Role feedback, and role focus after the dialog opens. Each dialog
 still owns its action-specific fields and independent validation: none for
 Click, Text for Type, Value for Fill, a Value-or-Label choice for Select option,
@@ -54,8 +54,8 @@ shared locator fields still focus and validate correctly.
 ## You are ready when
 
 - You can explain the authoring difference between Type and Fill.
-- You can identify which fields belong in `LocatorFields.vue` and which remain
-  owned by an action dialog.
+- You can identify the common locator fields and the action-specific fields on
+  each dedicated Step page.
 - You know why literal Value is current scope while variable references wait
   for M12.
 

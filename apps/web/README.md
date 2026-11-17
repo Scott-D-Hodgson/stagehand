@@ -137,11 +137,12 @@ this repository.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes
-  retain contextual move, edit, clone, and remove controls. View presents plan
-  and case Default, Browser, and Accessibility summaries through the same
-  Bootstrap-style tab controls, resetting to Default when View mode begins.
+  retain contextual move, edit, clone, and remove controls. View presents plan,
+  case, and Step settings through the same Bootstrap-style tab controls with
+  plain read-only summaries. Changing modes preserves the selected tab.
 - Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
-  Assert value have dedicated editable Step routes. Case-route cards appear as
+  Assert value have dedicated Step routes whose fields switch between editable
+  controls and read-only summaries. Case-route cards appear as
   numbered Bootstrap summaries. Navigate validates the shared absolute
   HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
@@ -156,12 +157,9 @@ this repository.
   value, and multiline base and override fields. Assert value uses the same
   locator and literal default and override Expected values; its optional
   associated-label check has no editor form yet.
-  Variable-backed text and values follow in M12. Click, Type, Fill, Select
-  option, Assert text, Assert HTML, and Assert value share `LocatorFields.vue`
-  for their target fields, but retain their action-specific dialogs and
-  validation.
+  Variable-backed text and values follow in M12.
   Each step-detail component owns its dedicated route-page fields;
-  `CaseStepEditor` coordinates ordered data, dialogs, and draft updates for
+  `StepReferences` coordinates ordered data, dialogs, and draft updates for
   Case-route cards. Add, Edit, Clone, Remove, and adjacent Promote/Demote
   controls preserve
   recovery and confirmation behaviour. Reordered step and reference cards

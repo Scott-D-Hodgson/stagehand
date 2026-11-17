@@ -40,47 +40,46 @@ function selectThemePreference(preference: ThemePreference): void {
 </script>
 
 <template>
-  <header class="app-header border-bottom bg-body-tertiary">
-    <div class="container-fluid d-flex align-items-center justify-content-between gap-3 py-2">
-      <div>
-        <p class="h5 mb-0"><a class="link-body-emphasis text-decoration-none" href="https://getstagehand.ca">{{ t('editor.heading') }}</a></p>
-        <p class="small mb-0 text-body-secondary">{{ t('editor.tagline') }}</p>
+  <header class="navbar border-bottom navbar-expand-lg navbar-light bg-body-secondary">
+    <div class="container-fluid">
+      <a class="navbar-brand" href="https://getstagehand.ca">{{ t('editor.heading') }}</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
+          <li class="nav-item dropdown">
+            <IconOnlyButton id="language-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-language" :label="t('editor.language')" />
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                <button :class="['dropdown-item', { active: interfaceLanguage === 'en-CA' }]" type="button" @click="selectInterfaceLanguage('en-CA')">{{ t('editor.englishCanada') }}</button>
+              </li>
+              <li>
+                <button :class="['dropdown-item', { active: interfaceLanguage === 'fr-CA' }]" type="button" @click="selectInterfaceLanguage('fr-CA')">{{ t('editor.frenchCanada') }}</button>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="navbar-nav mb-2 mb-lg-0">
+          <li class="nav-item dropdown">
+            <IconOnlyButton id="theme-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-palette" :label="t('editor.theme')" />
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li>
+                <button :class="['dropdown-item', { active: themePreference === 'system' }]" type="button" @click="selectThemePreference('system')">{{ t('editor.systemTheme') }}</button>
+              </li>
+              <li>
+                <button :class="['dropdown-item', { active: themePreference === 'light' }]" type="button" @click="selectThemePreference('light')">{{ t('editor.lightTheme') }}</button>
+              </li>
+              <li>
+                <button :class="['dropdown-item', { active: themePreference === 'dark' }]" type="button" @click="selectThemePreference('dark')">{{ t('editor.darkTheme') }}</button>
+              </li>
+            </ul>
+          </li>
+        </ul>
       </div>
-      <ul class="nav">
-        <li class="nav-item dropdown">
-          <IconOnlyButton id="language-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-language" :label="t('editor.language')" />
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="language-preference">
-            <li>
-              <button :class="['dropdown-item', { active: interfaceLanguage === 'en-CA' }]" type="button" @click="selectInterfaceLanguage('en-CA')">{{ t('editor.englishCanada') }}</button>
-            </li>
-            <li>
-              <button :class="['dropdown-item', { active: interfaceLanguage === 'fr-CA' }]" type="button" @click="selectInterfaceLanguage('fr-CA')">{{ t('editor.frenchCanada') }}</button>
-            </li>
-          </ul>
-        </li>
-        <li class="nav-item dropdown">
-          <IconOnlyButton id="theme-preference" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false" icon="fa-solid fa-palette" :label="t('editor.theme')" />
-          <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="theme-preference">
-            <li>
-              <button :class="['dropdown-item', { active: themePreference === 'system' }]" type="button" @click="selectThemePreference('system')">{{ t('editor.systemTheme') }}</button>
-            </li>
-            <li>
-              <button :class="['dropdown-item', { active: themePreference === 'light' }]" type="button" @click="selectThemePreference('light')">{{ t('editor.lightTheme') }}</button>
-            </li>
-            <li>
-              <button :class="['dropdown-item', { active: themePreference === 'dark' }]" type="button" @click="selectThemePreference('dark')">{{ t('editor.darkTheme') }}</button>
-            </li>
-          </ul>
-        </li>
-      </ul>
     </div>
   </header>
 </template>
 
 <style scoped>
-.app-header {
-  position: sticky;
-  top: 0;
-  z-index: 1030;
-}
 </style>

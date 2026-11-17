@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import type { ValidationIssue } from '@stagehand/plan-schema';
@@ -8,7 +8,6 @@ import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
 
 const props = defineProps<{
   editing: boolean;
-  framed?: boolean;
   plan: PlanDraft;
   validationIssues: ValidationIssue[];
   validationRequested: boolean;
@@ -23,7 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useTranslation();
-const selectedDetailsTab = ref<'accessibility' | 'browser' | 'default'>('default');
+const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default'>('default');
 const localeWasBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
 const browserSettingsWereBlurred = ref(false);
@@ -45,13 +44,6 @@ const browserSettings = computed<PlanBrowserSettingsDraft>(() => ({
 const browserSettingIssues = computed(() => props.validationIssues.filter((issue) => issue.path.startsWith('/defaults/browser')));
 const shouldShowBrowserSettingIssues = computed(() => browserSettingIssues.value.length > 0 && (browserSettingsWereBlurred.value || props.validationRequested));
 const accessibilitySettings = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.plan.defaults.accessibility }));
-const usesCardFrame = computed(() => props.framed !== false);
-
-watch(() => props.editing, (editing) => {
-  if (!editing) {
-    selectedDetailsTab.value = 'default';
-  }
-});
 
 /*
 Emits a selected locale from the maintained application catalogue.
@@ -164,42 +156,59 @@ function validateBrowserSettings(): void {
 </script>
 
 <template>
-  <section :class="usesCardFrame ? 'card mb-4 shadow-sm' : 'mb-4'" aria-labelledby="plan-details-heading">
-    <div v-if="!editing" :class="usesCardFrame ? 'card-header' : 'mb-3'">
-      <component :is="usesCardFrame ? 'h2' : 'h1'" id="plan-details-heading" :class="usesCardFrame ? 'h5' : 'h2'">{{ plan.id }}</component>
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button id="plan-default-tab" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="'plan-default-panel'" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button id="plan-browser-tab" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="'plan-browser-panel'" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button id="plan-accessibility-tab" :class="['nav-link', { active: selectedDetailsTab === 'accessibility' }]" type="button" role="tab" :aria-controls="'plan-accessibility-panel'" :aria-selected="selectedDetailsTab === 'accessibility'" @click="selectedDetailsTab = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
-        </li>
-      </ul>
-    </div>
-    <div v-if="editing" :class="usesCardFrame ? 'card-header' : 'mb-3'">
-      <component :is="usesCardFrame ? 'h2' : 'h1'" id="plan-details-heading" :class="usesCardFrame ? 'h5' : 'h2'">{{ plan.id }}</component>
-      <ul class="nav nav-tabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button id="plan-default-tab" :class="['nav-link', { active: selectedDetailsTab === 'default' }]" type="button" role="tab" :aria-controls="'plan-default-panel'" :aria-selected="selectedDetailsTab === 'default'" @click="selectedDetailsTab = 'default'">{{ t('editor.defaultTab') }}</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button id="plan-browser-tab" :class="['nav-link', { active: selectedDetailsTab === 'browser' }]" type="button" role="tab" :aria-controls="'plan-browser-panel'" :aria-selected="selectedDetailsTab === 'browser'" @click="selectedDetailsTab = 'browser'">{{ t('editor.browserTab') }}</button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button id="plan-accessibility-tab" :class="['nav-link', { active: selectedDetailsTab === 'accessibility' }]" type="button" role="tab" :aria-controls="'plan-accessibility-panel'" :aria-selected="selectedDetailsTab === 'accessibility'" @click="selectedDetailsTab = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
-        </li>
-      </ul>
-    </div>
-    <div v-if="editing" :class="usesCardFrame ? 'card-body' : ''">
-      <section v-if="selectedDetailsTab === 'default'" id="plan-default-panel" role="tabpanel" aria-labelledby="plan-default-tab">
-        <div v-if="editing">
-          <label class="form-label" for="plan-locale">{{ t('editor.planLocale') }}</label>
-          <select id="plan-locale" :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-error' : undefined" :class="['form-select', { 'is-invalid': shouldShowPlanLocaleIssues }]" :value="plan.defaults.locale" @blur="validatePlanLocale" @change="changePlanLocale">
-            <option v-if="hasUnknownPlanLocale" :value="plan.defaults.locale" disabled>{{ plan.defaults.locale }}</option>
-            <option v-for="locale in localeCatalogue" :key="locale" :value="locale">{{ locale }}</option>
+  <h1 class="h2" id="plan-details-heading">{{ plan.id }}</h1>
+  <ul class="nav nav-pills my-3">
+    <li class="nav-item" role="presentation">
+      <button
+        id="plan-default-card"
+        :class="['nav-link', { active: selectedDetailsCard === 'default' }]"
+        type="button"
+        :aria-controls="'plan-default-panel'"
+        :aria-selected="selectedDetailsCard === 'default'"
+        @click="selectedDetailsCard = 'default'">{{ t('editor.defaultTab') }}</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        id="plan-browser-card"
+        :class="['nav-link', { active: selectedDetailsCard === 'browser' }]"
+        type="button"
+        :aria-controls="'plan-browser-panel'"
+        :aria-selected="selectedDetailsCard === 'browser'"
+        @click="selectedDetailsCard = 'browser'">{{ t('editor.browserTab') }}</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        id="plan-accessibility-card"
+        :class="['nav-link', { active: selectedDetailsCard === 'accessibility' }]"
+        type="button"
+        :aria-controls="'plan-accessibility-panel'"
+        :aria-selected="selectedDetailsCard === 'accessibility'"
+        @click="selectedDetailsCard = 'accessibility'">{{ t('editor.accessibilityTab') }}</button>
+    </li>
+  </ul>
+  <section aria-labelledby="plan-details-heading">
+    <div v-if="selectedDetailsCard === 'default'"
+      id="plan-default-panel"
+      aria-labelledby="plan-default-card"
+      class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="editing">
+          <label
+            class="form-label"
+            for="plan-locale">{{ t('editor.planLocale') }}</label>
+          <select
+            id="plan-locale"
+            :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-error' : undefined"
+            :class="['form-select', { 'is-invalid': shouldShowPlanLocaleIssues }]"
+            :value="plan.defaults.locale"
+            @blur="validatePlanLocale"
+            @change="changePlanLocale">
+            <option v-if="hasUnknownPlanLocale"
+              :value="plan.defaults.locale"
+              disabled>{{ plan.defaults.locale }}</option>
+            <option v-for="locale in localeCatalogue"
+              :key="locale"
+              :value="locale">{{ locale }}</option>
           </select>
           <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
           <div class="form-check mt-3">
@@ -211,17 +220,21 @@ function validateBrowserSettings(): void {
             <input id="plan-timeout" :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined" :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]" min="1" type="number" :value="plan.defaults.timeout" @blur="validatePlanTimeout" @input="changePlanTimeout" />
             <div v-if="shouldShowPlanTimeoutIssues" id="plan-timeout-error" class="invalid-feedback d-block">{{ planTimeoutIssues[0]?.message }}</div>
           </template>
-          <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
-        </div>
-        <dl v-else class="mb-0">
-          <dt class="form-label">{{ t('editor.planLocale') }}</dt>
-          <dd>{{ plan.defaults.locale }}</dd>
-          <dt>{{ t('editor.defaultStepTimeout') }}</dt>
-          <dd class="mb-0">{{ effectivePlanTimeout }}</dd>
-        </dl>
-      </section>
-      <section v-else-if="selectedDetailsTab === 'browser'" id="plan-browser-panel" role="tabpanel" aria-labelledby="plan-browser-tab browser-settings-heading">
-        <div v-if="editing" class="row g-3">
+        </template>
+        <template v-else>
+          <p>{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
+          <dl class="mb-0">
+            <dt class="form-label">{{ t('editor.planLocale') }}</dt>
+            <dd>{{ plan.defaults.locale }}</dd>
+            <dt>{{ t('editor.defaultStepTimeout') }}</dt>
+            <dd class="mb-0">{{ effectivePlanTimeout }}</dd>
+          </dl>
+        </template>
+      </div>
+    </div>
+    <div v-if="selectedDetailsCard === 'browser'" id="plan-browser-panel" aria-labelledby="plan-browser-card" class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="editing">
           <div class="col-12">
             <div class="form-check">
               <input id="browser-headless" class="form-check-input" type="checkbox" :checked="browserSettings.headless" @blur="validateBrowserSettings" @change="changeBrowserSettings({ headless: ($event.target as HTMLInputElement).checked })" />
@@ -241,18 +254,22 @@ function validateBrowserSettings(): void {
             <input id="browser-time-zone" class="form-control" :value="browserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
           </div>
           <div v-if="shouldShowBrowserSettingIssues" class="invalid-feedback d-block">{{ browserSettingIssues[0]?.message }}</div>
-        </div>
-        <dl v-else class="mb-0">
-          <dt>{{ t('editor.headless') }}</dt>
-          <dd>{{ browserSettings.headless ? t('editor.enabled') : t('editor.disabled') }}</dd>
-          <dt>{{ t('editor.viewport') }}</dt>
-          <dd>{{ browserSettings.viewport?.width }} × {{ browserSettings.viewport?.height }}</dd>
-          <dt>{{ t('editor.timeZone') }}</dt>
-          <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
-        </dl>
-      </section>
-      <section v-else id="plan-accessibility-panel" role="tabpanel" aria-labelledby="plan-accessibility-tab">
-        <div v-if="editing" class="d-grid gap-3">
+        </template>
+        <template v-else>
+          <dl class="mb-0">
+            <dt>{{ t('editor.headless') }}</dt>
+            <dd>{{ browserSettings.headless ? t('editor.enabled') : t('editor.disabled') }}</dd>
+            <dt>{{ t('editor.viewport') }}</dt>
+            <dd>{{ browserSettings.viewport?.width }} × {{ browserSettings.viewport?.height }}</dd>
+            <dt>{{ t('editor.timeZone') }}</dt>
+            <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
+          </dl>
+        </template>
+      </div>
+    </div>
+    <div v-if="selectedDetailsCard === 'accessibility'" id="plan-accessibility-panel" aria-labelledby="plan-accessibility-card" class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <template v-if="editing">
           <div class="form-check">
             <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="accessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-enabled">{{ t('editor.accessibilityEnabled') }}</label>
@@ -262,58 +279,20 @@ function validateBrowserSettings(): void {
             <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="accessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-fail-on-violation">{{ t('editor.failOnViolation') }}</label>
           </div>
-        </div>
-        <dl v-else class="mb-0">
-          <dt>{{ t('editor.accessibilityEnabled') }}</dt>
-          <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
-          <dt>{{ t('editor.failOnViolation') }}</dt>
-          <dd>{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
-          <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
-          <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
-        </dl>
-      </section>
-    </div>
-    <div v-else :class="usesCardFrame ? 'card-body' : ''">
-      <div>
-        <section v-if="selectedDetailsTab === 'default'" id="plan-default-panel" role="tabpanel" aria-labelledby="plan-default-tab">
-          <div>
-              <dl class="mb-0">
-                <dt>{{ t('editor.planLocale') }}</dt>
-                <dd>{{ plan.defaults.locale }}</dd>
-                <dt>{{ t('editor.defaultStepTimeout') }}</dt>
-                <dd class="mb-0">{{ effectivePlanTimeout }}</dd>
-              </dl>
-          </div>
-        </section>
-        <section v-else-if="selectedDetailsTab === 'browser'" id="plan-browser-panel" role="tabpanel" aria-labelledby="plan-browser-tab">
-          <div>
-              <dl class="mb-0">
-                <dt>{{ t('editor.headless') }}</dt>
-                <dd>{{ browserSettings.headless ? t('editor.enabled') : t('editor.disabled') }}</dd>
-                <dt>{{ t('editor.viewport') }}</dt>
-                <dd>{{ browserSettings.viewport?.width }} × {{ browserSettings.viewport?.height }}</dd>
-                <dt>{{ t('editor.timeZone') }}</dt>
-                <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
-              </dl>
-          </div>
-        </section>
-        <section v-else id="plan-accessibility-panel" role="tabpanel" aria-labelledby="plan-accessibility-tab">
-          <div>
-              <dl class="mb-0">
-                <dt>{{ t('editor.accessibilityEnabled') }}</dt>
-                <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
-                <dt>{{ t('editor.failOnViolation') }}</dt>
-                <dd>{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
-                <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
-                <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
-              </dl>
-          </div>
-        </section>
+        </template>
+        <template v-else>
+          <dl class="mb-0">
+            <dt>{{ t('editor.accessibilityEnabled') }}</dt>
+            <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
+            <dt>{{ t('editor.failOnViolation') }}</dt>
+            <dd>{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
+            <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
+            <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
+          </dl>
+        </template>
       </div>
     </div>
-    <div :class="usesCardFrame ? 'card-body border-top' : 'border-top pt-4 mt-4'">
-      <slot />
-    </div>
+    <slot />
   </section>
 </template>
 

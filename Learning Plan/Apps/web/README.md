@@ -33,8 +33,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
   distinguish scan enablement from violation outcome policy.
 - How plan, case, and step timeouts form an explicit override hierarchy while
   preserving Stagehand's 30,000 ms fallback.
-- Why View mode reuses the same resettable read-only tabs rather than retaining
-  an Edit-mode tab selection.
+- Why View mode preserves the selected tab while replacing authoring controls
+  with read-only summaries.
 - How the editor's separate Cloudflare Pages project builds the workspace from
   the repository root, provides isolated pull-request previews, and reaches
   the public `app.getstagehand.ca` hostname without becoming a hosted service.
@@ -95,5 +95,6 @@ offline after load.
 31. [Cloudflare Pages editor deployment](Lessons/31-cloudflare-pages-editor-deployment.md)
 32. [Route-oriented authoring presentation](Lessons/32-route-oriented-authoring-presentation.md)
 33. [Accessible icon controls](Lessons/33-accessible-icon-controls.md)
+34. [Step View/Edit summaries](Lessons/34-step-view-edit-summaries.md)
 
 Finish with the [course skill check](quiz.md).
