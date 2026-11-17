@@ -11,9 +11,6 @@ on:
 permissions:
   contents: read
 
-env:
-  FONTAWESOME_PACKAGE_TOKEN: ${{ secrets.FONTAWESOME_PACKAGE_TOKEN }}
-
 jobs:
   repository-versions:
     name: Test repository Node.js and npm versions

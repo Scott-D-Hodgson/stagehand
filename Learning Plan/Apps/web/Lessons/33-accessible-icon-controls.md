@@ -10,8 +10,7 @@ turning their meaning into a visual-only convention.
 `apps/web/index.html` loads the Stagehand Font Awesome kit browser script. The
 kit recognises icon class names such as `fa-solid fa-plus` and replaces the
 matching element with SVG in the browser. This is a browser-kit integration;
-it is separate from optional npm package access through the private Font
-Awesome registry.
+the editor does not install Font Awesome packages through npm.
 
 `apps/web/src/components/IconOnlyButton.vue` centralizes the repeated button
 behaviour. Callers supply an icon class and a localized label. The component:
@@ -29,11 +28,9 @@ changing the owning component's action logic.
 
 ## Security and delivery boundary
 
-The kit script uses its public kit identifier and does not expose the private
-package token. The root `.npmrc` obtains `FONTAWESOME_PACKAGE_TOKEN` only from
-the ignored `.env` file passed into the development container at runtime. The
-token must never be committed, embedded in browser code, or passed inline in a
-shell command.
+The kit script uses its public kit identifier and does not require a package
+token. Do not add credentials to browser code, source control, or shell
+commands.
 
 The browser kit and Bootstrap assets remain external CDN dependencies. They
 make this presentation slice practical now, but they do not meet the editor's

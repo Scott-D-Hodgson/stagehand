@@ -175,14 +175,3 @@ this repository.
   bundle. A two-tab conflict opens a blocking resolution dialog; the author
   must discard paused local edits or replace the newer saved draft before
   continuing.
-
-## Font Awesome package access
-
-The root `.npmrc` directs the `@fortawesome` and `@awesome.me` scopes to Font
-Awesome's private registry and reads its credential only from
-`FONTAWESOME_PACKAGE_TOKEN`. For local package-manager access, set that value
-in the ignored root `.env` file before rebuilding the development container.
-The container passes `.env` at runtime, so its `npm ci` command can read the
-token without putting it in the image, source, or lockfile. Do not commit the
-token or pass it inline in a command. The currently loaded browser kit does
-not require the token at page-load time.
