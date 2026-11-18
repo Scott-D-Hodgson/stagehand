@@ -9,7 +9,7 @@ Locales.
 
 ## The shared override pattern
 
-The card-level Locale overrides panel uses the same maintained JSON catalogue,
+The Step-page Locales tab uses the same maintained JSON catalogue,
 alphabetical list, Add/Edit dialog, confirmed removal, and recovery behaviour
 as Assert text and Assert HTML. It is separate from the base-step dialog, so
 the normal assertion form remains focused on its Role, Accessible name, and

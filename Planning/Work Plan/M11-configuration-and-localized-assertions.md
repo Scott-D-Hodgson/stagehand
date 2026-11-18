@@ -144,7 +144,7 @@ presentation uses compact Bootstrap button groups and outlined secondary
 actions; Save, Create, Download, and destructive confirmation actions retain
 their primary semantic emphasis. Font Awesome kit icons use a shared
 icon-only button component that keeps a localized visually hidden action name
-and shows it through a Bootstrap popover on hover or keyboard focus.
+for assistive technology.
 
 This slice is implemented in the current editor work but has not yet recorded
 its focused automated, type-check, build, and manual responsive-route evidence.

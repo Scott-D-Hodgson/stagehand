@@ -14,17 +14,17 @@ an exhaustive list of every BCP 47 tag. The interface language remains a
 separate local preference. Changing the editor from English to French never
 changes a plan's execution locale or its expected values.
 
-## Card-level override authoring
+## Step-page override authoring
 
-The Assert-text card's Locale overrides toggle reveals an alphabetically sorted
-list. Add and Edit open a small Bootstrap dialog for one Locale and Expected
-text value. The dialog validates required fields on blur and Save; removal uses
-a confirmation dialog. Base-step editing and cloning preserve overrides, and
-the ordinary draft/recovery path deep-copies their locale map.
+The Assert-text Step page's Locales tab reveals an alphabetically sorted list.
+Add and Edit open a small Bootstrap dialog for one Locale and Expected text
+value. The dialog validates required fields on blur and Save; removal uses a
+confirmation dialog. Base-step editing and cloning preserve overrides, and the
+ordinary draft/recovery path deep-copies their locale map.
 
 ## Configured-value preview
 
-The card previews the value that the configured Plan Locale would select. If no
+The Step page previews the value that the configured Plan Locale would select. If no
 override matches, the default expected text uses the primary colour. If an
 override matches, the default becomes muted and the matching override uses the
 primary colour. Other override values remain muted. Matching values are grouped
@@ -43,6 +43,6 @@ local save, restore the draft, and confirm the override remains.
   locale overrides.
 - You know why the editor keeps a maintained locale set instead of claiming to
   enumerate all possible BCP 47 tags.
-- You can explain the card's configured-value colour preview.
+- You can explain the Step page's configured-value colour preview.
 
 [← Previous: Selected-step validation](18-selected-step-validation.md) · [Course outline](../README.md) · [Next: Localized Assert-HTML expectations →](20-localized-assert-html.md)

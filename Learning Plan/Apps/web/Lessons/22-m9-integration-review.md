@@ -17,7 +17,7 @@ language.
 
 ## Protection checks
 
-Refresh and restore the draft. Test Reset sample cancellation and confirmation.
+Refresh and restore the draft.
 In two tabs, create a stale-save conflict and verify both choices: discard
 paused local edits to adopt the newer draft, or replace the newer saved draft
 with the paused local edits. The conflict dialog is static and blocking because
@@ -28,7 +28,8 @@ continuing to edit while the conflict is hidden would be unsafe.
 Use keyboard activation through an Add-step dialog, verify focus reaches the
 first relevant control, and confirm closing a dialog does not leave the page
 scroll-locked. Check Canadian English and French wording, theme preference,
-locale fallback, and the fixed footer with long page content.
+locale fallback, and the status footer with long page content; confirm it does
+not overlay the final card.
 
 ## You are ready when
 

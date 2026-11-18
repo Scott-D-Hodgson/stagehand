@@ -57,10 +57,9 @@ this repository.
   supported; M14 owns the offline styling follow-through.
 - The Font Awesome kit browser script supplies the current icon set. Its
   `IconOnlyButton.vue` wrapper uses the icon as decoration, preserves the
-  localized action name in visually hidden text, and initializes a Bootstrap
-  popover for sighted hover and keyboard-focus feedback. Keep an action's
-  accessible text even when its button has no visible text. This kit, like the
-  Bootstrap CDN dependency, is not available on a cold offline start.
+  localized action name in visually hidden text. Keep an action's accessible
+  text even when its button has no visible text. This kit, like the Bootstrap
+  CDN dependency, is not available on a cold offline start.
 - Vitest 5.1.0 is the selected unit-test runner. Focused tests cover shared
   plan/case validation, affected-step mapping, portable ZIP codec behaviour,
   and browser-selected archive-read failures.
@@ -98,20 +97,20 @@ this repository.
   fields are edited only on their dedicated Step route. The breadcrumb records
   Plan, indexed Case, and indexed action context, so the browser Back button
   returns from Step to Case to Plan. Add and Edit use Bootstrap dialogs with a
-  filename-safe path suggestion; removal and reset require a Bootstrap
-  confirmation dialog. Adjacent move controls reorder Case and Step cards
+  filename-safe path suggestion; removal requires a Bootstrap confirmation
+  dialog. Adjacent move controls reorder Case and Step cards
   immutably and animate their exchanged positions. The v1 recovery adapter
   migrates earlier plan-only drafts by creating empty case documents for their
   retained references. M10.2 can replace the active bundle from a validated
   browser-selected ZIP only after explicit confirmation. M10.3 validates the
   current bundle before it opens a filename-confirmation dialog and requests a
   browser download.
-- A full-width fixed status footer reports local-save state separately from
-  whether the current draft has unexported changes. The browser communicates a
-  successful download directly. The M9 integration review verified that the
-  footer does not obscure an actionable control in the accepted long-page layout.
-- A sticky plan-action toolbar groups New/Reset, Import/Export/Validate, and
-  View/Edit.
+- A full-width status footer appears only for an open plan and reports
+  local-save state separately from whether the current draft has unexported
+  changes. It follows long content rather than overlaying it, while the page
+  shell keeps it at the viewport bottom when content is short. The browser
+  communicates a successful download directly.
+- A sticky plan-action toolbar groups New, Import/Export/Validate, and View/Edit.
   Import accepts a ZIP candidate, validates it without changing the active draft,
   then always requests confirmation before replacement. Export accepts only a
   valid bundle, asks for a suggested filename, and then uses the browser download
@@ -150,8 +149,8 @@ this repository.
   Text, and Fill uses it plus required literal Value. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
   one of those fields. Assert text uses that locator and one literal default
-  Expected text value. Assert text, Assert HTML, and Assert value have card-level Locale
-  overrides panels using the catalogue. They preview the configured Plan Locale
+  Expected text value. Assert text, Assert HTML, and Assert value have dedicated
+  Step-page Locales tabs using the catalogue. They preview the configured Plan Locale
   by emphasizing its matching override, or the default when no override
   matches. Assert HTML uses the same locator, a literal default Expected HTML
   value, and multiline base and override fields. Assert value uses the same
