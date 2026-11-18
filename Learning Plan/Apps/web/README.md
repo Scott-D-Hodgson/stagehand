@@ -27,8 +27,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
   inspection of the current plan, cases, and steps.
 - How plan browser defaults and case browser overrides preserve the shared
   run-wide versus case-specific boundary.
-- Why step-detail components own their card presentation while the step editor
-  coordinates ordered data and dialogs.
+- How dedicated Step pages own their action-specific details while
+  `StepReferences` coordinates ordered data and dialogs for Case cards.
 - How plan accessibility defaults, rule tags, and optional case overrides
   distinguish scan enablement from violation outcome policy.
 - How plan, case, and step timeouts form an explicit override hierarchy while
@@ -41,7 +41,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - How route-specific Plan, Case, and Step authoring contexts reduce nested-card
   density on small screens without changing the local-first document boundary.
 - How a shared icon-only control retains an accessible localized action name
-  while a Font Awesome kit and Bootstrap popover provide compact visual affordances.
+  while a Font Awesome kit provides compact visual affordances.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?

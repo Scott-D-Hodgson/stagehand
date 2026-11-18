@@ -34,7 +34,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 30. Why does View mode preserve the selected tab while replacing form controls with read-only summaries?
 31. Why does the editor Pages project build from the repository root, and which files must its build-watch paths include?
 32. Why does route-specific Plan, Case, and Step authoring avoid nested-card density, and where does temporary View/Edit state belong?
-33. Why must an icon-only editor action keep a localized accessible name, and why does the shared component dispose its Bootstrap popover?
+33. Why must an icon-only editor action keep a localized accessible name even when it has no visible text?
 34. Why does a Step page use plain summaries instead of disabled controls in View mode?
 
 ## Answer key
@@ -52,9 +52,9 @@ Use this quiz after completing the web editor course. Check answers against the 
 11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
 12. A dedicated Step page has one action-specific editing context. Keeping its locator and action-specific fields together makes the editable and read-only presentations easier to understand without introducing a second form-owner boundary.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
-14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its card-level Locale overrides panel. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
-15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, card-level override management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
-16. Assert value authors a Role/Accessible-name locator, literal `expected.default`, and optional `expected.locales` values through its card-level Locale overrides panel. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
+14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its dedicated Step page's Locales tab. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
+15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, Step-page Locale management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
+16. Assert value authors a Role/Accessible-name locator, literal `expected.default`, and optional `expected.locales` values through its dedicated Step page's Locales tab. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
 17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.
 18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
 19. The schema can report several low-level alternative-branch failures for one incomplete step. Mapping its paths to unique indexes lets the editor show one concise, localized, actionable message on each affected card and a danger border on the enclosing case.
@@ -71,5 +71,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 30. Retaining the selected tab preserves the author's current context. View mode changes the selected panel from authoring controls to a plain read-only summary without storing the temporary mode or tab choice in the plan or recovery record.
 31. The editor is an npm workspace and its build first runs `npm ci` from the repository root, where the lockfile and workspace links are defined. Its watch paths include `apps/web/*`, `packages/plan-schema/*`, `package.json`, `package-lock.json`, and `tsconfig.base.json`, so changes that can affect the editor build trigger a preview while unrelated work does not.
 32. Each route gives a phone-sized viewport one editing context: Plan cards link to Cases, and Case cards link to Steps instead of containing their descendant forms. View/Edit is temporary interface state, so it must not be stored in the portable plan, case, or recovery document.
-33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology and shows the same text in a popover for sighted hover or keyboard-focus feedback. Disposing its popover when Vue removes the button prevents a detached Popper element and stale event handling.
+33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology without adding separate interactive state or lifecycle handling.
 34. Disabled controls still look like unavailable forms and make compact pages harder to scan. A definition list communicates inspection clearly while preserving the selected tab and leaving no editable control behind.

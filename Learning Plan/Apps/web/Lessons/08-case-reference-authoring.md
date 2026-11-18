@@ -1,6 +1,6 @@
 # Lesson 8: Case-reference authoring
 
-> “A reference is not a case document. It is the plan’s deliberate pointer to one.” — Dana “Draft” Ellis, Developer
+> “A reference is not a case document. It is the plan's deliberate pointer to one.” — Dana “Draft” Ellis, Developer
 
 [← Previous: recovery gate](07-recovery-gate.md) · [Course outline](../README.md) · [Skill check →](../quiz.md)
 
@@ -21,22 +21,20 @@ Name field offers a filename-safe suggestion such as
 path before saving. This is a convenience for authoring, not a claim that the
 referenced file exists.
 
-Removing a reference and resetting a changed sample use a Bootstrap confirmation
-dialog rather than a browser-native prompt. This makes the behaviour consistent
-with the editor’s presentation and leaves room for clear localized wording. The
-plan/case bundle helpers return new objects, allowing IndexedDB autosave and
-the multi-tab conflict logic established in M8 to observe the complete changed
-draft. Earlier recovery records contained only the plan. On load, Stagehand
-retains each legacy reference and creates an empty case document with a
-filename-derived ID.
+Removing a reference uses a Bootstrap confirmation dialog rather than a
+browser-native prompt. This makes the behaviour consistent with the editor's
+presentation and leaves room for clear localized wording. The plan/case bundle
+helpers return new objects, allowing IndexedDB autosave and the multi-tab
+conflict logic established in M8 to observe the complete changed draft. Earlier
+recovery records contained only the plan. On load, Stagehand retains each
+legacy reference and creates an empty case document with a filename-derived ID.
 
 ## Try it
 
 Add a reference using a multi-word case name. Explain how its suggested path is
 made filename-safe. Expand the reference, change its Case ID, then collapse it
 and confirm its step count. Refresh and restore the local recovery copy.
-Confirm that the author must explicitly confirm removal and that Reset asks for
-confirmation only after the draft differs from the bundled sample.
+Confirm that the author must explicitly confirm removal.
 
 ## You are ready when
 

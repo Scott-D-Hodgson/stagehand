@@ -46,8 +46,8 @@ Step, and recovery screen supplies the page-level `h1`; secondary headings
 follow the context beneath it. Bootstrap display classes such as `h2` change
 appearance only and do not replace semantic heading levels.
 
-Card actions use small, outlined Bootstrap button groups. Dialog Reset and
-Cancel actions use outlines, while Save, Create, Download, and destructive
+Card actions use small, outlined Bootstrap button groups. Dialog Cancel actions
+use outlines, while Save, Create, Download, and destructive
 confirmation actions retain their primary semantic emphasis.
 
 ## Verify before recording completion

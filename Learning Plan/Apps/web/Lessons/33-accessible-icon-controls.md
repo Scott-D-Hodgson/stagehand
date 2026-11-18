@@ -17,10 +17,7 @@ behaviour. Callers supply an icon class and a localized label. The component:
 
 - renders the icon as decorative;
 - retains the label in Bootstrap's `visually-hidden` utility so it is the
-  button's accessible name;
-- initializes a Bootstrap popover with that same label for hover and keyboard
-  focus; and
-- disposes the popover before Vue removes the control.
+  button's accessible name.
 
 The wrapper forwards normal button attributes and click listeners, so it can
 be used in toolbars, compact card action groups, and dropdown toggles without
@@ -38,12 +35,8 @@ later offline-after-load objective.
 
 ## Verify
 
-1. Hover and keyboard-focus each icon-only action: its localized popover text
-   appears.
-2. Use the action with mouse and keyboard: its original behaviour is unchanged.
-3. Switch the interface language and repeat the check: the visually hidden
-   name and popover wording both change.
-4. Navigate away from the route or switch modes while a popover is visible:
-   no detached popover remains.
-5. Inspect the button with browser accessibility tools: it has an accessible
+1. Use the action with mouse and keyboard: its original behaviour is unchanged.
+2. Switch the interface language and repeat the check: the visually hidden
+   name changes with the selected language.
+3. Inspect the button with browser accessibility tools: it has an accessible
    localized name.
