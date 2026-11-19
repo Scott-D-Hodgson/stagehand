@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useTranslation } from 'i18next-vue';
 import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft } from '../../document/plan-draft';
 import StepReferences from '../Steps/StepReferences.vue';
 import CaseDetails from './CaseDetails.vue';
@@ -25,6 +26,7 @@ const emit = defineEmits<{
   'update:steps': [path: string, steps: unknown[]];
   'update:timeout': [path: string, timeout: unknown | undefined];
 }>();
+const { t } = useTranslation();
 </script>
 
 <template>
@@ -58,4 +60,7 @@ const emit = defineEmits<{
     @remove:step="(path, index) => emit('remove:step', path, index)"
     @update:steps="(path, steps) => emit('update:steps', path, steps)"
   />
+  <div class="mt-4">
+    <RouterLink :to="{ name: 'plan' }" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-turn-down-left" aria-hidden="true"></i> {{ t('editor.return') }}</RouterLink>
+  </div>
 </template>

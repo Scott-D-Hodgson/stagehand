@@ -5,6 +5,7 @@ const routes: RouteRecordRaw[] = [
   { component: { template: '<div />' }, name: 'plan', path: '/plan' },
   { component: { template: '<div />' }, name: 'case', path: '/plan/card/:cardIndex(\\d+)' },
   { component: { template: '<div />' }, name: 'step', path: '/plan/card/:cardIndex(\\d+)/step/:stepIndex(\\d+)' },
+  { component: { template: '<div />' }, name: 'wait', path: '/plan/card/:cardIndex(\\d+)/step/:stepIndex(\\d+)/wait/:position(before|after)/:waitIndex(\\d+)' },
 ];
 
 export const router = createRouter({

@@ -4,12 +4,12 @@
 
 ## Goal
 
-Understand why the editor presents one plan, case, or step context at a time
+Understand why the editor presents one plan, case, step, or wait context at a time
 instead of nesting editable cards inside one another.
 
 ## One context per route
 
-Vue Router separates the editor into four contexts:
+Vue Router separates the editor into five contexts:
 
 - `/` is the recovery-aware Home route. It offers New and Import, and adds
   Recover only when startup finds a readable local draft.
@@ -20,11 +20,15 @@ Vue Router separates the editor into four contexts:
 - `/plan/card/:cardIndex/step/:stepIndex` presents the indexed step action and
   its fields, which are editable in Edit mode and shown as read-only summaries
   in View mode.
+- `/plan/card/:cardIndex/step/:stepIndex/wait/:position/:waitIndex` presents
+  one interaction wait. Its `position` is either `before` or `after` and gives
+  breadcrumb context without becoming another navigable document level.
 
 The shell derives a Plan → Case → Step breadcrumb from the active route. Each
-card links to its next more-specific route, so browser Back returns from a Step
-to its Case and then to its Plan. This gives a phone-sized viewport one focused
-editing surface rather than several levels of shrinking cards.
+Wait routes add a Before or After context and indexed wait. Each card links to
+its next more-specific route, so browser Back returns from a Wait to its Step,
+then to its Case and Plan. This gives a phone-sized viewport one focused editing
+surface rather than several levels of shrinking cards.
 
 ## What belongs where
 
@@ -33,7 +37,8 @@ contextual Promote, Demote, Edit, Clone, and Remove controls in Edit mode, but
 they do not expose nested step forms. A selected step opens a dedicated Step
 page, where its Default and Overrides settings are editable. Localized
 assertions also expose a Locales tab that reuses the common locale-override
-dialog.
+dialog. Interaction Step pages also expose a Waits pill: its Before and After
+lists are read-only cards that open dedicated Wait pages for editing.
 
 View/Edit remains temporary interface state. It changes the settings controls
 for the route being viewed but does not enter the plan, case, or recovery
@@ -57,7 +62,7 @@ confirmation actions retain their primary semantic emphasis.
    Back in reverse.
 3. Check the Case and Step grids at a narrow and wide viewport.
 4. Confirm a Step page edits only its selected step, including all three
-   localized assertion Locales panels.
+   localized assertion Locales panels and its read-only Wait lists.
 5. Switch View/Edit and confirm only the current route's settings controls
    change, while the selected tab remains open with a read-only summary in
    View mode.

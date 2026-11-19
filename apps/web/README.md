@@ -73,12 +73,14 @@ this repository.
   under `stagehand.interface-language`, separately from plan and recovery data.
 - `App.vue` owns application preferences, the active draft, recovery, and the
   breadcrumb shell. Vue Router provides Home (`/`), Plan (`/plan`), Case
-  (`/plan/card/:cardIndex`), and Step
-  (`/plan/card/:cardIndex/step/:stepIndex`) contexts. The recovery-aware Home
+  (`/plan/card/:cardIndex`), Step
+  (`/plan/card/:cardIndex/step/:stepIndex`), and Wait
+  (`/plan/card/:cardIndex/step/:stepIndex/wait/:position/:waitIndex`) contexts.
+  The recovery-aware Home
   route offers New, Import, and (only for a discovered readable draft) Recover.
-  `Plans/`, `Cases/`, and `Steps/` divide route-page responsibilities, with one
-  editable details component per supported step type and reusable dialogs in
-  `components/dialogs/`. Plan Locale uses the
+  `Plans/`, `Cases/`, `Steps/`, and `Waits/` divide route-page responsibilities,
+  with one editable details component per supported step or wait type and
+  reusable dialogs in `components/dialogs/`. Plan Locale uses the
   maintained JSON catalogue;
   it is separate from the remembered interface language. An out-of-catalogue
   recovered value remains visible as a disabled current option rather than
@@ -94,9 +96,12 @@ this repository.
 - The Plan route presents plan settings and responsive Case summary cards. A
   Case route presents that case's settings and responsive Step summary cards.
   Selecting a card navigates to the corresponding Case or Step route; Step
-  fields are edited only on their dedicated Step route. The breadcrumb records
-  Plan, indexed Case, and indexed action context, so the browser Back button
-  returns from Step to Case to Plan. Add and Edit use Bootstrap dialogs with a
+  fields are edited only on their dedicated Step route. Interaction Steps expose
+  a Waits pill with separate Before and After read-only Wait-card lists; a card
+  opens a dedicated Wait route for editing. The breadcrumb records Plan, indexed
+  Case, indexed action, and a non-link Before or After context for a Wait, so
+  browser Back returns from Wait to Step to Case to Plan. Add and Edit use
+  Bootstrap dialogs with a
   filename-safe path suggestion; removal requires a Bootstrap confirmation
   dialog. Adjacent move controls reorder Case and Step cards
   immutably and animate their exchanged positions. The v1 recovery adapter
@@ -132,7 +137,11 @@ this repository.
   timeout; Case Default can override the effective plan value; and each
   supported action or assertion card can provide the final override. Omitted
   plan and case fields remain absent from portable data while the editor shows
-  their effective fallback. Wait-list item timeouts remain independent.
+  their effective fallback. Locator and page-state wait-list item timeouts
+  remain independent. The version 1 schema still accepts an imported Delay-wait
+  timeout, but the editor deliberately does not display or edit that redundant
+  field; [ATR-043](../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md)
+  records its future contract removal.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes

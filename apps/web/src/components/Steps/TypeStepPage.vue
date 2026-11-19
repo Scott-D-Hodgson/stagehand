@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import WaitReferences from '../Waits/WaitReferences.vue';
 
-const props = defineProps<{ editing: boolean; index: number; name: string; role: string; text: string; timeout: unknown }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; name: string; role: string; text: string; timeout: unknown }>();
 const emit = defineEmits<{
+  'update:after': [items: unknown[]];
+  'update:before': [items: unknown[]];
   'update:locator': [locator: { name?: string; role: string }];
   'update:text': [text: string];
   'update:timeout': [timeout: number | string];
 }>();
 const { t } = useTranslation();
-const selectedTab = ref<'default' | 'overrides'>('default');
+const selectedTab = ref<'default' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
 const name = ref(props.name);
 const text = ref(props.text);
@@ -51,10 +54,14 @@ function readTimeout(event: Event): number | string {
       <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'overrides' }]" type="button" @click="selectedTab = 'overrides'">{{ t('editor.overridesTab') }}</button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button :class="['nav-link', { active: selectedTab === 'waits' }]" type="button" @click="selectedTab = 'waits'">{{ t('editor.waits') }}</button>
+      </li>
     </ul>
     <div class="card shadow-sm bg-body-tertiary">
       <div class="card-body">
-        <template v-if="props.editing">
+        <h2 v-if="selectedTab !== 'waits'" class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : t('editor.overridesTab') }}</h2>
+        <template v-if="props.editing && selectedTab !== 'waits'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`type-role-${props.index}`">Role</label>
             <input :id="`type-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
@@ -76,10 +83,11 @@ function readTimeout(event: Event): number | string {
           <dt>Text</dt>
           <dd class="mb-0 text-break">{{ props.text }}</dd>
         </dl>
-        <dl v-else class="mb-0">
+        <dl v-else-if="selectedTab === 'overrides'" class="mb-0">
           <dt>{{ t('editor.stepTimeout') }}</dt>
           <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
         </dl>
+        <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />
       </div>
     </div>
   </section>

@@ -495,3 +495,20 @@ export function updateCaseStepTimeout(steps: unknown[], index: number, timeout: 
     return timeout === '' ? stepWithoutTimeout : { ...stepWithoutTimeout, timeout };
   });
 }
+
+/*
+Updates or clears one interaction wait list without changing the source step data.
+---
+Inputs: A step list, target index, wait-list property, and replacement wait items.
+---
+Output: A copied step list with the selected wait list updated or omitted when empty.
+*/
+export function updateCaseStepWaitList(steps: unknown[], index: number, list: 'after' | 'before', items: unknown[]): unknown[] {
+  return steps.map((step, candidateIndex) => {
+    if (candidateIndex !== index || typeof step !== 'object' || step === null) {
+      return step;
+    }
+    const { [list]: _, ...stepWithoutList } = step as Record<string, unknown>;
+    return items.length === 0 ? stepWithoutList : { ...stepWithoutList, [list]: items.map(copyPlainValue) };
+  });
+}

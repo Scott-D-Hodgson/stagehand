@@ -46,3 +46,4 @@
 | ATR-040 | E09 | [Package the editor for offline desktop use](epics/E09-distribution/stories/ATR-040.md) | Later | Later |
 | ATR-041 | E09 | [Provide a future wiki migration/export tool](epics/E09-distribution/stories/ATR-041.md) | Later | Future |
 | ATR-042 | E02 | [Extend browser navigation and assertion vocabulary](epics/E02-execution-engine/stories/ATR-042.md) | Later | Later |
+| ATR-043 | E01 | [Remove timeout from fixed-delay waits](epics/E01-plan-definition/stories/ATR-043.md) | Later | Later |

@@ -43,6 +43,7 @@ function readTimeout(event: Event): number | string {
     </ul>
     <div class="card shadow-sm bg-body-tertiary">
       <div class="card-body">
+        <h2 class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : t('editor.overridesTab') }}</h2>
         <template v-if="props.editing">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`navigate-url-${props.index}`">URL</label>

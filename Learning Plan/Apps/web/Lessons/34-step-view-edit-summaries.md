@@ -27,6 +27,10 @@ HTML, and Assert value retain their Locales tab, where the override list stays
 visible but its Add, Edit, and Remove controls are absent. Switching View/Edit
 does not reset the selected tab or change any portable plan or recovery data.
 
+Click, Type, Fill, and Select option Steps also retain a Waits pill. It shows
+read-only Before and After cards in either mode; authors use those cards to
+open a dedicated Wait page rather than editing a wait inside the Step page.
+
 ## Try it
 
 1. Open a Step page in Edit mode and select its Overrides tab.
@@ -35,6 +39,8 @@ does not reset the selected tab or change any portable plan or recovery data.
 3. Return to Edit and confirm the editable timeout control is restored.
 4. On an assertion Step, select Locales and confirm its list remains visible in
    View mode without locale-management controls.
+5. On an interaction Step, select Waits and confirm Before and After cards stay
+   navigational summaries in both modes.
 
 ## Check your understanding
 

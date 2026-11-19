@@ -526,7 +526,7 @@ function cancelConfirmation(): void {
     @update:timeout="changeCaseTimeout"
   />
   <StepPage
-    v-else-if="route.name === 'step' && selectedCaseReference"
+    v-else-if="(route.name === 'step' || route.name === 'wait') && selectedCaseReference"
     :case-count="plan.cases.length"
     :case-drafts="caseDrafts"
     :case-index="selectedCaseIndex"

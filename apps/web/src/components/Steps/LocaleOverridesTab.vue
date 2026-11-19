@@ -18,7 +18,7 @@ const { t } = useTranslation();
 
 <template>
   <section aria-label="Locale overrides">
-    <h2 class="h6 mb-3">{{ t('editor.localeOverrides') }}</h2>
+    <h3 class="h5 mb-3">{{ t('editor.localeOverrides') }}</h3>
     <IconOnlyButton v-if="props.editing" class="btn btn-outline-secondary btn-sm mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="emit('add')" />
     <p v-if="props.overrides.length === 0" class="mb-0 text-body-secondary">{{ t('editor.noLocaleOverrides') }}</p>
     <ul v-else class="list-group">

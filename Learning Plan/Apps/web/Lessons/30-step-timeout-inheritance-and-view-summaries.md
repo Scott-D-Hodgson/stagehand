@@ -14,8 +14,12 @@ default. A future CLI will map the serialized plan and case fields into the
 runner's public run-level and case settings. Each value is a positive whole
 number of milliseconds.
 
-Wait-list entries are separate: their existing `timeout` values continue to
-bound an individual wait item and do not inherit this step-timeout hierarchy.
+Wait-list entries are separate: Locator and Page-state waits may carry an
+independent `timeout` that does not inherit this step-timeout hierarchy. A
+fixed Delay wait authors only its delay in the editor. The version 1 contract
+still accepts an imported legacy Delay-wait timeout, which the editor preserves
+without displaying; [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md)
+records the deliberate future contract change.
 
 The plan and case UI use an explicit override checkbox. This keeps an omitted
 value genuinely omitted in the portable document while still showing the
