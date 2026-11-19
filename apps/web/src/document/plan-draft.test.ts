@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -217,6 +217,17 @@ describe('plan draft', () => {
     expect(withTimeout).toEqual([{ action: 'navigate', url: 'https://example.com', timeout: 5_000 }, { action: 'click', locator: { role: 'button' } }]);
     expect(updateCaseStepTimeout(withTimeout, 0, '')).toEqual(steps);
     expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+  });
+
+  it('updates and clears an interaction wait list without changing its source data', () => {
+    const steps = [{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }];
+    const before = [{ timeout: 2_000, waitFor: { name: 'Continue', role: 'button' } }];
+    const updated = updateCaseStepWaitList(steps, 0, 'before', before);
+    expect(updated).toEqual([{ action: 'click', after: [{ delay: 20 }], before, locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
+    expect(updated[0]).not.toBe(steps[0]);
+    expect((updated[0] as { before: unknown[] }).before).not.toBe(before);
+    expect(updateCaseStepWaitList(updated, 0, 'before', [])).toEqual(steps);
+    expect(steps).toEqual([{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
   });
 
   it('moves a case reference without changing the source draft', () => {

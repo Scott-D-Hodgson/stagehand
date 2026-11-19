@@ -227,12 +227,12 @@ onBeforeUnmount(() => { modal?.dispose(); });
     <TransitionGroup v-else name="case-reference" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-3">
       <div v-for="(caseReference, index) in cases" :key="caseReference.path" class="col">
         <article class="card shadow-sm h-100 bg-body-tertiary">
-          <div class="card-body">
+          <div class="card-body position-relative pb-5">
             <h3 class="h4">
               <RouterLink :to="{ name: 'case', params: { cardIndex: index } }" class="stretched-link text-decoration-none">{{ index + 1 }}. {{ caseDrafts[caseReference.path]?.id ?? caseReference.path }}</RouterLink>
             </h3>
             <p class="mb-2 text-body-secondary text-break">{{ caseReference.path }}</p>
-            <div v-if="editing" class="d-flex justify-content-end position-relative z-1">
+            <div v-if="editing" class="position-absolute bottom-0 end-0 z-1" style="bottom: 1rem !important; right: 1rem !important;">
               <div class="btn-group btn-group-sm" role="group">
                 <IconOnlyButton v-if="index !== 0" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click.stop="moveReference({ direction: -1, index })" />
                 <IconOnlyButton v-if="index !== cases.length - 1" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click.stop="moveReference({ direction: 1, index })" />

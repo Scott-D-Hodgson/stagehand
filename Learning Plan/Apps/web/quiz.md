@@ -36,6 +36,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 32. Why does route-specific Plan, Case, and Step authoring avoid nested-card density, and where does temporary View/Edit state belong?
 33. Why must an icon-only editor action keep a localized accessible name even when it has no visible text?
 34. Why does a Step page use plain summaries instead of disabled controls in View mode?
+35. Why does the editor omit Timeout for a Delay wait while retaining independent timeouts for Locator and Page-state waits?
 
 ## Answer key
 
@@ -73,3 +74,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 32. Each route gives a phone-sized viewport one editing context: Plan cards link to Cases, and Case cards link to Steps instead of containing their descendant forms. View/Edit is temporary interface state, so it must not be stored in the portable plan, case, or recovery document.
 33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology without adding separate interactive state or lifecycle handling.
 34. Disabled controls still look like unavailable forms and make compact pages harder to scan. A definition list communicates inspection clearly while preserving the selected tab and leaving no editable control behind.
+35. A fixed Delay wait needs only its duration; a timeout beside it can only make it fail earlier. Locator and Page-state waits instead need an independent bound while they await an external condition. The editor preserves, but does not display or edit, an imported version 1 Delay-wait timeout until the deliberate versioned change in [ATR-043](../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).

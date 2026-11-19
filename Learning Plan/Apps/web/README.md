@@ -40,6 +40,10 @@ This course explains the foundation of the local-first Stagehand web editor. The
   the public `app.getstagehand.ca` hostname without becoming a hosted service.
 - How route-specific Plan, Case, and Step authoring contexts reduce nested-card
   density on small screens without changing the local-first document boundary.
+- How interaction Steps use separate Before and After wait-card lists, a typed
+  chooser, and dedicated Wait routes without nesting more editable cards.
+- Why Locator and Page-state waits retain independent timeouts while the editor
+  preserves, but does not author, the redundant version 1 Delay-wait timeout.
 - How a shared icon-only control retains an accessible localized action name
   while a Font Awesome kit provides compact visual affordances.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
@@ -53,7 +57,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, and concise shared-validation feedback on affected steps and cases. The editor separates Plan, Case, Step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. Early M11 slices have added a maintained locale catalogue, localized Assert-text, Assert-HTML, and Assert-value expected values, plan browser defaults with case viewport/time-zone overrides, plan/case accessibility enablement, failure-policy, and rule-tag controls, and plan/case/step timeout inheritance for supported actions and assertions. The current unverified M11 presentation slice introduces recovery-aware Home, Plan, Case, and Step routes, responsive summary-card grids, and dedicated editable Step pages. The editor does not yet provide remaining waits and assertion options, further step forms, or plan execution.
+M8, M9, and M10 are complete: the application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value step forms, animated adjacent reordering, and concise shared-validation feedback on affected steps and cases. The editor separates Plan, Case, Step, and dialog responsibilities into focused component folders, and provides a temporary Edit/View inspection mode that does not change document or recovery data. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. Early M11 slices have added a maintained locale catalogue, localized Assert-text, Assert-HTML, and Assert-value expected values, plan browser defaults with case viewport/time-zone overrides, plan/case accessibility enablement, failure-policy, and rule-tag controls, and plan/case/step timeout inheritance for supported actions and assertions. The implemented M11 presentation and interaction-wait slices introduce recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; dedicated editable Step and Wait pages; and ordered Before/After waits for Click, Type, Fill, and Select option steps. The editor does not yet provide the remaining interaction and assertion options, further step forms, or plan execution.
 
 The Git-connected `stagehand-editor` Cloudflare Pages project now provides a
 verified `main` production build, pull-request previews, and the
@@ -96,5 +100,6 @@ offline after load.
 32. [Route-oriented authoring presentation](Lessons/32-route-oriented-authoring-presentation.md)
 33. [Accessible icon controls](Lessons/33-accessible-icon-controls.md)
 34. [Step View/Edit summaries](Lessons/34-step-view-edit-summaries.md)
+35. [Interaction-wait authoring and wait routes](Lessons/35-interaction-wait-authoring.md)
 
 Finish with the [course skill check](quiz.md).

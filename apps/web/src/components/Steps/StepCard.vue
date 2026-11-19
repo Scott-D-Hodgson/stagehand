@@ -28,13 +28,13 @@ const caseIndex = inject<number>('stagehandCaseIndex');
 
 <template>
   <article :class="['card', 'bg-body-tertiary', 'shadow-sm', 'h-100', { 'border-danger': props.invalid }]">
-    <div class="card-body">
+    <div class="card-body position-relative pb-5">
       <h4>
         <RouterLink v-if="caseIndex !== undefined" :to="{ name: 'step', params: { cardIndex: caseIndex, stepIndex: props.index } }" class="text-decoration-none">{{ props.index + 1 }}. {{ props.actionLabel }}</RouterLink>
         <span v-else>{{ props.index + 1 }}. {{ props.actionLabel }}</span>
       </h4>
       <slot v-if="!isStepPage" />
-      <div v-if="props.editing" class="d-flex justify-content-end">
+      <div v-if="props.editing" class="position-absolute bottom-0 end-0" style="bottom: 1rem !important; right: 1rem !important;">
         <div class="btn-group btn-group-sm" role="group">
           <IconOnlyButton v-if="props.index !== 0" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click="emit('move', -1)" />
           <IconOnlyButton v-if="props.index !== props.stepCount - 1" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-down" :label="t('editor.moveStepDown')" @click="emit('move', 1)" />

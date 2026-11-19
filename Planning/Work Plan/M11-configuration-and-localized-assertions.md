@@ -12,10 +12,10 @@ Author supported plan/case configuration and localized assertion values without 
 ## Tasks
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover supported waits, interaction options, and hard/soft assertions; the supported plan, case, and step timeout hierarchy is complete.
+- [ ] Cover remaining interaction options and hard/soft assertions. Initial authoring for supported interaction Before/After waits and the plan, case, and step timeout hierarchy are complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
-- [ ] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, and Step routes; responsive summary-card grids; editable step detail pages; breadcrumbs; and temporary View/Edit presentation state.
+- [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
 - [ ] Verify recovery and M10 import/export preservation for all implemented configuration; existing draft-copy paths retain the current fields, but cross-flow evidence remains outstanding.
 - [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
@@ -99,8 +99,10 @@ The v1 contract now permits an optional `defaults.timeout` on a plan and an
 optional `settings.timeout` on a case. A supported step's existing `timeout`
 field remains the most-specific setting. The effective action/assertion timeout
 is therefore step, then case, then plan, then Stagehand's built-in 30,000 ms
-fallback. Wait-list entries retain their independently authored timeout
-semantics.
+fallback. Locator and page-state wait-list entries retain independently
+authored timeout semantics. The editor authoring surface deliberately omits a
+Delay-wait timeout while preserving a legacy imported value until the
+versioned contract change recorded in [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
 The editor makes the plan and case settings explicit opt-in overrides: an
 omitted plan value displays the Stagehand fallback, and an omitted case value
@@ -121,14 +123,17 @@ author's current context.
 
 The current presentation refactor replaces the nested expandable-workspace
 layout with Vue Router routes that provide one authoring context at a time:
-Home (`/`), Plan (`/plan`), Case (`/plan/card/:cardIndex`), and Step
-(`/plan/card/:cardIndex/step/:stepIndex`). The Home route offers New and
+Home (`/`), Plan (`/plan`), Case (`/plan/card/:cardIndex`), Step
+(`/plan/card/:cardIndex/step/:stepIndex`), and Wait
+(`/plan/card/:cardIndex/step/:stepIndex/wait/:position/:waitIndex`). The Home route offers New and
 Import, and exposes Recover only when the startup recovery check finds a
 readable local draft. After recovery resolves, the Plan route presents plan
 Default, Browser, and Accessibility settings alongside responsive Case summary
 cards. A Case route presents its settings and responsive read-only Step cards;
 card navigation opens the dedicated Step route, where that step's settings are
 editable in Edit mode and summarized as plain read-only details in View mode.
+An interaction Step's Waits pill presents read-only Before and After wait-card
+summaries; each opens a dedicated Wait route for editing.
 
 Breadcrumbs expose the Plan, indexed Case, and indexed action name while
 preserving browser Back navigation through the nested route history. View/Edit
@@ -136,6 +141,8 @@ remains temporary interface state. It affects only the settings for the current
 route; Case and Step cards remain navigational summaries. Case and Step
 authoring controls stay on their parent route cards so that moving, editing,
 cloning, and removing do not require nested cards inside a mobile viewport.
+A Wait breadcrumb adds its unlinked Before or After position before the indexed
+Wait, and its Return action follows the hierarchy back to the Step.
 
 The assertion Step routes use Default, Overrides, and Locales tabs. Their
 shared Locales panel supports the same canonical locale catalogue and dialog
@@ -146,13 +153,30 @@ their primary semantic emphasis. Font Awesome kit icons use a shared
 icon-only button component that keeps a localized visually hidden action name
 for assistive technology.
 
-This slice is implemented in the current editor work but has not yet recorded
-its focused automated, type-check, build, and manual responsive-route evidence.
+The owner reported passing the focused web-editor tests, type check,
+production build, and manual responsive-route verification for this presentation
+and interaction-wait authoring work.
+
+## Interaction-wait authoring slice
+
+Click, Type, Fill, and Select option Step pages expose a Waits pill beside
+Default and Overrides. Authors maintain ordered Before and After lists using
+read-only card summaries on the Step page. Add first opens a static Bootstrap
+chooser for Locator, Page state, or Delay; each new or existing card opens a
+dedicated Wait route for editing. The parent Step page retains Promote, Demote,
+Edit, and Remove controls, while the Wait route owns its fields and Return
+navigation.
+
+Locator and Page state waits may set their independent timeout. Delay waits
+author only a bounded delay; although version 1 still permits a legacy optional
+timeout beside a delay, the editor preserves rather than displays it. The future
+public-contract removal is recorded in
+[ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
 ## Incremental delivery
 
-Suggested remaining PR slices: verify the route-oriented presentation, add
-wait and assertion options, then collect M11 integration evidence.
+Suggested remaining PR slices: add the remaining interaction and assertion
+options, then collect M11 integration evidence.
 
 ## Open decisions and exclusions
 
@@ -162,7 +186,7 @@ The editor can export the timeout settings, but no CLI currently maps an
 exported plan/case bundle into runner-core settings; execution integration
 remains later work.
 
-Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Tasks remain unverified until completion evidence is recorded.
+Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Remaining tasks stay unverified until completion evidence is recorded.
 
 ## Learning plan reference
 
@@ -170,3 +194,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Step-timeout inheritance and View summaries](../../Learning%20Plan/Apps/web/Lessons/30-step-timeout-inheritance-and-view-summaries.md)
 - [Route-oriented authoring presentation](../../Learning%20Plan/Apps/web/Lessons/32-route-oriented-authoring-presentation.md)
 - [Step View/Edit summaries](../../Learning%20Plan/Apps/web/Lessons/34-step-view-edit-summaries.md)
+- [Interaction-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)

@@ -54,6 +54,7 @@ function readTimeout(event: Event): number | string {
     </ul>
     <div class="card shadow-sm bg-body-tertiary">
       <div class="card-body">
+        <h2 class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : selectedTab === 'overrides' ? t('editor.overridesTab') : t('editor.localeOverrides') }}</h2>
         <template v-if="props.editing && selectedTab !== 'locales'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`assert-value-role-${props.index}`">Role</label>

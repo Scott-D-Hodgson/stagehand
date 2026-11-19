@@ -55,21 +55,36 @@ const exportStatusMessage = computed(() => {
   return t('editor.changesNotExported');
 });
 const hasOpenPlan = computed(() => route.name !== 'home' && recoveryState.value.kind === 'ready');
-const breadcrumbs = computed<Array<{ label: string; to: RouteLocationRaw }>>(() => {
+const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(() => {
   if (route.name === 'home') {
     return [];
   }
-  const items: Array<{ label: string; to: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
+  const items: Array<{ label: string; to?: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
   const caseIndex = Number(route.params.cardIndex);
   const caseReference = editorDraft.value.plan.cases[caseIndex];
+  const stepIndex = Number(route.params.stepIndex);
+  const step = editorDraft.value.cases[caseReference?.path ?? '']?.steps[stepIndex] as { action?: string } | undefined;
   if (caseReference !== undefined) {
     items.push({ label: `${caseIndex + 1}. ${editorDraft.value.cases[caseReference.path]?.id ?? caseReference.path}`, to: { name: 'case', params: { cardIndex: caseIndex } } });
   }
-  if (route.name === 'step') {
-    const stepIndex = Number(route.params.stepIndex);
-    const step = editorDraft.value.cases[caseReference?.path ?? '']?.steps[stepIndex] as { action?: string } | undefined;
+  if (route.name === 'step' || route.name === 'wait') {
     const action = step?.action?.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()) ?? 'Step';
     items.push({ label: `${stepIndex + 1}. ${action}`, to: { name: 'step', params: { cardIndex: caseIndex, stepIndex: route.params.stepIndex } } });
+  }
+  if (route.name === 'wait') {
+    const position = route.params.position === 'before' ? t('editor.before') : t('editor.after');
+    const waitIndex = Number(route.params.waitIndex);
+    const waits = route.params.position === 'before' ? (step as { before?: unknown[] } | undefined)?.before : (step as { after?: unknown[] } | undefined)?.after;
+    const wait = Array.isArray(waits) ? waits[waitIndex] : undefined;
+    const waitLabel = typeof wait === 'object' && wait !== null && 'delay' in wait
+      ? t('editor.waitForDelay')
+      : typeof wait === 'object' && wait !== null && 'waitFor' in wait
+        ? t('editor.waitForLocator')
+        : typeof wait === 'object' && wait !== null && 'waitForState' in wait
+          ? t('editor.waitForState')
+          : t('editor.wait');
+    items.push({ label: position });
+    items.push({ label: `${waitIndex + 1}. ${waitLabel}` });
   }
   return items;
 });
@@ -398,7 +413,8 @@ watch(resolvedTheme, (theme) => {
           <ol class="breadcrumb mb-0">
             <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
               <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
-              <RouterLink v-else :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
+              <RouterLink v-else-if="breadcrumb.to" :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
+              <span v-else>{{ breadcrumb.label }}</span>
             </li>
           </ol>
         </nav>
