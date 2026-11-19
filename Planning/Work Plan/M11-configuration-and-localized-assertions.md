@@ -162,10 +162,10 @@ and interaction-wait authoring work.
 Click, Type, Fill, and Select option Step pages expose a Waits pill beside
 Default and Overrides. Authors maintain ordered Before and After lists using
 read-only card summaries on the Step page. Add first opens a static Bootstrap
-chooser for Locator, Page state, or Delay; each new or existing card opens a
-dedicated Wait route for editing. The parent Step page retains Promote, Demote,
-Edit, and Remove controls, while the Wait route owns its fields and Return
-navigation.
+chooser for Locator, Page state, or Delay, then a type-specific validated dialog;
+only Save adds the new card. Each existing card opens a dedicated Wait route for
+editing. The parent Step page retains Promote, Demote, Edit, and Remove controls,
+while the Wait route owns its fields and Return navigation.
 
 Locator and Page state waits may set their independent timeout. Delay waits
 author only a bounded delay; although version 1 still permits a legacy optional

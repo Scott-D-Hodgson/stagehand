@@ -97,8 +97,10 @@ this repository.
   Case route presents that case's settings and responsive Step summary cards.
   Selecting a card navigates to the corresponding Case or Step route; Step
   fields are edited only on their dedicated Step route. Interaction Steps expose
-  a Waits pill with separate Before and After read-only Wait-card lists; a card
-  opens a dedicated Wait route for editing. The breadcrumb records Plan, indexed
+  a Waits pill with separate Before and After read-only Wait-card lists. Add
+  first selects Locator, Page state, or Delay, then opens a type-specific
+  validated dialog; only Save adds its card. A card opens a dedicated Wait route
+  for later editing. The breadcrumb records Plan, indexed
   Case, indexed action, and a non-link Before or After context for a Wait, so
   browser Back returns from Wait to Step to Case to Plan. Add and Edit use
   Bootstrap dialogs with a

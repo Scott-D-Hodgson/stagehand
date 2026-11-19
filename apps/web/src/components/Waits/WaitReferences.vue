@@ -3,6 +3,7 @@ import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import IconOnlyButton from '../IconOnlyButton.vue';
 import WaitChooserDialog, { type WaitType } from '../dialogs/WaitChooserDialog.vue';
+import WaitItemDialog from '../dialogs/WaitItemDialog.vue';
 import WaitCard from './WaitCard.vue';
 import { isWaitDraft, type WaitDraft } from './wait-draft';
 
@@ -12,6 +13,7 @@ const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolea
 const emit = defineEmits<{ 'update:after': [items: WaitDraft[]]; 'update:before': [items: WaitDraft[]] }>();
 const { t } = useTranslation();
 const chooserPosition = ref<WaitListPosition>();
+const newWait = ref<{ position: WaitListPosition; type: WaitType }>();
 const beforeItems = computed(() => props.before.filter(isWaitDraft));
 const afterItems = computed(() => props.after.filter(isWaitDraft));
 
@@ -55,37 +57,35 @@ function openChooser(position: WaitListPosition): void {
 }
 
 /*
-Creates the starter draft for a selected wait type.
----
-Inputs: A wait type selected in the chooser.
----
-Output: An editable contract-shaped starter wait.
-*/
-function createWait(type: WaitType): WaitDraft {
-  if (type === 'delay') {
-    return { delay: 1 };
-  }
-  if (type === 'state') {
-    return { waitForState: 'domcontentloaded' };
-  }
-  return { waitFor: { role: '' } };
-}
-
-/*
-Adds a selected wait type to the list chosen before opening the modal.
+Opens the selected wait type's details form after the chooser closes.
 ---
 Inputs: A selected wait type from the chooser.
 ---
-Output: A replacement ordered wait list with a new final item.
+Output: A visible wait-details dialog for the selected list position.
 */
-function addWait(type: WaitType): void {
+function openWaitDialog(type: WaitType): void {
   if (chooserPosition.value === undefined) {
     return;
   }
-  const position = chooserPosition.value;
-  const items = position === 'before' ? beforeItems.value : afterItems.value;
-  updateList(position, [...items, createWait(type)]);
+  newWait.value = { position: chooserPosition.value, type };
   chooserPosition.value = undefined;
+}
+
+/*
+Adds a validated wait to its selected interaction boundary.
+---
+Inputs: A completed contract-shaped wait draft.
+---
+Output: A replacement ordered list with the new final wait.
+*/
+function addWait(item: WaitDraft): void {
+  if (newWait.value === undefined) {
+    return;
+  }
+  const position = newWait.value.position;
+  const items = position === 'before' ? beforeItems.value : afterItems.value;
+  updateList(position, [...items, item]);
+  newWait.value = undefined;
 }
 
 /*
@@ -142,7 +142,8 @@ function removeWait(position: WaitListPosition, index: number): void {
         </div>
       </TransitionGroup>
     </section>
-    <WaitChooserDialog v-if="chooserPosition !== undefined" @choose="addWait" @close="chooserPosition = undefined" />
+    <WaitChooserDialog v-if="chooserPosition !== undefined" @choose="openWaitDialog" @close="chooserPosition = undefined" />
+    <WaitItemDialog v-if="newWait !== undefined" :type="newWait.type" @close="newWait = undefined" @save="addWait" />
   </section>
 </template>
 
