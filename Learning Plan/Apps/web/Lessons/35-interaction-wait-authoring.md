@@ -22,8 +22,12 @@ waits:
 - Page state waits for the selected page state.
 - Delay waits for a fixed number of milliseconds.
 
-Selecting an existing wait card opens its dedicated Wait page. This keeps the
-editable details at one route level and keeps the Step page compact.
+The selected type then opens a validated details dialog. Locator waits require
+a Role; Delay waits require a bounded delay; Locator and Page-state waits may
+set an independent timeout. Cancel leaves the list unchanged, and only Save
+adds the new card. Selecting an existing wait card opens its dedicated Wait
+page. This keeps the editable details at one route level and keeps the Step
+page compact.
 
 ## Wait-route context
 
@@ -49,8 +53,10 @@ recorded in [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/storie
 ## Try it
 
 1. Open a Click, Type, Fill, or Select option Step and choose Waits.
-2. Add one Before Locator wait and one After Delay wait.
-3. Follow each card to its Wait page, edit the visible fields, and use Return.
+2. Add one Before Locator wait and one After Delay wait; verify incomplete
+   fields show feedback and Cancel does not add a card.
+3. Follow each saved card to its Wait page, edit the visible fields, and use
+   Return.
 4. Promote and demote one list item; confirm the cards move to their new
    positions without changing the other list.
 5. Import a valid version 1 Delay wait containing a timeout and confirm the
