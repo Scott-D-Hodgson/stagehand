@@ -67,6 +67,7 @@
     "noAccessibilityRuleTags": "No rule tags match this filter.",
     "allRules": "All rules",
     "stepTimeout": "Timeout (ms)",
+    "scrollIntoView": "Scroll element into view",
     "stepTimeoutInvalid": "Enter a whole number of at least 1.",
     "defaultStepTimeout": "Default step timeout (ms)",
     "overrideStagehandDefaultStepTimeout": "Override Stagehand's default step timeout",

@@ -159,7 +159,9 @@ this repository.
   and Accessible name optional. Type uses that locator form plus required literal
   Text, and Fill uses it plus required literal Value. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
-  one of those fields. Assert text uses that locator and one literal default
+  one of those fields. Their Overrides panels author the default-enabled
+  `scrollIntoView` setting: enabled stays omitted from portable data while an
+  explicit disablement writes `false`. Assert text uses that locator and one literal default
   Expected text value. Assert text, Assert HTML, and Assert value have dedicated
   Step-page Locales tabs using the catalogue. They preview the configured Plan Locale
   by emphasizing its matching override, or the default when no override
