@@ -2,9 +2,10 @@
 import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import WaitReferences from '../Waits/WaitReferences.vue';
+import ScrollIntoViewOption from './ScrollIntoViewOption.vue';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; name: string; role: string; timeout: unknown; value: string }>();
-const emit = defineEmits<{ 'update:after': [items: unknown[]]; 'update:before': [items: unknown[]]; 'update:locator': [locator: { name?: string; role: string }]; 'update:timeout': [timeout: number | string]; 'update:value': [value: string] }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; name: string; role: string; scrollIntoView: boolean; timeout: unknown; value: string }>();
+const emit = defineEmits<{ 'update:after': [items: unknown[]]; 'update:before': [items: unknown[]]; 'update:locator': [locator: { name?: string; role: string }]; 'update:scroll-into-view': [enabled: boolean]; 'update:timeout': [timeout: number | string]; 'update:value': [value: string] }>();
 const { t } = useTranslation();
 const selectedTab = ref<'default' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
@@ -67,6 +68,7 @@ function readTimeout(event: Event): number | string {
           <section v-else>
             <label class="form-label" :for="`fill-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
             <input :id="`fill-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+            <ScrollIntoViewOption :editing="true" :id-prefix="`fill-${props.index}`" :scroll-into-view="props.scrollIntoView" @update:scroll-into-view="emit('update:scroll-into-view', $event)" />
           </section>
         </template>
         <dl v-else-if="selectedTab === 'default'" class="mb-0">
@@ -79,7 +81,8 @@ function readTimeout(event: Event): number | string {
         </dl>
         <dl v-else-if="selectedTab === 'overrides'" class="mb-0">
           <dt>{{ t('editor.stepTimeout') }}</dt>
-          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+          <dd>{{ props.timeout ?? t('editor.inherited') }}</dd>
+          <ScrollIntoViewOption :editing="false" :id-prefix="`fill-${props.index}`" :scroll-into-view="props.scrollIntoView" />
         </dl>
         <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />
       </div>

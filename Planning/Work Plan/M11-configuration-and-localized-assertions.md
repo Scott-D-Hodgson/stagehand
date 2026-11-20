@@ -12,7 +12,7 @@ Author supported plan/case configuration and localized assertion values without 
 ## Tasks
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover remaining interaction options. Initial authoring for supported interaction Before/After waits, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
+- [ ] Cover remaining interaction options. Initial authoring for supported interaction Before/After waits, scrolling overrides, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
 - [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
@@ -184,6 +184,19 @@ hard default, and preservation of unrelated non-assertion steps. The owner
 reported passing the web-editor tests, type check, production build, and manual
 verification.
 
+## Interaction-scrolling slice
+
+Click, Type, Fill, and Select option Step pages now expose the shared
+`scrollIntoView` interaction setting in Overrides. The version 1 schema default
+is enabled, so the editor omits the property when enabled and writes only
+`scrollIntoView: false` when the author disables it. View mode reports the
+effective Enabled or Disabled setting. A focused immutable draft helper updates
+only the four supported interaction actions and leaves other steps unchanged.
+
+The owner reported passing web-editor tests, type check, production build, and
+manual verification that toggling persists across route navigation and that
+re-enabling removes the explicit portable-data field.
+
 ## Incremental delivery
 
 Suggested remaining PR slices: add the remaining interaction options, then
@@ -207,3 +220,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Step View/Edit summaries](../../Learning%20Plan/Apps/web/Lessons/34-step-view-edit-summaries.md)
 - [Interaction-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)
 - [Assertion behaviour](../../Learning%20Plan/Apps/web/Lessons/36-assertion-behaviour.md)
+- [Interaction scrolling overrides](../../Learning%20Plan/Apps/web/Lessons/37-interaction-scrolling-overrides.md)

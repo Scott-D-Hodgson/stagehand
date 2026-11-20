@@ -67,6 +67,7 @@
     "noAccessibilityRuleTags": "Aucune étiquette de règle ne correspond à ce filtre.",
     "allRules": "Toutes les règles",
     "stepTimeout": "Délai d’attente (ms)",
+    "scrollIntoView": "Faire défiler l’élément dans la vue",
     "stepTimeoutInvalid": "Entrez un nombre entier d’au moins 1.",
     "defaultStepTimeout": "Délai d’attente par défaut des étapes (ms)",
     "overrideStagehandDefaultStepTimeout": "Remplacer le délai d’attente par défaut de Stagehand pour les étapes",

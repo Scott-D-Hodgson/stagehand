@@ -497,6 +497,27 @@ export function updateCaseStepTimeout(steps: unknown[], index: number, timeout: 
 }
 
 /*
+Updates one interaction step's scrolling option without changing its action data.
+---
+Inputs: A step list, target index, and whether the target should be scrolled into view.
+---
+Output: A copied step list with the default enabled setting omitted.
+*/
+export function updateCaseInteractionScrollIntoView(steps: unknown[], index: number, enabled: boolean): unknown[] {
+  return steps.map((step, candidateIndex) => {
+    if (candidateIndex !== index || typeof step !== 'object' || step === null) {
+      return step;
+    }
+    const record = step as Record<string, unknown>;
+    if (!['click', 'fill', 'selectOption', 'type'].includes(record.action as string)) {
+      return step;
+    }
+    const { scrollIntoView: _, ...stepWithoutScrollIntoView } = record;
+    return enabled ? stepWithoutScrollIntoView : { ...stepWithoutScrollIntoView, scrollIntoView: false };
+  });
+}
+
+/*
 Updates an assertion's soft-failure setting without storing the hard default.
 ---
 Inputs: A step list, target assertion index, and selected soft-failure setting.

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseInteractionScrollIntoView, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -241,6 +241,15 @@ describe('plan draft', () => {
       { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
       { action: 'navigate', url: 'https://example.com' },
     ]);
+  });
+
+  it('updates interaction scrolling without storing the enabled default', () => {
+    const steps = [{ action: 'click', locator: { role: 'button' } }, { action: 'fill', locator: { role: 'textbox' }, value: 'Name' }, { action: 'selectOption', label: 'Canada', locator: { role: 'combobox' } }, { action: 'type', locator: { role: 'textbox' }, text: 'Name' }, { action: 'navigate', url: 'https://example.com' }];
+    const disabled = updateCaseInteractionScrollIntoView(steps, 1, false);
+    expect(disabled[1]).toEqual({ action: 'fill', locator: { role: 'textbox' }, scrollIntoView: false, value: 'Name' });
+    expect(updateCaseInteractionScrollIntoView(disabled, 1, true)).toEqual(steps);
+    expect(updateCaseInteractionScrollIntoView(steps, 4, false)).toEqual(steps);
+    expect(steps[1]).toEqual({ action: 'fill', locator: { role: 'textbox' }, value: 'Name' });
   });
 
   it('updates and clears an interaction wait list without changing its source data', () => {
