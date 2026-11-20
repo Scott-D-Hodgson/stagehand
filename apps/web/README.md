@@ -167,6 +167,9 @@ this repository.
   value, and multiline base and override fields. Assert value uses the same
   locator and literal default and override Expected values; its optional
   associated-label check has no editor form yet.
+  Their Overrides panels also author assertion behaviour: Hard omits the
+  contract-default `soft` property, while Soft stores `soft: true`; View mode
+  summarizes the selected behaviour.
   Variable-backed text and values follow in M12.
   Each step-detail component owns its dedicated route-page fields;
   `StepReferences` coordinates ordered data, dialogs, and draft updates for

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './plan-draft';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -217,6 +217,30 @@ describe('plan draft', () => {
     expect(withTimeout).toEqual([{ action: 'navigate', url: 'https://example.com', timeout: 5_000 }, { action: 'click', locator: { role: 'button' } }]);
     expect(updateCaseStepTimeout(withTimeout, 0, '')).toEqual(steps);
     expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+  });
+
+  it('updates assertion soft behaviour without storing the hard default', () => {
+    const steps = [
+      { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } },
+      { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' }, soft: true },
+      { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
+      { action: 'navigate', url: 'https://example.com' },
+    ];
+    const softText = updateCaseAssertionSoft(steps, 0, true);
+    const hardHtml = updateCaseAssertionSoft(softText, 1, false);
+    expect(hardHtml).toEqual([
+      { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' }, soft: true },
+      { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' } },
+      { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
+      { action: 'navigate', url: 'https://example.com' },
+    ]);
+    expect(updateCaseAssertionSoft(hardHtml, 3, true)).toEqual(hardHtml);
+    expect(steps).toEqual([
+      { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } },
+      { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' }, soft: true },
+      { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
+      { action: 'navigate', url: 'https://example.com' },
+    ]);
   });
 
   it('updates and clears an interaction wait list without changing its source data', () => {

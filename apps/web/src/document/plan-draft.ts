@@ -497,6 +497,27 @@ export function updateCaseStepTimeout(steps: unknown[], index: number, timeout: 
 }
 
 /*
+Updates an assertion's soft-failure setting without storing the hard default.
+---
+Inputs: A step list, target assertion index, and selected soft-failure setting.
+---
+Output: A copied list with `soft: true` or no `soft` property for hard assertions.
+*/
+export function updateCaseAssertionSoft(steps: unknown[], index: number, soft: boolean): unknown[] {
+  return steps.map((step, candidateIndex) => {
+    if (candidateIndex !== index || typeof step !== 'object' || step === null) {
+      return step;
+    }
+    const action = (step as { action?: unknown }).action;
+    if (action !== 'assertText' && action !== 'assertHtml' && action !== 'assertValue') {
+      return step;
+    }
+    const { soft: _, ...withoutSoft } = step as Record<string, unknown>;
+    return soft ? { ...withoutSoft, soft: true } : withoutSoft;
+  });
+}
+
+/*
 Updates or clears one interaction wait list without changing the source step data.
 ---
 Inputs: A step list, target index, wait-list property, and replacement wait items.
