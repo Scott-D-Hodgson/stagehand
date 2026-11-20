@@ -175,6 +175,7 @@
     "duplicateCaseReference": "A case reference with this path already exists.",
     "removeCaseReferenceConfirmation": "Remove this case reference?",
     "removeStepConfirmation": "Remove this step?",
+    "removeWaitConfirmation": "Remove this wait?",
     "confirmationTitle": "Please Confirm",
     "changesNotExported": "Changes have not been exported.",
     "noUnexportedChanges": "No changes to export.",

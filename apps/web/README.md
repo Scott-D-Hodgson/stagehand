@@ -104,8 +104,8 @@ this repository.
   Case, indexed action, and a non-link Before or After context for a Wait, so
   browser Back returns from Wait to Step to Case to Plan. Add and Edit use
   Bootstrap dialogs with a
-  filename-safe path suggestion; removal requires a Bootstrap confirmation
-  dialog. Adjacent move controls reorder Case and Step cards
+  filename-safe path suggestion; removal of Cases, Steps, and Waits requires a
+  Bootstrap confirmation dialog. Adjacent move controls reorder Case and Step cards
   immutably and animate their exchanged positions. The v1 recovery adapter
   migrates earlier plan-only drafts by creating empty case documents for their
   retained references. M10.2 can replace the active bundle from a validated
