@@ -12,7 +12,7 @@ Author supported plan/case configuration and localized assertion values without 
 ## Tasks
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover remaining interaction options and hard/soft assertions. Initial authoring for supported interaction Before/After waits and the plan, case, and step timeout hierarchy are complete.
+- [ ] Cover remaining interaction options. Initial authoring for supported interaction Before/After waits, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
 - [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
@@ -173,10 +173,21 @@ timeout beside a delay, the editor preserves rather than displays it. The future
 public-contract removal is recorded in
 [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
+## Assertion-behaviour slice
+
+Assert text, Assert HTML, and Assert value now author the version 1 `soft`
+setting through a shared Assertion behaviour control in their Overrides panel.
+Hard is the default behaviour and is represented by omitting `soft`; selecting
+Soft stores only `soft: true`. View mode summarizes the selected behaviour.
+Focused draft-state tests cover all three assertion actions, the omission of the
+hard default, and preservation of unrelated non-assertion steps. The owner
+reported passing the web-editor tests, type check, production build, and manual
+verification.
+
 ## Incremental delivery
 
-Suggested remaining PR slices: add the remaining interaction and assertion
-options, then collect M11 integration evidence.
+Suggested remaining PR slices: add the remaining interaction options, then
+collect M11 integration evidence.
 
 ## Open decisions and exclusions
 
@@ -195,3 +206,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Route-oriented authoring presentation](../../Learning%20Plan/Apps/web/Lessons/32-route-oriented-authoring-presentation.md)
 - [Step View/Edit summaries](../../Learning%20Plan/Apps/web/Lessons/34-step-view-edit-summaries.md)
 - [Interaction-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)
+- [Assertion behaviour](../../Learning%20Plan/Apps/web/Lessons/36-assertion-behaviour.md)

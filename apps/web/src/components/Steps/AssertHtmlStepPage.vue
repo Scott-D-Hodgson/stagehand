@@ -1,15 +1,17 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
+import AssertionBehaviour from './AssertionBehaviour.vue';
 import LocaleOverridesTab, { type LocaleOverrideItem } from './LocaleOverridesTab.vue';
 
-const props = defineProps<{ editing: boolean; expected: string; index: number; name: string; overrides: LocaleOverrideItem[]; role: string; timeout: unknown }>();
+const props = defineProps<{ editing: boolean; expected: string; index: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
 const emit = defineEmits<{
   'add:override': [];
   'edit:override': [override: LocaleOverrideItem];
   'remove:override': [override: LocaleOverrideItem];
   'update:expected': [expected: string];
   'update:locator': [locator: { name?: string; role: string }];
+  'update:soft': [soft: boolean];
   'update:timeout': [timeout: number | string];
 }>();
 const { t } = useTranslation();
@@ -74,6 +76,7 @@ function readTimeout(event: Event): number | string {
           <section v-else>
             <label class="form-label" :for="`assert-html-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
             <input :id="`assert-html-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+            <AssertionBehaviour :editing="true" :id-prefix="`assert-html-${props.index}`" :soft="props.soft" @update:soft="emit('update:soft', $event)" />
           </section>
         </template>
         <dl v-else-if="!props.editing && selectedTab === 'default'" class="mb-0">
@@ -84,10 +87,13 @@ function readTimeout(event: Event): number | string {
           <dt>{{ t('editor.expectedHtml') }}</dt>
           <dd class="mb-0 text-break">{{ props.expected }}</dd>
         </dl>
-        <dl v-else-if="!props.editing && selectedTab === 'overrides'" class="mb-0">
-          <dt>{{ t('editor.stepTimeout') }}</dt>
-          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
-        </dl>
+        <template v-else-if="!props.editing && selectedTab === 'overrides'">
+          <dl class="mb-0">
+            <dt>{{ t('editor.stepTimeout') }}</dt>
+            <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+          </dl>
+          <AssertionBehaviour :editing="false" :id-prefix="`assert-html-${props.index}`" :soft="props.soft" />
+        </template>
         <LocaleOverridesTab v-else :editing="props.editing" :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
       </div>
     </div>
