@@ -39,6 +39,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 35. Why does the editor omit Timeout for a Delay wait while retaining independent timeouts for Locator and Page-state waits?
 36. Why does the editor omit `soft` for a Hard assertion and store it only for a Soft assertion?
 37. Why does the editor omit `scrollIntoView` when interaction scrolling is enabled, and which actions currently expose that override?
+38. Why does Wait removal require a confirmation dialog before changing a Before or After list?
 
 ## Answer key
 
@@ -79,3 +80,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 35. A fixed Delay wait needs only its duration; a timeout beside it can only make it fail earlier. Locator and Page-state waits instead need an independent bound while they await an external condition. The editor preserves, but does not display or edit, an imported version 1 Delay-wait timeout until the deliberate versioned change in [ATR-043](../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 36. Hard is the contract default, so omitting `soft` produces the smaller canonical representation without changing behaviour. Selecting Soft deliberately stores `soft: true`, which tells execution to record the failure and continue the case.
 37. Enabled is the schema default, so omitting `scrollIntoView` preserves the canonical behaviour without adding redundant portable data. Click, Type, Fill, and Select option Step pages expose the override; disabling it stores `scrollIntoView: false`.
+38. Removing a Wait is destructive and easy to invoke from a compact card. The static Bootstrap dialog makes the choice visible and requires an explicit confirmation, while Cancel preserves the list unchanged.

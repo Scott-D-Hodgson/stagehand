@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import IconOnlyButton from '../IconOnlyButton.vue';
+import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import WaitChooserDialog, { type WaitType } from '../dialogs/WaitChooserDialog.vue';
 import WaitItemDialog from '../dialogs/WaitItemDialog.vue';
 import WaitCard from './WaitCard.vue';
@@ -14,6 +15,7 @@ const emit = defineEmits<{ 'update:after': [items: WaitDraft[]]; 'update:before'
 const { t } = useTranslation();
 const chooserPosition = ref<WaitListPosition>();
 const newWait = ref<{ position: WaitListPosition; type: WaitType }>();
+const pendingWaitRemoval = ref<{ index: number; position: WaitListPosition }>();
 const beforeItems = computed(() => props.before.filter(isWaitDraft));
 const afterItems = computed(() => props.after.filter(isWaitDraft));
 
@@ -106,16 +108,32 @@ function moveWait(position: WaitListPosition, index: number, direction: -1 | 1):
 }
 
 /*
-Removes one wait from its ordered interaction boundary list.
+Opens a confirmation dialog before removing one wait.
 ---
 Inputs: A list position and target item index.
 ---
-Output: A replacement list without the selected wait.
+Output: A pending wait-removal confirmation.
 */
-function removeWait(position: WaitListPosition, index: number): void {
+function requestWaitRemoval(position: WaitListPosition, index: number): void {
+  pendingWaitRemoval.value = { index, position };
+}
+
+/*
+Removes one confirmed wait from its ordered interaction boundary list.
+---
+Inputs: The pending wait-removal position and item index.
+---
+Output: A replacement list without the confirmed wait.
+*/
+function confirmWaitRemoval(): void {
+  if (pendingWaitRemoval.value === undefined) {
+    return;
+  }
+  const { index, position } = pendingWaitRemoval.value;
   const items = [...(position === 'before' ? beforeItems.value : afterItems.value)];
   items.splice(index, 1);
   updateList(position, items);
+  pendingWaitRemoval.value = undefined;
 }
 </script>
 
@@ -128,7 +146,7 @@ function removeWait(position: WaitListPosition, index: number): void {
       <p v-if="beforeItems.length === 0" class="mb-0 mt-3 text-body-secondary">{{ t('editor.noWaits') }}</p>
       <TransitionGroup v-else name="wait" tag="div" class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
         <div v-for="(item, index) in beforeItems" :key="getWaitKey('before', item, index, beforeItems)" class="col">
-          <WaitCard :editing="props.editing" :index="index" :item="item" position="before" :wait-count="beforeItems.length" @move="moveWait('before', index, $event)" @remove="removeWait('before', index)" />
+          <WaitCard :editing="props.editing" :index="index" :item="item" position="before" :wait-count="beforeItems.length" @move="moveWait('before', index, $event)" @remove="requestWaitRemoval('before', index)" />
         </div>
       </TransitionGroup>
     </section>
@@ -138,12 +156,13 @@ function removeWait(position: WaitListPosition, index: number): void {
       <p v-if="afterItems.length === 0" class="mb-0 mt-3 text-body-secondary">{{ t('editor.noWaits') }}</p>
       <TransitionGroup v-else name="wait" tag="div" class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
         <div v-for="(item, index) in afterItems" :key="getWaitKey('after', item, index, afterItems)" class="col">
-          <WaitCard :editing="props.editing" :index="index" :item="item" position="after" :wait-count="afterItems.length" @move="moveWait('after', index, $event)" @remove="removeWait('after', index)" />
+          <WaitCard :editing="props.editing" :index="index" :item="item" position="after" :wait-count="afterItems.length" @move="moveWait('after', index, $event)" @remove="requestWaitRemoval('after', index)" />
         </div>
       </TransitionGroup>
     </section>
     <WaitChooserDialog v-if="chooserPosition !== undefined" @choose="openWaitDialog" @close="chooserPosition = undefined" />
     <WaitItemDialog v-if="newWait !== undefined" :type="newWait.type" @close="newWait = undefined" @save="addWait" />
+    <ConfirmationModal v-if="pendingWaitRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeWaitConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingWaitRemoval = undefined" @confirm="confirmWaitRemoval" />
   </section>
 </template>
 

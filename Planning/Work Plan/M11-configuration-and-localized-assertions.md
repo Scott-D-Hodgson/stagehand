@@ -165,7 +165,9 @@ read-only card summaries on the Step page. Add first opens a static Bootstrap
 chooser for Locator, Page state, or Delay, then a type-specific validated dialog;
 only Save adds the new card. Each existing card opens a dedicated Wait route for
 editing. The parent Step page retains Promote, Demote, Edit, and Remove controls,
-while the Wait route owns its fields and Return navigation.
+while the Wait route owns its fields and Return navigation. Removing a wait
+uses the same static Bootstrap confirmation pattern as removing a Step, so the
+author must explicitly confirm “Remove this wait?” before its list changes.
 
 Locator and Page state waits may set their independent timeout. Delay waits
 author only a bounded delay; although version 1 still permits a legacy optional

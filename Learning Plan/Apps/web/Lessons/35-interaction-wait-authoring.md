@@ -15,6 +15,11 @@ and Overrides. It presents separate Before and After lists as read-only cards.
 The parent Step page owns the list order and its Promote, Demote, Edit, Clone,
 and Remove actions.
 
+Remove does not change a list immediately. It opens the same static Bootstrap
+confirmation pattern used for Step removal: **Please Confirm** asks “Remove
+this wait?” before the editor deletes the selected item. Cancel leaves the
+Before or After list unchanged.
+
 Add first opens a type chooser. Authors select one of the currently supported
 waits:
 
@@ -59,7 +64,9 @@ recorded in [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/storie
    Return.
 4. Promote and demote one list item; confirm the cards move to their new
    positions without changing the other list.
-5. Import a valid version 1 Delay wait containing a timeout and confirm the
+5. Start to remove either wait, confirm Cancel leaves it in place, then confirm
+   Remove deletes only the selected wait.
+6. Import a valid version 1 Delay wait containing a timeout and confirm the
    editor retains it without presenting a Timeout control.
 
 ## Check your understanding
@@ -69,5 +76,6 @@ recorded in [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/storie
 2. What does the unlinked Before or After breadcrumb item communicate?
 3. Why does a Delay wait omit an authorable Timeout while Locator and Page-state
    waits retain one?
+4. Why is Wait removal confirmed instead of changing the list immediately?
 
 [Previous: Step View/Edit summaries](34-step-view-edit-summaries.md) · [Course outline](../README.md) · [Skill check](../quiz.md)
