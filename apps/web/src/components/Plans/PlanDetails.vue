@@ -22,7 +22,7 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useTranslation();
-const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default'>('default');
+const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default' | 'overrides'>('default');
 const localeWasBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
 const browserSettingsWereBlurred = ref(false);
@@ -43,6 +43,9 @@ const browserSettings = computed<PlanBrowserSettingsDraft>(() => ({
 }));
 const browserSettingIssues = computed(() => props.validationIssues.filter((issue) => issue.path.startsWith('/defaults/browser')));
 const shouldShowBrowserSettingIssues = computed(() => browserSettingIssues.value.length > 0 && (browserSettingsWereBlurred.value || props.validationRequested));
+const viewportWidthIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/viewport/width'));
+const viewportHeightIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/viewport/height'));
+const timeZoneIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/timeZone'));
 const accessibilitySettings = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.plan.defaults.accessibility }));
 
 /*
@@ -153,6 +156,20 @@ Output: Enables browser-settings validation feedback.
 function validateBrowserSettings(): void {
   browserSettingsWereBlurred.value = true;
 }
+
+/*
+Formats browser-setting validation feedback for the active interface language.
+---
+Inputs: A shared validation issue, when one applies to a field.
+---
+Output: A translated field-level message.
+*/
+function formatBrowserSettingIssue(issue: { message: string } | undefined): string {
+  if (issue?.message === 'must be >= 1') {
+    return t('editor.viewportMinimum');
+  }
+  return issue?.message ?? '';
+}
 </script>
 
 <template>
@@ -166,6 +183,15 @@ function validateBrowserSettings(): void {
         :aria-controls="'plan-default-panel'"
         :aria-selected="selectedDetailsCard === 'default'"
         @click="selectedDetailsCard = 'default'">{{ t('editor.defaultTab') }}</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        id="plan-overrides-card"
+        :class="['nav-link', { active: selectedDetailsCard === 'overrides' }]"
+        type="button"
+        :aria-controls="'plan-overrides-panel'"
+        :aria-selected="selectedDetailsCard === 'overrides'"
+        @click="selectedDetailsCard = 'overrides'">{{ t('editor.overridesTab') }}</button>
     </li>
     <li class="nav-item" role="presentation">
       <button
@@ -211,7 +237,20 @@ function validateBrowserSettings(): void {
               :value="locale">{{ locale }}</option>
           </select>
           <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
-          <div class="form-check mt-3">
+        </template>
+        <template v-else>
+          <dl class="mb-0">
+            <dt class="form-label">{{ t('editor.planLocale') }}</dt>
+            <dd class="mb-0">{{ plan.defaults.locale }}</dd>
+          </dl>
+        </template>
+      </div>
+    </div>
+    <div v-if="selectedDetailsCard === 'overrides'" id="plan-overrides-panel" aria-labelledby="plan-overrides-card" class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <h2 class="h3">{{ t('editor.overridesTab') }}</h2>
+        <template v-if="editing">
+          <div class="form-check">
             <input id="plan-timeout-override" class="form-check-input" type="checkbox" :checked="hasPlanTimeoutOverride" @change="changePlanTimeoutOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" for="plan-timeout-override">{{ t('editor.overrideStagehandDefaultStepTimeout') }}</label>
           </div>
@@ -220,16 +259,14 @@ function validateBrowserSettings(): void {
             <input id="plan-timeout" :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined" :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]" min="1" type="number" :value="plan.defaults.timeout" @blur="validatePlanTimeout" @input="changePlanTimeout" />
             <div v-if="shouldShowPlanTimeoutIssues" id="plan-timeout-error" class="invalid-feedback d-block">{{ planTimeoutIssues[0]?.message }}</div>
           </template>
+          <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
         </template>
-        <template v-else>
-          <p>{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
-          <dl class="mb-0">
-            <dt class="form-label">{{ t('editor.planLocale') }}</dt>
-            <dd>{{ plan.defaults.locale }}</dd>
-            <dt>{{ t('editor.defaultStepTimeout') }}</dt>
-            <dd class="mb-0">{{ effectivePlanTimeout }}</dd>
-          </dl>
-        </template>
+        <dl v-else class="mb-0">
+          <dt>{{ t('editor.defaultStepTimeout') }}</dt>
+          <dd>{{ effectivePlanTimeout }}</dd>
+          <dt>{{ t('editor.stepTimeoutSource') }}</dt>
+          <dd class="mb-0">{{ hasPlanTimeoutOverride ? t('editor.planOverride') : t('editor.stagehandDefault') }}</dd>
+        </dl>
       </div>
     </div>
     <div v-if="selectedDetailsCard === 'browser'" id="plan-browser-panel" aria-labelledby="plan-browser-card" class="card shadow-sm bg-body-tertiary">
@@ -243,17 +280,19 @@ function validateBrowserSettings(): void {
           </div>
           <div class="col-sm-6">
             <label class="form-label" for="browser-viewport-width">{{ t('editor.viewportWidth') }}</label>
-            <input id="browser-viewport-width" class="form-control" min="1" type="number" :value="browserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+            <input id="browser-viewport-width" :aria-describedby="viewportWidthIssues.length && shouldShowBrowserSettingIssues ? 'browser-viewport-width-error' : undefined" :class="['form-control', { 'is-invalid': viewportWidthIssues.length && shouldShowBrowserSettingIssues }]" min="1" type="number" :value="browserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+            <div v-if="viewportWidthIssues.length && shouldShowBrowserSettingIssues" id="browser-viewport-width-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(viewportWidthIssues[0]) }}</div>
           </div>
           <div class="col-sm-6">
             <label class="form-label" for="browser-viewport-height">{{ t('editor.viewportHeight') }}</label>
-            <input id="browser-viewport-height" class="form-control" min="1" type="number" :value="browserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+            <input id="browser-viewport-height" :aria-describedby="viewportHeightIssues.length && shouldShowBrowserSettingIssues ? 'browser-viewport-height-error' : undefined" :class="['form-control', { 'is-invalid': viewportHeightIssues.length && shouldShowBrowserSettingIssues }]" min="1" type="number" :value="browserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+            <div v-if="viewportHeightIssues.length && shouldShowBrowserSettingIssues" id="browser-viewport-height-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(viewportHeightIssues[0]) }}</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="browser-time-zone">{{ t('editor.timeZone') }}</label>
-            <input id="browser-time-zone" class="form-control" :value="browserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+            <input id="browser-time-zone" :aria-describedby="timeZoneIssues.length && shouldShowBrowserSettingIssues ? 'browser-time-zone-error' : undefined" :class="['form-control', { 'is-invalid': timeZoneIssues.length && shouldShowBrowserSettingIssues }]" :value="browserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+            <div v-if="timeZoneIssues.length && shouldShowBrowserSettingIssues" id="browser-time-zone-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(timeZoneIssues[0]) }}</div>
           </div>
-          <div v-if="shouldShowBrowserSettingIssues" class="invalid-feedback d-block">{{ browserSettingIssues[0]?.message }}</div>
         </template>
         <template v-else>
           <dl class="mb-0">

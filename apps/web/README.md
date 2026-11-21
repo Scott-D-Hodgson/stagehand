@@ -81,7 +81,8 @@ this repository.
   `Plans/`, `Cases/`, `Steps/`, and `Waits/` divide route-page responsibilities,
   with one editable details component per supported step or wait type and
   reusable dialogs in `components/dialogs/`. Plan Locale uses the
-  maintained JSON catalogue;
+  maintained JSON catalogue. Breadcrumbs expose a contextual Plan Locale menu
+  with `en-CA`, `fr-CA`, and any locale found in localized assertions;
   it is separate from the remembered interface language. An out-of-catalogue
   recovered value remains visible as a disabled current option rather than
   being silently changed.
@@ -105,7 +106,8 @@ this repository.
   Case, indexed action, and a non-link Before or After context for a Wait, so
   browser Back returns from Wait to Step to Case to Plan. Add and Edit use
   Bootstrap dialogs with a
-  filename-safe path suggestion; removal of Cases, Steps, and Waits requires a
+  filename-safe path suggestion; removal of Cases, Steps, Waits, and locale
+  overrides requires a
   Bootstrap confirmation dialog. Adjacent move controls reorder Case and Step cards
   immutably and animate their exchanged positions. The v1 recovery adapter
   migrates earlier plan-only drafts by creating empty case documents for their
@@ -136,8 +138,8 @@ this repository.
   explicitly override those values, starting from copied effective plan
   settings and returning to inheritance when cleared. An explicit empty case
   tag list clears the inherited filter and uses axe defaults.
-- Plan Default can explicitly override Stagehand's built-in 30,000 ms step
-  timeout; Case Default can override the effective plan value; and each
+- Plan Overrides can explicitly override Stagehand's built-in 30,000 ms step
+  timeout; Case Overrides can override the effective plan value; and each
   supported action or assertion card can provide the final override. Omitted
   plan and case fields remain absent from portable data while the editor shows
   their effective fallback. Locator and page-state wait-list item timeouts

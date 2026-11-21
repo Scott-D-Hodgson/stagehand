@@ -7,7 +7,7 @@ import HeroPage from './components/HeroPage.vue'
 import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
 import PlanBundle from './components/Plans/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
-import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, type EditorBundleDraft } from './document/plan-draft'
+import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, updatePlanLocale, type EditorBundleDraft } from './document/plan-draft'
 import { saveInterfaceLanguage } from './localization/preferences'
 import { type InterfaceLanguage } from './localization/resources'
 import {
@@ -55,6 +55,24 @@ const exportStatusMessage = computed(() => {
   return t('editor.changesNotExported');
 });
 const hasOpenPlan = computed(() => route.name !== 'home' && recoveryState.value.kind === 'ready');
+const availablePlanLocales = computed(() => {
+  const locales = new Set<string>(['en-CA', 'fr-CA', editorDraft.value.plan.defaults.locale]);
+  for (const caseDraft of Object.values(editorDraft.value.cases)) {
+    for (const step of caseDraft.steps) {
+      if (typeof step !== 'object' || step === null || !('expected' in step)) {
+        continue;
+      }
+      const expected = (step as { expected?: unknown }).expected;
+      if (typeof expected !== 'object' || expected === null || !('locales' in expected) || typeof expected.locales !== 'object' || expected.locales === null) {
+        continue;
+      }
+      for (const locale of Object.keys(expected.locales)) {
+        locales.add(locale);
+      }
+    }
+  }
+  return [...locales].sort();
+});
 const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(() => {
   if (route.name === 'home') {
     return [];
@@ -88,6 +106,17 @@ const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(()
   }
   return items;
 });
+
+/*
+Changes the plan locale from the contextual breadcrumb menu.
+---
+Inputs: A locale found in the currently loaded plan's assertion overrides.
+---
+Output: A replacement plan draft with that active locale.
+*/
+function changeBreadcrumbPlanLocale(locale: string): void {
+  editorDraft.value = { ...editorDraft.value, plan: updatePlanLocale(editorDraft.value.plan, locale) };
+}
 
 /*
 Reads a saved theme preference without making storage availability mandatory.
@@ -415,6 +444,12 @@ watch(resolvedTheme, (theme) => {
               <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
               <RouterLink v-else-if="breadcrumb.to" :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
               <span v-else>{{ breadcrumb.label }}</span>
+              <div v-if="index === 0" class="dropdown d-inline-block ms-2">
+                <button class="badge rounded-pill text-bg-secondary border-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">{{ t('editor.planLocale') }}: </span>{{ editorDraft.plan.defaults.locale }}</button>
+                <ul class="dropdown-menu">
+                  <li v-for="locale in availablePlanLocales" :key="locale"><button :class="['dropdown-item', { active: locale === editorDraft.plan.defaults.locale }]" type="button" @click="changeBreadcrumbPlanLocale(locale)">{{ locale }}</button></li>
+                </ul>
+              </div>
             </li>
           </ol>
         </nav>

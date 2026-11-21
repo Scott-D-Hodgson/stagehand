@@ -2,19 +2,21 @@
 import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import WaitReferences from '../Waits/WaitReferences.vue';
+import StepTimeoutOverride from './StepTimeoutOverride.vue';
 
 const props = defineProps<{
   editing: boolean;
   after: unknown[];
   before: unknown[];
   index: number;
+  inheritedTimeout: number;
   timeout: unknown;
   url: string;
 }>();
 const emit = defineEmits<{ 'update:after': [items: unknown[]]; 'update:before': [items: unknown[]]; 'update:timeout': [timeout: number | string]; 'update:url': [url: string] }>();
 const { t } = useTranslation();
 const selectedTab = ref<'default' | 'overrides' | 'waits'>('default');
-const timeoutWasBlurred = ref(false);
+const urlWasBlurred = ref(false);
 const url = ref(props.url);
 
 watch(() => props.url, (value) => {
@@ -22,15 +24,31 @@ watch(() => props.url, (value) => {
 });
 
 /*
-Reads a raw timeout override without coercing an empty field to zero.
+Checks whether the Navigate URL is an absolute HTTP or HTTPS address.
 ---
-Inputs: A timeout number-input event.
+Inputs: The current URL field value.
 ---
-Output: A numeric timeout or raw empty text.
+Output: True only for a usable absolute HTTP or HTTPS URL.
 */
-function readTimeout(event: Event): number | string {
-  const input = event.target as HTMLInputElement;
-  return input.value === '' ? '' : Number(input.value);
+function isValidNavigateUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.hostname !== '';
+  } catch {
+    return false;
+  }
+}
+
+/*
+Marks the Navigate URL as ready to show validation feedback.
+---
+Inputs: The Navigate URL blur event.
+---
+Output: Enables URL validation feedback.
+*/
+function validateNavigateUrl(): void {
+  urlWasBlurred.value = true;
+  emit('update:url', url.value);
 }
 </script>
 
@@ -53,12 +71,11 @@ function readTimeout(event: Event): number | string {
         <template v-if="props.editing && selectedTab !== 'waits'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`navigate-url-${props.index}`">URL</label>
-            <input :id="`navigate-url-${props.index}`" v-model="url" class="form-control" type="url" @change="emit('update:url', url)" />
+            <input :id="`navigate-url-${props.index}`" v-model="url" :aria-describedby="urlWasBlurred && !isValidNavigateUrl(url) ? `navigate-url-error-${props.index}` : undefined" :class="['form-control', { 'is-invalid': urlWasBlurred && !isValidNavigateUrl(url) }]" type="url" @blur="validateNavigateUrl" @input="emit('update:url', url)" />
+            <div v-if="urlWasBlurred && !isValidNavigateUrl(url)" :id="`navigate-url-error-${props.index}`" class="invalid-feedback d-block">{{ t('editor.navigateUrlInvalid') }}</div>
           </section>
           <section v-else>
-            <label class="form-label" :for="`navigate-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-            <input :id="`navigate-timeout-${props.index}`" :class="['form-control', { 'is-invalid': timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1) }]" min="1" type="number" :value="props.timeout" @blur="timeoutWasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
-            <div v-if="timeoutWasBlurred && (typeof props.timeout !== 'number' || props.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
+            <StepTimeoutOverride :id-prefix="`navigate-${props.index}`" :inherited-timeout="props.inheritedTimeout" :timeout="props.timeout" @update:timeout="emit('update:timeout', $event)" />
           </section>
         </template>
         <dl v-else-if="selectedTab === 'default'" class="mb-0">
@@ -67,7 +84,7 @@ function readTimeout(event: Event): number | string {
         </dl>
         <dl v-else-if="selectedTab === 'overrides'" class="mb-0">
           <dt>{{ t('editor.stepTimeout') }}</dt>
-          <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
+          <dd class="mb-0">{{ props.timeout ?? props.inheritedTimeout }}</dd>
         </dl>
         <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />
       </div>

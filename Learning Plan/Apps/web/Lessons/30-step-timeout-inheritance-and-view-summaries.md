@@ -21,11 +21,12 @@ still accepts an imported legacy Delay-wait timeout, which the editor preserves
 without displaying; [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md)
 records the deliberate future contract change.
 
-The plan and case UI use an explicit override checkbox. This keeps an omitted
-value genuinely omitted in the portable document while still showing the
-effective 30,000 ms fallback to the author. Step cards provide the final,
-optional override. Editing an action through its dialog or cloning it retains
-an existing step timeout.
+The plan and case UI place their explicit timeout checkboxes in an Overrides
+panel. This keeps an omitted value genuinely omitted in the portable document
+while still showing the effective 30,000 ms fallback to the author. A Step
+override is explicitly enabled rather than implied by an empty timeout field.
+Editing an action through its dialog or cloning it retains an existing step
+timeout.
 
 ## View mode is a summary
 
@@ -38,8 +39,9 @@ record.
 
 ## Try it
 
-1. Leave the plan timeout override disabled and confirm the plan and an
-   inheriting case show 30,000 ms.
+1. Open the Plan Overrides panel, leave its timeout disabled, and confirm it
+   shows the 30,000 ms Stagehand fallback. Open the Case Overrides panel and
+   confirm an inheriting case shows the same effective value.
 2. Enable a plan override, set it to `5000`, then enable a case override and
    change that to `1000`.
 3. Set one step to `250`, edit the step through its action dialog, and confirm

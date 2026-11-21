@@ -31,7 +31,7 @@ const emit = defineEmits<{
 
 const { t } = useTranslation();
 const selectedCase = computed(() => props.caseDrafts[props.casePath]);
-const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default'>('default');
+const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default' | 'overrides'>('default');
 const browserSettingsWereBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
 const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
@@ -52,6 +52,9 @@ const caseBrowserIssues = computed<ValidationIssue[]>(() => {
   return validation.valid ? [] : validation.issues.filter((issue) => issue.path.startsWith('/settings/browser'));
 });
 const shouldShowCaseBrowserIssues = computed(() => caseBrowserIssues.value.length > 0 && browserSettingsWereBlurred.value);
+const caseViewportWidthIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/viewport/width'));
+const caseViewportHeightIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/viewport/height'));
+const caseTimeZoneIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/timeZone'));
 const effectivePlanAccessibility = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.planAccessibility }));
 const caseAccessibilitySettings = computed(() => selectedCase.value?.settings?.accessibility);
 const hasAccessibilityOverride = computed(() => caseAccessibilitySettings.value !== undefined);
@@ -222,6 +225,20 @@ function validateBrowserSettings(): void {
   browserSettingsWereBlurred.value = true;
 }
 
+/*
+Formats case browser-setting validation feedback for the active interface language.
+---
+Inputs: A shared validation issue, when one applies to a field.
+---
+Output: A translated field-level message.
+*/
+function formatBrowserSettingIssue(issue: ValidationIssue | undefined): string {
+  if (issue?.message === 'must be >= 1') {
+    return t('editor.viewportMinimum');
+  }
+  return issue?.message ?? '';
+}
+
 </script>
 
 <template>
@@ -235,6 +252,15 @@ function validateBrowserSettings(): void {
         :aria-controls="`case-default-panel-${caseIndex}`"
         :aria-selected="selectedDetailsCard === 'default'"
         @click="selectedDetailsCard = 'default'">{{ t('editor.defaultTab') }}</button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button
+        :id="`case-overrides-card-${caseIndex}`"
+        :class="['nav-link', { active: selectedDetailsCard === 'overrides' }]"
+        type="button"
+        :aria-controls="`case-overrides-panel-${caseIndex}`"
+        :aria-selected="selectedDetailsCard === 'overrides'"
+        @click="selectedDetailsCard = 'overrides'">{{ t('editor.overridesTab') }}</button>
     </li>
     <li class="nav-item" role="presentation">
       <button
@@ -274,7 +300,24 @@ function validateBrowserSettings(): void {
             class="form-control"
             @input="changeCaseId(($event.target as HTMLInputElement).value)"
           />
-          <div class="form-check mt-3">
+        </template>
+        <template v-else>
+          <div :id="`case-view-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-card-${caseIndex}`">
+            <div>
+              <dl class="mb-0">
+                <dt><span>{{ t('editor.caseIdPrefix') }}</span><abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span></dt>
+                <dd>{{ selectedCase.id }}</dd>
+              </dl>
+            </div>
+          </div>
+        </template>
+      </div>
+    </div>
+    <div v-if="selectedCase && selectedDetailsCard === 'overrides'" :id="`case-overrides-panel-${caseIndex}`" :aria-labelledby="`case-overrides-card-${caseIndex}`" class="card shadow-sm bg-body-tertiary">
+      <div class="card-body">
+        <h2 class="h3">{{ t('editor.overridesTab') }}</h2>
+        <template v-if="editing">
+          <div class="form-check">
             <input :id="`case-timeout-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasTimeoutOverride" @change="changeTimeoutOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" :for="`case-timeout-override-${caseIndex}`">{{ t('editor.overridePlanStepTimeout') }}</label>
           </div>
@@ -283,22 +326,14 @@ function validateBrowserSettings(): void {
             <input :id="`case-timeout-${caseIndex}`" :class="['form-control', { 'is-invalid': shouldShowCaseTimeoutIssues }]" min="1" type="number" :value="caseTimeout" @blur="validateCaseTimeout" @input="changeCaseTimeout" />
             <div v-if="shouldShowCaseTimeoutIssues" class="invalid-feedback d-block">{{ caseTimeoutIssues[0]?.message }}</div>
           </template>
-          <p v-if="!hasTimeoutOverride" class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingPlanStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
+          <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingPlanStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
         </template>
-        <template v-else>
-          <div :id="`case-view-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-card-${caseIndex}`">
-            <div>
-              <dl class="mb-0">
-                <dt><span>{{ t('editor.caseIdPrefix') }}</span><abbr :title="t('editor.identifierExpansion')">{{ t('editor.identifierAbbreviation') }}</abbr><span>{{ t('editor.caseIdSuffix') }}</span></dt>
-                <dd>{{ selectedCase.id }}</dd>
-                <dt>{{ t('editor.stepTimeout') }}</dt>
-                <dd>{{ caseTimeout ?? effectivePlanTimeout }}</dd>
-                <dt>{{ t('editor.stepTimeoutSource') }}</dt>
-                <dd class="mb-0">{{ hasTimeoutOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
-              </dl>
-            </div>
-          </div>
-        </template>
+        <dl v-else class="mb-0">
+          <dt>{{ t('editor.stepTimeout') }}</dt>
+          <dd>{{ caseTimeout ?? effectivePlanTimeout }}</dd>
+          <dt>{{ t('editor.stepTimeoutSource') }}</dt>
+          <dd class="mb-0">{{ hasTimeoutOverride ? t('editor.caseOverride') : t('editor.inherited') }}</dd>
+        </dl>
       </div>
     </div>
     <div v-if="selectedCase && selectedDetailsCard === 'browser'"
@@ -314,17 +349,19 @@ function validateBrowserSettings(): void {
           <div v-if="hasBrowserOverride" class="row g-3">
             <div class="col-sm-6">
               <label class="form-label" :for="`case-viewport-width-${caseIndex}`">{{ t('editor.viewportWidth') }}</label>
-              <input :id="`case-viewport-width-${caseIndex}`" class="form-control" min="1" type="number" :value="caseBrowserSettings?.viewport?.width" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+              <input :id="`case-viewport-width-${caseIndex}`" :aria-describedby="caseViewportWidthIssues.length && shouldShowCaseBrowserIssues ? `case-viewport-width-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseViewportWidthIssues.length && shouldShowCaseBrowserIssues }]" min="1" type="number" :value="caseBrowserSettings?.viewport?.width" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+              <div v-if="caseViewportWidthIssues.length && shouldShowCaseBrowserIssues" :id="`case-viewport-width-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseViewportWidthIssues[0]) }}</div>
             </div>
             <div class="col-sm-6">
               <label class="form-label" :for="`case-viewport-height-${caseIndex}`">{{ t('editor.viewportHeight') }}</label>
-              <input :id="`case-viewport-height-${caseIndex}`" class="form-control" min="1" type="number" :value="caseBrowserSettings?.viewport?.height" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+              <input :id="`case-viewport-height-${caseIndex}`" :aria-describedby="caseViewportHeightIssues.length && shouldShowCaseBrowserIssues ? `case-viewport-height-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseViewportHeightIssues.length && shouldShowCaseBrowserIssues }]" min="1" type="number" :value="caseBrowserSettings?.viewport?.height" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+              <div v-if="caseViewportHeightIssues.length && shouldShowCaseBrowserIssues" :id="`case-viewport-height-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseViewportHeightIssues[0]) }}</div>
             </div>
             <div class="col-12">
               <label class="form-label" :for="`case-time-zone-${caseIndex}`">{{ t('editor.timeZone') }}</label>
-              <input :id="`case-time-zone-${caseIndex}`" class="form-control" :value="caseBrowserSettings?.timeZone" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+              <input :id="`case-time-zone-${caseIndex}`" :aria-describedby="caseTimeZoneIssues.length && shouldShowCaseBrowserIssues ? `case-time-zone-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseTimeZoneIssues.length && shouldShowCaseBrowserIssues }]" :value="caseBrowserSettings?.timeZone" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+              <div v-if="caseTimeZoneIssues.length && shouldShowCaseBrowserIssues" :id="`case-time-zone-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseTimeZoneIssues[0]) }}</div>
             </div>
-            <div v-if="shouldShowCaseBrowserIssues" class="invalid-feedback d-block">{{ caseBrowserIssues[0]?.message }}</div>
           </div>
           <p v-else class="mb-0 text-body-secondary">{{ t('editor.inheritingPlanBrowserSettings') }}</p>
         </template>
