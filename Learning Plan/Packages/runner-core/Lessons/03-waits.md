@@ -7,11 +7,15 @@
 
 Wait lists run in order. A wait may look for one locator, wait for `domcontentloaded` or `networkidle`, or use a fixed delay. Each item has a bounded timeout; delays are limited to 1–30,000 milliseconds.
 
-Interaction steps may have `before` and `after` lists. Think of them as a checklist around the action: finish every “before” item, perform the action, then finish every “after” item.
+Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
+Assert value Steps may have `before` and `after` lists. Think of them as a
+checklist around the Step: finish every “before” item, perform the action or
+assertion, then finish every “after” item. A soft assertion still reaches its
+After list; a hard failure stops before it.
 
 ```mermaid
 flowchart LR
-    B[Before waits in order] --> A[Interaction]
+    B[Before waits in order] --> A[Action or assertion]
     A --> F[After waits in order]
     F --> N[Next step]
     B -. failure stops here .-> E[Step error]

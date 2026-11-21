@@ -12,7 +12,7 @@ Author supported plan/case configuration and localized assertion values without 
 ## Tasks
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover remaining interaction options. Initial authoring for supported interaction Before/After waits, scrolling overrides, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
+- [ ] Cover remaining interaction options. Initial authoring for supported action and assertion Before/After waits, scrolling overrides, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
 - [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
@@ -132,7 +132,7 @@ Default, Browser, and Accessibility settings alongside responsive Case summary
 cards. A Case route presents its settings and responsive read-only Step cards;
 card navigation opens the dedicated Step route, where that step's settings are
 editable in Edit mode and summarized as plain read-only details in View mode.
-An interaction Step's Waits pill presents read-only Before and After wait-card
+Each supported Step's Waits pill presents read-only Before and After wait-card
 summaries; each opens a dedicated Wait route for editing.
 
 Breadcrumbs expose the Plan, indexed Case, and indexed action name while
@@ -155,19 +155,31 @@ for assistive technology.
 
 The owner reported passing the focused web-editor tests, type check,
 production build, and manual responsive-route verification for this presentation
-and interaction-wait authoring work.
+and Step-wait authoring work.
 
-## Interaction-wait authoring slice
+## Step-wait authoring slice
 
-Click, Type, Fill, and Select option Step pages expose a Waits pill beside
-Default and Overrides. Authors maintain ordered Before and After lists using
-read-only card summaries on the Step page. Add first opens a static Bootstrap
-chooser for Locator, Page state, or Delay, then a type-specific validated dialog;
-only Save adds the new card. Each existing card opens a dedicated Wait route for
-editing. The parent Step page retains Promote, Demote, Edit, and Remove controls,
-while the Wait route owns its fields and Return navigation. Removing a wait
-uses the same static Bootstrap confirmation pattern as removing a Step, so the
-author must explicitly confirm “Remove this wait?” before its list changes.
+Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
+Assert value Step pages expose a Waits pill beside their other settings.
+Authors maintain ordered Before and After lists using read-only card summaries
+on the Step page. Add first opens a static Bootstrap chooser for Locator, Page
+state, or Delay, then a type-specific validated dialog; only Save adds the new
+card. Each existing card opens a dedicated Wait route for editing. The parent
+Step page retains Promote, Demote, Edit, and Remove controls, while the Wait
+route owns its fields and Return navigation. Removing a wait uses the same
+static Bootstrap confirmation pattern as removing a Step, so the author must
+explicitly confirm “Remove this wait?” before its list changes.
+
+The v1 schema shares the same waitable-step boundary across these supported
+actions and assertions. Runner-core executes each list in order: Before waits,
+then the action or assertion, then After waits. A soft assertion still runs its
+After list; a hard action or assertion failure stops execution before it.
+Navigate retains its existing `waitUntil` setting for compatibility; its
+Before/After lists are additional explicit waits rather than a replacement.
+
+Focused schema, runner-core, and web-editor checks cover wait-list acceptance,
+immutable draft updates, and execution ordering. The owner reported that all
+development-container checks and manual authoring checks passed for this slice.
 
 Locator and Page state waits may set their independent timeout. Delay waits
 author only a bounded delay; although version 1 still permits a legacy optional
@@ -220,6 +232,6 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Step-timeout inheritance and View summaries](../../Learning%20Plan/Apps/web/Lessons/30-step-timeout-inheritance-and-view-summaries.md)
 - [Route-oriented authoring presentation](../../Learning%20Plan/Apps/web/Lessons/32-route-oriented-authoring-presentation.md)
 - [Step View/Edit summaries](../../Learning%20Plan/Apps/web/Lessons/34-step-view-edit-summaries.md)
-- [Interaction-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)
+- [Step-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)
 - [Assertion behaviour](../../Learning%20Plan/Apps/web/Lessons/36-assertion-behaviour.md)
 - [Interaction scrolling overrides](../../Learning%20Plan/Apps/web/Lessons/37-interaction-scrolling-overrides.md)

@@ -243,6 +243,18 @@ test("validates wait-list shapes and timeout/delay bounds", () => {
   }
 });
 
+test("accepts before and after wait lists on navigation and assertion steps", () => {
+  const exampleCase = readFixture("../examples/cases/sign-in.json");
+  const waitList = [{ delay: 10 }];
+  const steps = [
+    { action: "navigate", url: "https://example.test", before: waitList, after: waitList },
+    { action: "assertText", locator: { role: "heading" }, expected: { default: "Welcome" }, before: waitList, after: waitList },
+    { action: "assertHtml", locator: { role: "main" }, expected: { default: "<h1>Welcome</h1>" }, before: waitList, after: waitList },
+    { action: "assertValue", locator: { role: "textbox" }, expected: { default: "tester@example.test" }, before: waitList, after: waitList },
+  ];
+  assert.deepEqual(validateCase({ ...exampleCase, steps }), { valid: true });
+});
+
 test("rejects invalid and duplicate canonical locale keys in expected values", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const makeCase = (locales) => ({

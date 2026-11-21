@@ -36,7 +36,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 32. Why does route-specific Plan, Case, and Step authoring avoid nested-card density, and where does temporary View/Edit state belong?
 33. Why must an icon-only editor action keep a localized accessible name even when it has no visible text?
 34. Why does a Step page use plain summaries instead of disabled controls in View mode?
-35. Why does the editor omit Timeout for a Delay wait while retaining independent timeouts for Locator and Page-state waits?
+35. Which supported Step types can author Before and After waits, and why does the editor omit Timeout for a Delay wait while retaining independent timeouts for Locator and Page-state waits?
 36. Why does the editor omit `soft` for a Hard assertion and store it only for a Soft assertion?
 37. Why does the editor omit `scrollIntoView` when interaction scrolling is enabled, and which actions currently expose that override?
 38. Why does Wait removal require a confirmation dialog before changing a Before or After list?
@@ -77,7 +77,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 32. Each route gives a phone-sized viewport one editing context: Plan cards link to Cases, and Case cards link to Steps instead of containing their descendant forms. View/Edit is temporary interface state, so it must not be stored in the portable plan, case, or recovery document.
 33. A visible icon alone does not provide a reliable accessible name. The component keeps localized visually hidden text for assistive technology without adding separate interactive state or lifecycle handling.
 34. Disabled controls still look like unavailable forms and make compact pages harder to scan. A definition list communicates inspection clearly while preserving the selected tab and leaving no editable control behind.
-35. A fixed Delay wait needs only its duration; a timeout beside it can only make it fail earlier. Locator and Page-state waits instead need an independent bound while they await an external condition. The editor preserves, but does not display or edit, an imported version 1 Delay-wait timeout until the deliberate versioned change in [ATR-043](../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).
+35. Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value can author Before and After waits. A fixed Delay wait needs only its duration; a timeout beside it can only make it fail earlier. Locator and Page-state waits instead need an independent bound while they await an external condition. The editor preserves, but does not display or edit, an imported version 1 Delay-wait timeout until the deliberate versioned change in [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 36. Hard is the contract default, so omitting `soft` produces the smaller canonical representation without changing behaviour. Selecting Soft deliberately stores `soft: true`, which tells execution to record the failure and continue the case.
 37. Enabled is the schema default, so omitting `scrollIntoView` preserves the canonical behaviour without adding redundant portable data. Click, Type, Fill, and Select option Step pages expose the override; disabling it stores `scrollIntoView: false`.
 38. Removing a Wait is destructive and easy to invoke from a compact card. The static Bootstrap dialog makes the choice visible and requires an explicit confirmation, while Cancel preserves the list unchanged.

@@ -74,6 +74,31 @@ test("dispatches navigate and click steps in order with click waits", async () =
   await run.close();
 });
 
+test("dispatches navigation waits before and after navigation", async () => {
+  const events = [];
+  const page = {
+    async goto(url) {
+      events.push(`navigate:${url}`);
+      return null;
+    },
+    async waitForTimeout(delay) {
+      events.push(`delay:${delay}`);
+    },
+    async waitForLoadState(state) {
+      events.push(`state:${state}`);
+    },
+  };
+  const { run, session } = await createSession(page);
+  await session.executeSteps("sign-in", [{
+    action: "navigate",
+    url: "https://example.com/sign-in",
+    before: [{ delay: 100 }],
+    after: [{ waitForState: "networkidle" }],
+  }]);
+  assert.deepEqual(events, ["delay:100", "navigate:https://example.com/sign-in", "state:networkidle"]);
+  await run.close();
+});
+
 test("passes a step's scrollIntoView setting to the click operation", async () => {
   let clickOptions;
   const locator = {
@@ -804,6 +829,42 @@ test("returns a soft assertText mismatch and continues to later steps", async ()
       message: 'Expected text "Sign in" but received "Welcome".',
     },
   ]);
+  await run.close();
+});
+
+test("dispatches assertion waits around a soft assertion mismatch", async () => {
+  const events = [];
+  const locator = {
+    async waitFor() {
+      events.push("locator:wait");
+    },
+    async count() {
+      return 1;
+    },
+    async innerText() {
+      events.push("assert:text");
+      return "Welcome";
+    },
+  };
+  const page = {
+    locator() {
+      return locator;
+    },
+    async waitForTimeout(delay) {
+      events.push(`delay:${delay}`);
+    },
+  };
+  const { run, session } = await createSession(page);
+  const softFailures = await session.executeSteps("sign-in", [{
+    action: "assertText",
+    locator: { css: "h1" },
+    expected: { default: "Sign in" },
+    soft: true,
+    before: [{ delay: 100 }],
+    after: [{ delay: 200 }],
+  }]);
+  assert.equal(softFailures.length, 1);
+  assert.deepEqual(events, ["delay:100", "locator:wait", "assert:text", "delay:200"]);
   await run.close();
 });
 

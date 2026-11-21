@@ -1,19 +1,25 @@
-# Lesson 35: Interaction-wait authoring and wait routes
+# Lesson 35: Step-wait authoring and wait routes
 
 [Previous: Step View/Edit summaries](34-step-view-edit-summaries.md) · [Course outline](../README.md) · [Skill check](../quiz.md)
 
 ## Goal
 
-Understand how the editor authors ordered interaction waits without returning
+Understand how the editor authors ordered Step waits without returning
 to nested editable cards on a small screen.
 
 ## Before and After lists
 
-Click, Type, Fill, and Select option steps can have ordered waits before an
-interaction, after it, or both. Their Step page has a Waits pill beside Default
-and Overrides. It presents separate Before and After lists as read-only cards.
-The parent Step page owns the list order and its Promote, Demote, Edit, Clone,
-and Remove actions.
+Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
+Assert value Steps can have ordered waits before a Step, after it, or both.
+Their Step page has a Waits pill beside its other settings. It presents separate
+Before and After lists as read-only cards. The parent Step page owns the list
+order and its Promote, Demote, Edit, Clone, and Remove actions.
+
+Runner-core executes Before waits in order, then the Step, then After waits.
+A soft assertion records its diagnostic and still runs its After waits. A hard
+action or assertion failure stops before those After waits. Navigate retains
+its existing `waitUntil` setting for compatibility; Before and After are extra
+explicit waits rather than a replacement for it.
 
 Remove does not change a list immediately. It opens the same static Bootstrap
 confirmation pattern used for Step removal: **Please Confirm** asks “Remove
@@ -53,11 +59,12 @@ delay only makes the wait fail earlier, while both values have the same
 bounded maximum in version 1. The editor preserves an imported version 1
 Delay-wait timeout without showing or modifying it. Removing that legacy
 contract property requires a deliberate version and compatibility decision,
-recorded in [ATR-043](../../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).
+recorded in [ATR-043](../../../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
 ## Try it
 
-1. Open a Click, Type, Fill, or Select option Step and choose Waits.
+1. Open a Navigate, Click, Type, Fill, Select option, or assertion Step and
+   choose Waits.
 2. Add one Before Locator wait and one After Delay wait; verify incomplete
    fields show feedback and Cancel does not add a card.
 3. Follow each saved card to its Wait page, edit the visible fields, and use

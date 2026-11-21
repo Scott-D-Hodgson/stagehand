@@ -2,7 +2,7 @@
 
 1. Why can cases override viewport but not headless mode?
 2. What happens when a locator matches two elements?
-3. Where do `before` and `after` waits run around an interaction?
+3. Where do `before` and `after` waits run around a supported action or assertion, and what happens after a soft assertion failure?
 4. How do `type` and `fill` differ?
 5. Can one `assertValue` step return two soft failures?
 6. What additional location information is retained when an expanded shared step fails?
@@ -19,7 +19,7 @@
 
 1. Viewport belongs to an isolated context; headless mode is chosen when the shared browser process launches.
 2. Resolution fails immediately because Stagehand requires one unique target.
-3. Before waits finish first, then the interaction runs, then after waits finish.
+3. Before waits finish first, then the action or assertion runs, then After waits finish. A soft assertion records its diagnostic and still runs its After waits; a hard failure stops before them.
 4. `type` enters characters sequentially; `fill` sets the field value directly.
 5. Yes: a soft value mismatch and an associated-label failure can share one step index.
 6. `StepExecutionError` retains the case ID, zero-based expanded-step index, action, original cause, calling case-step index, shared-group ID, and inner-step index. Soft assertion failures retain the same shared-step location information.

@@ -3,11 +3,12 @@ import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import AssertionBehaviour from './AssertionBehaviour.vue';
 import LocaleOverridesTab, { type LocaleOverrideItem } from './LocaleOverridesTab.vue';
+import WaitReferences from '../Waits/WaitReferences.vue';
 
-const props = defineProps<{ editing: boolean; expected: string; index: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
-const emit = defineEmits<{ 'add:override': []; 'edit:override': [override: LocaleOverrideItem]; 'remove:override': [override: LocaleOverrideItem]; 'update:expected': [expected: string]; 'update:locator': [locator: { name?: string; role: string }]; 'update:soft': [soft: boolean]; 'update:timeout': [timeout: number | string] }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; expected: string; index: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
+const emit = defineEmits<{ 'add:override': []; 'edit:override': [override: LocaleOverrideItem]; 'remove:override': [override: LocaleOverrideItem]; 'update:after': [items: unknown[]]; 'update:before': [items: unknown[]]; 'update:expected': [expected: string]; 'update:locator': [locator: { name?: string; role: string }]; 'update:soft': [soft: boolean]; 'update:timeout': [timeout: number | string] }>();
 const { t } = useTranslation();
-const selectedTab = ref<'default' | 'locales' | 'overrides'>('default');
+const selectedTab = ref<'default' | 'locales' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
 const name = ref(props.name);
 const expected = ref(props.expected);
@@ -52,11 +53,14 @@ function readTimeout(event: Event): number | string {
       <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'locales' }]" type="button" @click="selectedTab = 'locales'">{{ t('editor.localeOverrides') }}</button>
       </li>
+      <li class="nav-item" role="presentation">
+        <button :class="['nav-link', { active: selectedTab === 'waits' }]" type="button" @click="selectedTab = 'waits'">{{ t('editor.waits') }}</button>
+      </li>
     </ul>
     <div class="card shadow-sm bg-body-tertiary">
       <div class="card-body">
-        <h2 class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : selectedTab === 'overrides' ? t('editor.overridesTab') : t('editor.localeOverrides') }}</h2>
-        <template v-if="props.editing && selectedTab !== 'locales'">
+        <h2 v-if="selectedTab !== 'waits'" class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : selectedTab === 'overrides' ? t('editor.overridesTab') : t('editor.localeOverrides') }}</h2>
+        <template v-if="props.editing && selectedTab !== 'locales' && selectedTab !== 'waits'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`assert-value-role-${props.index}`">Role</label>
             <input :id="`assert-value-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
@@ -86,7 +90,8 @@ function readTimeout(event: Event): number | string {
           </dl>
           <AssertionBehaviour :editing="false" :id-prefix="`assert-value-${props.index}`" :soft="props.soft" />
         </template>
-        <LocaleOverridesTab v-else :editing="props.editing" :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
+        <LocaleOverridesTab v-else-if="selectedTab === 'locales'" :editing="props.editing" :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
+        <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />
       </div>
     </div>
   </section>

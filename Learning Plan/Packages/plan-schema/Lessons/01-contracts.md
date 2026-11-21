@@ -42,7 +42,7 @@ Here are the main Draft 2020-12 words you will meet in Stagehand:
 | `const` | One exact permitted value. | `version` must be `1`; action-specific rules also use it to say a step is exactly `click` or `assertText`. |
 | `$defs` and `$ref` | Store a named reusable rule, then use it elsewhere. | One locator rule is reused by clicks, typing, filling, selection, and assertions, keeping their meaning consistent. |
 | `oneOf` | The value must match exactly one of several alternatives. | A step is one recognised action type; a locator is one of role, label, CSS, or XPath. This prevents ambiguous mixed forms. |
-| `allOf` | The value must satisfy every listed group of rules. | An interaction step combines shared timeout/wait rules with its own action-specific rules. |
+| `allOf` | The value must satisfy every listed group of rules. | A waitable Step combines shared timeout/wait rules with its own action- or assertion-specific rules. |
 | `additionalProperties: false` or `unevaluatedProperties: false` | Unrecognised fields are rejected. | A misspelling such as `timout` does not silently do nothing. This is especially important for test settings that affect browser behaviour. |
 
 These structural rules express product meaning that is safe to check from the JSON alone: a case has ordered steps, a `click` needs a locator, and a shared-step call needs its stable ID. Some meaning needs more than structural rules. `plan-schema` also runs semantic checks in TypeScript for rules such as valid locale tags, supported time zones, canonical duplicate locale keys, and absolute HTTP/HTTPS navigation URLs.

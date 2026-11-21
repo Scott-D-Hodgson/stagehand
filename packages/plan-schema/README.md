@@ -69,6 +69,11 @@ schema issue paths use `/caseFiles/{index}/...`, where the index maps back to
 the corresponding plan reference. This function does not perform path
 matching, file loading, JSON parsing, or canonical filesystem containment.
 
+Every supported action and assertion Step may include ordered `before` and
+`after` wait lists. The schema validates their Locator, Page-state, and Delay
+items; runner-core defines their execution order. Navigate retains its separate
+`waitUntil` option for its existing navigation-completion semantics.
+
 Run the package checks with `npm test --workspace @stagehand/plan-schema`. This builds the package and runs Node's built-in test runner against the public package entry point. The build emits JavaScript and TypeScript declarations under the ignored `dist/` folder.
 
 The package keeps [`src/index.ts`](src/index.ts) as its single public entry point. Its implementation is grouped by responsibility: [`src/validation/`](src/validation/) contains schema and semantic validation, [`src/references/`](src/references/) contains case-reference matching, and [`src/variables/`](src/variables/) contains variable resolution and case preparation. [`src/json.ts`](src/json.ts) holds the small JSON-object and JSON Pointer helpers shared across those areas. These internal modules are not additional package entry points; consumers should continue importing from `@stagehand/plan-schema`.
