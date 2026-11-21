@@ -112,9 +112,21 @@
         "variables": { "$ref": "#/$defs/variables" }
       }
     },
-    "interactionStep": {
+    "waitableStep": {
       "allOf": [
         { "$ref": "#/$defs/stepTimeout" },
+        {
+          "type": "object",
+          "properties": {
+            "before": { "$ref": "#/$defs/waitList" },
+            "after": { "$ref": "#/$defs/waitList" }
+          }
+        }
+      ]
+    },
+    "interactionStep": {
+      "allOf": [
+        { "$ref": "#/$defs/waitableStep" },
         {
           "type": "object",
           "properties": {
@@ -200,7 +212,7 @@
     "navigateStep": {
       "type": "object",
       "allOf": [
-        { "$ref": "#/$defs/stepTimeout" },
+        { "$ref": "#/$defs/waitableStep" },
         {
           "type": "object",
           "required": ["action", "url"],
@@ -296,7 +308,7 @@
     "assertionStep": {
       "type": "object",
       "allOf": [
-        { "$ref": "#/$defs/stepTimeout" },
+        { "$ref": "#/$defs/waitableStep" },
         {
           "type": "object",
           "properties": {

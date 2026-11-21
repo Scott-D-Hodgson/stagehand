@@ -1,6 +1,6 @@
 # Lesson 36: Assertion behaviour
 
-[Previous: Interaction-wait authoring and wait routes](35-interaction-wait-authoring.md) · [Course outline](../README.md) · [Skill check](../quiz.md)
+[Previous: Step-wait authoring and wait routes](35-interaction-wait-authoring.md) · [Course outline](../README.md) · [Skill check](../quiz.md)
 
 ## Goal
 
@@ -43,4 +43,4 @@ is selected.
 2. When is Soft assertion behaviour useful?
 3. Why does View mode show a summary instead of disabled Hard/Soft radios?
 
-[Previous: Interaction-wait authoring and wait routes](35-interaction-wait-authoring.md) · [Course outline](../README.md) · [Skill check](../quiz.md)
+[Previous: Step-wait authoring and wait routes](35-interaction-wait-authoring.md) · [Course outline](../README.md) · [Skill check](../quiz.md)

@@ -37,7 +37,7 @@ contextual Promote, Demote, Edit, Clone, and Remove controls in Edit mode, but
 they do not expose nested step forms. A selected step opens a dedicated Step
 page, where its Default and Overrides settings are editable. Localized
 assertions also expose a Locales tab that reuses the common locale-override
-dialog. Interaction Step pages also expose a Waits pill: its Before and After
+dialog. Supported Step pages also expose a Waits pill: its Before and After
 lists are read-only cards that open dedicated Wait pages for editing.
 
 View/Edit remains temporary interface state. It changes the settings controls

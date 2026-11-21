@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, initial expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, plan/case/step timeout inheritance, and the current route-oriented presentation refactor. Remaining wait and assertion options, further step authoring, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, initial expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, plan/case/step timeout inheritance, generalized Before/After waits, and the current route-oriented presentation refactor. Remaining assertion options, further step authoring, and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -96,7 +96,8 @@ this repository.
 - The Plan route presents plan settings and responsive Case summary cards. A
   Case route presents that case's settings and responsive Step summary cards.
   Selecting a card navigates to the corresponding Case or Step route; Step
-  fields are edited only on their dedicated Step route. Interaction Steps expose
+  fields are edited only on their dedicated Step route. Navigate, Click, Type,
+  Fill, Select option, Assert text, Assert HTML, and Assert value Steps expose
   a Waits pill with separate Before and After read-only Wait-card lists. Add
   first selects Locator, Page state, or Delay, then opens a type-specific
   validated dialog; only Save adds its card. A card opens a dedicated Wait route

@@ -21,6 +21,8 @@ export interface NavigateStep {
   action: "navigate";
   url: string;
   timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
   waitUntil?: NavigationWaitUntil;
 }
 
@@ -67,6 +69,8 @@ export interface AssertTextStep {
   locator: LocatorDefinition;
   expected: ExpectedValue;
   timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
   soft?: boolean;
 }
 
@@ -75,6 +79,8 @@ export interface AssertHtmlStep {
   locator: LocatorDefinition;
   expected: ExpectedValue;
   timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
   soft?: boolean;
 }
 
@@ -84,6 +90,8 @@ export interface AssertValueStep {
   expected: ExpectedValue;
   associatedLabel?: ExpectedValue;
   timeout?: number;
+  before?: readonly WaitDefinition[];
+  after?: readonly WaitDefinition[];
   soft?: boolean;
 }
 

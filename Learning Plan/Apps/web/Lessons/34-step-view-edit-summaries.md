@@ -39,7 +39,7 @@ open a dedicated Wait page rather than editing a wait inside the Step page.
 3. Return to Edit and confirm the editable timeout control is restored.
 4. On an assertion Step, select Locales and confirm its list remains visible in
    View mode without locale-management controls.
-5. On an interaction Step, select Waits and confirm Before and After cards stay
+5. On a supported Step, select Waits and confirm Before and After cards stay
    navigational summaries in both modes.
 
 ## Check your understanding

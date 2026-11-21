@@ -5,13 +5,13 @@
 [← Previous: assertions](05-assertions.md) · [Course outline](../README.md) · [Next: case preparation →](07-case-preparation.md)
 
 
-`executeSteps(caseId, steps)` visits the array from first to last and sends each recognized action to its handler. Interaction wait lists wrap their action. A hard failure becomes `StepExecutionError` with the case ID, zero-based step index, action, and original cause. When `executeCase` dispatches expanded shared steps, the error also identifies the calling case step and the shared group/inner step. Soft assertion failures retain the same extra identity.
+`executeSteps(caseId, steps)` visits the array from first to last and sends each recognized action to its handler. Every supported action and assertion may have wait lists that wrap its work. A hard failure becomes `StepExecutionError` with the case ID, zero-based step index, action, and original cause. When `executeCase` dispatches expanded shared steps, the error also identifies the calling case step and the shared group/inner step. Soft assertion failures retain the same extra identity.
 
 ```mermaid
 flowchart LR
     S[Validated step] --> B[Before waits]
     B --> A[Action or assertion]
-    A --> W[After waits when applicable]
+    A --> W[After waits]
     W --> X[Eligible accessibility scan]
     X --> N[Next step]
 ```

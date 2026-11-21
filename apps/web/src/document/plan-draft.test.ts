@@ -252,15 +252,18 @@ describe('plan draft', () => {
     expect(steps[1]).toEqual({ action: 'fill', locator: { role: 'textbox' }, value: 'Name' });
   });
 
-  it('updates and clears an interaction wait list without changing its source data', () => {
-    const steps = [{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }];
+  it('updates and clears a wait list on every waitable step without changing its source data', () => {
+    const steps = [{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }];
     const before = [{ timeout: 2_000, waitFor: { name: 'Continue', role: 'button' } }];
     const updated = updateCaseStepWaitList(steps, 0, 'before', before);
-    expect(updated).toEqual([{ action: 'click', after: [{ delay: 20 }], before, locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
+    expect(updated).toEqual([{ action: 'click', after: [{ delay: 20 }], before, locator: { role: 'button' } }, ...steps.slice(1)]);
     expect(updated[0]).not.toBe(steps[0]);
     expect((updated[0] as { before: unknown[] }).before).not.toBe(before);
     expect(updateCaseStepWaitList(updated, 0, 'before', [])).toEqual(steps);
-    expect(steps).toEqual([{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
+    for (const index of [1, 2, 3, 4]) {
+      expect(updateCaseStepWaitList(steps, index, 'after', [{ delay: 10 }])[index]).toMatchObject({ after: [{ delay: 10 }] });
+    }
+    expect(steps).toEqual([{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }]);
   });
 
   it('moves a case reference without changing the source draft', () => {

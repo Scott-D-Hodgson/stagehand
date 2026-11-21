@@ -31,7 +31,9 @@ flowchart TD
 
 ## Try it
 
-Open `case-v1.schema.json`. Pick one `type` step and identify which part comes from shared interaction rules and which part is unique to typing.
+Open `case-v1.schema.json`. Compare a Navigate Step and an Assert text Step.
+Identify their shared `waitableStep` rules and the unique rules for navigation
+and expected text.
 
 ## You are ready when
 

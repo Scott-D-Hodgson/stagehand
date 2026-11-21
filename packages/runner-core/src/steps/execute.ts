@@ -89,10 +89,12 @@ export async function executeCaseSteps(options: {
     try {
       switch (step.action) {
         case "navigate":
+          await executeWaitList(options.page, step.before ?? []);
           await executeNavigation(options.page, step.url, {
             timeout: step.timeout ?? options.defaultTimeout,
             waitUntil: step.waitUntil,
           });
+          await executeWaitList(options.page, step.after ?? []);
           break;
         case "click":
           await executeWaitList(options.page, step.before ?? []);
@@ -137,6 +139,7 @@ export async function executeCaseSteps(options: {
         case "assertHtml":
         case "assertValue": {
           const timeout = step.timeout ?? options.defaultTimeout;
+          await executeWaitList(options.page, step.before ?? []);
           const deadline = performance.now() + timeout;
           try {
             await executeStringAssertion({
@@ -191,6 +194,7 @@ export async function executeCaseSteps(options: {
               }, protectedValues));
             }
           }
+          await executeWaitList(options.page, step.after ?? []);
           break;
         }
         default:
