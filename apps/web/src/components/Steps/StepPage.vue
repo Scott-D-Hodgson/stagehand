@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { useRoute } from 'vue-router';
+import { computed, nextTick, onBeforeUnmount, ref, toRaw, watch } from 'vue';
+import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { updateCaseAssertionSoft, updateCaseInteractionScrollIntoView, updateCaseStepTimeout, updateCaseStepWaitList, type AccessibilitySettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
 import CaseDetails from '../Cases/CaseDetails.vue';
@@ -15,6 +15,7 @@ import AssertValueStepPage from './AssertValueStepPage.vue';
 import LocaleOverrideDialog from '../dialogs/LocaleOverrideDialog.vue';
 import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
 import WaitPage from '../Waits/WaitPage.vue';
+import { showAppliedChanges } from '../../feedback/apply-feedback';
 
 const props = defineProps<{
   caseCount: number;
@@ -28,14 +29,15 @@ const props = defineProps<{
   planTimeout: unknown;
 }>();
 const emit = defineEmits<{
-  'remove:step': [path: string, index: number];
   'update:steps': [path: string, steps: unknown[]];
 }>();
 const route = useRoute();
+const router = useRouter();
 const { t } = useTranslation();
 const stepIndex = computed(() => Number(route.params.stepIndex));
 const selectedCase = computed(() => props.caseDrafts[props.casePath]);
-const selectedStep = computed(() => selectedCase.value?.steps[stepIndex.value]);
+const formSteps = ref<unknown[]>([]);
+const selectedStep = computed(() => formSteps.value[stepIndex.value]);
 const effectiveCaseTimeout = computed(() => {
   const caseTimeout = selectedCase.value?.settings?.timeout;
   if (typeof caseTimeout === 'number') {
@@ -53,10 +55,64 @@ interface LocaleDialogState {
 
 const localeDialog = ref<LocaleDialogState>();
 const pendingLocaleOverrideRemoval = ref<{ action: LocalizedAssertionAction; override: { locale: string; value: string } }>();
+const pendingNavigation = ref<string>();
+let navigationConfirmed = false;
 const unavailableLocales = computed(() => {
   const current = getLocalizedExpected();
   return Object.keys(current.locales ?? {}).filter((locale) => locale !== localeDialog.value?.locale);
 });
+
+watch(() => props.caseDrafts[props.casePath]?.steps, (steps) => {
+  formSteps.value = steps === undefined ? [] : copyStepValues(steps) as unknown[];
+}, { immediate: true });
+
+/*
+Copies reactive step values into plain data without structured cloning proxies.
+---
+Inputs: A primitive, array, or object from a Vue-reactive step list.
+---
+Output: An independent plain value safe to persist in the editor draft.
+*/
+function copyStepValues(value: unknown): unknown {
+  const rawValue = toRaw(value);
+  if (Array.isArray(rawValue)) {
+    return rawValue.map(copyStepValues);
+  }
+  if (typeof rawValue === 'object' && rawValue !== null) {
+    return Object.fromEntries(Object.entries(rawValue).map(([key, nestedValue]) => [key, copyStepValues(nestedValue)]));
+  }
+  return rawValue;
+}
+
+const hasUnappliedChanges = computed(() => JSON.stringify(copyStepValues(formSteps.value)) !== JSON.stringify(copyStepValues(props.caseDrafts[props.casePath]?.steps ?? [])));
+
+/*
+Confirms navigation that would discard unapplied Step-form changes.
+---
+Inputs: A destination captured by the route-leave guard.
+---
+Output: Navigation resumes only after explicit confirmation.
+*/
+function discardUnappliedChanges(): void {
+  const destination = pendingNavigation.value;
+  pendingNavigation.value = undefined;
+  if (destination === undefined) {
+    return;
+  }
+  navigationConfirmed = true;
+  void router.push(destination);
+}
+
+const removeNavigationGuard = router.beforeEach((to) => {
+  if (navigationConfirmed || !hasUnappliedChanges.value) {
+    navigationConfirmed = false;
+    return true;
+  }
+  pendingNavigation.value = to.fullPath;
+  return false;
+});
+
+onBeforeUnmount(removeNavigationGuard);
 
 /*
 Updates one step timeout from its dedicated page.
@@ -69,7 +125,7 @@ function updateTimeout(timeout: number | string): void {
   if (selectedCase.value === undefined) {
     return;
   }
-  emit('update:steps', props.casePath, updateCaseStepTimeout(selectedCase.value.steps, stepIndex.value, timeout));
+  formSteps.value = updateCaseStepTimeout(formSteps.value, stepIndex.value, timeout);
 }
 
 /*
@@ -83,7 +139,7 @@ function updateScrollIntoView(enabled: boolean): void {
   if (selectedCase.value === undefined) {
     return;
   }
-  emit('update:steps', props.casePath, updateCaseInteractionScrollIntoView(selectedCase.value.steps, stepIndex.value, enabled));
+  formSteps.value = updateCaseInteractionScrollIntoView(formSteps.value, stepIndex.value, enabled);
 }
 
 /*
@@ -97,7 +153,9 @@ function updateStepWaitList(list: 'after' | 'before', items: unknown[]): void {
   if (selectedCase.value === undefined) {
     return;
   }
-  emit('update:steps', props.casePath, updateCaseStepWaitList(selectedCase.value.steps, stepIndex.value, list, items));
+  formSteps.value = updateCaseStepWaitList(formSteps.value, stepIndex.value, list, items);
+  emit('update:steps', props.casePath, copyStepValues(formSteps.value) as unknown[]);
+  showAppliedChanges();
 }
 
 /*
@@ -111,9 +169,22 @@ function updateNavigateUrl(url: string): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, url };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
+}
+
+/*
+Saves a Navigate URL directly from its local panel.
+---
+Inputs: A valid absolute HTTP or HTTPS URL.
+---
+Output: One persisted replacement step list.
+*/
+function saveNavigateUrl(url: string): void {
+  updateNavigateUrl(url);
+  emit('update:steps', props.casePath, copyStepValues(formSteps.value) as unknown[]);
+  showAppliedChanges();
 }
 
 /*
@@ -127,9 +198,9 @@ function updateClickLocator(locator: { name?: string; role: string }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, locator };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -143,9 +214,9 @@ function updateTypeStep(fields: { locator?: { name?: string; role: string }; tex
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, ...fields };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -159,9 +230,9 @@ function updateFillStep(fields: { locator?: { name?: string; role: string }; val
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, ...fields };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -175,7 +246,7 @@ function updateSelectOptionStep(fields: { label?: string; locator?: { name?: str
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   const current = selectedStep.value as { label?: string; value?: string };
   const next = { ...current, ...fields };
   if (fields.label !== undefined) {
@@ -185,7 +256,7 @@ function updateSelectOptionStep(fields: { label?: string; locator?: { name?: str
     delete next.label;
   }
   steps[stepIndex.value] = next;
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -199,9 +270,9 @@ function updateAssertTextStep(fields: { expected?: { default: string; locales?: 
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, ...fields };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -215,9 +286,9 @@ function updateAssertHtmlStep(fields: { expected?: { default: string; locales?: 
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, ...fields };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -231,9 +302,9 @@ function updateAssertValueStep(fields: { expected?: { default: string; locales?:
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  const steps = [...selectedCase.value.steps];
+  const steps = [...formSteps.value];
   steps[stepIndex.value] = { ...selectedStep.value, ...fields };
-  emit('update:steps', props.casePath, steps);
+  formSteps.value = steps;
 }
 
 /*
@@ -285,7 +356,20 @@ function updateAssertionSoft(soft: boolean): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
-  emit('update:steps', props.casePath, updateCaseAssertionSoft(selectedCase.value.steps, stepIndex.value, soft));
+  formSteps.value = updateCaseAssertionSoft(formSteps.value, stepIndex.value, soft);
+}
+
+/*
+Applies the local Step-page form to its owning case draft.
+---
+Inputs: The locally edited full step list.
+---
+Output: One persisted case-step update.
+*/
+async function applyStepForm(): Promise<void> {
+  await nextTick();
+  emit('update:steps', props.casePath, copyStepValues(formSteps.value) as unknown[]);
+  showAppliedChanges();
 }
 
 /*
@@ -375,17 +459,18 @@ function formatActionName(action: string | undefined): string {
 
 <template>
   <h1 v-if="route.name === 'step'" class="h2">{{ stepIndex + 1 }}. {{ formatActionName((selectedStep as { action?: string } | undefined)?.action) }}</h1>
-  <NavigateStepPage v-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'navigate'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :url="(selectedStep as { url?: string } | undefined)?.url ?? ''" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:timeout="updateTimeout" @update:url="updateNavigateUrl" />
-  <ClickStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'click'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateClickLocator" @update:scroll-into-view="updateScrollIntoView" @update:timeout="updateTimeout" />
-  <TypeStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'type'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :text="(selectedStep as { text?: string } | undefined)?.text ?? ''" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateTypeStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:text="updateTypeStep({ text: $event })" @update:timeout="updateTimeout" />
-  <FillStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'fill'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :value="(selectedStep as { value?: string } | undefined)?.value ?? ''" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateFillStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:timeout="updateTimeout" @update:value="updateFillStep({ value: $event })" />
-  <SelectOptionStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'selectOption'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :label="(selectedStep as { label?: string } | undefined)?.label" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :value="(selectedStep as { value?: string } | undefined)?.value" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateSelectOptionStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:selection="updateSelectOptionStep($event)" @update:timeout="updateTimeout" />
-  <AssertTextStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertText'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertText')" @edit:override="openLocaleOverride('assertText', $event)" @remove:override="requestLocaleOverrideRemoval('assertText', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertTextStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertTextStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
-  <AssertHtmlStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertHtml'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertHtml')" @edit:override="openLocaleOverride('assertHtml', $event)" @remove:override="requestLocaleOverrideRemoval('assertHtml', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertHtmlStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertHtmlStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
-  <AssertValueStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertValue'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertValue')" @edit:override="openLocaleOverride('assertValue', $event)" @remove:override="requestLocaleOverrideRemoval('assertValue', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertValueStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertValueStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
+  <NavigateStepPage v-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'navigate'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :save-url="saveNavigateUrl" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :url="(selectedStep as { url?: string } | undefined)?.url ?? ''" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:timeout="updateTimeout" @update:url="updateNavigateUrl" />
+  <ClickStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'click'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @save="applyStepForm" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateClickLocator" @update:scroll-into-view="updateScrollIntoView" @update:timeout="updateTimeout" />
+  <TypeStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'type'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :text="(selectedStep as { text?: string } | undefined)?.text ?? ''" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @save="applyStepForm" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateTypeStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:text="updateTypeStep({ text: $event })" @update:timeout="updateTimeout" />
+  <FillStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'fill'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :value="(selectedStep as { value?: string } | undefined)?.value ?? ''" @save="applyStepForm" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateFillStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:timeout="updateTimeout" @update:value="updateFillStep({ value: $event })" />
+  <SelectOptionStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'selectOption'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :label="(selectedStep as { label?: string } | undefined)?.label" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" :value="(selectedStep as { value?: string } | undefined)?.value" @save="applyStepForm" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:locator="updateSelectOptionStep({ locator: $event })" @update:scroll-into-view="updateScrollIntoView" @update:selection="updateSelectOptionStep($event)" @update:timeout="updateTimeout" />
+  <AssertTextStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertText'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertText')" @save="applyStepForm" @edit:override="openLocaleOverride('assertText', $event)" @remove:override="requestLocaleOverrideRemoval('assertText', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertTextStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertTextStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
+  <AssertHtmlStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertHtml'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertHtml')" @save="applyStepForm" @edit:override="openLocaleOverride('assertHtml', $event)" @remove:override="requestLocaleOverrideRemoval('assertHtml', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertHtmlStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertHtmlStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
+  <AssertValueStepPage v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertValue'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''" :index="stepIndex" :inherited-timeout="effectiveCaseTimeout" :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''" :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))" :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''" :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true" :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined" @add:override="openLocaleOverride('assertValue')" @save="applyStepForm" @edit:override="openLocaleOverride('assertValue', $event)" @remove:override="requestLocaleOverrideRemoval('assertValue', $event)" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" @update:expected="updateAssertValueStep({ expected: { ...(selectedStep as { expected?: { locales?: Record<string, string> } }).expected, default: $event } })" @update:locator="updateAssertValueStep({ locator: $event })" @update:soft="updateAssertionSoft($event)" @update:timeout="updateTimeout" />
   <WaitPage v-else-if="route.name === 'wait'" :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []" :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []" :editing="props.editing" @update:after="updateStepWaitList('after', $event)" @update:before="updateStepWaitList('before', $event)" />
   <LocaleOverrideDialog v-if="localeDialog" :locale="localeDialog.locale" :unavailable-locales="unavailableLocales" :value="localeDialog.value" value-label="Expected text" value-validation-message="Enter expected text." @close="localeDialog = undefined" @reset="resetLocaleOverride" @save="saveLocaleOverride" @update:locale="localeDialog.locale = $event" @update:value="localeDialog.value = $event" />
   <ConfirmationModal v-if="pendingLocaleOverrideRemoval" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeLocaleOverrideConfirmation', { locale: pendingLocaleOverrideRemoval.override.locale })" :title="t('editor.confirmationTitle')" @cancel="pendingLocaleOverrideRemoval = undefined" @confirm="confirmLocaleOverrideRemoval" />
+  <ConfirmationModal v-if="pendingNavigation" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.discardLocalEdits')" :message="t('editor.discardUnappliedChangesConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingNavigation = undefined" @confirm="discardUnappliedChanges" />
   <CaseDetails v-if="!['navigate', 'click', 'type', 'fill', 'selectOption', 'assertText', 'assertHtml', 'assertValue'].includes((selectedStep as { action?: string } | undefined)?.action ?? '')" :case-count="props.caseCount" :case-drafts="props.caseDrafts" :case-index="props.caseIndex" :case-path="props.casePath" :editing="props.editing" :expanded="true" :framed="false" :plan-accessibility="props.planAccessibility" :plan-browser="props.planBrowser" :plan-locale="props.planLocale" :plan-timeout="props.planTimeout" @edit-reference="() => undefined" @move-reference="() => undefined" @remove-reference="() => undefined" @select-reference="() => undefined" @update:accessibility="() => undefined" @update:browser="() => undefined" @update:case-id="() => undefined" @update:timeout="() => undefined" />
   <div v-if="route.name === 'step'" class="mt-4">
     <RouterLink :to="{ name: 'case', params: { cardIndex: props.caseIndex } }" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-turn-down-left" aria-hidden="true"></i> {{ t('editor.return') }}</RouterLink>

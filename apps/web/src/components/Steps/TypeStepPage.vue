@@ -3,8 +3,9 @@ import { ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import WaitReferences from '../Waits/WaitReferences.vue';
 import ScrollIntoViewOption from './ScrollIntoViewOption.vue';
+import StepTimeoutOverride from './StepTimeoutOverride.vue';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; name: string; role: string; scrollIntoView: boolean; text: string; timeout: unknown }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; inheritedTimeout: number; name: string; role: string; scrollIntoView: boolean; text: string; timeout: unknown }>();
 const emit = defineEmits<{
   'update:after': [items: unknown[]];
   'update:before': [items: unknown[]];
@@ -12,12 +13,15 @@ const emit = defineEmits<{
   'update:scroll-into-view': [enabled: boolean];
   'update:text': [text: string];
   'update:timeout': [timeout: number | string];
+  save: [];
 }>();
 const { t } = useTranslation();
 const selectedTab = ref<'default' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
 const name = ref(props.name);
 const text = ref(props.text);
+const roleWasBlurred = ref(false);
+const textWasBlurred = ref(false);
 
 watch(() => props.role, (value) => { role.value = value; });
 watch(() => props.name, (value) => { name.value = value; });
@@ -35,16 +39,42 @@ function updateLocator(): void {
 }
 
 /*
-Reads a raw timeout override without coercing an empty field to zero.
+Marks the Type locator Role field as ready to show validation feedback.
 ---
-Inputs: A timeout number-input event.
+Inputs: The Role field blur event.
 ---
-Output: A numeric timeout or raw empty text.
+Output: Enables localized Role feedback.
 */
-function readTimeout(event: Event): number | string {
-  const input = event.target as HTMLInputElement;
-  return input.value === '' ? '' : Number(input.value);
+function validateRole(): void {
+  roleWasBlurred.value = true;
+  updateLocator();
 }
+
+/*
+Marks the Type text field as ready to show validation feedback.
+---
+Inputs: The Text field blur event.
+---
+Output: Enables localized Text feedback and updates the local form.
+*/
+function validateText(): void {
+  textWasBlurred.value = true;
+  emit('update:text', text.value);
+}
+
+/*
+Applies the current Type fields after synchronizing local values.
+---
+Inputs: The current locator and Text field values.
+---
+Output: A synchronized local step followed by an Apply request.
+*/
+function applyDefault(): void {
+  updateLocator();
+  emit('update:text', text.value);
+  emit('save');
+}
+
 </script>
 
 <template>
@@ -66,16 +96,19 @@ function readTimeout(event: Event): number | string {
         <template v-if="props.editing && selectedTab !== 'waits'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`type-role-${props.index}`">Role</label>
-            <input :id="`type-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
+            <input :id="`type-role-${props.index}`" v-model="role" :class="['form-control', { 'is-invalid': roleWasBlurred && role.trim() === '' }]" required @blur="validateRole" @change="updateLocator" />
+            <div v-if="roleWasBlurred && role.trim() === ''" class="invalid-feedback d-block">{{ t('editor.roleRequired') }}</div>
             <label class="form-label mt-3" :for="`type-name-${props.index}`">Accessible name</label>
             <input :id="`type-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
             <label class="form-label mt-3" :for="`type-text-${props.index}`">Text</label>
-            <input :id="`type-text-${props.index}`" v-model="text" class="form-control" required @change="emit('update:text', text)" />
+            <input :id="`type-text-${props.index}`" v-model="text" :class="['form-control', { 'is-invalid': textWasBlurred && text.trim() === '' }]" required @blur="validateText" @change="emit('update:text', text)" />
+            <div v-if="textWasBlurred && text.trim() === ''" class="invalid-feedback d-block">{{ t('editor.textRequired') }}</div>
+            <button class="btn btn-primary mt-3" type="button" :disabled="role.trim() === '' || text.trim() === ''" @click="applyDefault">{{ t('editor.apply') }}</button>
           </section>
           <section v-else>
-            <label class="form-label" :for="`type-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-            <input :id="`type-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+            <StepTimeoutOverride :id-prefix="`type-${props.index}`" :inherited-timeout="props.inheritedTimeout" :timeout="props.timeout" @update:timeout="emit('update:timeout', $event)" />
             <ScrollIntoViewOption :editing="true" :id-prefix="`type-${props.index}`" :scroll-into-view="props.scrollIntoView" @update:scroll-into-view="emit('update:scroll-into-view', $event)" />
+            <button class="btn btn-primary mt-3" type="button" :disabled="typeof props.timeout === 'number' && (!Number.isInteger(props.timeout) || props.timeout < 1)" @click="emit('save')">{{ t('editor.apply') }}</button>
           </section>
         </template>
         <dl v-else-if="selectedTab === 'default'" class="mb-0">

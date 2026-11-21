@@ -1,9 +1,24 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, toRaw, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { validateCase, type ValidationIssue } from '@stagehand/plan-schema';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../document/plan-draft';
 import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
+
+interface CaseBrowserFormSettings {
+  timeZone?: string;
+  type?: 'chromium';
+  viewport: {
+    height: number | string;
+    width: number | string;
+  };
+}
+
+interface CaseBrowserFormSettingsUpdate {
+  timeZone?: string;
+  type?: 'chromium';
+  viewport?: Partial<CaseBrowserFormSettings['viewport']>;
+}
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -34,6 +49,8 @@ const selectedCase = computed(() => props.caseDrafts[props.casePath]);
 const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default' | 'overrides'>('default');
 const browserSettingsWereBlurred = ref(false);
 const timeoutWasBlurred = ref(false);
+const formCaseId = ref('');
+const formTimeout = ref<unknown>();
 const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
   ...defaultPlanBrowserSettings,
   ...props.planBrowser,
@@ -43,6 +60,7 @@ const effectivePlanBrowser = computed<PlanBrowserSettingsDraft>(() => ({
   },
 }));
 const caseBrowserSettings = computed(() => selectedCase.value?.settings?.browser);
+const formBrowserSettings = ref<CaseBrowserFormSettings | undefined>();
 const hasBrowserOverride = computed(() => caseBrowserSettings.value !== undefined);
 const caseBrowserIssues = computed<ValidationIssue[]>(() => {
   if (selectedCase.value === undefined) {
@@ -52,11 +70,10 @@ const caseBrowserIssues = computed<ValidationIssue[]>(() => {
   return validation.valid ? [] : validation.issues.filter((issue) => issue.path.startsWith('/settings/browser'));
 });
 const shouldShowCaseBrowserIssues = computed(() => caseBrowserIssues.value.length > 0 && browserSettingsWereBlurred.value);
-const caseViewportWidthIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/viewport/width'));
-const caseViewportHeightIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/viewport/height'));
 const caseTimeZoneIssues = computed(() => caseBrowserIssues.value.filter((issue) => issue.path === '/settings/browser/timeZone'));
 const effectivePlanAccessibility = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.planAccessibility }));
 const caseAccessibilitySettings = computed(() => selectedCase.value?.settings?.accessibility);
+const formAccessibilitySettings = ref<AccessibilitySettingsDraft | undefined>();
 const hasAccessibilityOverride = computed(() => caseAccessibilitySettings.value !== undefined);
 const caseTimeout = computed(() => selectedCase.value?.settings?.timeout);
 const hasTimeoutOverride = computed(() => caseTimeout.value !== undefined);
@@ -69,6 +86,19 @@ const caseTimeoutIssues = computed<ValidationIssue[]>(() => {
   return validation.valid ? [] : validation.issues.filter((issue) => issue.path === '/settings/timeout');
 });
 const shouldShowCaseTimeoutIssues = computed(() => caseTimeoutIssues.value.length > 0 && timeoutWasBlurred.value);
+const isFormCaseIdValid = computed(() => formCaseId.value.trim() !== '');
+const isFormTimeoutValid = computed(() => formTimeout.value === undefined || (typeof formTimeout.value === 'number' && Number.isInteger(formTimeout.value) && formTimeout.value >= 1));
+const isFormBrowserSettingsValid = computed(() => formBrowserSettings.value === undefined || (isPositiveViewportValue(formBrowserSettings.value.viewport.width) && isPositiveViewportValue(formBrowserSettings.value.viewport.height)));
+const shouldShowFormBrowserSettingsIssues = computed(() => browserSettingsWereBlurred.value && !isFormBrowserSettingsValid.value);
+const hasInvalidFormViewportWidth = computed(() => formBrowserSettings.value !== undefined && !isPositiveViewportValue(formBrowserSettings.value.viewport.width));
+const hasInvalidFormViewportHeight = computed(() => formBrowserSettings.value !== undefined && !isPositiveViewportValue(formBrowserSettings.value.viewport.height));
+
+watch(selectedCase, (caseDraft) => {
+  formCaseId.value = caseDraft?.id ?? '';
+  formTimeout.value = caseDraft?.settings?.timeout;
+  formBrowserSettings.value = caseDraft?.settings?.browser === undefined ? undefined : createCaseBrowserFormSettings(caseDraft.settings.browser);
+  formAccessibilitySettings.value = caseDraft?.settings?.accessibility === undefined ? undefined : structuredClone(toRaw(caseDraft.settings.accessibility));
+}, { immediate: true });
 
 /*
 Emits a changed case identifier for the selected case document.
@@ -78,9 +108,21 @@ Inputs: Raw identifier text entered by the author.
 Output: A case-ID update for the owning plan bundle.
 */
 function changeCaseId(id: string): void {
-  if (props.casePath) {
-    emit('update:case-id', props.casePath, id);
+  formCaseId.value = id;
+}
+
+/*
+Applies the valid local Case ID form to the active case draft.
+---
+Inputs: A non-empty case identifier.
+---
+Output: One persisted case-ID update.
+*/
+function applyCaseId(): void {
+  if (!props.casePath || !isFormCaseIdValid.value) {
+    return;
   }
+  emit('update:case-id', props.casePath, formCaseId.value);
 }
 
 /*
@@ -91,21 +133,12 @@ Inputs: The override checkbox state.
 Output: A case-browser update using copied plan values or no override.
 */
 function changeBrowserOverride(enabled: boolean): void {
-  if (!props.casePath) {
-    return;
-  }
   browserSettingsWereBlurred.value = false;
   if (!enabled) {
-    emit('update:browser', props.casePath, undefined);
+    formBrowserSettings.value = undefined;
     return;
   }
-  emit('update:browser', props.casePath, {
-    timeZone: effectivePlanBrowser.value.timeZone,
-    viewport: {
-      height: effectivePlanBrowser.value.viewport?.height,
-      width: effectivePlanBrowser.value.viewport?.width,
-    },
-  });
+  formBrowserSettings.value = createCaseBrowserFormSettings(effectivePlanBrowser.value);
 }
 
 /*
@@ -115,18 +148,72 @@ Inputs: A partial case-browser settings replacement.
 ---
 Output: A replacement browser override for the selected case.
 */
-function changeCaseBrowserSettings(settings: Partial<CaseBrowserSettingsDraft>): void {
-  if (!props.casePath || caseBrowserSettings.value === undefined) {
+function changeCaseBrowserSettings(settings: CaseBrowserFormSettingsUpdate): void {
+  if (formBrowserSettings.value === undefined) {
     return;
   }
-  emit('update:browser', props.casePath, {
-    ...caseBrowserSettings.value,
+  formBrowserSettings.value = {
+    ...formBrowserSettings.value,
     ...settings,
     viewport: {
-      ...caseBrowserSettings.value.viewport,
+      ...formBrowserSettings.value.viewport,
       ...settings.viewport,
     },
-  });
+  };
+}
+
+/*
+Creates browser form fields with concrete editable viewport values.
+---
+Inputs: Raw case or inherited plan browser settings.
+---
+Output: Browser form data with numeric or textual viewport fields.
+*/
+function createCaseBrowserFormSettings(settings: CaseBrowserSettingsDraft | PlanBrowserSettingsDraft): CaseBrowserFormSettings {
+  return {
+    timeZone: settings.timeZone,
+    type: settings.type,
+    viewport: {
+      height: readViewportField(settings.viewport?.height),
+      width: readViewportField(settings.viewport?.width),
+    },
+  };
+}
+
+/*
+Narrows one raw viewport field for an editable number control.
+---
+Inputs: An unvalidated viewport dimension.
+---
+Output: A number or raw text, defaulting to empty text when unsupported.
+*/
+function readViewportField(value: unknown): number | string {
+  return typeof value === 'number' || typeof value === 'string' ? value : '';
+}
+
+/*
+Determines whether one editable viewport dimension is valid.
+---
+Inputs: A numeric or textual viewport form value.
+---
+Output: Whether the value is a positive number.
+*/
+function isPositiveViewportValue(value: number | string): boolean {
+  return typeof value === 'number' && value >= 1;
+}
+
+/*
+Applies the local case browser form to the active case draft.
+---
+Inputs: An optional valid case browser override.
+---
+Output: One persisted case browser update.
+*/
+function applyCaseBrowserSettings(): void {
+  if (!props.casePath || (formBrowserSettings.value !== undefined && (!isPositiveViewportValue(formBrowserSettings.value.viewport.width) || !isPositiveViewportValue(formBrowserSettings.value.viewport.height)))) {
+    return;
+  }
+  emit('update:browser', props.casePath, formBrowserSettings.value);
 }
 
 /*
@@ -137,14 +224,11 @@ Inputs: The override checkbox state.
 Output: A case-accessibility update using copied plan values or no override.
 */
 function changeAccessibilityOverride(enabled: boolean): void {
-  if (!props.casePath) {
-    return;
-  }
   if (!enabled) {
-    emit('update:accessibility', props.casePath, undefined);
+    formAccessibilitySettings.value = undefined;
     return;
   }
-  emit('update:accessibility', props.casePath, { ...effectivePlanAccessibility.value });
+  formAccessibilitySettings.value = structuredClone(toRaw(effectivePlanAccessibility.value));
 }
 
 /*
@@ -155,10 +239,23 @@ Inputs: A partial case-accessibility settings replacement.
 Output: A replacement accessibility override for the selected case.
 */
 function changeCaseAccessibilitySettings(settings: Partial<AccessibilitySettingsDraft>): void {
-  if (!props.casePath || caseAccessibilitySettings.value === undefined) {
+  if (formAccessibilitySettings.value === undefined) {
     return;
   }
-  emit('update:accessibility', props.casePath, { ...caseAccessibilitySettings.value, ...settings });
+  formAccessibilitySettings.value = { ...formAccessibilitySettings.value, ...settings, tags: settings.tags === undefined ? formAccessibilitySettings.value.tags : [...settings.tags] };
+}
+
+/*
+Applies the local case accessibility form to the active case draft.
+---
+Inputs: An optional complete accessibility override.
+---
+Output: One persisted case accessibility update.
+*/
+function applyCaseAccessibilitySettings(): void {
+  if (props.casePath) {
+    emit('update:accessibility', props.casePath, formAccessibilitySettings.value);
+  }
 }
 
 /*
@@ -169,11 +266,8 @@ Inputs: The override checkbox state.
 Output: A case-timeout update using the plan value or no override.
 */
 function changeTimeoutOverride(enabled: boolean): void {
-  if (!props.casePath) {
-    return;
-  }
   timeoutWasBlurred.value = false;
-  emit('update:timeout', props.casePath, enabled ? effectivePlanTimeout.value : undefined);
+  formTimeout.value = enabled ? effectivePlanTimeout.value : undefined;
 }
 
 /*
@@ -184,11 +278,23 @@ Inputs: A timeout number-input event.
 Output: A numeric timeout or raw empty text for shared validation.
 */
 function changeCaseTimeout(event: Event): void {
-  if (!props.casePath) {
+  const input = event.target as HTMLInputElement;
+  formTimeout.value = input.value === '' ? '' : Number(input.value);
+}
+
+/*
+Applies the valid local case timeout form to the active case draft.
+---
+Inputs: An omitted or positive whole-number timeout.
+---
+Output: One persisted case-timeout update.
+*/
+function applyCaseTimeout(): void {
+  timeoutWasBlurred.value = true;
+  if (!props.casePath || !isFormTimeoutValid.value) {
     return;
   }
-  const input = event.target as HTMLInputElement;
-  emit('update:timeout', props.casePath, input.value === '' ? '' : Number(input.value));
+  emit('update:timeout', props.casePath, formTimeout.value);
 }
 
 /*
@@ -296,10 +402,11 @@ function formatBrowserSettingIssue(issue: ValidationIssue | undefined): string {
           </label>
           <input
             :id="`case-id-${caseIndex}`"
-            :value="selectedCase.id"
+            :value="formCaseId"
             class="form-control"
             @input="changeCaseId(($event.target as HTMLInputElement).value)"
           />
+          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormCaseIdValid" @click="applyCaseId">{{ t('editor.apply') }}</button>
         </template>
         <template v-else>
           <div :id="`case-view-default-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-default-card-${caseIndex}`">
@@ -318,15 +425,16 @@ function formatBrowserSettingIssue(issue: ValidationIssue | undefined): string {
         <h2 class="h3">{{ t('editor.overridesTab') }}</h2>
         <template v-if="editing">
           <div class="form-check">
-            <input :id="`case-timeout-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasTimeoutOverride" @change="changeTimeoutOverride(($event.target as HTMLInputElement).checked)" />
+            <input :id="`case-timeout-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="formTimeout !== undefined" @change="changeTimeoutOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" :for="`case-timeout-override-${caseIndex}`">{{ t('editor.overridePlanStepTimeout') }}</label>
           </div>
-          <template v-if="hasTimeoutOverride">
+          <template v-if="formTimeout !== undefined">
             <label class="form-label mt-3" :for="`case-timeout-${caseIndex}`">{{ t('editor.stepTimeout') }}</label>
-            <input :id="`case-timeout-${caseIndex}`" :class="['form-control', { 'is-invalid': shouldShowCaseTimeoutIssues }]" min="1" type="number" :value="caseTimeout" @blur="validateCaseTimeout" @input="changeCaseTimeout" />
+            <input :id="`case-timeout-${caseIndex}`" :class="['form-control', { 'is-invalid': shouldShowCaseTimeoutIssues }]" min="1" type="number" :value="formTimeout" @blur="validateCaseTimeout" @input="changeCaseTimeout" />
             <div v-if="shouldShowCaseTimeoutIssues" class="invalid-feedback d-block">{{ caseTimeoutIssues[0]?.message }}</div>
           </template>
           <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingPlanStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
+          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormTimeoutValid" @click="applyCaseTimeout">{{ t('editor.apply') }}</button>
         </template>
         <dl v-else class="mb-0">
           <dt>{{ t('editor.stepTimeout') }}</dt>
@@ -343,27 +451,28 @@ function formatBrowserSettingIssue(issue: ValidationIssue | undefined): string {
       <div class="card-body">
         <template v-if="editing">
           <div class="form-check mb-3">
-            <input :id="`case-browser-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasBrowserOverride" @change="changeBrowserOverride(($event.target as HTMLInputElement).checked)" />
+            <input :id="`case-browser-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="formBrowserSettings !== undefined" @change="changeBrowserOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" :for="`case-browser-override-${caseIndex}`">{{ t('editor.overridePlanBrowserSettings') }}</label>
           </div>
-          <div v-if="hasBrowserOverride" class="row g-3">
+          <div v-if="formBrowserSettings" class="row g-3">
             <div class="col-sm-6">
               <label class="form-label" :for="`case-viewport-width-${caseIndex}`">{{ t('editor.viewportWidth') }}</label>
-              <input :id="`case-viewport-width-${caseIndex}`" :aria-describedby="caseViewportWidthIssues.length && shouldShowCaseBrowserIssues ? `case-viewport-width-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseViewportWidthIssues.length && shouldShowCaseBrowserIssues }]" min="1" type="number" :value="caseBrowserSettings?.viewport?.width" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
-              <div v-if="caseViewportWidthIssues.length && shouldShowCaseBrowserIssues" :id="`case-viewport-width-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseViewportWidthIssues[0]) }}</div>
+              <input :id="`case-viewport-width-${caseIndex}`" :aria-describedby="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues ? `case-viewport-width-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+              <div v-if="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues" :id="`case-viewport-width-error-${caseIndex}`" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
             </div>
             <div class="col-sm-6">
               <label class="form-label" :for="`case-viewport-height-${caseIndex}`">{{ t('editor.viewportHeight') }}</label>
-              <input :id="`case-viewport-height-${caseIndex}`" :aria-describedby="caseViewportHeightIssues.length && shouldShowCaseBrowserIssues ? `case-viewport-height-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseViewportHeightIssues.length && shouldShowCaseBrowserIssues }]" min="1" type="number" :value="caseBrowserSettings?.viewport?.height" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
-              <div v-if="caseViewportHeightIssues.length && shouldShowCaseBrowserIssues" :id="`case-viewport-height-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseViewportHeightIssues[0]) }}</div>
+              <input :id="`case-viewport-height-${caseIndex}`" :aria-describedby="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues ? `case-viewport-height-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+              <div v-if="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues" :id="`case-viewport-height-error-${caseIndex}`" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
             </div>
             <div class="col-12">
               <label class="form-label" :for="`case-time-zone-${caseIndex}`">{{ t('editor.timeZone') }}</label>
-              <input :id="`case-time-zone-${caseIndex}`" :aria-describedby="caseTimeZoneIssues.length && shouldShowCaseBrowserIssues ? `case-time-zone-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseTimeZoneIssues.length && shouldShowCaseBrowserIssues }]" :value="caseBrowserSettings?.timeZone" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+              <input :id="`case-time-zone-${caseIndex}`" :aria-describedby="caseTimeZoneIssues.length && shouldShowCaseBrowserIssues ? `case-time-zone-error-${caseIndex}` : undefined" :class="['form-control', { 'is-invalid': caseTimeZoneIssues.length && shouldShowCaseBrowserIssues }]" :value="formBrowserSettings.timeZone" @blur="validateBrowserSettings" @input="changeCaseBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
               <div v-if="caseTimeZoneIssues.length && shouldShowCaseBrowserIssues" :id="`case-time-zone-error-${caseIndex}`" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(caseTimeZoneIssues[0]) }}</div>
             </div>
           </div>
           <p v-else class="mb-0 text-body-secondary">{{ t('editor.inheritingPlanBrowserSettings') }}</p>
+          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormBrowserSettingsValid" @click="applyCaseBrowserSettings">{{ t('editor.apply') }}</button>
         </template>
         <template v-else>
           <div :id="`case-view-browser-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-browser-card-${caseIndex}`">
@@ -388,21 +497,22 @@ function formatBrowserSettingIssue(issue: ValidationIssue | undefined): string {
       <div class="card-body">
         <template v-if="editing">
           <div class="form-check mb-3">
-            <input :id="`case-accessibility-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="hasAccessibilityOverride" @change="changeAccessibilityOverride(($event.target as HTMLInputElement).checked)" />
+            <input :id="`case-accessibility-override-${caseIndex}`" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings !== undefined" @change="changeAccessibilityOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" :for="`case-accessibility-override-${caseIndex}`">{{ t('editor.overridePlanAccessibilitySettings') }}</label>
           </div>
-          <div v-if="hasAccessibilityOverride" class="d-grid gap-3">
+          <div v-if="formAccessibilitySettings" class="d-grid gap-3">
             <div class="form-check">
-              <input :id="`case-accessibility-enabled-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.enabled" @change="changeCaseAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
+            <input :id="`case-accessibility-enabled-${caseIndex}`" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.enabled" @change="changeCaseAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
               <label class="form-check-label" :for="`case-accessibility-enabled-${caseIndex}`">{{ t('editor.accessibilityEnabled') }}</label>
             </div>
-            <AccessibilityTagSelector :id="`case-accessibility-tags-${caseIndex}`" :model-value="caseAccessibilitySettings?.tags" @update:model-value="changeCaseAccessibilitySettings({ tags: $event })" />
+            <AccessibilityTagSelector :id="`case-accessibility-tags-${caseIndex}`" :model-value="formAccessibilitySettings.tags" @update:model-value="changeCaseAccessibilitySettings({ tags: $event })" />
             <div class="form-check">
-              <input :id="`case-accessibility-fail-on-violation-${caseIndex}`" class="form-check-input" type="checkbox" :checked="caseAccessibilitySettings?.failOnViolation" @change="changeCaseAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
+            <input :id="`case-accessibility-fail-on-violation-${caseIndex}`" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.failOnViolation" @change="changeCaseAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
               <label class="form-check-label" :for="`case-accessibility-fail-on-violation-${caseIndex}`">{{ t('editor.failOnViolation') }}</label>
             </div>
           </div>
           <p v-else class="mb-0 text-body-secondary">{{ t('editor.inheritingPlanAccessibilitySettings') }}</p>
+          <button class="btn btn-primary mt-3" type="button" @click="applyCaseAccessibilitySettings">{{ t('editor.apply') }}</button>
         </template>
         <template v-else>
           <div :id="`case-view-accessibility-panel-${caseIndex}`" role="tabpanel" :aria-labelledby="`case-accessibility-card-${caseIndex}`">

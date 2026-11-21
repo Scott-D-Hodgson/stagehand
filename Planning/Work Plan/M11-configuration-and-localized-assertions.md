@@ -220,6 +220,20 @@ The owner reported passing web-editor tests, type check, production build, and
 manual verification that toggling persists across route navigation and that
 re-enabling removes the explicit portable-data field.
 
+## Applied-forms and navigation-gates slice
+
+Plan, Case, Step, and Wait configuration panels now retain edits in local
+mini-forms until an author selects **Apply**. Field feedback appears on blur,
+and invalid forms disable Apply so an incomplete value cannot update the
+underlying draft or its IndexedDB recovery record. A valid but unapplied Step
+or Wait form blocks route navigation with an explicit discard confirmation.
+
+Successful Step and Wait applications display a short Bootstrap toast owned by
+the application shell. It remains visible through route changes; Wait Apply
+itself intentionally stays on the Wait route so Return remains the author's
+explicit navigation choice. The owner reported passing the development-container
+web tests, type check, production build, and manual checks for this slice.
+
 ## Incremental delivery
 
 Suggested remaining PR slices: add the remaining interaction options, then
@@ -244,3 +258,4 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Step-wait authoring and wait routes](../../Learning%20Plan/Apps/web/Lessons/35-interaction-wait-authoring.md)
 - [Assertion behaviour](../../Learning%20Plan/Apps/web/Lessons/36-assertion-behaviour.md)
 - [Interaction scrolling overrides](../../Learning%20Plan/Apps/web/Lessons/37-interaction-scrolling-overrides.md)
+- [Applied forms and navigation gates](../../Learning%20Plan/Apps/web/Lessons/38-applied-forms-and-navigation-gates.md)

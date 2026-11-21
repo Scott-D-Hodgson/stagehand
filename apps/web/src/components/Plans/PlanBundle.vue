@@ -481,6 +481,7 @@ function cancelConfirmation(): void {
   </div>
   <PlanPage
     v-if="route.name === 'plan'"
+    :key="route.fullPath"
     :case-drafts="caseDrafts"
     :editing="editing"
     :plan="plan"
@@ -506,6 +507,7 @@ function cancelConfirmation(): void {
   />
   <CasePage
     v-else-if="route.name === 'case' && selectedCaseReference"
+    :key="route.fullPath"
     :case-count="plan.cases.length"
     :case-drafts="caseDrafts"
     :case-index="selectedCaseIndex"
@@ -527,6 +529,7 @@ function cancelConfirmation(): void {
   />
   <StepPage
     v-else-if="(route.name === 'step' || route.name === 'wait') && selectedCaseReference"
+    :key="route.fullPath"
     :case-count="plan.cases.length"
     :case-drafts="caseDrafts"
     :case-index="selectedCaseIndex"
@@ -536,7 +539,6 @@ function cancelConfirmation(): void {
     :plan-browser="plan.defaults.browser"
     :plan-locale="plan.defaults.locale"
     :plan-timeout="plan.defaults.timeout"
-    @remove:step="removeCaseStep"
     @update:steps="changeCaseSteps"
   />
   <ConfirmationModal

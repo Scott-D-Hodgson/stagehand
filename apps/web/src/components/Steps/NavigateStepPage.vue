@@ -10,6 +10,7 @@ const props = defineProps<{
   before: unknown[];
   index: number;
   inheritedTimeout: number;
+  saveUrl: (url: string) => void;
   timeout: unknown;
   url: string;
 }>();
@@ -50,6 +51,17 @@ function validateNavigateUrl(): void {
   urlWasBlurred.value = true;
   emit('update:url', url.value);
 }
+
+/*
+Applies the current Navigate URL after synchronizing the local input.
+---
+Inputs: The current URL field value.
+---
+Output: A synchronized local step followed by an Apply request.
+*/
+function applyDefault(): void {
+  props.saveUrl(url.value);
+}
 </script>
 
 <template>
@@ -73,9 +85,11 @@ function validateNavigateUrl(): void {
             <label class="form-label" :for="`navigate-url-${props.index}`">URL</label>
             <input :id="`navigate-url-${props.index}`" v-model="url" :aria-describedby="urlWasBlurred && !isValidNavigateUrl(url) ? `navigate-url-error-${props.index}` : undefined" :class="['form-control', { 'is-invalid': urlWasBlurred && !isValidNavigateUrl(url) }]" type="url" @blur="validateNavigateUrl" @input="emit('update:url', url)" />
             <div v-if="urlWasBlurred && !isValidNavigateUrl(url)" :id="`navigate-url-error-${props.index}`" class="invalid-feedback d-block">{{ t('editor.navigateUrlInvalid') }}</div>
+            <button class="btn btn-primary mt-3" type="button" :disabled="!isValidNavigateUrl(url)" @click="applyDefault">{{ t('editor.apply') }}</button>
           </section>
           <section v-else>
             <StepTimeoutOverride :id-prefix="`navigate-${props.index}`" :inherited-timeout="props.inheritedTimeout" :timeout="props.timeout" @update:timeout="emit('update:timeout', $event)" />
+            <button class="btn btn-primary mt-3" type="button" :disabled="typeof props.timeout === 'number' && (!Number.isInteger(props.timeout) || props.timeout < 1)" @click="props.saveUrl(url)">{{ t('editor.apply') }}</button>
           </section>
         </template>
         <dl v-else-if="selectedTab === 'default'" class="mb-0">

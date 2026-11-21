@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import IconOnlyButton from '../IconOnlyButton.vue';
 import DelayWaitDetails from './DelayWaitDetails.vue';
@@ -6,9 +7,10 @@ import LocatorWaitDetails from './LocatorWaitDetails.vue';
 import PageStateWait from './PageStateWait.vue';
 import type { WaitDraft } from './wait-draft';
 
-const props = defineProps<{ actions?: boolean; editing: boolean; idPrefix: string; index: number; item: WaitDraft; waitCount: number }>();
+const props = defineProps<{ actions?: boolean; editing: boolean; idPrefix: string; index: number; item: WaitDraft; validationRequested?: boolean; waitCount: number }>();
 const emit = defineEmits<{ move: [direction: -1 | 1]; remove: []; update: [item: WaitDraft] }>();
 const { t } = useTranslation();
+const timeoutWasBlurred = ref(false);
 
 /*
 Updates the optional wait timeout while preserving its wait-specific settings.
@@ -22,17 +24,29 @@ function updateTimeout(event: Event): void {
   const { timeout: _, ...withoutTimeout } = props.item;
   emit('update', value === '' ? withoutTimeout as WaitDraft : { ...withoutTimeout, timeout: Number(value) } as WaitDraft);
 }
+
+/*
+Marks the optional wait timeout field as ready to display validation feedback.
+---
+Inputs: The timeout field blur event.
+---
+Output: Enables timeout feedback for the local wait form.
+*/
+function validateTimeout(): void {
+  timeoutWasBlurred.value = true;
+}
 </script>
 
 <template>
   <article class="card shadow-sm bg-body-tertiary">
     <div class="card-body">
-      <DelayWaitDetails v-if="'delay' in props.item" :editing="props.editing" :id-prefix="props.idPrefix" :item="props.item" @update="emit('update', $event)" />
-      <LocatorWaitDetails v-else-if="'waitFor' in props.item" :editing="props.editing" :id-prefix="props.idPrefix" :item="props.item" @update="emit('update', $event)" />
+      <DelayWaitDetails v-if="'delay' in props.item" :editing="props.editing" :id-prefix="props.idPrefix" :item="props.item" :validation-requested="props.validationRequested" @update="emit('update', $event)" />
+      <LocatorWaitDetails v-else-if="'waitFor' in props.item" :editing="props.editing" :id-prefix="props.idPrefix" :item="props.item" :validation-requested="props.validationRequested" @update="emit('update', $event)" />
       <PageStateWait v-else :editing="props.editing" :id-prefix="props.idPrefix" :item="props.item" @update="emit('update', $event)" />
       <template v-if="props.editing && !('delay' in props.item)">
         <label class="form-label mt-3" :for="`${props.idPrefix}-timeout`">{{ t('editor.stepTimeout') }}</label>
-        <input :id="`${props.idPrefix}-timeout`" class="form-control" min="1" type="number" :value="props.item.timeout" @input="updateTimeout" />
+        <input :id="`${props.idPrefix}-timeout`" :class="['form-control', { 'is-invalid': (props.validationRequested || timeoutWasBlurred) && (typeof props.item.timeout !== 'number' || props.item.timeout < 1) }]" min="1" type="number" :value="props.item.timeout" @blur="validateTimeout" @input="updateTimeout" />
+        <div v-if="(props.validationRequested || timeoutWasBlurred) && (typeof props.item.timeout !== 'number' || props.item.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
       </template>
       <dl v-else-if="!('delay' in props.item) && props.item.timeout !== undefined" class="mb-0 mt-3">
         <dt>{{ t('editor.stepTimeout') }}</dt>
