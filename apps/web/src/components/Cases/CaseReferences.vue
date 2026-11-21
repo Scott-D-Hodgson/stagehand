@@ -4,6 +4,7 @@ import { useTranslation } from 'i18next-vue';
 import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
 import IconOnlyButton from '../IconOnlyButton.vue';
 import CaseDetails from './CaseDetails.vue';
+import { stepActionIcons, type StepAction } from '../Steps/step-icons';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 
@@ -181,6 +182,27 @@ function updateTimeout(path: string, timeout: unknown | undefined): void {
   emit('update:timeout', path, timeout);
 }
 
+/*
+Builds a repeated mixed icon pattern from the supported steps in one case.
+---
+Inputs: A case-reference path.
+---
+Output: Twelve icons cycling through the case's supported steps in order.
+*/
+function getCaseStepIcons(path: string): string[] {
+  const icons: string[] = [];
+  for (const step of props.caseDrafts[path]?.steps ?? []) {
+    if (typeof step !== 'object' || step === null || !('action' in step)) {
+      continue;
+    }
+    const action = (step as { action?: unknown }).action;
+    if (typeof action === 'string' && action in stepActionIcons) {
+      icons.push(stepActionIcons[action as StepAction]);
+    }
+  }
+  return icons.length === 0 ? [] : Array.from({ length: 12 }, (_, index) => icons[index % icons.length]!);
+}
+
 onMounted(() => {
   modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
   modalElement.value?.addEventListener('shown.bs.modal', () => caseNameInput.value?.focus());
@@ -226,12 +248,15 @@ onBeforeUnmount(() => { modal?.dispose(); });
     </TransitionGroup>
     <TransitionGroup v-else name="case-reference" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3 mb-3">
       <div v-for="(caseReference, index) in cases" :key="caseReference.path" class="col">
-        <article class="card shadow-sm h-100 bg-body-tertiary">
+        <article class="card shadow-sm h-100 bg-body-tertiary overflow-hidden">
           <div class="card-body position-relative pb-5">
-            <h3 class="h4">
+            <div v-if="getCaseStepIcons(caseReference.path).length > 0" class="case-card-pattern position-absolute top-0 start-0 w-100 h-100" aria-hidden="true">
+              <i v-for="(icon, patternIndex) in getCaseStepIcons(caseReference.path)" :key="patternIndex" :class="icon"></i>
+            </div>
+            <h3 class="h4 position-relative z-1">
               <RouterLink :to="{ name: 'case', params: { cardIndex: index } }" class="stretched-link text-decoration-none">{{ index + 1 }}. {{ caseDrafts[caseReference.path]?.id ?? caseReference.path }}</RouterLink>
             </h3>
-            <p class="mb-2 text-body-secondary text-break">{{ caseReference.path }}</p>
+            <p class="position-relative z-1 mb-2 text-body-secondary text-break">{{ caseReference.path }}</p>
             <div v-if="editing" class="position-absolute bottom-0 end-0 z-1" style="bottom: 1rem !important; right: 1rem !important;">
               <div class="btn-group btn-group-sm" role="group">
                 <IconOnlyButton v-if="index !== 0" class="btn btn-outline-secondary bg-body" icon="fa-solid fa-arrow-up" :label="t('editor.moveStepUp')" @click.stop="moveReference({ direction: -1, index })" />
@@ -271,5 +296,21 @@ onBeforeUnmount(() => { modal?.dispose(); });
 <style scoped>
 .case-reference-move {
   transition: transform 180ms ease;
+}
+
+.case-card-pattern {
+  align-content: center;
+  color: var(--bs-secondary-color);
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(6, minmax(0, 0.2fr));
+  opacity: 0.05;
+  pointer-events: none;
+  transform: rotate(-12deg) scale(1.5);
+}
+
+.case-card-pattern :deep(svg) {
+  font-size: 2.75rem;
+  justify-self: center;
 }
 </style>
