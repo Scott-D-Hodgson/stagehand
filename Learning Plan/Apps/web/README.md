@@ -33,6 +33,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
   distinguish scan enablement from violation outcome policy.
 - How plan, case, and step timeouts form an explicit override hierarchy while
   preserving Stagehand's 30,000 ms fallback.
+- How contextual breadcrumbs expose supported plan locales and destructive
+  locale removal requires explicit confirmation.
 - Why View mode preserves the selected tab while replacing authoring controls
   with read-only summaries.
 - How the editor's separate Cloudflare Pages project builds the workspace from

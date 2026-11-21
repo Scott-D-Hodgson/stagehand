@@ -52,6 +52,14 @@ passing web-editor tests, a passing type check and production build, and passing
 manual validation of the catalogue, override dialogs, preview, save, refresh,
 and recovery.
 
+The current polish keeps destructive locale-override removal behind the shared
+confirmation dialog. Breadcrumbs always expose a Plan Locale menu containing
+Canadian English, Canadian French, the active locale, and any locale found in
+assertion overrides, so an author can inspect locale previews without leaving a
+Case or Step route. Browser viewport feedback is attached to its invalid field
+and translated through the interface resources rather than exposing raw schema
+wording.
+
 ## Browser-configuration slice
 
 Plan Default and Browser tabs now author the supported plan browser defaults:
@@ -104,10 +112,11 @@ authored timeout semantics. The editor authoring surface deliberately omits a
 Delay-wait timeout while preserving a legacy imported value until the
 versioned contract change recorded in [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
-The editor makes the plan and case settings explicit opt-in overrides: an
-omitted plan value displays the Stagehand fallback, and an omitted case value
-displays the effective plan or fallback value. Step cards offer the final,
-optional override and preserve it through action-dialog edits and cloning.
+The editor makes the plan and case settings explicit opt-in Overrides-panel
+settings: an omitted plan value displays the Stagehand fallback, and an omitted
+case value displays the effective plan or fallback value. Step cards offer the
+final, optional override and preserve it through action-dialog edits and
+cloning.
 Runner-core resolves supplied run-level and case settings before dispatching
 supported actions and assertions; a future CLI must map the serialized plan
 and case settings into that public API. The owner reported passing schema, runner-core, and
