@@ -4,8 +4,9 @@ import { useTranslation } from 'i18next-vue';
 import AssertionBehaviour from './AssertionBehaviour.vue';
 import LocaleOverridesTab, { type LocaleOverrideItem } from './LocaleOverridesTab.vue';
 import WaitReferences from '../Waits/WaitReferences.vue';
+import StepTimeoutOverride from './StepTimeoutOverride.vue';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; expected: string; index: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; expected: string; index: number; inheritedTimeout: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
 const emit = defineEmits<{
   'add:override': [];
   'edit:override': [override: LocaleOverrideItem];
@@ -16,12 +17,15 @@ const emit = defineEmits<{
   'update:locator': [locator: { name?: string; role: string }];
   'update:soft': [soft: boolean];
   'update:timeout': [timeout: number | string];
+  save: [];
 }>();
 const { t } = useTranslation();
 const selectedTab = ref<'default' | 'locales' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
 const name = ref(props.name);
 const expected = ref(props.expected);
+const roleWasBlurred = ref(false);
+const expectedWasBlurred = ref(false);
 
 watch(() => props.role, (value) => { role.value = value; });
 watch(() => props.name, (value) => { name.value = value; });
@@ -39,16 +43,35 @@ function updateLocator(): void {
 }
 
 /*
-Reads a raw timeout override without coercing an empty field to zero.
+Validates the Assert HTML required fields after focus leaves them.
 ---
-Inputs: A timeout number-input event.
+Inputs: A Role or Expected HTML blur event.
 ---
-Output: A numeric timeout or raw empty text.
+Output: Local field feedback and a synchronized local form value.
 */
-function readTimeout(event: Event): number | string {
-  const input = event.target as HTMLInputElement;
-  return input.value === '' ? '' : Number(input.value);
+function validateDefaultField(field: 'expected' | 'role'): void {
+  if (field === 'role') {
+    roleWasBlurred.value = true;
+    updateLocator();
+    return;
+  }
+  expectedWasBlurred.value = true;
+  emit('update:expected', expected.value);
 }
+
+/*
+Applies the current Assert HTML fields after synchronizing local values.
+---
+Inputs: The current locator and Expected HTML field values.
+---
+Output: A synchronized local step followed by an Apply request.
+*/
+function applyDefault(): void {
+  updateLocator();
+  emit('update:expected', expected.value);
+  emit('save');
+}
+
 </script>
 
 <template>
@@ -73,16 +96,19 @@ function readTimeout(event: Event): number | string {
         <template v-if="props.editing && selectedTab !== 'locales' && selectedTab !== 'waits'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`assert-html-role-${props.index}`">Role</label>
-            <input :id="`assert-html-role-${props.index}`" v-model="role" class="form-control" required @change="updateLocator" />
+            <input :id="`assert-html-role-${props.index}`" v-model="role" :class="['form-control', { 'is-invalid': roleWasBlurred && role.trim() === '' }]" required @blur="validateDefaultField('role')" @change="updateLocator" />
+            <div v-if="roleWasBlurred && role.trim() === ''" class="invalid-feedback d-block">{{ t('editor.roleRequired') }}</div>
             <label class="form-label mt-3" :for="`assert-html-name-${props.index}`">Accessible name</label>
             <input :id="`assert-html-name-${props.index}`" v-model="name" class="form-control" @change="updateLocator" />
             <label class="form-label mt-3" :for="`assert-html-expected-${props.index}`">Expected HTML</label>
-            <textarea :id="`assert-html-expected-${props.index}`" v-model="expected" class="form-control" rows="6" required @change="emit('update:expected', expected)"></textarea>
+            <textarea :id="`assert-html-expected-${props.index}`" v-model="expected" :class="['form-control', { 'is-invalid': expectedWasBlurred && expected.trim() === '' }]" rows="6" required @blur="validateDefaultField('expected')" @change="emit('update:expected', expected)"></textarea>
+            <div v-if="expectedWasBlurred && expected.trim() === ''" class="invalid-feedback d-block">{{ t('editor.expectedHtmlRequired') }}</div>
+            <button class="btn btn-primary mt-3" type="button" :disabled="role.trim() === '' || expected.trim() === ''" @click="applyDefault">{{ t('editor.apply') }}</button>
           </section>
           <section v-else>
-            <label class="form-label" :for="`assert-html-timeout-${props.index}`">{{ t('editor.stepTimeout') }}</label>
-            <input :id="`assert-html-timeout-${props.index}`" class="form-control" min="1" type="number" :value="props.timeout" @input="emit('update:timeout', readTimeout($event))" />
+            <StepTimeoutOverride :id-prefix="`assert-html-${props.index}`" :inherited-timeout="props.inheritedTimeout" :timeout="props.timeout" @update:timeout="emit('update:timeout', $event)" />
             <AssertionBehaviour :editing="true" :id-prefix="`assert-html-${props.index}`" :soft="props.soft" @update:soft="emit('update:soft', $event)" />
+            <button class="btn btn-primary mt-3" type="button" :disabled="typeof props.timeout === 'number' && (!Number.isInteger(props.timeout) || props.timeout < 1)" @click="emit('save')">{{ t('editor.apply') }}</button>
           </section>
         </template>
         <dl v-else-if="!props.editing && selectedTab === 'default'" class="mb-0">

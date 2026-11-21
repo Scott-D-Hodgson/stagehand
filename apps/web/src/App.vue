@@ -22,6 +22,8 @@ import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recove
 import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
 import type { PreparedPortableBundleExport } from './portable-bundle/export';
 import { readPortableBundleFile } from './portable-bundle/import';
+import ApplyToast from './components/ApplyToast.vue';
+import { appliedChangesVisible } from './feedback/apply-feedback';
 
 const { i18next, t } = useTranslation()
 const route = useRoute()
@@ -475,6 +477,7 @@ watch(resolvedTheme, (theme) => {
         <span>{{ saveStatusMessage }}</span>
       </div>
     </footer>
+    <ApplyToast v-if="appliedChangesVisible" @close="appliedChangesVisible = false" />
   </div>
 </template>
 

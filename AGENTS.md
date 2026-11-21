@@ -42,6 +42,11 @@ The current root includes `Planning/`, `Learning Plan/`, `apps/`, and `packages/
 - Do not put blank lines inside function bodies. Blank lines between functions and other top-level declarations are fine.
 - Terminate TypeScript and JavaScript statements with semicolons.
 - Do not put blank lines inside Vue `<template>` markup. Keep adjacent markup visually contiguous unless a structural boundary requires a comment.
+- Authoring panels must use local mini-forms: field edits stay local until an
+  explicit Apply action passes validation. Keep Apply disabled while the local
+  form is invalid, show validation feedback on blur, and do not silently mutate
+  the underlying plan or case draft from a field event. A navigation gate must
+  handle a valid but dirty local form before its route or panel changes.
 - Use comments only to explain retained code or markup. Do not comment out unused or superseded code; remove it from the working tree.
 - Precede every named implementation function with a short plain-language block comment. Leave exactly one blank line immediately before the comment. Use `/*`, a one-line purpose, `---`, an `Inputs:` line, `---`, an `Output:` line, and `*/`; do not add comments to trivial inline callbacks.
 - For each code change, consider whether a typed options object would make a function call clearer or safer to extend. Prefer one for several related, optional, or easily confused inputs; retain ordinary parameters for a small, naturally ordered set.

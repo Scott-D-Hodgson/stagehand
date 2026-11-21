@@ -1,10 +1,27 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import { defaultAccessibilitySettings, defaultPlanBrowserSettings, type AccessibilitySettingsDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
 import type { ValidationIssue } from '@stagehand/plan-schema';
 import localeCatalogue from '../../localization/locale-catalogue.json';
 import AccessibilityTagSelector from '../AccessibilityTagSelector.vue';
+
+interface BrowserFormSettings {
+  headless?: boolean;
+  timeZone?: string;
+  type?: 'chromium';
+  viewport: {
+    height: number | string;
+    width: number | string;
+  };
+}
+
+interface BrowserFormSettingsUpdate {
+  headless?: boolean;
+  timeZone?: string;
+  type?: 'chromium';
+  viewport?: Partial<BrowserFormSettings['viewport']>;
+}
 
 const props = defineProps<{
   editing: boolean;
@@ -24,8 +41,10 @@ const emit = defineEmits<{
 const { t } = useTranslation();
 const selectedDetailsCard = ref<'accessibility' | 'browser' | 'default' | 'overrides'>('default');
 const localeWasBlurred = ref(false);
+const formLocale = ref(props.plan.defaults.locale);
 const timeoutWasBlurred = ref(false);
 const browserSettingsWereBlurred = ref(false);
+const formTimeout = ref<number | string | undefined>(readTimeoutValue(props.plan.defaults.timeout));
 const planLocaleIssues = computed(() => props.validationIssues.filter((issue) => issue.path === '/defaults/locale'));
 const shouldShowPlanLocaleIssues = computed(() => planLocaleIssues.value.length > 0 && (localeWasBlurred.value || props.validationRequested));
 const hasUnknownPlanLocale = computed(() => !localeCatalogue.includes(props.plan.defaults.locale));
@@ -41,12 +60,88 @@ const browserSettings = computed<PlanBrowserSettingsDraft>(() => ({
     ...props.plan.defaults.browser?.viewport,
   },
 }));
+const formBrowserSettings = ref<BrowserFormSettings>(createBrowserFormSettings(browserSettings.value));
 const browserSettingIssues = computed(() => props.validationIssues.filter((issue) => issue.path.startsWith('/defaults/browser')));
 const shouldShowBrowserSettingIssues = computed(() => browserSettingIssues.value.length > 0 && (browserSettingsWereBlurred.value || props.validationRequested));
-const viewportWidthIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/viewport/width'));
-const viewportHeightIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/viewport/height'));
 const timeZoneIssues = computed(() => browserSettingIssues.value.filter((issue) => issue.path === '/defaults/browser/timeZone'));
 const accessibilitySettings = computed<AccessibilitySettingsDraft>(() => ({ ...defaultAccessibilitySettings, ...props.plan.defaults.accessibility }));
+const formAccessibilitySettings = ref<AccessibilitySettingsDraft>({ ...accessibilitySettings.value, tags: accessibilitySettings.value.tags === undefined ? undefined : [...accessibilitySettings.value.tags] });
+const isFormLocaleValid = computed(() => localeCatalogue.includes(formLocale.value));
+const isFormBrowserSettingsValid = computed(() => isPositiveViewportValue(formBrowserSettings.value.viewport.width) && isPositiveViewportValue(formBrowserSettings.value.viewport.height));
+const shouldShowFormBrowserSettingsIssues = computed(() => browserSettingsWereBlurred.value && !isFormBrowserSettingsValid.value);
+const hasInvalidFormViewportWidth = computed(() => !isPositiveViewportValue(formBrowserSettings.value.viewport.width));
+const hasInvalidFormViewportHeight = computed(() => !isPositiveViewportValue(formBrowserSettings.value.viewport.height));
+const isFormTimeoutValid = computed(() => formTimeout.value === undefined || (typeof formTimeout.value === 'number' && Number.isInteger(formTimeout.value) && formTimeout.value >= 1));
+
+watch(() => props.plan.defaults.locale, (locale) => {
+  formLocale.value = locale;
+  localeWasBlurred.value = false;
+});
+
+watch(browserSettings, (settings) => {
+  formBrowserSettings.value = createBrowserFormSettings(settings);
+});
+
+watch(() => props.plan.defaults.timeout, (timeout) => {
+  formTimeout.value = readTimeoutValue(timeout);
+  timeoutWasBlurred.value = false;
+});
+
+/*
+Narrows raw draft timeout data for its editable number control.
+---
+Inputs: An unvalidated timeout value from the editable plan draft.
+---
+Output: A number, raw text, or omitted form timeout.
+*/
+function readTimeoutValue(value: unknown): number | string | undefined {
+  return typeof value === 'number' || typeof value === 'string' ? value : undefined;
+}
+
+/*
+Creates browser form fields with concrete editable viewport values.
+---
+Inputs: Raw plan browser settings and their merged defaults.
+---
+Output: Browser form data with numeric or textual viewport fields.
+*/
+function createBrowserFormSettings(settings: PlanBrowserSettingsDraft): BrowserFormSettings {
+  return {
+    headless: settings.headless,
+    timeZone: settings.timeZone,
+    type: settings.type,
+    viewport: {
+      height: readViewportField(settings.viewport?.height),
+      width: readViewportField(settings.viewport?.width),
+    },
+  };
+}
+
+/*
+Narrows one raw viewport field for an editable number control.
+---
+Inputs: An unvalidated viewport dimension.
+---
+Output: A number or raw text, defaulting to empty text when unsupported.
+*/
+function readViewportField(value: unknown): number | string {
+  return typeof value === 'number' || typeof value === 'string' ? value : '';
+}
+
+/*
+Determines whether one editable viewport dimension is valid.
+---
+Inputs: A numeric or textual viewport form value.
+---
+Output: Whether the value is a positive number.
+*/
+function isPositiveViewportValue(value: number | string): boolean {
+  return typeof value === 'number' && value >= 1;
+}
+
+watch(accessibilitySettings, (settings) => {
+  formAccessibilitySettings.value = { ...settings, tags: settings.tags === undefined ? undefined : [...settings.tags] };
+});
 
 /*
 Emits a selected locale from the maintained application catalogue.
@@ -56,7 +151,22 @@ Inputs: A plan-locale select event.
 Output: The selected locale code.
 */
 function changePlanLocale(event: Event): void {
-  emit('update:locale', (event.target as HTMLSelectElement).value);
+  formLocale.value = (event.target as HTMLSelectElement).value;
+}
+
+/*
+Applies the valid local Plan Locale form to the active plan draft.
+---
+Inputs: The selected supported locale.
+---
+Output: One persisted plan-locale update.
+*/
+function applyPlanLocale(): void {
+  localeWasBlurred.value = true;
+  if (!isFormLocaleValid.value) {
+    return;
+  }
+  emit('update:locale', formLocale.value);
 }
 
 /*
@@ -79,7 +189,7 @@ Output: A configured timeout or an omitted plan override.
 */
 function changePlanTimeoutOverride(enabled: boolean): void {
   timeoutWasBlurred.value = false;
-  emit('update:timeout', enabled ? effectivePlanTimeout.value : undefined);
+  formTimeout.value = enabled ? effectivePlanTimeout.value : undefined;
 }
 
 /*
@@ -91,7 +201,22 @@ Output: A numeric timeout or raw empty text for shared validation.
 */
 function changePlanTimeout(event: Event): void {
   const input = event.target as HTMLInputElement;
-  emit('update:timeout', input.value === '' ? '' : Number(input.value));
+  formTimeout.value = input.value === '' ? '' : Number(input.value);
+}
+
+/*
+Applies the valid local plan timeout override to the active plan draft.
+---
+Inputs: An optional positive whole-number timeout.
+---
+Output: One persisted plan-timeout update.
+*/
+function applyPlanTimeout(): void {
+  timeoutWasBlurred.value = true;
+  if (!isFormTimeoutValid.value) {
+    return;
+  }
+  emit('update:timeout', formTimeout.value);
 }
 
 /*
@@ -112,15 +237,30 @@ Inputs: A partial browser-settings replacement from a plan-details field.
 ---
 Output: A complete plan-browser settings update.
 */
-function changeBrowserSettings(settings: Partial<PlanBrowserSettingsDraft>): void {
-  emit('update:browser', {
-    ...browserSettings.value,
+function changeBrowserSettings(settings: BrowserFormSettingsUpdate): void {
+  formBrowserSettings.value = {
+    ...formBrowserSettings.value,
     ...settings,
     viewport: {
-      ...browserSettings.value.viewport,
+      ...formBrowserSettings.value.viewport,
       ...settings.viewport,
     },
-  });
+  };
+}
+
+/*
+Applies the local browser-settings form to the active plan draft.
+---
+Inputs: The complete local plan browser settings.
+---
+Output: One persisted browser-settings update.
+*/
+function applyBrowserSettings(): void {
+  browserSettingsWereBlurred.value = true;
+  if (!isPositiveViewportValue(formBrowserSettings.value.viewport.width) || !isPositiveViewportValue(formBrowserSettings.value.viewport.height)) {
+    return;
+  }
+  emit('update:browser', formBrowserSettings.value);
 }
 
 /*
@@ -131,7 +271,18 @@ Inputs: A partial accessibility-settings replacement from plan details.
 Output: A complete plan-accessibility settings update.
 */
 function changeAccessibilitySettings(settings: Partial<AccessibilitySettingsDraft>): void {
-  emit('update:accessibility', { ...accessibilitySettings.value, ...settings });
+  formAccessibilitySettings.value = { ...formAccessibilitySettings.value, ...settings, tags: settings.tags === undefined ? formAccessibilitySettings.value.tags : [...settings.tags] };
+}
+
+/*
+Applies the local accessibility-settings form to the active plan draft.
+---
+Inputs: The complete local accessibility configuration.
+---
+Output: One persisted accessibility-settings update.
+*/
+function applyAccessibilitySettings(): void {
+  emit('update:accessibility', formAccessibilitySettings.value);
 }
 
 /*
@@ -226,7 +377,7 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
             id="plan-locale"
             :aria-describedby="shouldShowPlanLocaleIssues ? 'plan-locale-error' : undefined"
             :class="['form-select', { 'is-invalid': shouldShowPlanLocaleIssues }]"
-            :value="plan.defaults.locale"
+            :value="formLocale"
             @blur="validatePlanLocale"
             @change="changePlanLocale">
             <option v-if="hasUnknownPlanLocale"
@@ -237,6 +388,7 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
               :value="locale">{{ locale }}</option>
           </select>
           <div v-if="shouldShowPlanLocaleIssues" id="plan-locale-error" class="invalid-feedback d-block">{{ planLocaleIssues[0]?.message }}</div>
+          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormLocaleValid" @click="applyPlanLocale">{{ t('editor.apply') }}</button>
         </template>
         <template v-else>
           <dl class="mb-0">
@@ -251,15 +403,16 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
         <h2 class="h3">{{ t('editor.overridesTab') }}</h2>
         <template v-if="editing">
           <div class="form-check">
-            <input id="plan-timeout-override" class="form-check-input" type="checkbox" :checked="hasPlanTimeoutOverride" @change="changePlanTimeoutOverride(($event.target as HTMLInputElement).checked)" />
+            <input id="plan-timeout-override" class="form-check-input" type="checkbox" :checked="formTimeout !== undefined" @change="changePlanTimeoutOverride(($event.target as HTMLInputElement).checked)" />
             <label class="form-check-label" for="plan-timeout-override">{{ t('editor.overrideStagehandDefaultStepTimeout') }}</label>
           </div>
-          <template v-if="hasPlanTimeoutOverride">
+          <template v-if="formTimeout !== undefined">
             <label class="form-label mt-3" for="plan-timeout">{{ t('editor.defaultStepTimeout') }}</label>
-            <input id="plan-timeout" :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined" :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]" min="1" type="number" :value="plan.defaults.timeout" @blur="validatePlanTimeout" @input="changePlanTimeout" />
+            <input id="plan-timeout" :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined" :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]" min="1" type="number" :value="formTimeout" @blur="validatePlanTimeout" @input="changePlanTimeout" />
             <div v-if="shouldShowPlanTimeoutIssues" id="plan-timeout-error" class="invalid-feedback d-block">{{ planTimeoutIssues[0]?.message }}</div>
           </template>
           <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
+          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormTimeoutValid" @click="applyPlanTimeout">{{ t('editor.apply') }}</button>
         </template>
         <dl v-else class="mb-0">
           <dt>{{ t('editor.defaultStepTimeout') }}</dt>
@@ -274,24 +427,25 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
         <template v-if="editing">
           <div class="col-12">
             <div class="form-check">
-              <input id="browser-headless" class="form-check-input" type="checkbox" :checked="browserSettings.headless" @blur="validateBrowserSettings" @change="changeBrowserSettings({ headless: ($event.target as HTMLInputElement).checked })" />
+            <input id="browser-headless" class="form-check-input" type="checkbox" :checked="formBrowserSettings.headless" @blur="validateBrowserSettings" @change="changeBrowserSettings({ headless: ($event.target as HTMLInputElement).checked })" />
               <label class="form-check-label" for="browser-headless">{{ t('editor.headless') }}</label>
             </div>
           </div>
           <div class="col-sm-6">
             <label class="form-label" for="browser-viewport-width">{{ t('editor.viewportWidth') }}</label>
-            <input id="browser-viewport-width" :aria-describedby="viewportWidthIssues.length && shouldShowBrowserSettingIssues ? 'browser-viewport-width-error' : undefined" :class="['form-control', { 'is-invalid': viewportWidthIssues.length && shouldShowBrowserSettingIssues }]" min="1" type="number" :value="browserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
-            <div v-if="viewportWidthIssues.length && shouldShowBrowserSettingIssues" id="browser-viewport-width-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(viewportWidthIssues[0]) }}</div>
+            <input id="browser-viewport-width" :aria-describedby="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-width-error' : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
+            <div v-if="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues" id="browser-viewport-width-error" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
           </div>
           <div class="col-sm-6">
             <label class="form-label" for="browser-viewport-height">{{ t('editor.viewportHeight') }}</label>
-            <input id="browser-viewport-height" :aria-describedby="viewportHeightIssues.length && shouldShowBrowserSettingIssues ? 'browser-viewport-height-error' : undefined" :class="['form-control', { 'is-invalid': viewportHeightIssues.length && shouldShowBrowserSettingIssues }]" min="1" type="number" :value="browserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
-            <div v-if="viewportHeightIssues.length && shouldShowBrowserSettingIssues" id="browser-viewport-height-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(viewportHeightIssues[0]) }}</div>
+            <input id="browser-viewport-height" :aria-describedby="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-height-error' : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
+            <div v-if="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues" id="browser-viewport-height-error" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
           </div>
           <div class="col-12">
             <label class="form-label" for="browser-time-zone">{{ t('editor.timeZone') }}</label>
-            <input id="browser-time-zone" :aria-describedby="timeZoneIssues.length && shouldShowBrowserSettingIssues ? 'browser-time-zone-error' : undefined" :class="['form-control', { 'is-invalid': timeZoneIssues.length && shouldShowBrowserSettingIssues }]" :value="browserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
+            <input id="browser-time-zone" :aria-describedby="timeZoneIssues.length && shouldShowBrowserSettingIssues ? 'browser-time-zone-error' : undefined" :class="['form-control', { 'is-invalid': timeZoneIssues.length && shouldShowBrowserSettingIssues }]" :value="formBrowserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
             <div v-if="timeZoneIssues.length && shouldShowBrowserSettingIssues" id="browser-time-zone-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(timeZoneIssues[0]) }}</div>
+          <button class="btn btn-primary" type="button" :disabled="!isFormBrowserSettingsValid" @click="applyBrowserSettings">{{ t('editor.apply') }}</button>
           </div>
         </template>
         <template v-else>
@@ -310,14 +464,15 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
       <div class="card-body">
         <template v-if="editing">
           <div class="form-check">
-            <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="accessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
+            <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-enabled">{{ t('editor.accessibilityEnabled') }}</label>
           </div>
-          <AccessibilityTagSelector id="plan-accessibility-tags" :model-value="accessibilitySettings.tags" @update:model-value="changeAccessibilitySettings({ tags: $event })" />
+          <AccessibilityTagSelector id="plan-accessibility-tags" :model-value="formAccessibilitySettings.tags" @update:model-value="changeAccessibilitySettings({ tags: $event })" />
           <div class="form-check">
-            <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="accessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
+            <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
             <label class="form-check-label" for="accessibility-fail-on-violation">{{ t('editor.failOnViolation') }}</label>
           </div>
+          <button class="btn btn-primary mt-3" type="button" @click="applyAccessibilitySettings">{{ t('editor.apply') }}</button>
         </template>
         <template v-else>
           <dl class="mb-0">

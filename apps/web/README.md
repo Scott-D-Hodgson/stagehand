@@ -193,3 +193,10 @@ this repository.
   bundle. A two-tab conflict opens a blocking resolution dialog; the author
   must discard paused local edits or replace the newer saved draft before
   continuing.
+- Plan, Case, Step, and Wait settings use local mini-forms: field edits remain
+  local until a valid **Apply** action updates the editor draft. Apply remains
+  disabled for invalid data and fields show feedback on blur. Step and Wait
+  routes block navigation away from valid unapplied edits until the author
+  discards or applies them. A Bootstrap toast in the application shell confirms
+  an applied Step or Wait change; Wait Apply remains on the Wait route so Return
+  is explicit.

@@ -16,7 +16,7 @@ Output: A number or empty string for the shared draft updater.
 */
 function readTimeout(event: Event): number | string {
   const input = event.target as HTMLInputElement;
-  return input.value === '' ? '' : Number(input.value);
+  return input.value === '' ? Number.NaN : Number(input.value);
 }
 
 /*
@@ -39,8 +39,8 @@ function changeOverride(enabled: boolean): void {
   </div>
   <template v-if="typeof props.timeout === 'number'">
     <label class="form-label mt-3" :for="`${props.idPrefix}-timeout`">{{ t('editor.stepTimeout') }}</label>
-    <input :id="`${props.idPrefix}-timeout`" :class="['form-control', { 'is-invalid': wasBlurred && props.timeout < 1 }]" min="1" type="number" :value="props.timeout" @blur="wasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
-    <div v-if="wasBlurred && props.timeout < 1" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
+    <input :id="`${props.idPrefix}-timeout`" :class="['form-control', { 'is-invalid': wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1) }]" min="1" type="number" :value="props.timeout" @blur="wasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
+    <div v-if="wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
   </template>
   <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingCaseStepTimeout', { timeout: props.inheritedTimeout }) }}</p>
 </template>
