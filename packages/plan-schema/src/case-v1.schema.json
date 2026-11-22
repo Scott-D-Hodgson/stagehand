@@ -227,10 +227,6 @@
                 },
                 { "$ref": "#/$defs/variableReference" }
               ]
-            },
-            "waitUntil": {
-              "enum": ["domcontentloaded", "networkidle"],
-              "default": "domcontentloaded"
             }
           }
         }

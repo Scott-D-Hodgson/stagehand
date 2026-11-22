@@ -22,7 +22,7 @@ async function createSession(page) {
   return { run, session: await run.createCaseSession() };
 }
 
-test("uses the navigation timeout and wait defaults and returns the response", async () => {
+test("uses the navigation timeout and domcontentloaded default and returns the response", async () => {
   const response = {};
   let navigation;
   const page = {
@@ -36,26 +36,6 @@ test("uses the navigation timeout and wait defaults and returns the response", a
   assert.deepEqual(navigation, {
     url: "http://localhost:3000/sign-in",
     options: { timeout: 30_000, waitUntil: "domcontentloaded" },
-  });
-  await run.close();
-});
-
-test("passes supported waitUntil and timeout overrides to Playwright", async () => {
-  let navigation;
-  const page = {
-    async goto(url, options) {
-      navigation = { url, options };
-      return null;
-    },
-  };
-  const { run, session } = await createSession(page);
-  await session.navigate("https://example.com/account", {
-    timeout: 1250,
-    waitUntil: "networkidle",
-  });
-  assert.deepEqual(navigation, {
-    url: "https://example.com/account",
-    options: { timeout: 1250, waitUntil: "networkidle" },
   });
   await run.close();
 });
@@ -84,7 +64,7 @@ test("rejects relative, malformed, and non-HTTP navigation URLs", async () => {
   await run.close();
 });
 
-test("rejects invalid navigation timeout and waitUntil values", async () => {
+test("rejects an invalid navigation timeout", async () => {
   let navigationCount = 0;
   const page = {
     async goto() {
@@ -96,10 +76,6 @@ test("rejects invalid navigation timeout and waitUntil values", async () => {
   await assert.rejects(
     session.navigate("https://example.com", { timeout: 0 }),
     /positive integer/,
-  );
-  await assert.rejects(
-    session.navigate("https://example.com", { waitUntil: "load" }),
-    /must be domcontentloaded or networkidle/,
   );
   assert.equal(navigationCount, 0);
   await run.close();

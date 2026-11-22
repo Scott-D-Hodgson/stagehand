@@ -1,11 +1,8 @@
 import type { Page, Response } from "playwright";
 import { DEFAULT_NAVIGATION_TIMEOUT } from "../defaults.js";
 
-export type NavigationWaitUntil = "domcontentloaded" | "networkidle";
-
 export interface NavigationOptions {
   timeout?: number;
-  waitUntil?: NavigationWaitUntil;
 }
 
 /*
@@ -49,9 +46,5 @@ export async function executeNavigation(
   if (!Number.isInteger(timeout) || timeout < 1) {
     throw new RangeError("Navigation timeout must be a positive integer in milliseconds.");
   }
-  const waitUntil = options.waitUntil ?? "domcontentloaded";
-  if (waitUntil !== "domcontentloaded" && waitUntil !== "networkidle") {
-    throw new RangeError("Navigation waitUntil must be domcontentloaded or networkidle.");
-  }
-  return page.goto(url, { timeout, waitUntil });
+  return page.goto(url, { timeout, waitUntil: "domcontentloaded" });
 }

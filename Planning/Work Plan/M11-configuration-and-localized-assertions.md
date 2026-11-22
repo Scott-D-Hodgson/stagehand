@@ -183,8 +183,14 @@ The v1 schema shares the same waitable-step boundary across these supported
 actions and assertions. Runner-core executes each list in order: Before waits,
 then the action or assertion, then After waits. A soft assertion still runs its
 After list; a hard action or assertion failure stops execution before it.
-Navigate retains its existing `waitUntil` setting for compatibility; its
-Before/After lists are additional explicit waits rather than a replacement.
+Navigate completes at `domcontentloaded`; its Before/After lists are the sole
+explicit authoring mechanism for additional waits.
+
+The v1 schema no longer accepts Navigate's former `waitUntil` property, and
+runner-core no longer exposes it as a Step or direct-navigation option. This
+keeps `networkidle` and other later completion requirements in an After
+Page-state wait, using the same portable representation as every other
+supported Step.
 
 Focused schema, runner-core, and web-editor checks cover wait-list acceptance,
 immutable draft updates, and execution ordering. The owner reported that all

@@ -71,8 +71,9 @@ matching, file loading, JSON parsing, or canonical filesystem containment.
 
 Every supported action and assertion Step may include ordered `before` and
 `after` wait lists. The schema validates their Locator, Page-state, and Delay
-items; runner-core defines their execution order. Navigate retains its separate
-`waitUntil` option for its existing navigation-completion semantics.
+items; runner-core defines their execution order. Navigate always completes at
+`domcontentloaded`; authors use an After Page-state wait when later completion
+is required.
 
 Run the package checks with `npm test --workspace @stagehand/plan-schema`. This builds the package and runs Node's built-in test runner against the public package entry point. The build emits JavaScript and TypeScript declarations under the ignored `dist/` folder.
 

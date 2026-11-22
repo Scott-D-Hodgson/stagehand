@@ -1,6 +1,5 @@
 import type { LocatorDefinition } from "../locators.js";
 import type { WaitDefinition } from "../waits.js";
-import type { NavigationWaitUntil } from "../actions/navigation.js";
 import type { SelectOptionSelection } from "../actions/interactions/select-option.js";
 import type { ExpectedValue } from "../assertions.js";
 
@@ -23,7 +22,6 @@ export interface NavigateStep {
   timeout?: number;
   before?: readonly WaitDefinition[];
   after?: readonly WaitDefinition[];
-  waitUntil?: NavigationWaitUntil;
 }
 
 export interface ClickStep {

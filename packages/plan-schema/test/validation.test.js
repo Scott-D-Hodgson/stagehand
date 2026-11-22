@@ -950,10 +950,10 @@ test("rejects malformed variable references in supported fields", () => {
   }
 });
 
-test("rejects variable references outside agreed action and assertion fields", () => {
+test("rejects variable references outside agreed fields and deprecated navigation completion", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const invalidSteps = [
-    { action: "navigate", url: "https://example.invalid", waitUntil: { var: "wait" } },
+    { action: "navigate", url: "https://example.invalid", waitUntil: "networkidle" },
     { action: "click", locator: { role: { var: "buttonRole" } } },
     { action: "type", locator: { label: "Email" }, text: "email", timeout: { var: "timeout" } },
     { action: "fill", locator: { label: "Email" }, value: "email", scrollIntoView: { var: "scroll" } },
