@@ -6,19 +6,23 @@ import LocaleOverridesTab, { type LocaleOverrideItem } from './LocaleOverridesTa
 import StepTimeoutOverride from './StepTimeoutOverride.vue';
 import WaitReferences from '../Waits/WaitReferences.vue';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; expected: string; index: number; inheritedTimeout: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
-const emit = defineEmits<{ 'add:override': []; 'edit:override': [override: LocaleOverrideItem]; 'remove:override': [override: LocaleOverrideItem]; 'update:after': [items: unknown[]]; 'update:before': [items: unknown[]]; 'update:expected': [expected: string]; 'update:locator': [locator: { name?: string; role: string }]; 'update:soft': [soft: boolean]; 'update:timeout': [timeout: number | string]; save: [] }>();
+const props = defineProps<{ after: unknown[]; associatedLabel?: { default?: string; locales?: Record<string, string> }; associatedLabelOverrides: LocaleOverrideItem[]; before: unknown[]; editing: boolean; expected: string; index: number; inheritedTimeout: number; name: string; overrides: LocaleOverrideItem[]; role: string; soft: boolean; timeout: unknown }>();
+const emit = defineEmits<{ 'add:associated-label-override': []; 'add:override': []; 'edit:associated-label-override': [override: LocaleOverrideItem]; 'edit:override': [override: LocaleOverrideItem]; 'remove:associated-label-override': [override: LocaleOverrideItem]; 'remove:override': [override: LocaleOverrideItem]; 'update:after': [items: unknown[]]; 'update:associated-label': [expected: { default: string; locales?: Record<string, string> } | undefined]; 'update:before': [items: unknown[]]; 'update:expected': [expected: string]; 'update:locator': [locator: { name?: string; role: string }]; 'update:soft': [soft: boolean]; 'update:timeout': [timeout: number | string]; save: [] }>();
 const { t } = useTranslation();
-const selectedTab = ref<'default' | 'locales' | 'overrides' | 'waits'>('default');
+const selectedTab = ref<'associatedLabel' | 'default' | 'locales' | 'overrides' | 'waits'>('default');
 const role = ref(props.role);
 const name = ref(props.name);
 const expected = ref(props.expected);
 const roleWasBlurred = ref(false);
 const expectedWasBlurred = ref(false);
+const associatedLabelExpected = ref(props.associatedLabel?.default ?? '');
+const associatedLabelWasBlurred = ref(false);
+const associatedLabelEnabled = ref(props.associatedLabel !== undefined);
 
 watch(() => props.role, (value) => { role.value = value; });
 watch(() => props.name, (value) => { name.value = value; });
 watch(() => props.expected, (value) => { expected.value = value; });
+watch(() => props.associatedLabel, (value) => { associatedLabelEnabled.value = value !== undefined; associatedLabelExpected.value = value?.default ?? ''; });
 
 /*
 Emits the current locator fields from the dedicated Assert value page.
@@ -61,6 +65,22 @@ function applyDefault(): void {
   emit('save');
 }
 
+/*
+Applies the optional associated-label assertion from its local form.
+---
+Inputs: The enabled state and expected associated-label text.
+---
+Output: A synchronized optional label assertion followed by an Apply request.
+*/
+function applyAssociatedLabel(enabled: boolean): void {
+  associatedLabelWasBlurred.value = true;
+  if (enabled && associatedLabelExpected.value.trim() === '') {
+    return;
+  }
+  emit('update:associated-label', enabled ? { default: associatedLabelExpected.value, locales: props.associatedLabel?.locales } : undefined);
+  emit('save');
+}
+
 </script>
 
 <template>
@@ -76,13 +96,16 @@ function applyDefault(): void {
         <button :class="['nav-link', { active: selectedTab === 'locales' }]" type="button" @click="selectedTab = 'locales'">{{ t('editor.localeOverrides') }}</button>
       </li>
       <li class="nav-item" role="presentation">
+        <button :class="['nav-link', { active: selectedTab === 'associatedLabel' }]" type="button" @click="selectedTab = 'associatedLabel'">{{ t('editor.associatedLabel') }}</button>
+      </li>
+      <li class="nav-item" role="presentation">
         <button :class="['nav-link', { active: selectedTab === 'waits' }]" type="button" @click="selectedTab = 'waits'">{{ t('editor.waits') }}</button>
       </li>
     </ul>
     <div class="card shadow-sm bg-body-tertiary">
       <div class="card-body">
-        <h2 v-if="selectedTab !== 'waits'" class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : selectedTab === 'overrides' ? t('editor.overridesTab') : t('editor.localeOverrides') }}</h2>
-        <template v-if="props.editing && selectedTab !== 'locales' && selectedTab !== 'waits'">
+        <h2 v-if="selectedTab !== 'waits'" class="h3">{{ selectedTab === 'default' ? t('editor.defaultTab') : selectedTab === 'overrides' ? t('editor.overridesTab') : selectedTab === 'associatedLabel' ? t('editor.associatedLabel') : t('editor.localeOverrides') }}</h2>
+        <template v-if="props.editing && selectedTab !== 'locales' && selectedTab !== 'waits' && selectedTab !== 'associatedLabel'">
           <section v-if="selectedTab === 'default'">
             <label class="form-label" :for="`assert-value-role-${props.index}`">Role</label>
             <input :id="`assert-value-role-${props.index}`" v-model="role" :class="['form-control', { 'is-invalid': roleWasBlurred && role.trim() === '' }]" required @blur="validateDefaultField('role')" @change="updateLocator" />
@@ -100,6 +123,19 @@ function applyDefault(): void {
             <button class="btn btn-primary mt-3" type="button" :disabled="typeof props.timeout === 'number' && (!Number.isInteger(props.timeout) || props.timeout < 1)" @click="emit('save')">{{ t('editor.apply') }}</button>
           </section>
         </template>
+        <template v-else-if="props.editing && selectedTab === 'associatedLabel'">
+          <div class="form-check">
+            <input :id="`assert-value-associated-label-enabled-${props.index}`" v-model="associatedLabelEnabled" class="form-check-input" type="checkbox" />
+            <label class="form-check-label" :for="`assert-value-associated-label-enabled-${props.index}`">{{ t('editor.checkAssociatedLabel') }}</label>
+          </div>
+          <template v-if="associatedLabelEnabled">
+            <label class="form-label mt-3" :for="`assert-value-associated-label-${props.index}`">{{ t('editor.expectedLabel') }}</label>
+            <input :id="`assert-value-associated-label-${props.index}`" v-model="associatedLabelExpected" :class="['form-control', { 'is-invalid': associatedLabelWasBlurred && associatedLabelExpected.trim() === '' }]" @blur="associatedLabelWasBlurred = true" />
+            <div v-if="associatedLabelWasBlurred && associatedLabelExpected.trim() === ''" class="invalid-feedback d-block">{{ t('editor.expectedLabelRequired') }}</div>
+            <LocaleOverridesTab :editing="props.editing" :overrides="props.associatedLabelOverrides" @add="emit('add:associated-label-override')" @edit="emit('edit:associated-label-override', $event)" @remove="emit('remove:associated-label-override', $event)" />
+          </template>
+          <button class="btn btn-primary mt-3" type="button" :disabled="associatedLabelEnabled && associatedLabelExpected.trim() === ''" @click="applyAssociatedLabel(associatedLabelEnabled)">{{ t('editor.apply') }}</button>
+        </template>
         <dl v-else-if="!props.editing && selectedTab === 'default'" class="mb-0">
           <dt>Role</dt>
           <dd>{{ props.role }}</dd>
@@ -114,6 +150,16 @@ function applyDefault(): void {
             <dd class="mb-0">{{ props.timeout ?? t('editor.inherited') }}</dd>
           </dl>
           <AssertionBehaviour :editing="false" :id-prefix="`assert-value-${props.index}`" :soft="props.soft" />
+        </template>
+        <template v-else-if="!props.editing && selectedTab === 'associatedLabel'">
+          <p v-if="props.associatedLabel === undefined" class="mb-0 text-body-secondary">{{ t('editor.associatedLabelNotChecked') }}</p>
+          <template v-else>
+            <dl class="mb-3">
+              <dt>{{ t('editor.expectedLabel') }}</dt>
+              <dd class="mb-0 text-break">{{ props.associatedLabel.default }}</dd>
+            </dl>
+            <LocaleOverridesTab :editing="false" :overrides="props.associatedLabelOverrides" />
+          </template>
         </template>
         <LocaleOverridesTab v-else-if="selectedTab === 'locales'" :editing="props.editing" :overrides="props.overrides" @add="emit('add:override')" @edit="emit('edit:override', $event)" @remove="emit('remove:override', $event)" />
         <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />

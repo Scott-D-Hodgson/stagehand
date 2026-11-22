@@ -60,6 +60,15 @@ Case or Step route. Browser viewport feedback is attached to its invalid field
 and translated through the interface resources rather than exposing raw schema
 wording.
 
+Assert value now also authors its optional always-soft `associatedLabel` check.
+Authors explicitly enable the check, enter its default expected label, and may
+maintain independent localized label overrides. Editing an override's locale
+replaces its original key rather than retaining both entries. Disabling and
+applying removes the optional property from the draft.
+
+The owner reported that the development-container test suite, type check,
+production build, and manual associated-label checks passed for this slice.
+
 ## Browser-configuration slice
 
 Plan Default and Browser tabs now author the supported plan browser defaults:
