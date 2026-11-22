@@ -171,7 +171,8 @@ this repository.
   matches. Assert HTML uses the same locator, a literal default Expected HTML
   value, and multiline base and override fields. Assert value uses the same
   locator and literal default and override Expected values; its optional
-  associated-label check has no editor form yet.
+  associated-label check is an optional always-soft assertion with its own
+  default and localized expected values.
   Their Overrides panels also author assertion behaviour: Hard omits the
   contract-default `soft` property, while Soft stores `soft: true`; View mode
   summarizes the selected behaviour.

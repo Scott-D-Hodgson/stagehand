@@ -45,8 +45,8 @@ Enable controlled creation and editing of basic plans, case references, cases, a
 
 - Explain references that lack case data after local-file import in M10; M9 has
   no import workflow from which such references can arise.
-- The optional Assert value associated-label form requires a later focused scope
-  decision.
+- The optional Assert value associated-label form was deferred to the focused
+  M11 localized-assertion work.
 - Apply the selected-step validation pattern to later authoring forms as those
   forms are introduced in their own milestones.
 - Reassess footer placement if a later page design introduces an overlap.
@@ -175,12 +175,11 @@ Assert-HTML/recovery verification all passed.
 
 The completed Assert value slice adds a literal default expected value with the
 same constrained locator form and independently blur-gated feedback. Its
-optional associated-label contract check is deliberately not authorable yet;
-that conditional form needs its own design decision. An early M11 slice now
-provides localized expected values for Assert value. Focused tests protect
-detached expected-value copying and autosave. The owner reported that the development-container tests, type
-check, production build, and manual Assert-value/recovery verification all
-passed.
+optional associated-label contract check is authorable through the focused M11
+localized-assertion work, including its independent localized expected values.
+Focused tests protect detached expected-value copying and autosave. The owner
+reported that the development-container tests, type check, production build,
+and manual Assert-value/recovery verification all passed.
 
 The completed step-reordering slice adds localized Move up and Move down
 controls to the ordered case-step cards. Boundary controls are disabled, and
