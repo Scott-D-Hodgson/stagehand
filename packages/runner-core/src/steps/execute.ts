@@ -92,7 +92,6 @@ export async function executeCaseSteps(options: {
           await executeWaitList(options.page, step.before ?? []);
           await executeNavigation(options.page, step.url, {
             timeout: step.timeout ?? options.defaultTimeout,
-            waitUntil: step.waitUntil,
           });
           await executeWaitList(options.page, step.after ?? []);
           break;

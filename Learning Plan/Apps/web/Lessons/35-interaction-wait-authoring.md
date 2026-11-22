@@ -17,9 +17,9 @@ order and its Promote, Demote, Edit, Clone, and Remove actions.
 
 Runner-core executes Before waits in order, then the Step, then After waits.
 A soft assertion records its diagnostic and still runs its After waits. A hard
-action or assertion failure stops before those After waits. Navigate retains
-its existing `waitUntil` setting for compatibility; Before and After are extra
-explicit waits rather than a replacement for it.
+action or assertion failure stops before those After waits. Navigate completes
+at `domcontentloaded`; Before and After are the shared explicit wait mechanism
+for every supported Step.
 
 Remove does not change a list immediately. It opens the same static Bootstrap
 confirmation pattern used for Step removal: **Please Confirm** asks “Remove

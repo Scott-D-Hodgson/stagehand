@@ -11,8 +11,7 @@
   "steps": [
     {
       "action": "navigate",
-      "url": "http://localhost:3000/sign-in",
-      "waitUntil": "domcontentloaded"
+      "url": "http://localhost:3000/sign-in"
     },
     {
       "action": "click",
