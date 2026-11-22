@@ -9,7 +9,10 @@ interface BootstrapModal {
 
 const props = defineProps<{
   cancelLabel: string;
+  cancelStyle?: 'danger' | 'outline-secondary';
   confirmLabel: string;
+  confirmStyle?: 'danger' | 'primary';
+  dismissible?: boolean;
   message: string;
   title: string;
 }>();
@@ -48,7 +51,7 @@ function confirm(): void {
 }
 
 onMounted(() => {
-  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static' }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static' });
+  modal = new (window as unknown as Window & { bootstrap: { Modal: new (element: HTMLElement, options?: { backdrop?: 'static'; keyboard?: boolean }) => BootstrapModal } }).bootstrap.Modal(modalElement.value!, { backdrop: 'static', keyboard: props.dismissible ?? true });
   modalElement.value?.addEventListener('hidden.bs.modal', () => {
     if (pendingAction === 'confirm') {
       emit('confirm');
@@ -67,14 +70,14 @@ onBeforeUnmount(() => modal?.dispose());
       <div class="modal-content">
         <div class="modal-header">
           <h2 id="confirmation-heading" class="h5 modal-title">{{ props.title }}</h2>
-          <button class="btn-close" type="button" :aria-label="props.cancelLabel" @click="cancel"></button>
+          <button v-if="props.dismissible ?? true" class="btn-close" type="button" :aria-label="props.cancelLabel" @click="cancel"></button>
         </div>
         <div class="modal-body">
           <p class="mb-0">{{ props.message }}</p>
         </div>
         <div class="modal-footer">
-          <button class="btn btn-outline-secondary" type="button" @click="cancel">{{ props.cancelLabel }}</button>
-          <button class="btn btn-danger" type="button" @click="confirm">{{ props.confirmLabel }}</button>
+          <button :class="`btn btn-${props.cancelStyle ?? 'outline-secondary'}`" type="button" @click="cancel">{{ props.cancelLabel }}</button>
+          <button :class="`btn btn-${props.confirmStyle ?? 'danger'}`" type="button" @click="confirm">{{ props.confirmLabel }}</button>
         </div>
       </div>
     </div>

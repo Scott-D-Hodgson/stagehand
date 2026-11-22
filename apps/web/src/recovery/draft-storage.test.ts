@@ -102,6 +102,41 @@ describe('draft recovery storage', () => {
     await expect(storage.load()).resolves.toEqual({ kind: 'available', record })
   })
 
+  it('preserves applied M11 case settings, waits, and localized associated-label expectations', async () => {
+    const { storage } = createTestStorage();
+    const draft = createBundledEditorDraft();
+    draft.plan.defaults = {
+      ...draft.plan.defaults,
+      accessibility: { enabled: true, failOnViolation: true, tags: ['wcag2a'] },
+      timeout: 30_000,
+    };
+    draft.cases['cases/landing-page.json'] = {
+      ...draft.cases['cases/landing-page.json']!,
+      settings: {
+        browser: { timeZone: 'Europe/Paris', viewport: { height: 900, width: 1440 } },
+        timeout: 20_000,
+      },
+      steps: [{
+        action: 'assertValue',
+        after: [{ timeout: 5_000, waitForState: 'networkidle' }],
+        associatedLabel: { default: 'Email address', locales: { 'fr-CA': 'Adresse courriel' } },
+        before: [{ timeout: 2_000, waitFor: { name: 'Email', role: 'textbox' } }],
+        expected: { default: 'author@example.test', locales: { 'fr-CA': 'auteur@example.test' } },
+        locator: { name: 'Email', role: 'textbox' },
+        soft: true,
+        timeout: 10_000,
+      }],
+    };
+    const record = createDraftRecoveryRecord({ draft, revision: 1, savedAt: '2026-11-22T16:00:00.000Z' });
+    await storage.save(record, 0);
+    const loaded = await storage.load();
+    expect(loaded).toEqual({ kind: 'available', record });
+    if (loaded.kind === 'available') {
+      ((loaded.record.draft.cases['cases/landing-page.json']!.steps[0] as { associatedLabel: { locales: Record<string, string> } }).associatedLabel.locales['fr-CA']) = 'Modified';
+    }
+    await expect(storage.load()).resolves.toEqual({ kind: 'available', record });
+  })
+
   it('removes the active recovery record only after explicit discard', async () => {
     const { storage } = createTestStorage()
     await storage.save(createDraftRecoveryRecord({

@@ -76,8 +76,10 @@ this repository.
   (`/plan/card/:cardIndex`), Step
   (`/plan/card/:cardIndex/step/:stepIndex`), and Wait
   (`/plan/card/:cardIndex/step/:stepIndex/wait/:position/:waitIndex`) contexts.
-  The recovery-aware Home
-  route offers New, Import, and (only for a discovered readable draft) Recover.
+  Home offers New and Import. New collects a Plan ID before opening a plan.
+  A readable local recovery record instead opens a blocking dated Restore/No
+  confirmation; accepted recovery retains the deepest valid route, while a
+  declined copy returns to Home.
   `Plans/`, `Cases/`, `Steps/`, and `Waits/` divide route-page responsibilities,
   with one editable details component per supported step or wait type and
   reusable dialogs in `components/dialogs/`. Plan Locale uses the
@@ -87,9 +89,9 @@ this repository.
   recovered value remains visible as a disabled current option rather than
   being silently changed.
 - `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
-  IndexedDB adapter for one versioned recovery record. On startup, the recovery
-  gate offers Restore or Discard for a readable copy and requires explicit
-  discard for unreadable data. Once resolved, autosave writes a plain draft
+  IndexedDB adapter for one versioned recovery record. On startup, a readable
+  copy remains pending behind an explicit confirmation and an unreadable copy
+  requires explicit discard. Once resolved, autosave writes a plain draft
   snapshot one second after the latest edit and reports saving, saved, or failed
   local status. Conditional IndexedDB writes detect multiple-tab conflicts;
   the affected tab pauses autosave until the author discards local edits or

@@ -5,6 +5,8 @@ import { useTranslation } from 'i18next-vue'
 import AppHeader from './components/AppHeader.vue'
 import HeroPage from './components/HeroPage.vue'
 import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
+import NewPlanDialog from './components/dialogs/NewPlanDialog.vue';
+import RecoveryConfirmationModal from './components/dialogs/RecoveryConfirmationModal.vue';
 import PlanBundle from './components/Plans/PlanBundle.vue'
 import RecoveryGate from './components/RecoveryGate.vue'
 import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, updatePlanLocale, type EditorBundleDraft } from './document/plan-draft'
@@ -19,6 +21,7 @@ import {
 } from './preferences/theme'
 import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecoveryRecord, type DraftStorage } from './recovery/draft-storage'
 import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
+import { resolveRecoveryRoute } from './recovery/recovery-route';
 import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
 import type { PreparedPortableBundleExport } from './portable-bundle/export';
 import { readPortableBundleFile } from './portable-bundle/import';
@@ -31,6 +34,7 @@ const router = useRouter()
 const interfaceLanguage = ref<InterfaceLanguage>(i18next.language as InterfaceLanguage)
 const editorDraft = ref(createBundledEditorDraft())
 const recoveryState = ref<RecoveryGateState>({ kind: 'loading' })
+const isPlanOpen = ref(false)
 let draftStorage: DraftStorage | undefined
 const recoverySaveStatus = ref<RecoverySaveStatus>('idle')
 const recoveryRevision = ref(0)
@@ -38,6 +42,7 @@ const recoveryActionPending = ref(false)
 const conflictRecord = ref<DraftRecoveryRecord | undefined>()
 const exportedDraft = ref<string | undefined>()
 const exportDownloadFailed = ref(false)
+const newPlanDialogOpen = ref(false)
 let autosaveController: AutosaveController | undefined
 let skipNextAutosave = false
 const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
@@ -56,7 +61,10 @@ const exportStatusMessage = computed(() => {
   }
   return t('editor.changesNotExported');
 });
-const hasOpenPlan = computed(() => route.name !== 'home' && recoveryState.value.kind === 'ready');
+const hasOpenPlan = computed(() => isPlanOpen.value && route.name !== 'home' && recoveryState.value.kind === 'ready');
+const recoveryConfirmationMessage = computed(() => recoveryState.value.kind === 'restore-or-discard'
+  ? t('editor.restoreRecoveryConfirmation', { savedAt: new Date(recoveryState.value.savedAt).toLocaleString(interfaceLanguage.value) })
+  : '');
 const availablePlanLocales = computed(() => {
   const locales = new Set<string>(['en-CA', 'fr-CA', editorDraft.value.plan.defaults.locale]);
   for (const caseDraft of Object.values(editorDraft.value.cases)) {
@@ -192,6 +200,9 @@ async function initialiseRecovery(): Promise<void> {
   try {
     draftStorage = createIndexedDbDraftStorage()
     recoveryState.value = await loadRecoveryGateState(draftStorage)
+    if (recoveryState.value.kind === 'ready' && route.name !== 'home') {
+      await router.replace({ name: 'home' })
+    }
   } catch {
     recoveryState.value = { kind: 'unavailable' }
   }
@@ -208,9 +219,40 @@ function restoreRecovery(): void {
   if (recoveryState.value.kind !== 'restore-or-discard') {
     return
   }
-  editorDraft.value = recoveryState.value.draft
-  recoveryRevision.value = recoveryState.value.revision
+  const recovery = recoveryState.value;
+  editorDraft.value = recovery.draft;
+  recoveryRevision.value = recovery.revision;
+  isPlanOpen.value = true;
   recoveryState.value = { kind: 'ready' }
+  void router.replace(getRecoveredRouteLocation(recovery.draft));
+}
+
+/*
+Builds the deepest valid router location after accepting a local recovery record.
+---
+Inputs: The recovered editor bundle and the route that existed before recovery.
+---
+Output: A valid Plan, Case, Step, or Wait location for Vue Router.
+*/
+function getRecoveredRouteLocation(draft: EditorBundleDraft): RouteLocationRaw {
+  const target = resolveRecoveryRoute({
+    cardIndex: route.params.cardIndex,
+    draft,
+    position: route.params.position,
+    routeName: route.name,
+    stepIndex: route.params.stepIndex,
+    waitIndex: route.params.waitIndex,
+  });
+  if (target.name === 'plan') {
+    return { name: 'plan' };
+  }
+  if (target.name === 'case') {
+    return { name: 'case', params: { cardIndex: target.cardIndex } };
+  }
+  if (target.name === 'step') {
+    return { name: 'step', params: { cardIndex: target.cardIndex, stepIndex: target.stepIndex } };
+  }
+  return { name: 'wait', params: { cardIndex: target.cardIndex, position: target.position, stepIndex: target.stepIndex, waitIndex: target.waitIndex } };
 }
 
 /*
@@ -233,10 +275,27 @@ async function discardRecovery(): Promise<void> {
       return
     }
     recoveryState.value = { kind: 'ready' }
+    if (!isPlanOpen.value) {
+      await router.replace({ name: 'home' });
+    }
   } catch {
     recoveryState.value = { kind: 'unavailable' }
   } finally {
     recoveryActionPending.value = false
+  }
+}
+
+/*
+Declines the available recovery copy and returns the author to the welcome page.
+---
+Inputs: A No action from the recovery confirmation dialog.
+---
+Output: The local record is discarded and the Home route becomes active.
+*/
+async function declineRecovery(): Promise<void> {
+  await discardRecovery();
+  if (recoveryState.value.kind === 'ready') {
+    await router.replace({ name: 'home' });
   }
 }
 
@@ -249,6 +308,9 @@ Output: The editor opens without a recovery snapshot.
 */
 function continueWithoutRecovery(): void {
   recoveryState.value = { kind: 'ready' }
+  if (!isPlanOpen.value) {
+    void router.replace({ name: 'home' });
+  }
 }
 
 /*
@@ -256,35 +318,38 @@ Replaces the active editor bundle with a new empty plan.
 ---
 Inputs: A confirmed plan identifier.
 ---
-Output: A new recoverable editor bundle using the current saved revision.
+Output: A new recoverable editor bundle at the Plan route.
 */
-function createNewPlan(id: string): void {
+async function createNewPlan(id: string): Promise<void> {
   editorDraft.value = createEmptyEditorDraft(id);
+  isPlanOpen.value = true;
+  await router.replace({ name: 'plan' });
 }
 
 /*
-Starts a new plan from the route-level welcome page.
+Opens the plan-identifier dialog from the route-level welcome page.
 ---
 Inputs: A user activation of the New option.
 ---
-Output: An empty plan is opened at the plan route.
+Output: The New-plan dialog becomes visible without creating a plan.
 */
-function startNewPlan(): void {
-  editorDraft.value = createEmptyEditorDraft('new-plan');
-  recoveryState.value = { kind: 'ready' };
-  void router.push({ name: 'plan' });
+function requestNewPlanFromHero(): void {
+  newPlanDialogOpen.value = true;
 }
 
 /*
-Restores the discovered local draft from the route-level welcome page.
+Creates an author-named plan from the route-level welcome page.
 ---
-Inputs: A user activation of the Recover option.
+Inputs: A validated plan identifier entered in the New-plan dialog.
 ---
-Output: The recovered plan is opened at the plan route.
+Output: A new plan is opened at the Plan route.
 */
-function recoverFromHero(): void {
-  restoreRecovery();
-  void router.push({ name: 'plan' });
+async function createNewPlanFromHero(id: string): Promise<void> {
+  newPlanDialogOpen.value = false;
+  editorDraft.value = createEmptyEditorDraft(id);
+  isPlanOpen.value = true;
+  recoveryState.value = { kind: 'ready' };
+  await router.replace({ name: 'plan' });
 }
 
 /*
@@ -300,6 +365,7 @@ async function importFromHero(file: File): Promise<void> {
     return;
   }
   importEditorBundle(result.draft);
+  isPlanOpen.value = true;
   recoveryState.value = { kind: 'ready' };
   await router.push({ name: 'plan' });
 }
@@ -313,6 +379,7 @@ Output: One detached active editor draft for the existing autosave flow.
 */
 function importEditorBundle(bundle: EditorBundleDraft): void {
   editorDraft.value = copyEditorBundleDraft(bundle);
+  isPlanOpen.value = true;
 }
 
 /*
@@ -439,7 +506,7 @@ watch(resolvedTheme, (theme) => {
   <div class="d-flex flex-column min-vh-100 bg-body">
     <div class="app-navigation">
       <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
-      <div v-if="breadcrumbs.length > 0" class="container-fluid border-bottom py-1 bg-body-tertiary">
+      <div v-if="isPlanOpen && recoveryState.kind === 'ready' && breadcrumbs.length > 0" class="container-fluid border-bottom py-1 bg-body-tertiary">
         <nav class="my-1" aria-label="Breadcrumb">
           <ol class="breadcrumb mb-0">
             <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
@@ -458,19 +525,27 @@ watch(resolvedTheme, (theme) => {
       </div>
     </div>
     <main class="container-fluid flex-grow-1 pt-1 bg-body">
+      <RecoveryGate v-if="recoveryState.kind === 'loading' || recoveryState.kind === 'unreadable' || recoveryState.kind === 'unavailable'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" />
       <HeroPage
-        v-if="route.name === 'home'"
-        :recovery-available="recoveryState.kind === 'restore-or-discard'"
+        v-else-if="route.name === 'home' || !isPlanOpen"
         @import="importFromHero"
-        @new="startNewPlan"
-        @recover="recoverFromHero"
+        @new="requestNewPlanFromHero"
       />
-      <RecoveryGate v-else-if="recoveryState.kind !== 'ready'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" @restore="restoreRecovery" />
-      <template v-else>
+      <template v-else-if="recoveryState.kind === 'ready'">
         <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @export="downloadPortableBundle" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
         <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />
       </template>
     </main>
+    <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlanFromHero" />
+    <RecoveryConfirmationModal
+      v-if="recoveryState.kind === 'restore-or-discard'"
+      :message="recoveryConfirmationMessage"
+      :no-label="t('editor.no')"
+      :title="t('editor.confirmationTitle')"
+      :yes-label="t('editor.yes')"
+      @no="declineRecovery"
+      @yes="restoreRecovery"
+    />
     <footer v-if="hasOpenPlan" class="border-top bg-body-tertiary px-4 py-2 text-body-secondary" aria-live="polite">
       <div class="d-flex flex-wrap gap-3">
         <span>{{ exportStatusMessage }}</span>
