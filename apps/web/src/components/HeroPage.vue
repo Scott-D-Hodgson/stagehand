@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
-const props = defineProps<{ recoveryAvailable: boolean }>();
 const emit = defineEmits<{
   import: [file: File];
   new: [];
-  recover: [];
 }>();
 const importInput = ref<HTMLInputElement>();
 
@@ -44,7 +42,6 @@ function chooseImport(event: Event): void {
       <div class="d-grid gap-3 mx-auto hero-actions">
         <button class="btn btn-primary btn-lg" type="button" @click="emit('new')">New</button>
         <button class="btn btn-outline-primary btn-lg" type="button" @click="requestImport">Import</button>
-        <button v-if="props.recoveryAvailable" class="btn btn-outline-secondary btn-lg" type="button" @click="emit('recover')">Recover</button>
         <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="chooseImport" />
       </div>
     </div>

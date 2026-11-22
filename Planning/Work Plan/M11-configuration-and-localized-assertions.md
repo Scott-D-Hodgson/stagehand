@@ -16,7 +16,7 @@ Author supported plan/case configuration and localized assertion values without 
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
 - [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
-- [ ] Verify recovery and M10 import/export preservation for all implemented configuration; existing draft-copy paths retain the current fields, but cross-flow evidence remains outstanding.
+- [x] Verify recovery and M10 import/export preservation for implemented configuration, including browser, accessibility, timeout, wait, locale, and associated-label data.
 - [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
 ## Deliverables and completion evidence
@@ -144,8 +144,9 @@ layout with Vue Router routes that provide one authoring context at a time:
 Home (`/`), Plan (`/plan`), Case (`/plan/card/:cardIndex`), Step
 (`/plan/card/:cardIndex/step/:stepIndex`), and Wait
 (`/plan/card/:cardIndex/step/:stepIndex/wait/:position/:waitIndex`). The Home route offers New and
-Import, and exposes Recover only when the startup recovery check finds a
-readable local draft. After recovery resolves, the Plan route presents plan
+Import. New first collects a Plan ID. A readable local draft instead opens a
+blocking restoration confirmation before any bundle becomes active. After
+recovery resolves, the Plan route presents plan
 Default, Browser, and Accessibility settings alongside responsive Case summary
 cards. A Case route presents its settings and responsive read-only Step cards;
 card navigation opens the dedicated Step route, where that step's settings are
@@ -249,10 +250,30 @@ itself intentionally stays on the Wait route so Return remains the author's
 explicit navigation choice. The owner reported passing the development-container
 web tests, type check, production build, and manual checks for this slice.
 
+## M11 integration-evidence slice
+
+A representative valid plan and case now exercise plan and case browser and
+accessibility settings, timeout overrides, interaction waits, scrolling,
+localized assertion expectations, and Assert Value's localized associated
+label expectation. Focused browser-safe tests verify that the complete bundle
+round-trips through the M10 export/import boundary and that an IndexedDB
+recovery record retains the applied settings without sharing a mutable
+snapshot.
+
+Startup recovery now treats a saved bundle as pending rather than active. A
+blocking confirmation asks whether to restore the dated local copy; declining
+returns to Home, while accepting restores the bundle and retains the deepest
+valid Plan, Case, Step, or Wait route. Invalid route segments fall back to
+their nearest valid ancestor. New plans always collect an author-provided Plan
+ID and return to the Plan route, including when they replace a Case-route
+bundle. The owner reported that the recovery, export, import, and route-fallback
+manual walkthrough passed, together with the development-container test suite,
+type check, and production build after the follow-up startup-recovery
+presentation adjustments.
+
 ## Incremental delivery
 
-Suggested remaining PR slices: add the remaining interaction options, then
-collect M11 integration evidence.
+Suggested remaining PR slice: add the remaining interaction options.
 
 ## Open decisions and exclusions
 
@@ -274,3 +295,5 @@ Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring
 - [Assertion behaviour](../../Learning%20Plan/Apps/web/Lessons/36-assertion-behaviour.md)
 - [Interaction scrolling overrides](../../Learning%20Plan/Apps/web/Lessons/37-interaction-scrolling-overrides.md)
 - [Applied forms and navigation gates](../../Learning%20Plan/Apps/web/Lessons/38-applied-forms-and-navigation-gates.md)
+- [Associated-label assertions](../../Learning%20Plan/Apps/web/Lessons/39-associated-label-assertions.md)
+- [M11 configuration round trips](../../Learning%20Plan/Apps/web/Lessons/40-m11-configuration-round-trips.md)

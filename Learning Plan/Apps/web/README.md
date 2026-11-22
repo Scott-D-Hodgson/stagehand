@@ -58,6 +58,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
   navigation gates prevent partial editor changes from being autosaved.
 - How Assert Value's optional associated-label check keeps its own localized
   expectation while remaining an always-soft assertion.
+- How representative editor configuration survives recovery and portable ZIP
+  export/import without sharing mutable snapshots.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
 
 ## Do I need this course?
@@ -75,6 +77,12 @@ The Git-connected `stagehand-editor` Cloudflare Pages project now provides a
 verified `main` production build, pull-request previews, and the
 `app.getstagehand.ca` custom domain. It does not make the editor hosted or
 offline after load.
+
+The current M11 integration evidence confirms representative browser,
+accessibility, timeout, wait, scrolling, locale, and associated-label settings
+survive IndexedDB recovery and portable ZIP export/import. A readable recovery
+record is now explicitly confirmed before it becomes active; restoration keeps
+the deepest valid route and otherwise falls back through Step, Case, and Plan.
 
 ## Lessons
 
@@ -117,5 +125,6 @@ offline after load.
 37. [Interaction scrolling overrides](Lessons/37-interaction-scrolling-overrides.md)
 38. [Applied forms and navigation gates](Lessons/38-applied-forms-and-navigation-gates.md)
 39. [Associated-label assertions](Lessons/39-associated-label-assertions.md)
+40. [M11 configuration round trips](Lessons/40-m11-configuration-round-trips.md)
 
 Finish with the [course skill check](quiz.md).
