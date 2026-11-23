@@ -1,32 +1,32 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { type RouteLocationRaw, useRoute, useRouter } from 'vue-router'
 import { useTranslation } from 'i18next-vue'
-import AppHeader from './components/AppHeader.vue'
-import HeroPage from './components/HeroPage.vue'
-import ConflictResolutionModal from './components/dialogs/ConflictResolutionModal.vue';
-import NewPlanDialog from './components/dialogs/NewPlanDialog.vue';
-import RecoveryConfirmationModal from './components/dialogs/RecoveryConfirmationModal.vue';
-import PlanBundle from './components/Plans/PlanBundle.vue'
-import RecoveryGate from './components/RecoveryGate.vue'
-import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, updatePlanLocale, type EditorBundleDraft } from './document/plan-draft'
-import { saveInterfaceLanguage } from './localization/preferences'
-import { type InterfaceLanguage } from './localization/resources'
+import AppHeader from './components/controls/AppHeader.vue'
+import HeroPage from './components/pages/HeroPage.vue'
+import ConflictResolutionModal from './components/controls/dialogs/ConflictResolutionModal.vue';
+import NewPlanDialog from './components/plans/dialogs/NewPlanDialog.vue';
+import RecoveryConfirmationModal from './modules/recovery/controls/RecoveryConfirmationModal.vue';
+import PlanBundle from './components/plans/PlanBundle.vue'
+import RecoveryGate from './modules/recovery/controls/RecoveryGate.vue'
+import { copyEditorBundleDraft, createBundledEditorDraft, createEmptyEditorDraft, updatePlanLocale, type EditorBundleDraft } from './services/planDraftService'
+import { saveInterfaceLanguage } from './localization/interfaceLanguagePreferenceService'
+import { type InterfaceLanguage } from './localization/interfaceLanguageResources'
 import {
-  parseThemePreference,
+  readThemePreference,
   resolveTheme,
-  themePreferenceStorageKey,
+  saveThemePreference,
   type ResolvedTheme,
   type ThemePreference,
-} from './preferences/theme'
-import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecoveryRecord, type DraftStorage } from './recovery/draft-storage'
-import { loadRecoveryGateState, type RecoveryGateState } from './recovery/recovery-gate'
-import { resolveRecoveryRoute } from './recovery/recovery-route';
-import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './recovery/autosave'
-import type { PreparedPortableBundleExport } from './portable-bundle/export';
-import { readPortableBundleFile } from './portable-bundle/import';
-import ApplyToast from './components/ApplyToast.vue';
-import { appliedChangesVisible } from './feedback/apply-feedback';
+} from './modules/preferences/themePreferenceService'
+import { createDraftRecoveryRecord, createIndexedDbDraftStorage, type DraftRecoveryRecord, type DraftStorage } from './modules/recovery/draftRecoveryStorageService'
+import { loadRecoveryGateState, type RecoveryGateState } from './modules/recovery/recoveryGateService'
+import { resolveRecoveryRoute } from './modules/recovery/recoveryRouteService';
+import { createAutosaveController, type AutosaveController, type RecoverySaveStatus } from './modules/recovery/autosaveService'
+import type { PreparedPortableBundleExport } from './modules/portableBundle/exportService';
+import { readPortableBundleFile } from './modules/portableBundle/importService';
+import ApplyToast from './components/controls/ApplyToast.vue';
+import { appliedChangesVisible } from './modules/feedback/applyFeedback';
 
 const { i18next, t } = useTranslation()
 const route = useRoute()
@@ -45,77 +45,141 @@ const exportDownloadFailed = ref(false)
 const newPlanDialogOpen = ref(false)
 let autosaveController: AutosaveController | undefined
 let skipNextAutosave = false
-const saveStatusMessage = computed(() => recoverySaveStatus.value === 'saving'
-  ? t('editor.savingLocally')
-  : recoverySaveStatus.value === 'saved'
-    ? t('editor.savedLocally')
-    : recoverySaveStatus.value === 'failed'
-      ? t('editor.saveFailed')
-      : t('editor.localSaveIdle'));
-const exportStatusMessage = computed(() => {
-  if (exportDownloadFailed.value) {
-    return t('editor.exportDownloadFailed');
+
+/*
+Determines the localized status of IndexedDB draft saving.
+---
+Inputs: The current recovery-save status.
+---
+Output: A localized status message for the application footer.
+*/
+const saveStatusMessage = computed(
+  () =>
+    recoverySaveStatus.value === 'saving'
+      ? t('editor.savingLocally')
+      : recoverySaveStatus.value === 'saved'
+        ? t('editor.savedLocally')
+        : recoverySaveStatus.value === 'failed'
+          ? t('editor.saveFailed')
+          : t('editor.localSaveIdle')
+);
+
+/*
+Determines whether the active bundle has been exported successfully.
+---
+Inputs: The current editor draft and most recently exported draft snapshot.
+---
+Output: A localized export-status message for the application footer.
+*/
+const exportStatusMessage = computed(
+  () => {
+    if (exportDownloadFailed.value) {
+      return t('editor.exportDownloadFailed');
+    }
+    if (exportedDraft.value === JSON.stringify(editorDraft.value)) {
+      return t('editor.noUnexportedChanges');
+    }
+    return t('editor.changesNotExported');
   }
-  if (exportedDraft.value === JSON.stringify(editorDraft.value)) {
-    return t('editor.noUnexportedChanges');
-  }
-  return t('editor.changesNotExported');
-});
-const hasOpenPlan = computed(() => isPlanOpen.value && route.name !== 'home' && recoveryState.value.kind === 'ready');
-const recoveryConfirmationMessage = computed(() => recoveryState.value.kind === 'restore-or-discard'
-  ? t('editor.restoreRecoveryConfirmation', { savedAt: new Date(recoveryState.value.savedAt).toLocaleString(interfaceLanguage.value) })
-  : '');
-const availablePlanLocales = computed(() => {
-  const locales = new Set<string>(['en-CA', 'fr-CA', editorDraft.value.plan.defaults.locale]);
-  for (const caseDraft of Object.values(editorDraft.value.cases)) {
-    for (const step of caseDraft.steps) {
-      if (typeof step !== 'object' || step === null || !('expected' in step)) {
-        continue;
-      }
-      const expected = (step as { expected?: unknown }).expected;
-      if (typeof expected !== 'object' || expected === null || !('locales' in expected) || typeof expected.locales !== 'object' || expected.locales === null) {
-        continue;
-      }
-      for (const locale of Object.keys(expected.locales)) {
-        locales.add(locale);
+);
+
+/*
+Determines whether an active plan can expose route-specific application UI.
+---
+Inputs: The open-plan flag, current route, and recovery state.
+---
+Output: Whether the footer and other open-plan content can be shown.
+*/
+const hasOpenPlan = computed(
+  () =>
+    isPlanOpen.value && route.name !== 'home' &&
+    recoveryState.value.kind === 'ready'
+);
+
+/*
+Builds the localized question shown before a saved recovery copy is restored.
+---
+Inputs: The pending recovery record and selected interface language.
+---
+Output: A dated localized confirmation message or an empty string.
+*/
+const recoveryConfirmationMessage = computed(
+  () =>
+    recoveryState.value.kind === 'restore-or-discard'
+      ? t('editor.restoreRecoveryConfirmation', { savedAt: new Date(recoveryState.value.savedAt).toLocaleString(interfaceLanguage.value) })
+      : ''
+);
+
+/*
+Collects plan locales that an author may select from the breadcrumb menu.
+---
+Inputs: The active plan locale and locale overrides in loaded case steps.
+---
+Output: A sorted unique list of supported and currently authored locale tags.
+*/
+const availablePlanLocales = computed(
+  () => {
+    const locales = new Set<string>(['en-CA', 'fr-CA', editorDraft.value.plan.defaults.locale]);
+    for (const caseDraft of Object.values(editorDraft.value.cases)) {
+      for (const step of caseDraft.steps) {
+        if (typeof step !== 'object' || step === null || !('expected' in step)) {
+          continue;
+        }
+        const expected = (step as { expected?: unknown }).expected;
+        if (typeof expected !== 'object' || expected === null || !('locales' in expected) || typeof expected.locales !== 'object' || expected.locales === null) {
+          continue;
+        }
+        for (const locale of Object.keys(expected.locales)) {
+          locales.add(locale);
+        }
       }
     }
+    return [...locales].sort();
   }
-  return [...locales].sort();
-});
-const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(() => {
-  if (route.name === 'home') {
-    return [];
+);
+
+/*
+Builds the breadcrumb trail for the active Plan, Case, Step, or Wait route.
+---
+Inputs: The current route, active draft, and localized wait labels.
+---
+Output: Ordered breadcrumb labels with navigation targets where available.
+*/
+const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(
+  () => {
+    if (route.name === 'home') {
+      return [];
+    }
+    const items: Array<{ label: string; to?: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
+    const caseIndex = Number(route.params.cardIndex);
+    const caseReference = editorDraft.value.plan.cases[caseIndex];
+    const stepIndex = Number(route.params.stepIndex);
+    const step = editorDraft.value.cases[caseReference?.path ?? '']?.steps[stepIndex] as { action?: string } | undefined;
+    if (caseReference !== undefined) {
+      items.push({ label: `${caseIndex + 1}. ${editorDraft.value.cases[caseReference.path]?.id ?? caseReference.path}`, to: { name: 'case', params: { cardIndex: caseIndex } } });
+    }
+    if (route.name === 'step' || route.name === 'wait') {
+      const action = step?.action?.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()) ?? 'Step';
+      items.push({ label: `${stepIndex + 1}. ${action}`, to: { name: 'step', params: { cardIndex: caseIndex, stepIndex: route.params.stepIndex } } });
+    }
+    if (route.name === 'wait') {
+      const position = route.params.position === 'before' ? t('editor.before') : t('editor.after');
+      const waitIndex = Number(route.params.waitIndex);
+      const waits = route.params.position === 'before' ? (step as { before?: unknown[] } | undefined)?.before : (step as { after?: unknown[] } | undefined)?.after;
+      const wait = Array.isArray(waits) ? waits[waitIndex] : undefined;
+      const waitLabel = typeof wait === 'object' && wait !== null && 'delay' in wait
+        ? t('editor.waitForDelay')
+        : typeof wait === 'object' && wait !== null && 'waitFor' in wait
+          ? t('editor.waitForLocator')
+          : typeof wait === 'object' && wait !== null && 'waitForState' in wait
+            ? t('editor.waitForState')
+            : t('editor.wait');
+      items.push({ label: position });
+      items.push({ label: `${waitIndex + 1}. ${waitLabel}` });
+    }
+    return items;
   }
-  const items: Array<{ label: string; to?: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
-  const caseIndex = Number(route.params.cardIndex);
-  const caseReference = editorDraft.value.plan.cases[caseIndex];
-  const stepIndex = Number(route.params.stepIndex);
-  const step = editorDraft.value.cases[caseReference?.path ?? '']?.steps[stepIndex] as { action?: string } | undefined;
-  if (caseReference !== undefined) {
-    items.push({ label: `${caseIndex + 1}. ${editorDraft.value.cases[caseReference.path]?.id ?? caseReference.path}`, to: { name: 'case', params: { cardIndex: caseIndex } } });
-  }
-  if (route.name === 'step' || route.name === 'wait') {
-    const action = step?.action?.replace(/([A-Z])/g, ' $1').replace(/^./, (letter) => letter.toUpperCase()) ?? 'Step';
-    items.push({ label: `${stepIndex + 1}. ${action}`, to: { name: 'step', params: { cardIndex: caseIndex, stepIndex: route.params.stepIndex } } });
-  }
-  if (route.name === 'wait') {
-    const position = route.params.position === 'before' ? t('editor.before') : t('editor.after');
-    const waitIndex = Number(route.params.waitIndex);
-    const waits = route.params.position === 'before' ? (step as { before?: unknown[] } | undefined)?.before : (step as { after?: unknown[] } | undefined)?.after;
-    const wait = Array.isArray(waits) ? waits[waitIndex] : undefined;
-    const waitLabel = typeof wait === 'object' && wait !== null && 'delay' in wait
-      ? t('editor.waitForDelay')
-      : typeof wait === 'object' && wait !== null && 'waitFor' in wait
-        ? t('editor.waitForLocator')
-        : typeof wait === 'object' && wait !== null && 'waitForState' in wait
-          ? t('editor.waitForState')
-          : t('editor.wait');
-    items.push({ label: position });
-    items.push({ label: `${waitIndex + 1}. ${waitLabel}` });
-  }
-  return items;
-});
+);
 
 /*
 Changes the plan locale from the contextual breadcrumb menu.
@@ -126,21 +190,6 @@ Output: A replacement plan draft with that active locale.
 */
 function changeBreadcrumbPlanLocale(locale: string): void {
   editorDraft.value = { ...editorDraft.value, plan: updatePlanLocale(editorDraft.value.plan, locale) };
-}
-
-/*
-Reads a saved theme preference without making storage availability mandatory.
----
-Inputs: The browser local-storage preference value.
----
-Output: A supported preference or the System default.
-*/
-function readThemePreference(): ThemePreference {
-  try {
-    return parseThemePreference(window.localStorage.getItem(themePreferenceStorageKey))
-  } catch {
-    return 'system'
-  }
 }
 
 /*
@@ -156,7 +205,17 @@ function readSystemTheme(): ResolvedTheme {
 
 const themePreference = ref<ThemePreference>(readThemePreference())
 const systemTheme = ref<ResolvedTheme>(readSystemTheme())
-const resolvedTheme = computed(() => resolveTheme(themePreference.value, systemTheme.value === 'dark'))
+
+/*
+Resolves the concrete Bootstrap colour theme from the stored preference.
+---
+Inputs: The selected theme preference and current browser colour scheme.
+---
+Output: The light or dark theme applied to the document.
+*/
+const resolvedTheme = computed(
+  () => resolveTheme(themePreference.value, systemTheme.value === 'dark')
+)
 let colourSchemeQuery: MediaQueryList | undefined
 
 /*
@@ -168,25 +227,6 @@ Output: Updates the reactive system theme.
 */
 function updateSystemTheme(event: MediaQueryListEvent): void {
   systemTheme.value = event.matches ? 'dark' : 'light'
-}
-
-/*
-Stores an explicit theme preference or removes the System default override.
----
-Inputs: The preference selected in the editor.
----
-Output: A best-effort local preference update.
-*/
-function saveThemePreference(preference: ThemePreference): void {
-  try {
-    if (preference === 'system') {
-      window.localStorage.removeItem(themePreferenceStorageKey)
-      return
-    }
-    window.localStorage.setItem(themePreferenceStorageKey, preference)
-  } catch {
-    // Theme preference is optional when browser storage is unavailable.
-  }
 }
 
 /*
@@ -503,20 +543,60 @@ watch(resolvedTheme, (theme) => {
 </script>
 
 <template>
-  <div class="d-flex flex-column min-vh-100 bg-body">
-    <div class="app-navigation">
-      <AppHeader v-model:interface-language="interfaceLanguage" v-model:theme-preference="themePreference" />
-      <div v-if="isPlanOpen && recoveryState.kind === 'ready' && breadcrumbs.length > 0" class="container-fluid border-bottom py-1 bg-body-tertiary">
-        <nav class="my-1" aria-label="Breadcrumb">
-          <ol class="breadcrumb mb-0">
-            <li v-for="(breadcrumb, index) in breadcrumbs" :key="breadcrumb.label" :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]" :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined">
-              <span v-if="index === breadcrumbs.length - 1">{{ breadcrumb.label }}</span>
-              <RouterLink v-else-if="breadcrumb.to" :to="breadcrumb.to">{{ breadcrumb.label }}</RouterLink>
-              <span v-else>{{ breadcrumb.label }}</span>
-              <div v-if="index === 0" class="dropdown d-inline-block ms-2">
-                <button class="badge rounded-pill text-bg-secondary border-0 dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false"><span class="visually-hidden">{{ t('editor.planLocale') }}: </span>{{ editorDraft.plan.defaults.locale }}</button>
-                <ul class="dropdown-menu">
-                  <li v-for="locale in availablePlanLocales" :key="locale"><button :class="['dropdown-item', { active: locale === editorDraft.plan.defaults.locale }]" type="button" @click="changeBreadcrumbPlanLocale(locale)">{{ locale }}</button></li>
+  <div
+    class="d-flex flex-column min-vh-100 bg-body"
+  >
+    <div
+      class="app-navigation"
+    >
+      <AppHeader
+        v-model:interface-language="interfaceLanguage"
+        v-model:theme-preference="themePreference"
+      />
+      <div
+        v-if="isPlanOpen && recoveryState.kind === 'ready' && breadcrumbs.length > 0"
+        class="container-fluid border-bottom py-1 bg-body-tertiary"
+      >
+        <nav
+          class="my-1"
+          aria-label="Breadcrumb"
+        >
+          <ol
+            class="breadcrumb mb-0"
+          >
+            <li
+              v-for="(breadcrumb, index) in breadcrumbs"
+              :key="breadcrumb.label"
+              :class="['breadcrumb-item', { active: index === breadcrumbs.length - 1 }]"
+              :aria-current="index === breadcrumbs.length - 1 ? 'page' : undefined"
+            >
+              <span
+                v-if="index === breadcrumbs.length - 1"
+              >{{ breadcrumb.label }}</span>
+              <RouterLink
+                v-else-if="breadcrumb.to"
+                :to="breadcrumb.to"
+              >{{ breadcrumb.label }}</RouterLink>
+              <span
+                v-else
+              >{{ breadcrumb.label }}</span>
+              <div
+                v-if="index === 0"
+                class="dropdown d-inline-block ms-2"
+              >
+                <button
+                  class="badge rounded-pill text-bg-secondary border-0 dropdown-toggle"
+                  type="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                ><span class="visually-hidden">{{ t('editor.planLocale') }}: </span>{{ editorDraft.plan.defaults.locale }}</button>
+                <ul
+                  class="dropdown-menu"
+                >
+                  <li
+                    v-for="locale in availablePlanLocales"
+                    :key="locale"
+                  ><button :class="['dropdown-item', { active: locale === editorDraft.plan.defaults.locale }]" type="button" @click="changeBreadcrumbPlanLocale(locale)">{{ locale }}</button></li>
                 </ul>
               </div>
             </li>
@@ -524,16 +604,41 @@ watch(resolvedTheme, (theme) => {
         </nav>
       </div>
     </div>
-    <main class="container-fluid flex-grow-1 pt-1 bg-body">
-      <RecoveryGate v-if="recoveryState.kind === 'loading' || recoveryState.kind === 'unreadable' || recoveryState.kind === 'unavailable'" :pending="recoveryActionPending" :state="recoveryState" @continue="continueWithoutRecovery" @discard="discardRecovery" />
+    <main
+      class="container-fluid flex-grow-1 pt-1 bg-body"
+    >
+      <RecoveryGate
+        v-if="recoveryState.kind === 'loading' || recoveryState.kind === 'unreadable' || recoveryState.kind === 'unavailable'"
+        :pending="recoveryActionPending"
+        :state="recoveryState"
+        @continue="continueWithoutRecovery"
+        @discard="discardRecovery"
+      />
       <HeroPage
         v-else-if="route.name === 'home' || !isPlanOpen"
         @import="importFromHero"
         @new="requestNewPlanFromHero"
       />
-      <template v-else-if="recoveryState.kind === 'ready'">
-        <PlanBundle v-model:case-drafts="editorDraft.cases" v-model:plan="editorDraft.plan" @export="downloadPortableBundle" @import-bundle="importEditorBundle" @new-plan="createNewPlan" />
-        <ConflictResolutionModal v-if="conflictRecord" :key="conflictRecord.revision" :discard-label="t('editor.discardLocalEdits')" :message="t('editor.conflictDetected')" :replace-label="t('editor.replaceSavedDraft')" :title="t('editor.conflictTitle')" @discard="discardLocalEdits" @replace="replaceSavedDraft" />
+      <template
+        v-else-if="recoveryState.kind === 'ready'"
+      >
+        <PlanBundle
+          v-model:case-drafts="editorDraft.cases"
+          v-model:plan="editorDraft.plan"
+          @export="downloadPortableBundle"
+          @import-bundle="importEditorBundle"
+          @new-plan="createNewPlan"
+        />
+        <ConflictResolutionModal
+          v-if="conflictRecord"
+          :key="conflictRecord.revision"
+          :discard-label="t('editor.discardLocalEdits')"
+          :message="t('editor.conflictDetected')"
+          :replace-label="t('editor.replaceSavedDraft')"
+          :title="t('editor.conflictTitle')"
+          @discard="discardLocalEdits"
+          @replace="replaceSavedDraft"
+        />
       </template>
     </main>
     <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlanFromHero" />

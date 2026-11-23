@@ -1,7 +1,6 @@
 # M11 — Configuration and localized assertions
 
-**Status:** In progress; browser-configuration and early localized-assertion
-slices complete out of sequence
+**Status:** Complete
 **Estimate:** 4–7 focused human person-days  
 **Depends on:** [M10](M10-local-import-and-export.md) for the broader milestone; the early localized-assertion slices are accepted exceptions
 
@@ -9,23 +8,55 @@ slices complete out of sequence
 
 Author supported plan/case configuration and localized assertion values without editing JSON.
 
-## Tasks
+## Tasks completed
 
 - [x] Provide controls for supported browser/run defaults and case overrides, with inherited versus explicit values explained.
-- [ ] Cover remaining interaction options. Initial authoring for supported action and assertion Before/After waits, scrolling overrides, hard/soft assertions, and the plan, case, and step timeout hierarchy are complete.
+- [x] Deliver the agreed interaction configuration: supported action and assertion Before/After waits, scrolling overrides, hard/soft assertions, and the plan, case, and step timeout hierarchy.
 - [x] Edit expected-value defaults and locale overrides using shared canonicalization and duplicate-locale validation for Assert text, Assert HTML, and Assert value.
 - [x] Keep interface language separate from execution locale and expected-value selection for the implemented localized-assertion slices.
 - [x] Verify the route-oriented responsive authoring presentation: recovery-aware Home, Plan, Case, Step, and Wait routes; responsive summary-card grids; editable detail pages; breadcrumbs; and temporary View/Edit presentation state.
 - [x] Verify recovery and M10 import/export preservation for implemented configuration, including browser, accessibility, timeout, wait, locale, and associated-label data.
-- [ ] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
+- [x] Verify invalid settings, inheritance restrictions, locale fallback, and English/French feedback.
 
-## Deliverables and completion evidence
+## Decisions made
+
+- Keep the current M11 interaction vocabulary bounded to the supported v1
+  actions and assertions; do not select additional candidates from
+  [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md) without a
+  dedicated scope decision.
+- Preserve the version 1 Delay-wait timeout for imported documents while
+  intentionally omitting it from editor authoring until the versioned contract
+  work in [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
+- Require explicit local-form Apply actions and explicit recovery restoration;
+  recovery uses the closest valid route rather than silently opening a stale
+  deep link.
+
+## Deferred work
+
+- [ATR-042](../Backlog/epics/E02-execution-engine/stories/ATR-042.md) retains
+  extended browser navigation, action variants, and assertion vocabulary as
+  later work.
+- [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md) retains
+  removal of the fixed-delay timeout as a later versioned-contract change.
+- CLI execution mapping for exported browser, case, and timeout settings
+  remains outside the web-authoring milestone.
+
+## Completion evidence
 
 Author and round-trip representative configuration and localized assertions; demonstrate default fallback and rejection of equivalent duplicate locale keys.
 
-Deliver the relevant forms, synthetic examples, documentation, and verification records. Add focused automated checks for data preservation and contract integration, plus browser checks for the affected user flows. Follow the localization and presentation baseline in [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) and recovery baseline in [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
+Focused editor, schema, runner-core, recovery, and portable-bundle checks cover
+the delivered slices. The owner reported passing development-container test
+suite, type check, production build, and manual English/French authoring,
+inheritance, recovery, export/import, and route-fallback walkthroughs. The
+implementation follows the localization and presentation baseline in
+[ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md)
+and recovery baseline in
+[ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
 
-## Early localized-assertion slices
+## Supporting detail
+
+### Early localized-assertion slices
 
 The owner authorized this focused M11 capability before M10 so that the editor
 could explore localized expected values while the authoring surface is small.
@@ -69,7 +100,7 @@ applying removes the optional property from the draft.
 The owner reported that the development-container test suite, type check,
 production build, and manual associated-label checks passed for this slice.
 
-## Browser-configuration slice
+### Browser-configuration slice
 
 Plan Default and Browser tabs now author the supported plan browser defaults:
 Chromium headless mode, viewport width and height, and IANA time zone. Case
@@ -93,7 +124,7 @@ their cards, each Step detail owns its route-page fields, and
 Case-route cards. Edit mode exposes authoring controls only in the current
 route context; View mode uses read-only summaries.
 
-## Accessibility-configuration slice
+### Accessibility-configuration slice
 
 Plan Accessibility now authors the supported `enabled`, `failOnViolation`, and
 axe rule-tag defaults. The editor derives its alphabetized tag catalogue from
@@ -110,7 +141,7 @@ owner reported passing the web-editor tests, type check, production build, and
 manual checks of plan settings, case inheritance, clearing an override, tag
 filtering, and the unaffected Browser tab.
 
-## Step-timeout hierarchy slice
+### Step-timeout hierarchy slice
 
 The v1 contract now permits an optional `defaults.timeout` on a plan and an
 optional `settings.timeout` on a case. A supported step's existing `timeout`
@@ -137,7 +168,7 @@ Bootstrap-style tab controls used for Edit mode, but with read-only summary
 content. Changing modes retains the selected tab rather than replacing the
 author's current context.
 
-## Route-oriented authoring presentation slice
+### Route-oriented authoring presentation slice
 
 The current presentation refactor replaces the nested expandable-workspace
 layout with Vue Router routes that provide one authoring context at a time:
@@ -176,7 +207,7 @@ The owner reported passing the focused web-editor tests, type check,
 production build, and manual responsive-route verification for this presentation
 and Step-wait authoring work.
 
-## Step-wait authoring slice
+### Step-wait authoring slice
 
 Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
 Assert value Step pages expose a Waits pill beside their other settings.
@@ -212,7 +243,7 @@ timeout beside a delay, the editor preserves rather than displays it. The future
 public-contract removal is recorded in
 [ATR-043](../Backlog/epics/E01-plan-definition/stories/ATR-043.md).
 
-## Assertion-behaviour slice
+### Assertion-behaviour slice
 
 Assert text, Assert HTML, and Assert value now author the version 1 `soft`
 setting through a shared Assertion behaviour control in their Overrides panel.
@@ -223,7 +254,7 @@ hard default, and preservation of unrelated non-assertion steps. The owner
 reported passing the web-editor tests, type check, production build, and manual
 verification.
 
-## Interaction-scrolling slice
+### Interaction-scrolling slice
 
 Click, Type, Fill, and Select option Step pages now expose the shared
 `scrollIntoView` interaction setting in Overrides. The version 1 schema default
@@ -236,7 +267,7 @@ The owner reported passing web-editor tests, type check, production build, and
 manual verification that toggling persists across route navigation and that
 re-enabling removes the explicit portable-data field.
 
-## Applied-forms and navigation-gates slice
+### Applied-forms and navigation-gates slice
 
 Plan, Case, Step, and Wait configuration panels now retain edits in local
 mini-forms until an author selects **Apply**. Field feedback appears on blur,
@@ -250,7 +281,7 @@ itself intentionally stays on the Wait route so Return remains the author's
 explicit navigation choice. The owner reported passing the development-container
 web tests, type check, production build, and manual checks for this slice.
 
-## M11 integration-evidence slice
+### M11 integration-evidence slice
 
 A representative valid plan and case now exercise plan and case browser and
 accessibility settings, timeout overrides, interaction waits, scrolling,
@@ -271,11 +302,7 @@ manual walkthrough passed, together with the development-container test suite,
 type check, and production build after the follow-up startup-recovery
 presentation adjustments.
 
-## Incremental delivery
-
-Suggested remaining PR slice: add the remaining interaction options.
-
-## Open decisions and exclusions
+### Boundaries
 
 Do not add unsupported browser types, actions, or execution controls. Review the form grouping and inheritance presentation before building complex controls.
 
@@ -283,7 +310,8 @@ The editor can export the timeout settings, but no CLI currently maps an
 exported plan/case bundle into runner-core settings; execution integration
 remains later work.
 
-Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Remaining tasks stay unverified until completion evidence is recorded.
+The original estimate remains a historical planning range. Follow-on interaction
+work is deferred to the backlog and later milestones.
 
 ## Learning plan reference
 
