@@ -1,10 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../document/plan-draft';
-import IconOnlyButton from '../IconOnlyButton.vue';
-import CaseDetails from './CaseDetails.vue';
-import { stepActionIcons, type StepAction } from '../Steps/step-icons';
+import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, PlanDraft } from '../../services/planDraftService';
+import IconOnlyButton from '../controls/IconOnlyButton.vue';
+import CaseDetails from './details/CaseDetails.vue';
+import { stepActionIcons, type StepAction } from '../steps/step-icons';
 
 interface BootstrapModal { dispose(): void; hide(): void; show(): void }
 

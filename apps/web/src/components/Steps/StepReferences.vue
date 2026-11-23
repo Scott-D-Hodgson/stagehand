@@ -1,30 +1,30 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, nextTick, provide, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import { moveCaseStep, updateCaseStepTimeout, type CaseDraft } from '../../document/plan-draft';
-import { getInvalidCaseStepIndexes } from '../../document/validation';
-import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
-import AssertHtmlStepDialog from '../dialogs/AssertHtmlStepDialog.vue';
-import AssertTextStepDialog from '../dialogs/AssertTextStepDialog.vue';
-import AssertValueStepDialog from '../dialogs/AssertValueStepDialog.vue';
-import ClickStepDialog from '../dialogs/ClickStepDialog.vue';
-import FillStepDialog from '../dialogs/FillStepDialog.vue';
-import LocaleOverrideDialog from '../dialogs/LocaleOverrideDialog.vue';
-import NavigateStepDialog from '../dialogs/NavigateStepDialog.vue';
-import SelectOptionStepDialog from '../dialogs/SelectOptionStepDialog.vue';
-import StepChooserDialog from '../dialogs/StepChooserDialog.vue';
-import TypeStepDialog from '../dialogs/TypeStepDialog.vue';
-import IconOnlyButton from '../IconOnlyButton.vue';
-import AssertHtmlStepDetails from './AssertHtmlStepDetails.vue';
-import AssertTextStepDetails from './AssertTextStepDetails.vue';
-import AssertValueStepDetails from './AssertValueStepDetails.vue';
-import ClickStepDetails from './ClickStepDetails.vue';
-import FillStepDetails from './FillStepDetails.vue';
-import NavigateStepDetails from './NavigateStepDetails.vue';
-import SelectOptionStepDetails from './SelectOptionStepDetails.vue';
-import TypeStepDetails from './TypeStepDetails.vue';
+import { moveCaseStep, updateCaseStepTimeout, type CaseDraft } from '../../services/planDraftService';
+import { getInvalidCaseStepIndexes } from '../../services/validationService';
+import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
+import AssertHtmlStepDialog from './assert/dialogs/AssertHtmlStepDialog.vue';
+import AssertTextStepDialog from './assert/dialogs/AssertTextStepDialog.vue';
+import AssertValueStepDialog from './assert/dialogs/AssertValueStepDialog.vue';
+import ClickStepDialog from './action/dialogs/ClickStepDialog.vue';
+import FillStepDialog from './action/dialogs/FillStepDialog.vue';
+import LocaleOverrideDialog from './assert/dialogs/LocaleOverrideDialog.vue';
+import NavigateStepDialog from './action/dialogs/NavigateStepDialog.vue';
+import SelectOptionStepDialog from './action/dialogs/SelectOptionStepDialog.vue';
+import StepChooserDialog from './dialogs/StepChooserDialog.vue';
+import TypeStepDialog from './action/dialogs/TypeStepDialog.vue';
+import IconOnlyButton from '../controls/IconOnlyButton.vue';
+import AssertHtmlStepDetails from './assert/details/AssertHtmlStepDetails.vue';
+import AssertTextStepDetails from './assert/details/AssertTextStepDetails.vue';
+import AssertValueStepDetails from './assert/details/AssertValueStepDetails.vue';
+import ClickStepDetails from './action/details/ClickStepDetails.vue';
+import FillStepDetails from './action/details/FillStepDetails.vue';
+import NavigateStepDetails from './action/details/NavigateStepDetails.vue';
+import SelectOptionStepDetails from './action/details/SelectOptionStepDetails.vue';
+import TypeStepDetails from './action/details/TypeStepDetails.vue';
 
 interface LocaleOverride {
   locale: string;
@@ -47,19 +47,49 @@ const emit = defineEmits<{
 const { t } = useTranslation();
 const route = useRoute();
 const router = useRouter();
-const selectedCase = computed(() => props.caseDrafts[props.selectedPath]);
-const invalidStepIndexes = computed(() => selectedCase.value === undefined ? [] : getInvalidCaseStepIndexes(selectedCase.value));
-const displayedSteps = computed(() => {
-  if (selectedCase.value === undefined) {
-    return [];
+
+/*
+Determines the selected case for step-card rendering.
+---
+Inputs: The case draft collection and selected path.
+---
+Output: The selected case draft, when present.
+*/
+const selectedCase = computed(
+  () => props.caseDrafts[props.selectedPath]
+);
+
+/*
+Determines which selected-case steps have validation issues.
+---
+Inputs: The selected case draft.
+---
+Output: Ordered indexes of invalid steps.
+*/
+const invalidStepIndexes = computed(
+  () => selectedCase.value === undefined ? [] : getInvalidCaseStepIndexes(selectedCase.value)
+);
+
+/*
+Determines the step cards appropriate to the active route.
+---
+Inputs: The selected case and current route.
+---
+Output: All case steps or the routed single step.
+*/
+const displayedSteps = computed(
+  () => {
+    if (selectedCase.value === undefined) {
+      return [];
+    }
+    if (route.name !== 'step') {
+      return selectedCase.value.steps.map((step, index) => ({ index, step }));
+    }
+    const index = Number(route.params.stepIndex);
+    const step = selectedCase.value.steps[index];
+    return step === undefined ? [] : [{ index, step }];
   }
-  if (route.name !== 'step') {
-    return selectedCase.value.steps.map((step, index) => ({ index, step }));
-  }
-  const index = Number(route.params.stepIndex);
-  const step = selectedCase.value.steps[index];
-  return step === undefined ? [] : [{ index, step }];
-});
+);
 provide('stagehandStepSummary', computed(() => route.name === 'case'));
 provide('stagehandStepPage', computed(() => route.name === 'step'));
 provide('stagehandCaseIndex', props.caseIndex);
@@ -79,15 +109,45 @@ const clickName = ref('');
 const editingClickIndex = ref<number | undefined>();
 const pendingStepRemoval = ref<number | undefined>();
 const clickRoleBlurred = ref(false);
-const clickRoleValidationMessage = computed(() => clickRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
+
+/*
+Determines the Click dialog Role validation message.
+---
+Inputs: The Click dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const clickRoleValidationMessage = computed(
+  () => clickRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
 const fillRole = ref('');
 const fillName = ref('');
 const fillValue = ref('');
 const editingFillIndex = ref<number | undefined>();
 const fillRoleBlurred = ref(false);
 const fillValueBlurred = ref(false);
-const fillRoleValidationMessage = computed(() => fillRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const fillValueValidationMessage = computed(() => fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined);
+
+/*
+Determines the Fill dialog Role validation message.
+---
+Inputs: The Fill dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const fillRoleValidationMessage = computed(
+  () => fillRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Fill dialog Value validation message.
+---
+Inputs: The Fill dialog Value value.
+---
+Output: A required-field message, when applicable.
+*/
+const fillValueValidationMessage = computed(
+  () => fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined
+);
 const selectOptionRole = ref('');
 const selectOptionName = ref('');
 const selectOptionSelection = ref('');
@@ -95,16 +155,56 @@ const selectOptionMode = ref<'label' | 'value'>('value');
 const editingSelectOptionIndex = ref<number | undefined>();
 const selectOptionRoleBlurred = ref(false);
 const selectOptionSelectionBlurred = ref(false);
-const selectOptionRoleValidationMessage = computed(() => selectOptionRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const selectOptionSelectionValidationMessage = computed(() => selectOptionSelection.value.trim().length === 0 ? selectOptionMode.value === 'value' ? t('editor.valueRequired') : t('editor.labelRequired') : undefined);
+
+/*
+Determines the Select option dialog Role validation message.
+---
+Inputs: The Select option dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const selectOptionRoleValidationMessage = computed(
+  () => selectOptionRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Select option dialog selection validation message.
+---
+Inputs: The selection value and active selection mode.
+---
+Output: The required Value or Label message, when applicable.
+*/
+const selectOptionSelectionValidationMessage = computed(
+  () => selectOptionSelection.value.trim().length === 0 ? selectOptionMode.value === 'value' ? t('editor.valueRequired') : t('editor.labelRequired') : undefined
+);
 const typeRole = ref('');
 const typeName = ref('');
 const typeText = ref('');
 const editingTypeIndex = ref<number | undefined>();
 const typeRoleBlurred = ref(false);
 const typeTextBlurred = ref(false);
-const typeRoleValidationMessage = computed(() => typeRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const typeTextValidationMessage = computed(() => typeText.value.trim().length === 0 ? t('editor.textRequired') : undefined);
+
+/*
+Determines the Type dialog Role validation message.
+---
+Inputs: The Type dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const typeRoleValidationMessage = computed(
+  () => typeRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Type dialog Text validation message.
+---
+Inputs: The Type dialog Text value.
+---
+Output: A required-field message, when applicable.
+*/
+const typeTextValidationMessage = computed(
+  () => typeText.value.trim().length === 0 ? t('editor.textRequired') : undefined
+);
 const assertTextRole = ref('');
 const assertTextName = ref('');
 const assertTextExpected = ref('');
@@ -112,8 +212,28 @@ const assertTextLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertTextIndex = ref<number | undefined>();
 const assertTextRoleBlurred = ref(false);
 const assertTextExpectedBlurred = ref(false);
-const assertTextRoleValidationMessage = computed(() => assertTextRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const assertTextExpectedValidationMessage = computed(() => assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined);
+
+/*
+Determines the Assert text dialog Role validation message.
+---
+Inputs: The Assert text dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertTextRoleValidationMessage = computed(
+  () => assertTextRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Assert text dialog expected-text validation message.
+---
+Inputs: The Assert text dialog expected-text value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertTextExpectedValidationMessage = computed(
+  () => assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined
+);
 const localeOverrideDialogOpen = ref(false);
 const localeOverrideLocale = ref('');
 const localeOverrideStepIndex = ref<number | undefined>();
@@ -127,8 +247,28 @@ const assertHtmlLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertHtmlIndex = ref<number | undefined>();
 const assertHtmlRoleBlurred = ref(false);
 const assertHtmlExpectedBlurred = ref(false);
-const assertHtmlRoleValidationMessage = computed(() => assertHtmlRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const assertHtmlExpectedValidationMessage = computed(() => assertHtmlExpected.value.trim().length === 0 ? t('editor.expectedHtmlRequired') : undefined);
+
+/*
+Determines the Assert HTML dialog Role validation message.
+---
+Inputs: The Assert HTML dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertHtmlRoleValidationMessage = computed(
+  () => assertHtmlRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Assert HTML dialog expected-HTML validation message.
+---
+Inputs: The Assert HTML dialog expected-HTML value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertHtmlExpectedValidationMessage = computed(
+  () => assertHtmlExpected.value.trim().length === 0 ? t('editor.expectedHtmlRequired') : undefined
+);
 const assertValueRole = ref('');
 const assertValueName = ref('');
 const assertValueExpected = ref('');
@@ -136,24 +276,54 @@ const assertValueLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertValueIndex = ref<number | undefined>();
 const assertValueRoleBlurred = ref(false);
 const assertValueExpectedBlurred = ref(false);
-const assertValueRoleValidationMessage = computed(() => assertValueRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined);
-const assertValueExpectedValidationMessage = computed(() => assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined);
+
+/*
+Determines the Assert value dialog Role validation message.
+---
+Inputs: The Assert value dialog Role value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertValueRoleValidationMessage = computed(
+  () => assertValueRole.value.trim().length === 0 ? t('editor.roleRequired') : undefined
+);
+
+/*
+Determines the Assert value dialog expected-value validation message.
+---
+Inputs: The Assert value dialog expected-value value.
+---
+Output: A required-field message, when applicable.
+*/
+const assertValueExpectedValidationMessage = computed(
+  () => assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined
+);
 const stepKeys = new WeakMap<object, number>();
 let nextStepKey = 0;
 const stepCardList = ref<HTMLElement>();
 let heightTransitionToken = 0;
 
 const navigateUrlBlurred = ref(false);
-const navigateValidationIssues = computed(() => {
-  if (selectedCase.value === undefined) {
-    return [];
+
+/*
+Determines validation issues for the current Navigate dialog URL.
+---
+Inputs: The selected case, edited step index, and dialog URL.
+---
+Output: URL-specific validation issues for the pending navigate step.
+*/
+const navigateValidationIssues = computed(
+  () => {
+    if (selectedCase.value === undefined) {
+      return [];
+    }
+    const steps = editingStepIndex.value === undefined
+      ? [...selectedCase.value.steps, { action: 'navigate', url: navigateUrl.value }]
+      : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), url: navigateUrl.value } : step);
+    const validation = validateCase({ ...selectedCase.value, steps });
+    return validation.valid ? [] : validation.issues.filter((issue) => issue.path === `/steps/${editingStepIndex.value === undefined ? steps.length - 1 : editingStepIndex.value}/url`);
   }
-  const steps = editingStepIndex.value === undefined
-    ? [...selectedCase.value.steps, { action: 'navigate', url: navigateUrl.value }]
-    : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), url: navigateUrl.value } : step);
-  const validation = validateCase({ ...selectedCase.value, steps });
-  return validation.valid ? [] : validation.issues.filter((issue) => issue.path === `/steps/${editingStepIndex.value === undefined ? steps.length - 1 : editingStepIndex.value}/url`);
-});
+);
 
 /*
 Animates the step-card list height while Edit/View controls change its content.
@@ -1296,14 +1466,46 @@ function openStep(index: number, event: MouseEvent): void {
 </script>
 
 <template>
-  <section v-if="selectedCase" :aria-label="t('editor.caseDetails')">
-    <div v-if="invalidStepIndexes.length > 0" class="alert alert-danger" role="alert">{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
-    <h2 id="case-references-heading" class="h3 my-3">{{ t('editor.steps') }}</h2>
-    <IconOnlyButton v-if="editing && route.name !== 'step'" class="btn btn-outline-secondary mb-3" icon="fa-solid fa-plus" :label="t('editor.add')" @click="stepChooserOpen = true" />
-    <p v-if="selectedCase.steps.length === 0" class="mb-0 text-body-secondary">{{ t('editor.caseStepCount', { count: 0 }) }}</p>
-    <div v-else ref="stepCardList" class="step-card-list">
-      <TransitionGroup name="step" tag="div" class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3">
-        <div v-for="item in displayedSteps" :key="getStepKey(item.step)" class="col" @click="openStep(item.index, $event)">
+  <section
+    v-if="selectedCase"
+    :aria-label="t('editor.caseDetails')"
+  >
+    <div
+      v-if="invalidStepIndexes.length > 0"
+      class="alert alert-danger"
+      role="alert"
+    >{{ t('editor.invalidStepSummary', { count: invalidStepIndexes.length }) }}</div>
+    <h2
+      id="case-references-heading"
+      class="h3 my-3"
+    >{{ t('editor.steps') }}</h2>
+    <IconOnlyButton
+      v-if="editing && route.name !== 'step'"
+      class="btn btn-outline-secondary mb-3"
+      icon="fa-solid fa-plus"
+      :label="t('editor.add')"
+      @click="stepChooserOpen = true"
+    />
+    <p
+      v-if="selectedCase.steps.length === 0"
+      class="mb-0 text-body-secondary"
+    >{{ t('editor.caseStepCount', { count: 0 }) }}</p>
+    <div
+      v-else
+      ref="stepCardList"
+      class="step-card-list"
+    >
+      <TransitionGroup
+        name="step"
+        tag="div"
+        class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3"
+      >
+        <div
+          v-for="item in displayedSteps"
+          :key="getStepKey(item.step)"
+          class="col"
+          @click="openStep(item.index, $event)"
+        >
           <component
             :is="getStepDetailComponent(item.step)"
             :action-label="getStepActionLabel(item.step)"
@@ -1483,9 +1685,29 @@ function openStep(index: number, event: MouseEvent): void {
       @update:role="assertValueRole = $event"
       @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"
     />
-    <StepChooserDialog v-if="stepChooserOpen" @choose="chooseStep" @close="stepChooserOpen = false" />
-    <ConfirmationModal v-if="pendingStepRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.removeCaseReference')" :message="t('editor.removeStepConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingStepRemoval = undefined" @confirm="confirmStepRemoval" />
-    <ConfirmationModal v-if="pendingLocaleOverrideRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeLocaleOverrideConfirmation', { locale: pendingLocaleOverrideRemoval.locale })" :title="t('editor.confirmationTitle')" @cancel="pendingLocaleOverrideRemoval = undefined" @confirm="confirmLocaleOverrideRemoval" />
+    <StepChooserDialog
+      v-if="stepChooserOpen"
+      @choose="chooseStep"
+      @close="stepChooserOpen = false"
+    />
+    <ConfirmationModal
+      v-if="pendingStepRemoval !== undefined"
+      :cancel-label="t('editor.cancel')"
+      :confirm-label="t('editor.removeCaseReference')"
+      :message="t('editor.removeStepConfirmation')"
+      :title="t('editor.confirmationTitle')"
+      @cancel="pendingStepRemoval = undefined"
+      @confirm="confirmStepRemoval"
+    />
+    <ConfirmationModal
+      v-if="pendingLocaleOverrideRemoval !== undefined"
+      :cancel-label="t('editor.cancel')"
+      :confirm-label="t('editor.remove')"
+      :message="t('editor.removeLocaleOverrideConfirmation', { locale: pendingLocaleOverrideRemoval.locale })"
+      :title="t('editor.confirmationTitle')"
+      @cancel="pendingLocaleOverrideRemoval = undefined"
+      @confirm="confirmLocaleOverrideRemoval"
+    />
   </section>
 </template>
 

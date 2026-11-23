@@ -1,20 +1,20 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../document/plan-draft';
-import { validateEditorPlan } from '../../document/validation';
-import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../portable-bundle/export';
-import { readPortableBundleFile } from '../../portable-bundle/import';
-import CasePage from '../Cases/CasePage.vue';
-import StepPage from '../Steps/StepPage.vue';
-import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
-import BundleIssuesModal from '../dialogs/BundleIssuesModal.vue';
-import ExportBundleDialog from '../dialogs/ExportBundleDialog.vue';
-import NewPlanDialog from '../dialogs/NewPlanDialog.vue';
-import IconOnlyButton from '../IconOnlyButton.vue';
-import PlanPage from './PlanPage.vue';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../services/planDraftService';
+import { validateEditorPlan } from '../../services/validationService';
+import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../modules/portableBundle/exportService';
+import { readPortableBundleFile } from '../../modules/portableBundle/importService';
+import CasePage from '../cases/pages/CasePage.vue';
+import StepPage from '../steps/pages/StepPage.vue';
+import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
+import BundleIssuesModal from './dialogs/BundleIssuesModal.vue';
+import ExportBundleDialog from './dialogs/ExportBundleDialog.vue';
+import NewPlanDialog from './dialogs/NewPlanDialog.vue';
+import IconOnlyButton from '../controls/IconOnlyButton.vue';
+import PlanPage from './pages/PlanPage.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -33,9 +33,39 @@ const { t } = useTranslation();
 const route = useRoute();
 const router = useRouter();
 const validationRequested = ref(false);
-const planValidation = computed(() => validateEditorPlan(props.plan));
-const validationIssues = computed(() => planValidation.value.valid ? [] : planValidation.value.issues);
-const hasUnexportedChanges = computed(() => JSON.stringify(props.plan) !== JSON.stringify(createBundledEditorDraft().plan) || JSON.stringify(props.caseDrafts) !== JSON.stringify(createBundledEditorDraft().cases));
+
+/*
+Determines the current validation result for the plan draft.
+---
+Inputs: The supplied plan draft.
+---
+Output: The plan validation result.
+*/
+const planValidation = computed(
+  () => validateEditorPlan(props.plan)
+);
+
+/*
+Determines the current validation issues for the plan draft.
+---
+Inputs: The plan validation result.
+---
+Output: An empty list for a valid plan or its validation issues.
+*/
+const validationIssues = computed(
+  () => planValidation.value.valid ? [] : planValidation.value.issues
+);
+
+/*
+Determines whether the current bundle differs from the bundled sample.
+---
+Inputs: The plan and case drafts.
+---
+Output: Whether exporting would include user changes.
+*/
+const hasUnexportedChanges = computed(
+  () => JSON.stringify(props.plan) !== JSON.stringify(createBundledEditorDraft().plan) || JSON.stringify(props.caseDrafts) !== JSON.stringify(createBundledEditorDraft().cases)
+);
 const confirmation = ref<{ bundle?: { cases: Record<string, CaseDraft>; plan: PlanDraft }; id?: string; index?: number; kind: 'import-bundle' | 'new-plan' | 'remove-reference' }>();
 const newPlanDialogOpen = ref(false);
 const selectedCasePath = ref(props.plan.cases[0]?.path ?? '');
@@ -43,8 +73,28 @@ const importInput = ref<HTMLInputElement>();
 const bundleIssues = ref<{ messages: string[]; message: string; title: string }>();
 const pendingExportBundle = ref<PreparedPortableBundleExport>();
 const editing = ref(true);
-const selectedCaseIndex = computed(() => Number(route.params.cardIndex));
-const selectedCaseReference = computed(() => props.plan.cases[selectedCaseIndex.value]);
+
+/*
+Determines the case index addressed by the current route.
+---
+Inputs: The route card-index parameter.
+---
+Output: The numeric case index.
+*/
+const selectedCaseIndex = computed(
+  () => Number(route.params.cardIndex)
+);
+
+/*
+Determines the selected plan case reference.
+---
+Inputs: The routed case index and plan case references.
+---
+Output: The matching case reference, when present.
+*/
+const selectedCaseReference = computed(
+  () => props.plan.cases[selectedCaseIndex.value]
+);
 
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
@@ -464,20 +514,74 @@ function cancelConfirmation(): void {
 </script>
 
 <template>
-  <div class="btn-toolbar flex-wrap gap-2 my-3" role="toolbar" :aria-label="t('editor.planActions')">
-    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-sparkles" :label="t('editor.new')" @click="requestNewPlan" />
+  <div
+    class="btn-toolbar flex-wrap gap-2 my-3"
+    role="toolbar"
+    :aria-label="t('editor.planActions')"
+  >
+    <div
+      class="btn-group"
+      role="group"
+      :aria-label="t('editor.planActions')"
+    >
+      <IconOnlyButton
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-sparkles"
+        :label="t('editor.new')"
+        @click="requestNewPlan"
+      />
     </div>
-    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-upload" :label="t('editor.import')" @click="requestImport" />
-      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-download" :label="t('editor.export')" @click="requestExport" />
-      <IconOnlyButton class="btn btn-outline-secondary" icon="fa-solid fa-ballot-check" :label="t('editor.validate')" @click="requestPlanValidation" />
+    <div
+      class="btn-group"
+      role="group"
+      :aria-label="t('editor.planActions')"
+    >
+      <IconOnlyButton
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-upload"
+        :label="t('editor.import')"
+        @click="requestImport"
+      />
+      <IconOnlyButton
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-download"
+        :label="t('editor.export')"
+        @click="requestExport"
+      />
+      <IconOnlyButton
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-ballot-check"
+        :label="t('editor.validate')"
+        @click="requestPlanValidation"
+      />
     </div>
-    <div class="btn-group" role="group" :aria-label="t('editor.planActions')">
-      <IconOnlyButton v-if="editing" class="btn btn-outline-secondary" icon="fa-solid fa-eye" :label="t('editor.viewMode')" @click="setEditing(false)" />
-      <IconOnlyButton v-if="!editing" class="btn btn-outline-secondary" icon="fa-solid fa-pen" :label="t('editor.editMode')" @click="setEditing(true)" />
+    <div
+      class="btn-group"
+      role="group"
+      :aria-label="t('editor.planActions')"
+    >
+      <IconOnlyButton
+        v-if="editing"
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-eye"
+        :label="t('editor.viewMode')"
+        @click="setEditing(false)"
+      />
+      <IconOnlyButton
+        v-if="!editing"
+        class="btn btn-outline-secondary"
+        icon="fa-solid fa-pen"
+        :label="t('editor.editMode')"
+        @click="setEditing(true)"
+      />
     </div>
-    <input ref="importInput" class="d-none" type="file" accept=".zip,application/zip" @change="importSelectedFile" />
+    <input
+      ref="importInput"
+      class="d-none"
+      type="file"
+      accept=".zip,application/zip"
+      @change="importSelectedFile"
+    />
   </div>
   <PlanPage
     v-if="route.name === 'plan'"
@@ -550,9 +654,25 @@ function cancelConfirmation(): void {
     @cancel="cancelConfirmation"
     @confirm="confirmAction"
   />
-  <BundleIssuesModal v-if="bundleIssues" :close-label="t('editor.close')" :issues="bundleIssues.messages" :message="bundleIssues.message" :title="bundleIssues.title" @close="bundleIssues = undefined" />
-  <ExportBundleDialog v-if="pendingExportBundle" :suggested-filename="pendingExportBundle.filename" @close="pendingExportBundle = undefined" @download="downloadExport" />
-  <NewPlanDialog v-if="newPlanDialogOpen" @close="newPlanDialogOpen = false" @create="createNewPlan" />
+  <BundleIssuesModal
+    v-if="bundleIssues"
+    :close-label="t('editor.close')"
+    :issues="bundleIssues.messages"
+    :message="bundleIssues.message"
+    :title="bundleIssues.title"
+    @close="bundleIssues = undefined"
+  />
+  <ExportBundleDialog
+    v-if="pendingExportBundle"
+    :suggested-filename="pendingExportBundle.filename"
+    @close="pendingExportBundle = undefined"
+    @download="downloadExport"
+  />
+  <NewPlanDialog
+    v-if="newPlanDialogOpen"
+    @close="newPlanDialogOpen = false"
+    @create="createNewPlan"
+  />
 </template>
 
 <style scoped>

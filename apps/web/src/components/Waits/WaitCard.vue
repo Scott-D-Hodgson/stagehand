@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
-import IconOnlyButton from '../IconOnlyButton.vue';
-import type { WaitDraft } from './wait-draft';
+import IconOnlyButton from '../controls/IconOnlyButton.vue';
+import type { WaitDraft } from './models/wait-draft';
 
 const props = defineProps<{ editing: boolean; index: number; item: WaitDraft; position: 'after' | 'before'; waitCount: number }>();
 const emit = defineEmits<{ move: [direction: -1 | 1]; remove: [] }>();
@@ -28,15 +28,30 @@ function getWaitTypeLabel(item: WaitDraft): string {
 </script>
 
 <template>
-  <article class="card shadow-sm h-100 bg-body">
-    <div class="card-body position-relative pb-5">
-      <h3 class="h5">
-        <RouterLink :to="{ name: 'wait', params: { cardIndex: route.params.cardIndex, position: props.position, stepIndex: route.params.stepIndex, waitIndex: props.index } }" class="stretched-link text-decoration-none">{{ props.index + 1 }}. {{ getWaitTypeLabel(props.item) }}</RouterLink>
+  <article
+    class="card shadow-sm h-100 bg-body"
+  >
+    <div
+      class="card-body position-relative pb-5"
+    >
+      <h3
+        class="h5"
+      >
+        <RouterLink
+          :to="{ name: 'wait', params: { cardIndex: route.params.cardIndex, position: props.position, stepIndex: route.params.stepIndex, waitIndex: props.index } }"
+          class="stretched-link text-decoration-none"
+        >{{ props.index + 1 }}. {{ getWaitTypeLabel(props.item) }}</RouterLink>
       </h3>
-      <dl class="mb-0">
-        <template v-if="'delay' in props.item">
+      <dl
+        class="mb-0"
+      >
+        <template
+          v-if="'delay' in props.item"
+        >
           <dt>{{ t('editor.delayMilliseconds') }}</dt>
-          <dd class="mb-0">{{ props.item.delay }}</dd>
+          <dd
+            class="mb-0"
+          >{{ props.item.delay }}</dd>
         </template>
         <template v-else-if="'waitFor' in props.item">
           <dt>{{ t('editor.role') }}</dt>

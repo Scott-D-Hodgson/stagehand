@@ -1,6 +1,6 @@
 # Stagehand web editor
 
-This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, initial expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. Early [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) slices add localized assertion values, supported plan/case browser configuration, plan/case/step timeout inheritance, generalized Before/After waits, and the current route-oriented presentation refactor. Remaining assertion options, further step authoring, and execution remain later Phase 2 work.
+This workspace contains the local-first Stagehand Vue editor. [M8](../../Planning/Work%20Plan/M8-editor-foundation-and-document-state.md) established the Vite, Vue, TypeScript, localization, recovery, and conflict-handling foundation. [M9](../../Planning/Work%20Plan/M9-basic-plan-and-case-authoring.md) added controlled plan and case authoring: editable case references and documents, Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value steps, initial expandable case-reference workspaces, and adjacent reordering. [M10](../../Planning/Work%20Plan/M10-local-import-and-export.md) completed the browser-safe portable ZIP codec, validated protected import, valid-only browser download, and the representative round-trip walkthrough. [M11](../../Planning/Work%20Plan/M11-configuration-and-localized-assertions.md) completed localized assertion values, supported plan/case browser configuration, plan/case/step timeout inheritance, generalized Before/After waits, local applied forms, and the route-oriented presentation. Further step authoring and execution remain later Phase 2 work.
 
 ## Commands
 
@@ -80,15 +80,16 @@ this repository.
   A readable local recovery record instead opens a blocking dated Restore/No
   confirmation; accepted recovery retains the deepest valid route, while a
   declined copy returns to Home.
-  `Plans/`, `Cases/`, `Steps/`, and `Waits/` divide route-page responsibilities,
-  with one editable details component per supported step or wait type and
-  reusable dialogs in `components/dialogs/`. Plan Locale uses the
+  `plans/`, `cases/`, `steps/`, and `waits/` divide route-page responsibilities,
+  with route pages, details, dialogs, models, and local controls grouped by
+  their owning feature. Shared controls live in `components/controls/` and
+  recovery controls live with the recovery module. Plan Locale uses the
   maintained JSON catalogue. Breadcrumbs expose a contextual Plan Locale menu
   with `en-CA`, `fr-CA`, and any locale found in localized assertions;
   it is separate from the remembered interface language. An out-of-catalogue
   recovered value remains visible as a disabled current option rather than
   being silently changed.
-- `src/recovery/draft-storage.ts` defines the browser-storage boundary and its
+- `src/modules/recovery/draftRecoveryStorageService.ts` defines the browser-storage boundary and its
   IndexedDB adapter for one versioned recovery record. On startup, a readable
   copy remains pending behind an explicit confirmation and an unreadable copy
   requires explicit discard. Once resolved, autosave writes a plain draft
@@ -188,7 +189,8 @@ this repository.
   unavailable direction. The shared case validator identifies invalid authored
   steps through their issue paths. A Case card with an invalid step has a red
   border, while the Step page provides the field-level editing context.
-  The dialog components live in `src/components/dialogs/`; Bootstrap focuses
+  Feature dialogs live beside their owning component or module; shared dialogs
+  live in `src/components/controls/dialogs/`. Bootstrap focuses
   their first control after opening, retains a static backdrop, and completes
   hide cleanup before Vue removes them. Secondary dialog actions use Bootstrap
   outlined styling while Save, Create, Download, and destructive confirmations
@@ -203,3 +205,23 @@ this repository.
   discards or applies them. A Bootstrap toast in the application shell confirms
   an applied Step or Wait change; Wait Apply remains on the Wait route so Return
   is explicit.
+
+## Source organization
+
+- `src/components/` contains Vue presentation organized by feature: `plans/`,
+  `cases/`, `steps/action/`, `steps/assert/`, `waits/`, and generic
+  `controls/`. A feature may keep route pages, details, dialogs, models, or
+  controls beneath its own folder when they are not shared.
+- `src/services/` contains shared application or document services, including
+  `planDraftService` and `validationService`.
+- `src/modules/` contains bounded capabilities that own their feature-specific
+  services, static data, tests, and controls: accessibility, feedback,
+  localization catalogue data, portable bundles, preferences, and recovery.
+- `src/localization/` contains the interface i18next setup, resources, and
+  remembered interface-language preference. It remains separate from the plan
+  locale catalogue and localized assertion values.
+
+The boundary is intentional: a **module** owns a bounded feature capability;
+a **service** is shared application or document behaviour with no single
+feature owner. Keep shared domain services out of a feature module, and keep
+feature-local implementation out of `src/services/`.

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import IconOnlyButton from '../IconOnlyButton.vue';
-import ConfirmationModal from '../dialogs/ConfirmationModal.vue';
-import WaitChooserDialog, { type WaitType } from '../dialogs/WaitChooserDialog.vue';
-import WaitItemDialog from '../dialogs/WaitItemDialog.vue';
+import IconOnlyButton from '../controls/IconOnlyButton.vue';
+import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
+import WaitChooserDialog, { type WaitType } from './dialogs/WaitChooserDialog.vue';
+import WaitItemDialog from './dialogs/WaitItemDialog.vue';
 import WaitCard from './WaitCard.vue';
-import { isWaitDraft, type WaitDraft } from './wait-draft';
+import { isWaitDraft, type WaitDraft } from './models/wait-draft';
 
 type WaitListPosition = 'after' | 'before';
 
@@ -16,8 +16,28 @@ const { t } = useTranslation();
 const chooserPosition = ref<WaitListPosition>();
 const newWait = ref<{ position: WaitListPosition; type: WaitType }>();
 const pendingWaitRemoval = ref<{ index: number; position: WaitListPosition }>();
-const beforeItems = computed(() => props.before.filter(isWaitDraft));
-const afterItems = computed(() => props.after.filter(isWaitDraft));
+
+/*
+Determines the valid waits that run before the step.
+---
+Inputs: The raw before-wait values.
+---
+Output: The contract-shaped before waits.
+*/
+const beforeItems = computed(
+  () => props.before.filter(isWaitDraft)
+);
+
+/*
+Determines the valid waits that run after the step.
+---
+Inputs: The raw after-wait values.
+---
+Output: The contract-shaped after waits.
+*/
+const afterItems = computed(
+  () => props.after.filter(isWaitDraft)
+);
 
 /*
 Gets a stable render key for one persisted wait value during list reordering.
@@ -138,31 +158,116 @@ function confirmWaitRemoval(): void {
 </script>
 
 <template>
-  <section aria-labelledby="waits-heading">
-    <h2 id="waits-heading" class="h3 mb-3">{{ t('editor.waits') }}</h2>
-    <section aria-labelledby="before-waits-heading">
-      <h3 id="before-waits-heading" class="h5">{{ t('editor.before') }}</h3>
-      <IconOnlyButton v-if="props.editing" class="btn btn-outline-secondary btn-sm my-1" icon="fa-solid fa-plus" :label="t('editor.add')" @click="openChooser('before')" />
-      <p v-if="beforeItems.length === 0" class="mb-0 mt-3 text-body-secondary">{{ t('editor.noWaits') }}</p>
-      <TransitionGroup v-else name="wait" tag="div" class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
-        <div v-for="(item, index) in beforeItems" :key="getWaitKey('before', item, index, beforeItems)" class="col">
-          <WaitCard :editing="props.editing" :index="index" :item="item" position="before" :wait-count="beforeItems.length" @move="moveWait('before', index, $event)" @remove="requestWaitRemoval('before', index)" />
+  <section
+    aria-labelledby="waits-heading"
+  >
+    <h2
+      id="waits-heading"
+      class="h3 mb-3"
+    >{{ t('editor.waits') }}</h2>
+    <section
+      aria-labelledby="before-waits-heading"
+    >
+      <h3
+        id="before-waits-heading"
+        class="h5"
+      >{{ t('editor.before') }}</h3>
+      <IconOnlyButton
+        v-if="props.editing"
+        class="btn btn-outline-secondary btn-sm my-1"
+        icon="fa-solid fa-plus"
+        :label="t('editor.add')"
+        @click="openChooser('before')"
+      />
+      <p
+        v-if="beforeItems.length === 0"
+        class="mb-0 mt-3 text-body-secondary"
+      >{{ t('editor.noWaits') }}</p>
+      <TransitionGroup
+        v-else
+        name="wait"
+        tag="div"
+        class="row row-cols-1 row-cols-lg-2 g-3 mt-0"
+      >
+        <div
+          v-for="(item, index) in beforeItems"
+          :key="getWaitKey('before', item, index, beforeItems)"
+          class="col"
+        >
+          <WaitCard
+            :editing="props.editing"
+            :index="index"
+            :item="item"
+            position="before"
+            :wait-count="beforeItems.length"
+            @move="moveWait('before', index, $event)"
+            @remove="requestWaitRemoval('before', index)"
+          />
         </div>
       </TransitionGroup>
     </section>
-    <section class="mt-4" aria-labelledby="after-waits-heading">
-      <h3 id="after-waits-heading" class="h5">{{ t('editor.after') }}</h3>
-      <IconOnlyButton v-if="props.editing" class="btn btn-outline-secondary btn-sm my-1" icon="fa-solid fa-plus" :label="t('editor.add')" @click="openChooser('after')" />
-      <p v-if="afterItems.length === 0" class="mb-0 mt-3 text-body-secondary">{{ t('editor.noWaits') }}</p>
-      <TransitionGroup v-else name="wait" tag="div" class="row row-cols-1 row-cols-lg-2 g-3 mt-0">
-        <div v-for="(item, index) in afterItems" :key="getWaitKey('after', item, index, afterItems)" class="col">
-          <WaitCard :editing="props.editing" :index="index" :item="item" position="after" :wait-count="afterItems.length" @move="moveWait('after', index, $event)" @remove="requestWaitRemoval('after', index)" />
+    <section
+      class="mt-4"
+      aria-labelledby="after-waits-heading"
+    >
+      <h3
+        id="after-waits-heading"
+        class="h5"
+      >{{ t('editor.after') }}</h3>
+      <IconOnlyButton
+        v-if="props.editing"
+        class="btn btn-outline-secondary btn-sm my-1"
+        icon="fa-solid fa-plus"
+        :label="t('editor.add')"
+        @click="openChooser('after')"
+      />
+      <p
+        v-if="afterItems.length === 0"
+        class="mb-0 mt-3 text-body-secondary"
+      >{{ t('editor.noWaits') }}</p>
+      <TransitionGroup
+        v-else
+        name="wait"
+        tag="div"
+        class="row row-cols-1 row-cols-lg-2 g-3 mt-0"
+      >
+        <div
+          v-for="(item, index) in afterItems"
+          :key="getWaitKey('after', item, index, afterItems)"
+          class="col"
+        >
+          <WaitCard
+            :editing="props.editing"
+            :index="index"
+            :item="item"
+            position="after"
+            :wait-count="afterItems.length"
+            @move="moveWait('after', index, $event)"
+            @remove="requestWaitRemoval('after', index)"
+          />
         </div>
       </TransitionGroup>
     </section>
-    <WaitChooserDialog v-if="chooserPosition !== undefined" @choose="openWaitDialog" @close="chooserPosition = undefined" />
-    <WaitItemDialog v-if="newWait !== undefined" :type="newWait.type" @close="newWait = undefined" @save="addWait" />
-    <ConfirmationModal v-if="pendingWaitRemoval !== undefined" :cancel-label="t('editor.cancel')" :confirm-label="t('editor.remove')" :message="t('editor.removeWaitConfirmation')" :title="t('editor.confirmationTitle')" @cancel="pendingWaitRemoval = undefined" @confirm="confirmWaitRemoval" />
+    <WaitChooserDialog
+      v-if="chooserPosition !== undefined"
+      @choose="openWaitDialog"
+      @close="chooserPosition = undefined"
+    />
+    <WaitItemDialog
+      v-if="newWait !== undefined"
+      :type="newWait.type"
+      @close="newWait = undefined"
+      @save="addWait"
+    />
+    <ConfirmationModal
+      v-if="pendingWaitRemoval !== undefined"
+      :cancel-label="t('editor.cancel')"
+      :confirm-label="t('editor.remove')"
+      :message="t('editor.removeWaitConfirmation')"
+      :title="t('editor.confirmationTitle')"
+      @cancel="pendingWaitRemoval = undefined"
+      @confirm="confirmWaitRemoval"
+    />
   </section>
 </template>
 

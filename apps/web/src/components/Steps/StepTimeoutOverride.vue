@@ -33,14 +33,41 @@ function changeOverride(enabled: boolean): void {
 </script>
 
 <template>
-  <div class="form-check">
-    <input :id="`${props.idPrefix}-timeout-override`" class="form-check-input" type="checkbox" :checked="typeof props.timeout === 'number'" @change="changeOverride(($event.target as HTMLInputElement).checked)" />
-    <label class="form-check-label" :for="`${props.idPrefix}-timeout-override`">{{ t('editor.overrideCaseStepTimeout') }}</label>
+  <div
+    class="form-check"
+  >
+    <input
+      :id="`${props.idPrefix}-timeout-override`"
+      class="form-check-input"
+      type="checkbox"
+      :checked="typeof props.timeout === 'number'"
+      @change="changeOverride(($event.target as HTMLInputElement).checked)"
+    />
+    <label
+      class="form-check-label"
+      :for="`${props.idPrefix}-timeout-override`"
+    >{{ t('editor.overrideCaseStepTimeout') }}</label>
   </div>
-  <template v-if="typeof props.timeout === 'number'">
-    <label class="form-label mt-3" :for="`${props.idPrefix}-timeout`">{{ t('editor.stepTimeout') }}</label>
-    <input :id="`${props.idPrefix}-timeout`" :class="['form-control', { 'is-invalid': wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1) }]" min="1" type="number" :value="props.timeout" @blur="wasBlurred = true" @input="emit('update:timeout', readTimeout($event))" />
-    <div v-if="wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1)" class="invalid-feedback d-block">{{ t('editor.stepTimeoutInvalid') }}</div>
+  <template
+    v-if="typeof props.timeout === 'number'"
+  >
+    <label
+      class="form-label mt-3"
+      :for="`${props.idPrefix}-timeout`"
+    >{{ t('editor.stepTimeout') }}</label>
+    <input
+      :id="`${props.idPrefix}-timeout`"
+      :class="['form-control', { 'is-invalid': wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1) }]"
+      min="1"
+      type="number"
+      :value="props.timeout"
+      @blur="wasBlurred = true"
+      @input="emit('update:timeout', readTimeout($event))"
+    />
+    <div
+      v-if="wasBlurred && (!Number.isInteger(props.timeout) || props.timeout < 1)"
+      class="invalid-feedback d-block"
+    >{{ t('editor.stepTimeoutInvalid') }}</div>
   </template>
   <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.inheritingCaseStepTimeout', { timeout: props.inheritedTimeout }) }}</p>
 </template>

@@ -20,7 +20,7 @@ The validation result says whether a value follows the shared contract. It does 
 
 ## Try it
 
-Read `apps/web/src/document/validation.ts` and its test. Change a copied sample in your head so it lacks `cases`; identify the expected result before reading the assertion.
+Read `apps/web/src/services/validationService.ts` and its test. Change a copied sample in your head so it lacks `cases`; identify the expected result before reading the assertion.
 
 ## You are ready when
 

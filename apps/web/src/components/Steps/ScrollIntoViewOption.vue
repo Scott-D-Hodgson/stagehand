@@ -18,12 +18,28 @@ function updateScrollIntoView(event: Event): void {
 </script>
 
 <template>
-  <div v-if="props.editing" class="form-check mt-3">
-    <input :id="`${props.idPrefix}-scroll-into-view`" :checked="props.scrollIntoView" class="form-check-input" type="checkbox" @change="updateScrollIntoView" />
-    <label class="form-check-label" :for="`${props.idPrefix}-scroll-into-view`">{{ t('editor.scrollIntoView') }}</label>
+  <div
+    v-if="props.editing"
+    class="form-check mt-3"
+  >
+    <input
+      :id="`${props.idPrefix}-scroll-into-view`"
+      :checked="props.scrollIntoView"
+      class="form-check-input"
+      type="checkbox"
+      @change="updateScrollIntoView"
+    />
+    <label
+      class="form-check-label"
+      :for="`${props.idPrefix}-scroll-into-view`"
+    >{{ t('editor.scrollIntoView') }}</label>
   </div>
-  <template v-else>
+  <template
+    v-else
+  >
     <dt>{{ t('editor.scrollIntoView') }}</dt>
-    <dd class="mb-0">{{ props.scrollIntoView ? t('editor.enabled') : t('editor.disabled') }}</dd>
+    <dd
+      class="mb-0"
+    >{{ props.scrollIntoView ? t('editor.enabled') : t('editor.disabled') }}</dd>
   </template>
 </template>

@@ -10,11 +10,12 @@ the active editor draft.
 ## Follow the document hierarchy
 
 `App.vue` still owns application-level preferences and the active plan/case
-draft. `Plans/PlanBundle.vue` coordinates the editor workspace. Its plan
-details live in `Plans/`; reference and case details live in `Cases/`; and the
-individual step displays and their orchestration live in `Steps/`. Modal forms
-remain in `components/dialogs/` because they are temporary interactions rather
-than part of a rendered plan, case, or step card.
+draft. Route pages and details live with their owning feature: `plans/`,
+`cases/`, `steps/action/`, `steps/assert/`, and `waits/`. Shared controls live
+in `components/controls/`; a dialog stays with its owning feature unless it is
+genuinely reusable, in which case it lives in `components/controls/dialogs/`.
+Modules such as recovery and portable bundles own their own local controls and
+services rather than making components a second owner of the draft.
 
 This arrangement makes a step card easier to read: its numbered action and
 details remain in the card body, while authoring actions belong in the footer.

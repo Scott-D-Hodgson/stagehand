@@ -1,6 +1,6 @@
-import i18next from 'i18next'
-import { interfaceResources } from './resources'
-import { readInterfaceLanguage } from './preferences'
+﻿import i18next from 'i18next'
+import { interfaceResources } from './interfaceLanguageResources'
+import { readInterfaceLanguage } from './interfaceLanguagePreferenceService'
 
 export const i18nInitialized = i18next.init({
   fallbackLng: 'en-CA',
