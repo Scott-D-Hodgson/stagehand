@@ -20,8 +20,9 @@ authors this shared-contract shape:
 
 This looks similar to Type, but its meaning is different: Type enters text in
 sequence, while Fill supplies the field’s value. The current form requires a
-literal Value. The shared contract permits a variable reference too, but that
-authoring capability belongs to M12 with variables and data sets.
+literal Value. The shared contract permits a variable reference too. Plan-level
+variable definitions are now being introduced in M12.1, but variable selection
+for this field and data-set authoring remain later M12 work.
 
 ## Shared locator fields
 

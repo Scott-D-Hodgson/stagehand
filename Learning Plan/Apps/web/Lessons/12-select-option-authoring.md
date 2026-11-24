@@ -40,9 +40,10 @@ contains either `value` or `label`, never both. This is a useful authoring
 pattern: when a contract has mutually exclusive alternatives, make that choice
 explicit in the interface.
 
-The current selection is a literal. Variable-backed selections belong to M12,
-with variables and data sets, rather than being represented as partial support
-in this form.
+The current selection is a literal. Plan-level variable definitions are being
+introduced in M12.1, but variable-backed selections and data-set authoring
+remain later M12 work rather than being represented as partial support in this
+form.
 
 ## Shared target, separate selection
 
@@ -71,6 +72,6 @@ one presents the selection form it saved.
   both.
 - You can identify why locator fields are shared while the selection controls
   remain action-specific.
-- You know why variable-backed selections wait for M12.
+- You know why variable-backed selections remain later M12 work.
 
 [← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Next: Assert-text authoring →](13-assert-text-authoring.md)

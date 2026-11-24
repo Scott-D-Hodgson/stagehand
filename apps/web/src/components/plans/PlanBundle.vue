@@ -3,7 +3,7 @@ import { computed, ref, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import type { ValidationIssue } from '@stagehand/plan-schema';
-import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft } from '../../services/planDraftService';
+import { addCaseReference, createBundledEditorDraft, createCaseDraft, moveCaseReference, removeCaseReference, removePlanVariable, savePlanVariable, updateCaseAccessibilitySettings, updateCaseBrowserSettings, updateCaseReference, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout, type AccessibilitySettingsDraft, type CaseBrowserSettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type PlanDraft, type VariableDefinitionDraft } from '../../services/planDraftService';
 import { validateEditorPlan } from '../../services/validationService';
 import { preparePortableBundleExport, type PreparedPortableBundleExport } from '../../modules/portableBundle/exportService';
 import { readPortableBundleFile } from '../../modules/portableBundle/importService';
@@ -152,6 +152,28 @@ Output: An immutable plan draft update.
 */
 function changePlanTimeout(timeout: number | string | undefined): void {
   emit('update:plan', updatePlanTimeout(props.plan, timeout));
+}
+
+/*
+Saves a plan-level variable from the Variables panel.
+---
+Inputs: A name, definition, and optional prior variable name.
+---
+Output: An immutable plan draft containing the saved variable.
+*/
+function changePlanVariable(name: string, definition: VariableDefinitionDraft, previousName: string | undefined): void {
+  emit('update:plan', savePlanVariable(props.plan, name, definition, previousName));
+}
+
+/*
+Removes one confirmed plan-level variable.
+---
+Inputs: A variable name selected for removal.
+---
+Output: An immutable plan draft without that variable.
+*/
+function removeVariable(name: string): void {
+  emit('update:plan', removePlanVariable(props.plan, name));
 }
 
 /*
@@ -605,6 +627,8 @@ function cancelConfirmation(): void {
     @update:plan-browser="changePlanBrowserSettings"
     @update:plan-locale="changePlanLocale"
     @update:plan-timeout="changePlanTimeout"
+    @update:plan-variable="changePlanVariable"
+    @remove:plan-variable="removeVariable"
     @update:steps="changeCaseSteps"
     @update:timeout="changeCaseTimeout"
     @validate="requestPlanValidation"

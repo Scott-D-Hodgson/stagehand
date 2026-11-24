@@ -61,6 +61,8 @@ This course explains the foundation of the local-first Stagehand web editor. The
 - How representative editor configuration survives recovery and portable ZIP
   export/import without sharing mutable snapshots.
 - How M8 established the editor foundation and how M9 grows controlled case and step authoring.
+- How the first M12.1 variable forms preserve typed plan-level defaults while
+  keeping protected values out of browser storage.
 
 ## Do I need this course?
 
@@ -71,7 +73,7 @@ This course explains the foundation of the local-first Stagehand web editor. The
 
 ## Current boundary
 
-M8, M9, M10, and M11 are complete. The application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value Step forms, animated adjacent reordering, and concise shared-validation feedback on affected Steps and Cases. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. M11 adds a maintained locale catalogue, localized assertion and associated-label values, supported browser and accessibility settings, timeout inheritance, Hard/Soft assertion behaviour, scrolling controls, recovery-aware Home/Plan/Case/Step/Wait routes, responsive summary grids, and ordered Before/After waits. Plan, Case, Step, and Wait panels retain edits locally until a valid explicit Apply action; Step and Wait routes gate valid unapplied changes before navigation, and an application-shell Bootstrap toast confirms applied Step or Wait changes. Wait and locale removal require explicit confirmation. The completed code-organization refactor groups Vue components by their owning feature, keeps shared document behaviour in `src/services/`, and bounds feature capabilities in `src/modules/`. The editor does not yet provide M12 variables, data sets, shared steps, further Step forms, or plan execution.
+M8, M9, M10, and M11 are complete. The application has a Vite/Vue/TypeScript foundation, Bootstrap-styled shell, public shared-schema validation, focused Vitest checks, Light/Dark/System and interface-language preferences, Canadian English/French resources, IndexedDB recovery, explicit two-tab conflict resolution, editable case-reference paths, in-memory version 1 case documents, New plan creation, validated Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and Assert value Step forms, animated adjacent reordering, and concise shared-validation feedback on affected Steps and Cases. M10 supplies a pure browser-safe ZIP codec, browser ZIP selection with blocking validation and replacement confirmation, valid-only browser download after filename confirmation, and clean representative round-trip evidence. M11 adds a maintained locale catalogue, localized assertion and associated-label values, supported browser and accessibility settings, timeout inheritance, Hard/Soft assertion behaviour, scrolling controls, recovery-aware Home/Plan/Case/Step/Wait routes, responsive summary grids, and ordered Before/After waits. Plan, Case, Step, and Wait panels retain edits locally until a valid explicit Apply action; Step and Wait routes gate valid unapplied changes before navigation, and an application-shell Bootstrap toast confirms applied Step or Wait changes. Wait and locale removal require explicit confirmation. The completed code-organization refactor groups Vue components by their owning feature, keeps shared document behaviour in `src/services/`, and bounds feature capabilities in `src/modules/`. M12.1 is now in progress: the Plan route can author plan-level Text, Number, Boolean, and environment-variable-name defaults, but localized variable values, variable-backed Step fields, reference-safe renaming/removal, data sets, shared Steps, further Step forms, and plan execution remain deferred.
 
 The Git-connected `stagehand-editor` Cloudflare Pages project now provides a
 verified `main` production build, pull-request previews, and the
@@ -127,5 +129,6 @@ the deepest valid route and otherwise falls back through Step, Case, and Plan.
 39. [Associated-label assertions](Lessons/39-associated-label-assertions.md)
 40. [M11 configuration round trips](Lessons/40-m11-configuration-round-trips.md)
 41. [Web editor source organization](Lessons/41-web-editor-source-organization.md)
+42. [Plan-level variable foundations](Lessons/42-plan-level-variable-foundations.md)
 
 Finish with the [course skill check](quiz.md).

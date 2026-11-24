@@ -24,8 +24,10 @@ separate blur-gated messages, so leaving Text empty does not produce a Role
 message, and vice versa.
 
 The shared contract allows the `text` value to be a variable reference as well
-as a literal. The editor does not offer variable selection or editing yet; that
-belongs to M12. This is deliberate scope, not a limitation of the contract.
+as a literal. The Plan route now begins M12.1 by authoring plan-level variable
+definitions, but this Step route does not yet offer variable selection. That
+field integration remains later M12 work. This is deliberate scope, not a
+limitation of the contract.
 
 ## Reuse after repetition
 

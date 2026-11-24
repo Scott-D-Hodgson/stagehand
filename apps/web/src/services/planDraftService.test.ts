@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseInteractionScrollIntoView, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './planDraftService';
+import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, removePlanVariable, savePlanVariable, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseInteractionScrollIntoView, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './planDraftService';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -48,6 +48,18 @@ describe('plan draft', () => {
     const updated = updatePlanAccessibilitySettings(draft, { enabled: true, failOnViolation: true });
     expect(updated.defaults.accessibility).toEqual({ enabled: true, failOnViolation: true });
     expect(draft.defaults.accessibility).toEqual({ enabled: false, failOnViolation: false });
+  });
+
+  it('saves, renames, removes, and copies independent plan variables', () => {
+    const draft = createBundledPlanDraft();
+    const withVariable = savePlanVariable(draft, 'email', { default: 'author@example.com' });
+    const renamed = savePlanVariable(withVariable, 'accountEmail', { default: { env: 'STAGEHAND_EMAIL' } }, 'email');
+    const snapshot = copyPlanDraft(renamed);
+    expect(withVariable.variables).toEqual({ email: { default: 'author@example.com' } });
+    expect(renamed.variables).toEqual({ accountEmail: { default: { env: 'STAGEHAND_EMAIL' } } });
+    (snapshot.variables!.accountEmail!.default as { env: string }).env = 'CHANGED';
+    expect(renamed.variables!.accountEmail!.default).toEqual({ env: 'STAGEHAND_EMAIL' });
+    expect(removePlanVariable(renamed, 'accountEmail').variables).toBeUndefined();
   });
 
   it('adds and clears an independent case browser override', () => {
@@ -102,6 +114,17 @@ describe('plan draft', () => {
     snapshot.plan.defaults.locale = 'fr-CA';
     snapshot.cases['cases/landing-page.json']!.id = 'changed';
     expect(draft).toEqual(createBundledEditorDraft());
+  });
+
+  it('copies plan variables and shared steps into an independent recovery snapshot', () => {
+    const draft = createBundledEditorDraft();
+    draft.plan.variables = { email: { default: 'author@example.com' } };
+    draft.plan.sharedSteps = { signIn: [{ action: 'navigate', url: 'https://example.com' }] };
+    const snapshot = copyEditorBundleDraft(draft);
+    snapshot.plan.variables!.email!.default = 'changed@example.com';
+    (snapshot.plan.sharedSteps!.signIn![0] as { url: string }).url = 'https://changed.example.com';
+    expect(draft.plan.variables!.email!.default).toBe('author@example.com');
+    expect((draft.plan.sharedSteps!.signIn![0] as { url: string }).url).toBe('https://example.com');
   });
 
   it('copies plan defaults and case browser overrides into an independent recovery snapshot', () => {
