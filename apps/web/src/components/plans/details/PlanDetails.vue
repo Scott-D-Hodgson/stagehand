@@ -565,6 +565,7 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
     </li>
   </ul>
   <section
+    class="mb-3"
     aria-labelledby="plan-details-heading"
   >
     <div
@@ -614,98 +615,290 @@ function formatBrowserSettingIssue(issue: { message: string } | undefined): stri
             @click="applyPlanLocale"
           >{{ t('editor.apply') }}</button>
         </template>
-        <template v-else>
-          <dl class="mb-0">
-            <dt class="form-label">{{ t('editor.planLocale') }}</dt>
-            <dd class="mb-0">{{ plan.defaults.locale }}</dd>
+        <template
+          v-else
+        >
+          <dl
+            class="mb-0"
+          >
+            <dt
+              class="form-label"
+            >{{ t('editor.planLocale') }}</dt>
+            <dd
+              class="mb-0"
+            >{{ plan.defaults.locale }}</dd>
           </dl>
         </template>
       </div>
     </div>
-    <div v-if="selectedDetailsCard === 'overrides'" id="plan-overrides-panel" aria-labelledby="plan-overrides-card" class="card shadow-sm bg-body-tertiary">
-      <div class="card-body">
-        <h2 class="h3">{{ t('editor.overridesTab') }}</h2>
-        <template v-if="editing">
-          <div class="form-check">
-            <input id="plan-timeout-override" class="form-check-input" type="checkbox" :checked="formTimeout !== undefined" @change="changePlanTimeoutOverride(($event.target as HTMLInputElement).checked)" />
-            <label class="form-check-label" for="plan-timeout-override">{{ t('editor.overrideStagehandDefaultStepTimeout') }}</label>
+    <div
+      v-if="selectedDetailsCard === 'overrides'"
+      id="plan-overrides-panel"
+      class="card shadow-sm bg-body-tertiary"
+      aria-labelledby="plan-overrides-card"
+    >
+      <div
+        class="card-body"
+      >
+        <h2
+          class="h3"
+        >{{ t('editor.overridesTab') }}</h2>
+        <template
+          v-if="editing"
+        >
+          <div
+            class="form-check"
+          >
+            <input
+              id="plan-timeout-override"
+              class="form-check-input"
+              type="checkbox"
+              :checked="formTimeout !== undefined"
+              @change="changePlanTimeoutOverride(($event.target as HTMLInputElement).checked)"
+            />
+            <label
+              class="form-check-label"
+              for="plan-timeout-override"
+            >{{ t('editor.overrideStagehandDefaultStepTimeout') }}</label>
           </div>
-          <template v-if="formTimeout !== undefined">
-            <label class="form-label mt-3" for="plan-timeout">{{ t('editor.defaultStepTimeout') }}</label>
-            <input id="plan-timeout" :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined" :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]" min="1" type="number" :value="formTimeout" @blur="validatePlanTimeout" @input="changePlanTimeout" />
-            <div v-if="shouldShowPlanTimeoutIssues" id="plan-timeout-error" class="invalid-feedback d-block">{{ planTimeoutIssues[0]?.message }}</div>
+          <template
+            v-if="formTimeout !== undefined"
+          >
+            <label
+              class="form-label mt-3"
+              for="plan-timeout"
+            >{{ t('editor.defaultStepTimeout') }}</label>
+            <input
+              id="plan-timeout"
+              :class="['form-control', { 'is-invalid': shouldShowPlanTimeoutIssues }]"
+              min="1"
+              type="number"
+              :aria-describedby="shouldShowPlanTimeoutIssues ? 'plan-timeout-error' : undefined"
+              :value="formTimeout"
+              @blur="validatePlanTimeout"
+              @input="changePlanTimeout"
+            />
+            <div
+              v-if="shouldShowPlanTimeoutIssues"
+              id="plan-timeout-error"
+              class="invalid-feedback d-block"
+            >{{ planTimeoutIssues[0]?.message }}</div>
           </template>
-          <p v-else class="mt-3 mb-0 text-body-secondary">{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
-          <button class="btn btn-primary mt-3" type="button" :disabled="!isFormTimeoutValid" @click="applyPlanTimeout">{{ t('editor.apply') }}</button>
+          <p
+            v-else
+            class="mt-3 mb-0 text-body-secondary"
+          >{{ t('editor.usingStagehandDefaultStepTimeout', { timeout: effectivePlanTimeout }) }}</p>
+          <button
+            class="btn btn-primary mt-3"
+            type="button"
+            :disabled="!isFormTimeoutValid"
+            @click="applyPlanTimeout"
+          >{{ t('editor.apply') }}</button>
         </template>
-        <dl v-else class="mb-0">
+        <dl
+          v-else
+          class="mb-0"
+        >
           <dt>{{ t('editor.defaultStepTimeout') }}</dt>
           <dd>{{ effectivePlanTimeout }}</dd>
           <dt>{{ t('editor.stepTimeoutSource') }}</dt>
-          <dd class="mb-0">{{ hasPlanTimeoutOverride ? t('editor.planOverride') : t('editor.stagehandDefault') }}</dd>
+          <dd
+            class="mb-0"
+          >{{ hasPlanTimeoutOverride ? t('editor.planOverride') : t('editor.stagehandDefault') }}</dd>
         </dl>
       </div>
     </div>
-    <div v-if="selectedDetailsCard === 'browser'" id="plan-browser-panel" aria-labelledby="plan-browser-card" class="card shadow-sm bg-body-tertiary">
-      <div class="card-body">
-        <template v-if="editing">
-          <div class="col-12">
-            <div class="form-check">
-            <input id="browser-headless" class="form-check-input" type="checkbox" :checked="formBrowserSettings.headless" @blur="validateBrowserSettings" @change="changeBrowserSettings({ headless: ($event.target as HTMLInputElement).checked })" />
-              <label class="form-check-label" for="browser-headless">{{ t('editor.headless') }}</label>
+    <div
+      v-if="selectedDetailsCard === 'browser'"
+      id="plan-browser-panel"
+      class="card shadow-sm bg-body-tertiary"
+      aria-labelledby="plan-browser-card"
+    >
+      <div
+        class="card-body"
+      >
+        <template
+          v-if="editing"
+        >
+          <div
+            class="col-12"
+          >
+            <div
+              class="form-check"
+            >
+              <input
+                id="browser-headless"
+                class="form-check-input"
+                type="checkbox"
+                :checked="formBrowserSettings.headless"
+                @blur="validateBrowserSettings"
+                @change="changeBrowserSettings({ headless: ($event.target as HTMLInputElement).checked })"
+              />
+              <label
+                class="form-check-label"
+                for="browser-headless"
+              >{{ t('editor.headless') }}</label>
             </div>
           </div>
-          <div class="col-sm-6">
-            <label class="form-label" for="browser-viewport-width">{{ t('editor.viewportWidth') }}</label>
-            <input id="browser-viewport-width" :aria-describedby="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-width-error' : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.width" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })" />
-            <div v-if="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues" id="browser-viewport-width-error" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
+          <div
+            class="col-sm-6"
+          >
+            <label
+              class="form-label"
+              for="browser-viewport-width"
+            >{{ t('editor.viewportWidth') }}</label>
+            <input
+              id="browser-viewport-width"
+              :class="['form-control', { 'is-invalid': hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues }]"
+              min="1"
+              type="number"
+              :aria-describedby="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-width-error' : undefined"
+              :value="formBrowserSettings.viewport?.width"
+              @blur="validateBrowserSettings"
+              @input="changeBrowserSettings({ viewport: { width: readViewportValue($event) } })"
+            />
+            <div
+              v-if="hasInvalidFormViewportWidth && shouldShowFormBrowserSettingsIssues"
+              id="browser-viewport-width-error"
+              class="invalid-feedback d-block"
+            >{{ t('editor.viewportMinimum') }}</div>
           </div>
-          <div class="col-sm-6">
-            <label class="form-label" for="browser-viewport-height">{{ t('editor.viewportHeight') }}</label>
-            <input id="browser-viewport-height" :aria-describedby="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-height-error' : undefined" :class="['form-control', { 'is-invalid': hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues }]" min="1" type="number" :value="formBrowserSettings.viewport?.height" @blur="validateBrowserSettings" @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })" />
-            <div v-if="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues" id="browser-viewport-height-error" class="invalid-feedback d-block">{{ t('editor.viewportMinimum') }}</div>
+          <div
+            class="col-sm-6"
+          >
+            <label
+              class="form-label"
+              for="browser-viewport-height"
+            >{{ t('editor.viewportHeight') }}</label>
+            <input
+              id="browser-viewport-height"
+              :class="['form-control', { 'is-invalid': hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues }]"
+              min="1"
+              type="number"
+              :aria-describedby="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues ? 'browser-viewport-height-error' : undefined"
+              :value="formBrowserSettings.viewport?.height"
+              @blur="validateBrowserSettings"
+              @input="changeBrowserSettings({ viewport: { height: readViewportValue($event) } })"
+            />
+            <div
+              v-if="hasInvalidFormViewportHeight && shouldShowFormBrowserSettingsIssues"
+              id="browser-viewport-height-error"
+              class="invalid-feedback d-block"
+            >{{ t('editor.viewportMinimum') }}</div>
           </div>
-          <div class="col-12">
-            <label class="form-label" for="browser-time-zone">{{ t('editor.timeZone') }}</label>
-            <input id="browser-time-zone" :aria-describedby="timeZoneIssues.length && shouldShowBrowserSettingIssues ? 'browser-time-zone-error' : undefined" :class="['form-control', { 'is-invalid': timeZoneIssues.length && shouldShowBrowserSettingIssues }]" :value="formBrowserSettings.timeZone" @blur="validateBrowserSettings" @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })" />
-            <div v-if="timeZoneIssues.length && shouldShowBrowserSettingIssues" id="browser-time-zone-error" class="invalid-feedback d-block">{{ formatBrowserSettingIssue(timeZoneIssues[0]) }}</div>
-          <button class="btn btn-primary" type="button" :disabled="!isFormBrowserSettingsValid" @click="applyBrowserSettings">{{ t('editor.apply') }}</button>
+          <div
+            class="col-12"
+          >
+            <label
+              class="form-label"
+              for="browser-time-zone"
+            >{{ t('editor.timeZone') }}</label>
+            <input
+              id="browser-time-zone"
+              :class="['form-control', { 'is-invalid': timeZoneIssues.length && shouldShowBrowserSettingIssues }]"
+              :aria-describedby="timeZoneIssues.length && shouldShowBrowserSettingIssues ? 'browser-time-zone-error' : undefined"
+              :value="formBrowserSettings.timeZone"
+              @blur="validateBrowserSettings"
+              @input="changeBrowserSettings({ timeZone: ($event.target as HTMLInputElement).value })"
+            />
+            <div
+              v-if="timeZoneIssues.length && shouldShowBrowserSettingIssues"
+              id="browser-time-zone-error"
+              class="invalid-feedback d-block"
+            >{{ formatBrowserSettingIssue(timeZoneIssues[0]) }}</div>
+            <button
+              class="btn btn-primary"
+              type="button"
+              :disabled="!isFormBrowserSettingsValid"
+              @click="applyBrowserSettings"
+            >{{ t('editor.apply') }}</button>
           </div>
         </template>
-        <template v-else>
-          <dl class="mb-0">
+        <template
+          v-else
+        >
+          <dl
+            class="mb-0"
+          >
             <dt>{{ t('editor.headless') }}</dt>
             <dd>{{ browserSettings.headless ? t('editor.enabled') : t('editor.disabled') }}</dd>
             <dt>{{ t('editor.viewport') }}</dt>
-            <dd>{{ browserSettings.viewport?.width }} Ã— {{ browserSettings.viewport?.height }}</dd>
+            <dd>{{ browserSettings.viewport?.width }} × {{ browserSettings.viewport?.height }}</dd>
             <dt>{{ t('editor.timeZone') }}</dt>
-            <dd class="mb-0">{{ browserSettings.timeZone }}</dd>
+            <dd
+              class="mb-0"
+            >{{ browserSettings.timeZone }}</dd>
           </dl>
         </template>
       </div>
     </div>
-    <div v-if="selectedDetailsCard === 'accessibility'" id="plan-accessibility-panel" aria-labelledby="plan-accessibility-card" class="card shadow-sm bg-body-tertiary">
-      <div class="card-body">
-        <template v-if="editing">
-          <div class="form-check">
-            <input id="accessibility-enabled" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.enabled" @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })" />
-            <label class="form-check-label" for="accessibility-enabled">{{ t('editor.accessibilityEnabled') }}</label>
+    <div
+      v-if="selectedDetailsCard === 'accessibility'"
+      id="plan-accessibility-panel"
+      class="card shadow-sm bg-body-tertiary"
+      aria-labelledby="plan-accessibility-card"
+    >
+      <div
+        class="card-body"
+      >
+        <template
+          v-if="editing"
+        >
+          <div
+            class="form-check"
+          >
+            <input
+              id="accessibility-enabled"
+              class="form-check-input"
+              type="checkbox"
+              :checked="formAccessibilitySettings.enabled"
+              @change="changeAccessibilitySettings({ enabled: ($event.target as HTMLInputElement).checked })"
+            />
+            <label
+              class="form-check-label"
+              for="accessibility-enabled"
+            >{{ t('editor.accessibilityEnabled') }}</label>
           </div>
-          <AccessibilityTagSelector id="plan-accessibility-tags" :model-value="formAccessibilitySettings.tags" @update:model-value="changeAccessibilitySettings({ tags: $event })" />
-          <div class="form-check">
-            <input id="accessibility-fail-on-violation" class="form-check-input" type="checkbox" :checked="formAccessibilitySettings.failOnViolation" @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })" />
-            <label class="form-check-label" for="accessibility-fail-on-violation">{{ t('editor.failOnViolation') }}</label>
+          <AccessibilityTagSelector
+            id="plan-accessibility-tags"
+            :model-value="formAccessibilitySettings.tags"
+            @update:model-value="changeAccessibilitySettings({ tags: $event })"
+          />
+          <div
+            class="form-check"
+          >
+            <input
+              id="accessibility-fail-on-violation"
+              class="form-check-input"
+              type="checkbox"
+              :checked="formAccessibilitySettings.failOnViolation"
+              @change="changeAccessibilitySettings({ failOnViolation: ($event.target as HTMLInputElement).checked })"
+            />
+            <label
+              class="form-check-label"
+              for="accessibility-fail-on-violation"
+            >{{ t('editor.failOnViolation') }}</label>
           </div>
-          <button class="btn btn-primary mt-3" type="button" @click="applyAccessibilitySettings">{{ t('editor.apply') }}</button>
+          <button
+            class="btn btn-primary mt-3"
+            type="button"
+            @click="applyAccessibilitySettings"
+          >{{ t('editor.apply') }}</button>
         </template>
-        <template v-else>
-          <dl class="mb-0">
+        <template
+          v-else
+        >
+          <dl
+            class="mb-0"
+          >
             <dt>{{ t('editor.accessibilityEnabled') }}</dt>
             <dd>{{ accessibilitySettings.enabled ? t('editor.enabled') : t('editor.disabled') }}</dd>
             <dt>{{ t('editor.failOnViolation') }}</dt>
             <dd>{{ accessibilitySettings.failOnViolation ? t('editor.enabled') : t('editor.disabled') }}</dd>
             <dt>{{ t('editor.accessibilityRuleTags') }}</dt>
-            <dd class="mb-0">{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
+            <dd
+              class="mb-0"
+            >{{ accessibilitySettings.tags?.length ? accessibilitySettings.tags.join(', ') : t('editor.allRules') }}</dd>
           </dl>
         </template>
       </div>

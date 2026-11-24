@@ -150,6 +150,12 @@ this repository.
   timeout, but the editor deliberately does not display or edit that redundant
   field; [ATR-043](../../Planning/Backlog/epics/E01-plan-definition/stories/ATR-043.md)
   records its future contract removal.
+- The Plan route also provides an initial M12.1 Variables section. It can
+  author plan-level Text, Number, Boolean, and environment-variable-name
+  defaults without storing a protected value. These definitions are retained
+  in recovery snapshots. Localized variable values, variable-backed Step
+  fields, reference-safe renaming/removal, data sets, and shared Steps remain
+  later M12 work.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes
@@ -179,7 +185,7 @@ this repository.
   Their Overrides panels also author assertion behaviour: Hard omits the
   contract-default `soft` property, while Soft stores `soft: true`; View mode
   summarizes the selected behaviour.
-  Variable-backed text and values follow in M12.
+  Variable-backed text and values remain later M12 work.
   Each step-detail component owns its dedicated route-page fields;
   `StepReferences` coordinates ordered data, dialogs, and draft updates for
   Case-route cards. Add, Edit, Clone, Remove, and adjacent Promote/Demote

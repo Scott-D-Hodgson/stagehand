@@ -25,10 +25,32 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 ## Incremental delivery
 
-Suggested PR slices: variables and protected references; data sets; shared steps and dependency feedback.
+1. **Variables and protected references:** author plan-level variable
+   definitions, their default localized literal values, and default
+   environment-variable references. Make supported Step fields able to select
+   those variables. Case- and Step-level variable-definition authoring follows
+   in a later M12 slice.
+2. **Data sets:** author named data sets and the default selection.
+3. **Shared steps and dependency feedback:** author one-level shared groups and
+   references, then present their validation and dependency feedback.
+4. **Integration evidence:** verify the completed M12 surface through recovery,
+   portable ZIP export/import, and both interface languages.
+
+## Decisions made
+
+- Renaming a referenced variable updates each supported reference
+  automatically.
+- Removing a referenced variable is blocked until the author resolves its
+  references; the editor identifies the affected references in the removal
+  flow.
+- The first protected-value UI authors an environment-variable name for a
+  variable's default value only. Localized protected values are deferred until
+  a concrete authoring need is identified.
 
 ## Open decisions and exclusions
 
-Choose reference rename/removal behaviour before implementation. Loops, nested reuse, execution previews, and secret-value storage are outside scope.
+Decide the data-set presentation and shared-step editor presentation before
+their respective slices. Loops, nested reuse, execution previews, and
+secret-value storage are outside scope.
 
 Estimates use the assumptions in the [Phase 2 overview](Phase-2-visual-authoring.md); re-estimate before starting. Tasks remain unverified until completion evidence is recorded.

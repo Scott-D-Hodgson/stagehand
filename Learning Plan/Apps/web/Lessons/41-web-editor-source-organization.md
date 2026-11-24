@@ -1,6 +1,6 @@
 # Lesson 41: Web editor source organization
 
-[Previous: M11 configuration round trips](40-m11-configuration-round-trips.md) · [Course outline](../README.md) · [Next: Skill check](../quiz.md)
+[Previous: M11 configuration round trips](40-m11-configuration-round-trips.md) · [Course outline](../README.md) · [Next: Plan-level variable foundations](42-plan-level-variable-foundations.md)
 
 ## Goal
 
@@ -41,4 +41,4 @@ controls when all of them serve that capability.
   service without a second consumer.
 - You can locate an editor route page without searching the entire source tree.
 
-[Previous: M11 configuration round trips](40-m11-configuration-round-trips.md) · [Course outline](../README.md) · [Next: Skill check](../quiz.md)
+[Previous: M11 configuration round trips](40-m11-configuration-round-trips.md) · [Course outline](../README.md) · [Next: Plan-level variable foundations](42-plan-level-variable-foundations.md)

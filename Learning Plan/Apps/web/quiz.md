@@ -18,6 +18,8 @@ Use this quiz after completing the web editor course. Check answers against the 
 14. What is the current Assert text expected-value shape, and how does its Locale overrides panel select the value previewed on the card?
 15. How does Assert HTML reuse the localized expected-value pattern while preserving practical HTML authoring?
 16. How does Assert value use localized expected values, and which optional contract check remains deferred?
+17. Which plan-level variable defaults can the first M12.1 forms author, and
+    what variable capability remains unavailable in Step fields?
 17. Why does step reordering use a copied list and stable card keys rather than list indexes?
 18. Why does the editor use one expandable case-reference workspace at a time, and what must a collapsed card still communicate?
 19. Why does selected-step validation map shared issue paths to step indexes instead of showing every schema message on a card?
@@ -53,12 +55,16 @@ Use this quiz after completing the web editor course. Check answers against the 
 8. Otherwise, the bundled sample could overwrite a recovery record before the person can restore or discard it.
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
-11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text, but variables and their authoring UI are deferred to M12.
+11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text. M12.1 now authors plan-level variable definitions, but variable selection in this Step form remains deferred.
 12. A dedicated Step page has one action-specific editing context. Keeping its locator and action-specific fields together makes the editable and read-only presentations easier to understand without introducing a second form-owner boundary.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
 14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its dedicated Step page's Locales tab. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
 15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, Step-page Locale management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
 16. Assert value authors a Role/Accessible-name locator, literal `expected.default`, and optional `expected.locales` values through its dedicated Step page's Locales tab. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
+17. The forms can author Text, Number, Boolean, and environment-variable-name
+    defaults. A Step field cannot yet select or save a whole-field variable
+    reference; localized variable values, data sets, and shared Steps also
+    remain later M12 work.
 17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.
 18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
 19. The schema can report several low-level alternative-branch failures for one incomplete step. Mapping its paths to unique indexes lets the editor show one concise, localized, actionable message on each affected card and a danger border on the enclosing case.

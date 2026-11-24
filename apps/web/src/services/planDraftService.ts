@@ -22,6 +22,17 @@ export interface AccessibilitySettingsDraft {
   tags?: string[];
 }
 
+export interface EnvironmentVariableReferenceDraft {
+  env: string;
+}
+
+export type VariableValueDraft = boolean | number | string | EnvironmentVariableReferenceDraft;
+
+export interface VariableDefinitionDraft {
+  default: VariableValueDraft;
+  locales?: Record<string, boolean | number | string>;
+}
+
 export interface PlanDraft {
   version: 1;
   id: string;
@@ -34,6 +45,8 @@ export interface PlanDraft {
   cases: Array<{
     path: string;
   }>;
+  variables?: Record<string, VariableDefinitionDraft>;
+  sharedSteps?: Record<string, unknown[]>;
 }
 
 export interface CaseDraft {
@@ -167,7 +180,45 @@ export function copyPlanDraft(plan: PlanDraft): PlanDraft {
       ...(plan.defaults.timeout === undefined ? {} : { timeout: plan.defaults.timeout }),
     },
     cases: plan.cases.map((caseReference) => ({ path: caseReference.path })),
+    ...(plan.sharedSteps === undefined ? {} : { sharedSteps: copySharedSteps(plan.sharedSteps) }),
+    ...(plan.variables === undefined ? {} : { variables: copyPlanVariables(plan.variables) }),
   };
+}
+
+/*
+Copies plan shared-step groups without retaining mutable step data.
+---
+Inputs: Plan-level shared-step groups from an editable draft.
+---
+Output: Independent shared-step groups suitable for a plain snapshot.
+*/
+function copySharedSteps(sharedSteps: Record<string, unknown[]>): Record<string, unknown[]> {
+  return Object.fromEntries(Object.entries(sharedSteps).map(([id, steps]) => [id, steps.map(copyPlainValue)]));
+}
+
+/*
+Copies plan-level variable definitions without retaining mutable nested values.
+---
+Inputs: Plan-level variable definitions from an editable draft.
+---
+Output: Independent variable definitions suitable for a plain snapshot.
+*/
+function copyPlanVariables(variables: Record<string, VariableDefinitionDraft>): Record<string, VariableDefinitionDraft> {
+  return Object.fromEntries(Object.entries(variables).map(([name, definition]) => [name, {
+    default: copyVariableValue(definition.default),
+    ...(definition.locales === undefined ? {} : { locales: { ...definition.locales } }),
+  }]));
+}
+
+/*
+Copies a variable default while preserving its protected-value representation.
+---
+Inputs: A scalar value or environment-variable reference.
+---
+Output: An independent scalar or environment-variable reference.
+*/
+function copyVariableValue(value: VariableValueDraft): VariableValueDraft {
+  return typeof value === 'object' ? { env: value.env } : value;
 }
 
 /*
@@ -323,6 +374,42 @@ export function updatePlanTimeout(plan: PlanDraft, timeout: unknown | undefined)
       timeout,
     },
   };
+}
+
+/*
+Adds or replaces a named plan-level variable without mutating the source plan.
+---
+Inputs: A plan, variable name, replacement definition, and optional prior name.
+---
+Output: A plan containing the independent named variable definition.
+*/
+export function savePlanVariable(plan: PlanDraft, name: string, definition: VariableDefinitionDraft, previousName?: string): PlanDraft {
+  const variables = copyPlanVariables(plan.variables ?? {});
+  if (previousName !== undefined && previousName !== name) {
+    delete variables[previousName];
+  }
+  variables[name] = {
+    default: copyVariableValue(definition.default),
+    ...(definition.locales === undefined ? {} : { locales: { ...definition.locales } }),
+  };
+  return { ...plan, variables };
+}
+
+/*
+Removes one named plan-level variable without mutating the source plan.
+---
+Inputs: A plan and variable name.
+---
+Output: A plan with the variable omitted, including omission of an empty collection.
+*/
+export function removePlanVariable(plan: PlanDraft, name: string): PlanDraft {
+  const variables = copyPlanVariables(plan.variables ?? {});
+  delete variables[name];
+  if (Object.keys(variables).length === 0) {
+    const { variables: _, ...planWithoutVariables } = plan;
+    return planWithoutVariables;
+  }
+  return { ...plan, variables };
 }
 
 /*
