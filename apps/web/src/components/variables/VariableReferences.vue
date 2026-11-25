@@ -16,6 +16,7 @@ const props = defineProps<{
 const emit = defineEmits<{
   remove: [name: string];
   save: [name: string, definition: VariableDefinitionDraft, previousName: string | undefined];
+  select: [name: string];
 }>();
 
 const { t } = useTranslation();
@@ -75,6 +76,17 @@ function editVariable(name: string): void {
 }
 
 /*
+Navigates to the dedicated page for one variable.
+---
+Inputs: A selected plan-variable name.
+---
+Output: A selection event for the Plan page owner.
+*/
+function selectVariable(name: string): void {
+  emit('select', name);
+}
+
+/*
 Determines the dedicated editor dialog for one stored variable.
 ---
 Inputs: An optional variable definition.
@@ -102,7 +114,8 @@ Inputs: A variable name, definition, and optional previous name.
 Output: An immutable plan-variable update and closed dialog.
 */
 function saveVariable(name: string, definition: VariableDefinitionDraft, previousName: string | undefined): void {
-  emit('save', name, definition, previousName);
+  const existing = previousName === undefined ? undefined : props.plan.variables?.[previousName];
+  emit('save', name, { ...definition, ...(existing?.locales === undefined ? {} : { locales: existing.locales }) }, previousName);
   showDialog.value = false;
 }
 
@@ -207,11 +220,17 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
                 :class="icon"
               ></i>
             </div>
-            <VariableDetails
-              class="position-relative z-1"
-              :definition="definition"
-              :name="name"
-            />
+            <button
+              class="btn btn-link link-body-emphasis p-0 position-relative z-1 text-decoration-none text-start w-100"
+              type="button"
+              @click="selectVariable(name)"
+            >
+              <VariableDetails
+                :definition="definition"
+                :name="name"
+                :plan-locale="props.plan.defaults.locale"
+              />
+            </button>
             <div
               v-if="props.editing"
               class="position-absolute bottom-0 end-0 z-1"
@@ -225,13 +244,13 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
                   class="btn btn-outline-secondary bg-body"
                   icon="fa-solid fa-pen"
                   :label="t('editor.edit')"
-                  @click="editVariable(name)"
+                  @click.stop="editVariable(name)"
                 />
                 <IconOnlyButton
                   class="btn btn-outline-danger bg-body"
                   icon="fa-solid fa-minus"
                   :label="t('editor.remove')"
-                  @click="requestRemoval(name)"
+                  @click.stop="requestRemoval(name)"
                 />
               </div>
             </div>

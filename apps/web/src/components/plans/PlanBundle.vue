@@ -15,6 +15,10 @@ import ExportBundleDialog from './dialogs/ExportBundleDialog.vue';
 import NewPlanDialog from './dialogs/NewPlanDialog.vue';
 import IconOnlyButton from '../controls/IconOnlyButton.vue';
 import PlanPage from './pages/PlanPage.vue';
+import BooleanVariablePage from '../variables/pages/BooleanVariablePage.vue';
+import EnvironmentVariablePage from '../variables/pages/EnvironmentVariablePage.vue';
+import NumberVariablePage from '../variables/pages/NumberVariablePage.vue';
+import TextVariablePage from '../variables/pages/TextVariablePage.vue';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -96,6 +100,40 @@ const selectedCaseReference = computed(
   () => props.plan.cases[selectedCaseIndex.value]
 );
 
+/*
+Determines the variable addressed by the current route.
+---
+Inputs: The route variable-name parameter and plan variable collection.
+---
+Output: The selected variable definition, when present.
+*/
+const selectedVariable = computed(
+  () => props.plan.variables?.[String(route.params.variableName)]
+);
+
+/*
+Determines the dedicated page component for the routed variable type.
+---
+Inputs: The selected variable definition and its default value type.
+---
+Output: A type-specific variable page component.
+*/
+const selectedVariablePage = computed(
+  () => {
+    const defaultValue = selectedVariable.value?.default;
+    if (typeof defaultValue === 'boolean') {
+      return BooleanVariablePage;
+    }
+    if (typeof defaultValue === 'number') {
+      return NumberVariablePage;
+    }
+    if (typeof defaultValue === 'object' && defaultValue !== null) {
+      return EnvironmentVariablePage;
+    }
+    return TextVariablePage;
+  }
+);
+
 watch(() => props.plan.cases, (references) => {
   if (!references.some((reference) => reference.path === selectedCasePath.value)) {
     selectedCasePath.value = references[0]?.path ?? '';
@@ -174,6 +212,31 @@ Output: An immutable plan draft without that variable.
 */
 function removeVariable(name: string): void {
   emit('update:plan', removePlanVariable(props.plan, name));
+}
+
+/*
+Navigates to one plan variable's dedicated page.
+---
+Inputs: A selected plan-variable name.
+---
+Output: The variable route becomes active.
+*/
+function selectVariable(name: string): void {
+  void router.push({ name: 'variable', params: { variableName: name } });
+}
+
+/*
+Updates one variable definition from its dedicated page.
+---
+Inputs: A replacement definition for the routed variable.
+---
+Output: An immutable plan draft with the saved definition.
+*/
+function changeSelectedVariable(definition: VariableDefinitionDraft): void {
+  const name = String(route.params.variableName);
+  if (props.plan.variables?.[name] !== undefined) {
+    changePlanVariable(name, definition, name);
+  }
 }
 
 /*
@@ -629,9 +692,18 @@ function cancelConfirmation(): void {
     @update:plan-timeout="changePlanTimeout"
     @update:plan-variable="changePlanVariable"
     @remove:plan-variable="removeVariable"
+    @select:plan-variable="selectVariable"
     @update:steps="changeCaseSteps"
     @update:timeout="changeCaseTimeout"
     @validate="requestPlanValidation"
+  />
+  <component
+    v-else-if="route.name === 'variable' && selectedVariable !== undefined"
+    :is="selectedVariablePage"
+    :definition="selectedVariable"
+    :editing="editing"
+    :name="String(route.params.variableName)"
+    @update="changeSelectedVariable"
   />
   <CasePage
     v-else-if="route.name === 'case' && selectedCaseReference"

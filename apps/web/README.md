@@ -153,9 +153,11 @@ this repository.
 - The Plan route also provides an initial M12.1 Variables section. It can
   author plan-level Text, Number, Boolean, and environment-variable-name
   defaults without storing a protected value. These definitions are retained
-  in recovery snapshots. Localized variable values, variable-backed Step
-  fields, reference-safe renaming/removal, data sets, and shared Steps remain
-  later M12 work.
+  in recovery snapshots. Dedicated Variable pages author localized Text,
+  Number, and Boolean values; their cards preview a matching Plan locale.
+  The default form applies changes explicitly and gates unapplied navigation.
+  Variable-backed Step fields, reference-safe renaming/removal, data sets, and
+  shared Steps remain later M12 work.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes

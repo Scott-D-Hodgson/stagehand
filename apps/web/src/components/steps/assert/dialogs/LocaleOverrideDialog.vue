@@ -16,6 +16,7 @@ const props = defineProps<{
   value: string;
   valueLabel: string;
   valueValidationMessage: string;
+  valueKind?: 'text' | 'number' | 'boolean';
 }>();
 
 const emit = defineEmits<{
@@ -117,7 +118,7 @@ Output: A saved override followed by a hidden dialog, or visible field feedback.
 */
 function save(): void {
   const localeIsInvalid = !props.locale;
-  const valueIsInvalid = props.value.trim().length === 0;
+  const valueIsInvalid = props.value.trim().length === 0 || (props.valueKind === 'number' && !Number.isFinite(Number(props.value)));
   localeValidationVisible.value = localeIsInvalid;
   valueValidationVisible.value = valueIsInvalid;
   if (localeIsInvalid || valueIsInvalid) {
@@ -220,12 +221,25 @@ onBeforeUnmount(() => modal?.dispose());
             @blur="reportValueBlur"
             @input="valueValidationVisible = false; emit('update:value', ($event.target as HTMLTextAreaElement).value)"
           ></textarea>
+          <select
+            v-else-if="props.valueKind === 'boolean'"
+            id="locale-override-value"
+            class="form-select"
+            :value="props.value"
+            @blur="reportValueBlur"
+            @change="emit('update:value', ($event.target as HTMLSelectElement).value)"
+          >
+            <option value="">{{ t('editor.value') }}</option>
+            <option value="true">{{ t('editor.booleanTrue') }}</option>
+            <option value="false">{{ t('editor.booleanFalse') }}</option>
+          </select>
           <input
             v-else
             id="locale-override-value"
             ref="valueInput"
             :value="props.value"
             :class="['form-control', { 'is-invalid': valueValidationVisible && !props.value.trim() }]"
+            :type="props.valueKind === 'number' ? 'number' : 'text'"
             @blur="reportValueBlur"
             @input="valueValidationVisible = false; emit('update:value', ($event.target as HTMLInputElement).value)"
           />

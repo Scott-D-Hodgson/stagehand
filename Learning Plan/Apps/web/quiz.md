@@ -18,8 +18,6 @@ Use this quiz after completing the web editor course. Check answers against the 
 14. What is the current Assert text expected-value shape, and how does its Locale overrides panel select the value previewed on the card?
 15. How does Assert HTML reuse the localized expected-value pattern while preserving practical HTML authoring?
 16. How does Assert value use localized expected values, and which optional contract check remains deferred?
-17. Which plan-level variable defaults can the first M12.1 forms author, and
-    what variable capability remains unavailable in Step fields?
 17. Why does step reordering use a copied list and stable card keys rather than list indexes?
 18. Why does the editor use one expandable case-reference workspace at a time, and what must a collapsed card still communicate?
 19. Why does selected-step validation map shared issue paths to step indexes instead of showing every schema message on a card?
@@ -42,6 +40,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Why does the editor omit `soft` for a Hard assertion and store it only for a Soft assertion?
 37. Why does the editor omit `scrollIntoView` when interaction scrolling is enabled, and which actions currently expose that override?
 38. Why does Wait removal require a confirmation dialog before changing a Before or After list?
+39. Which plan-variable types support localized literal values, and what variable capability remains unavailable in Step fields?
 
 ## Answer key
 
@@ -61,10 +60,6 @@ Use this quiz after completing the web editor course. Check answers against the 
 14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its dedicated Step page's Locales tab. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
 15. Assert HTML retains its literal `expected.default` and optional `expected.locales` map, Step-page Locale management, and Plan-Locale preview. Its base and override inputs are multiline because HTML commonly contains markup over multiple lines.
 16. Assert value authors a Role/Accessible-name locator, literal `expected.default`, and optional `expected.locales` values through its dedicated Step page's Locales tab. Its optional associated-label check is not authorable yet because the conditional form needs a separate design decision.
-17. The forms can author Text, Number, Boolean, and environment-variable-name
-    defaults. A Step field cannot yet select or save a whole-field variable
-    reference; localized variable values, data sets, and shared Steps also
-    remain later M12 work.
 17. A copied list preserves the prior draft for callers and lets the existing recovery path observe one normal draft update. Stable keys let Vue identify the same cards after their positions change, so it can animate the cards moving instead of treating them as unrelated indexed content.
 18. One workspace at a time keeps the editing context clear and avoids a long page of simultaneous forms. A collapsed card still identifies its reference and communicates its localized step count; the header exposes its expanded state to assistive technology.
 19. The schema can report several low-level alternative-branch failures for one incomplete step. Mapping its paths to unique indexes lets the editor show one concise, localized, actionable message on each affected card and a danger border on the enclosing case.
@@ -87,3 +82,4 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Hard is the contract default, so omitting `soft` produces the smaller canonical representation without changing behaviour. Selecting Soft deliberately stores `soft: true`, which tells execution to record the failure and continue the case.
 37. Enabled is the schema default, so omitting `scrollIntoView` preserves the canonical behaviour without adding redundant portable data. Click, Type, Fill, and Select option Step pages expose the override; disabling it stores `scrollIntoView: false`.
 38. Removing a Wait is destructive and easy to invoke from a compact card. The static Bootstrap dialog makes the choice visible and requires an explicit confirmation, while Cancel preserves the list unchanged.
+39. Text, Number, and Boolean variables can have localized literal values of the same type. Environment variables store a default environment-variable name. Step fields cannot yet select or save a whole-field variable reference.

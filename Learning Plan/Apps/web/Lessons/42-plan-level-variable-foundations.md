@@ -35,8 +35,14 @@ shared-step data.
 
 ## Current boundary
 
-This slice does not yet author localized variable values, data sets, shared
-Steps, Case- or Step-level definitions, or variable references. Rename and
+The Variable page can add, edit, and remove localized literal values for Text,
+Number, and Boolean variables. Its card previews the matching Plan locale,
+falling back to the default otherwise. The default form applies changes only
+after Apply, and leaving with unapplied edits requests confirmation. The
+Environment form continues to accept only an environment-variable name.
+
+This slice does not yet author data sets, shared Steps, Case- or Step-level
+definitions, or variable references. Rename and
 removal dependency handling follow once references exist. The agreed policy is
 to update supported references on rename and block removal until dependent
 references are resolved.
@@ -48,7 +54,9 @@ references are resolved.
    for the environment variable's name.
 3. Refresh after the draft autosaves, restore it, and verify the definitions
    remain present.
-4. Explain why the editor cannot yet offer a variable picker in a Type Step.
+4. Add a locale value, change the Plan locale, and inspect the Variable card.
+5. Edit the default without applying it and try to leave the Variable page.
+6. Explain why the editor cannot yet offer a variable picker in a Type Step.
 
 ## You are ready when
 

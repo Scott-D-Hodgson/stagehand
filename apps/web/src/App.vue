@@ -120,6 +120,11 @@ Output: A sorted unique list of supported and currently authored locale tags.
 const availablePlanLocales = computed(
   () => {
     const locales = new Set<string>(['en-CA', 'fr-CA', editorDraft.value.plan.defaults.locale]);
+    for (const variable of Object.values(editorDraft.value.plan.variables ?? {})) {
+      for (const locale of Object.keys(variable.locales ?? {})) {
+        locales.add(locale);
+      }
+    }
     for (const caseDraft of Object.values(editorDraft.value.cases)) {
       for (const step of caseDraft.steps) {
         if (typeof step !== 'object' || step === null || !('expected' in step)) {
@@ -151,6 +156,13 @@ const breadcrumbs = computed<Array<{ label: string; to?: RouteLocationRaw }>>(
       return [];
     }
     const items: Array<{ label: string; to?: RouteLocationRaw }> = [{ label: editorDraft.value.plan.id, to: { name: 'plan' } }];
+    if (route.name === 'variable') {
+      const variableName = String(route.params.variableName);
+      if (editorDraft.value.plan.variables?.[variableName] !== undefined) {
+        items.push({ label: variableName });
+      }
+      return items;
+    }
     const caseIndex = Number(route.params.cardIndex);
     const caseReference = editorDraft.value.plan.cases[caseIndex];
     const stepIndex = Number(route.params.stepIndex);
