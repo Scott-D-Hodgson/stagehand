@@ -50,12 +50,15 @@ describe('plan draft', () => {
     expect(draft.defaults.accessibility).toEqual({ enabled: false, failOnViolation: false });
   });
 
-  it('saves, renames, removes, and copies independent plan variables', () => {
+  it('saves, renames, removes, and copies independent localized plan variables', () => {
     const draft = createBundledPlanDraft();
-    const withVariable = savePlanVariable(draft, 'email', { default: 'author@example.com' });
+    const withVariable = savePlanVariable(draft, 'email', { default: 'author@example.com', locales: { 'fr-CA': 'auteur@example.com' } });
+    const localizedSnapshot = copyPlanDraft(withVariable);
     const renamed = savePlanVariable(withVariable, 'accountEmail', { default: { env: 'STAGEHAND_EMAIL' } }, 'email');
     const snapshot = copyPlanDraft(renamed);
-    expect(withVariable.variables).toEqual({ email: { default: 'author@example.com' } });
+    expect(withVariable.variables).toEqual({ email: { default: 'author@example.com', locales: { 'fr-CA': 'auteur@example.com' } } });
+    localizedSnapshot.variables!.email!.locales!['fr-CA'] = 'modifié@example.com';
+    expect(withVariable.variables!.email!.locales!['fr-CA']).toBe('auteur@example.com');
     expect(renamed.variables).toEqual({ accountEmail: { default: { env: 'STAGEHAND_EMAIL' } } });
     (snapshot.variables!.accountEmail!.default as { env: string }).env = 'CHANGED';
     expect(renamed.variables!.accountEmail!.default).toEqual({ env: 'STAGEHAND_EMAIL' });

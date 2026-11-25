@@ -5,8 +5,9 @@
 **Current implementation update (24 November 2026):** M0 through M11 and M15
 are complete. M12 is in progress. The current M12.1 slice can author plan-level
 Text, Number, Boolean, and environment-variable-name defaults in the web
-editor, preserving them in recovery snapshots. Localized variable values,
-Step-field variable references, reference-safe renaming/removal, data sets, and
+editor, preserving them in recovery snapshots. Text, Number, and Boolean
+variables also support locale-specific literal values. Step-field variable
+references, reference-safe renaming/removal, data sets, and
 shared Steps remain later M12 work. The owner reported passing all current
 development-container checks for this slice. The CLI, report-file writing, and
 real Chromium/axe coverage against a project-owned test site remain later work.

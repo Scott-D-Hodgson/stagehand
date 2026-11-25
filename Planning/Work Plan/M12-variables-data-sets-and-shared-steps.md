@@ -1,6 +1,6 @@
 # M12 — Variables, data sets, and shared steps
 
-**Status:** Planned; task breakdown and estimate proposed  
+**Status:** In progress; estimate proposed
 **Estimate:** 6–10 focused human person-days  
 **Depends on:** [M11](M11-configuration-and-localized-assertions.md)
 
@@ -24,6 +24,11 @@ Author a synthetic data-driven plan with an environment-variable reference and s
 Deliver the relevant forms, synthetic examples, documentation, and verification records. Add focused automated checks for data preservation and contract integration, plus browser checks for the affected user flows. Follow the localization and presentation baseline in [ADR-006](../Backlog/decisions/ADR-006-editor-technology-and-ui-baselines.md) and recovery baseline in [ADR-005](../Backlog/decisions/ADR-005-editor-draft-recovery.md).
 
 ## Incremental delivery
+
+The current M12.1 work provides plan-variable defaults, dedicated Variable
+pages, and localized literal values for Text, Number, and Boolean variables.
+The owner reports all tests passing for the current slice. Step references,
+dependency protection, and milestone-wide round-trip evidence remain open.
 
 1. **Variables and protected references:** author plan-level variable
    definitions, their default localized literal values, and default

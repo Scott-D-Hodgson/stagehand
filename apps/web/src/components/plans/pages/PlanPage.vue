@@ -29,6 +29,7 @@ const emit = defineEmits<{
   'update:plan-timeout': [timeout: number | string | undefined];
   'update:plan-variable': [name: string, definition: VariableDefinitionDraft, previousName: string | undefined];
   'remove:plan-variable': [name: string];
+  'select:plan-variable': [name: string];
   'update:steps': [path: string, steps: unknown[]];
   'update:timeout': [path: string, timeout: unknown | undefined];
   validate: [];
@@ -53,6 +54,7 @@ const emit = defineEmits<{
     :plan="props.plan"
     @remove="emit('remove:plan-variable', $event)"
     @save="(name, definition, previousName) => emit('update:plan-variable', name, definition, previousName)"
+    @select="emit('select:plan-variable', $event)"
   />
   <CaseReferences
     :case-drafts="props.caseDrafts"
