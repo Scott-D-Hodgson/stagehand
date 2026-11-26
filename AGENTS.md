@@ -8,9 +8,11 @@ Text, Number, Boolean, and environment-variable-name defaults in the web
 editor, preserving them in recovery snapshots. Text, Number, and Boolean
 variables also support locale-specific literal values. Existing matching
 references are protected during Plan-variable removal and ordinary renames;
-ambiguous renames are blocked. Step-field variable authoring, data sets, and
-shared Steps remain later M12 work. The owner reported passing all current
-development-container checks for this slice. The CLI, report-file writing, and
+ambiguous renames are blocked. Type Step text can select a Plan variable;
+variable authoring for other Step fields, data sets, and shared Steps remain
+later M12 work. The current web suite passed 87 tests, type-check, and build in
+the development container; the owner approved the latest visual presentation.
+The CLI, report-file writing, and
 real Chromium/axe coverage against a project-owned test site remain later work.
 This current summary supersedes the historical package snapshot below; verify
 runner-specific claims before relying on them.

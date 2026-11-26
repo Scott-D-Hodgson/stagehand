@@ -9,6 +9,8 @@ import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
 import VariableChooserDialog from './dialogs/VariableChooserDialog.vue';
 import VariableDialog, { type VariableKind } from './dialogs/VariableDialog.vue';
 import VariableDetails from './details/VariableDetails.vue';
+import VariableWatermark from './controls/VariableWatermark.vue';
+import { findVariableStepUsages } from '../../services/variableReferenceService';
 
 const props = defineProps<{
   editing: boolean;
@@ -153,36 +155,6 @@ function removeVariable(): void {
   removingName.value = undefined;
 }
 
-/*
-Chooses the watermark icon for one variable definition.
----
-Inputs: A variable definition and its default value type.
----
-Output: The matching Font Awesome icon class.
-*/
-function getVariableTypeIcon(definition: VariableDefinitionDraft): string {
-  if (typeof definition.default === 'boolean') {
-    return 'fa-solid fa-toggle-on';
-  }
-  if (typeof definition.default === 'number') {
-    return 'fa-solid fa-hashtag';
-  }
-  if (typeof definition.default === 'object' && definition.default !== null) {
-    return 'fa-solid fa-computer';
-  }
-  return 'fa-solid fa-font';
-}
-
-/*
-Builds a repeated watermark pattern for one variable card.
----
-Inputs: A variable definition.
----
-Output: Twelve matching type icons.
-*/
-function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
-  return Array.from({ length: 12 }, () => getVariableTypeIcon(definition));
-}
 </script>
 
 <template>
@@ -219,16 +191,9 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
           <div
             class="card-body position-relative pb-5"
           >
-            <div
-              class="variable-card-pattern position-absolute top-0 start-0 w-100 h-100"
-              aria-hidden="true"
-            >
-              <i
-                v-for="(icon, patternIndex) in getVariableTypeIcons(definition)"
-                :key="patternIndex"
-                :class="icon"
-              ></i>
-            </div>
+            <VariableWatermark
+              :definition="definition"
+            />
             <button
               class="btn btn-link link-body-emphasis p-0 position-relative z-1 text-decoration-none text-start w-100"
               type="button"
@@ -239,6 +204,10 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
                 :name="name"
                 :plan-locale="props.plan.defaults.locale"
               />
+              <span
+                v-if="findVariableStepUsages({ plan: props.plan, cases: props.caseDrafts }, name).length > 0"
+                class="text-body-secondary"
+              >{{ t('editor.variableStepCount', { count: findVariableStepUsages({ plan: props.plan, cases: props.caseDrafts }, name).length }) }}</span>
             </button>
             <div
               v-if="props.editing"
@@ -301,21 +270,3 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
     />
   </section>
 </template>
-
-<style scoped>
-.variable-card-pattern {
-  align-content: center;
-  color: var(--bs-secondary-color);
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(6, minmax(0, 0.2fr));
-  opacity: 0.05;
-  pointer-events: none;
-  transform: rotate(-12deg) scale(1.5);
-}
-
-.variable-card-pattern :deep(svg) {
-  font-size: 2.75rem;
-  justify-self: center;
-}
-</style>

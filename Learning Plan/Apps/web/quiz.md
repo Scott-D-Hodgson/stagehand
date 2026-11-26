@@ -12,7 +12,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 8. Why must the recovery gate run before autosave?
 9. What does the current M9 case-reference dialog save, and what does it not create?
 10. Why does the Click-step dialog show a dedicated Role message instead of all schema failures for every locator alternative?
-11. Which Type-step fields are currently authorable, and which supported text form remains deferred?
+11. Which Type-step fields are currently authorable, and how can its text refer to a Plan variable?
 12. Why do dedicated Step pages keep their locator and action-specific fields together instead of adding another shared form component?
 13. Why does the Select option dialog use a Value-or-Label mode rather than show both fields at once?
 14. What is the current Assert text expected-value shape, and how does its Locale overrides panel select the value previewed on the card?
@@ -40,7 +40,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Why does the editor omit `soft` for a Hard assertion and store it only for a Soft assertion?
 37. Why does the editor omit `scrollIntoView` when interaction scrolling is enabled, and which actions currently expose that override?
 38. Why does Wait removal require a confirmation dialog before changing a Before or After list?
-39. Which plan-variable types support localized literal values, and what variable capability remains unavailable in Step fields?
+39. Which plan-variable types support localized literal values, and which Step field can currently select a Plan variable?
 40. What happens when a Plan variable with existing references is renamed or removed, and why might protection be conservative?
 
 ## Answer key
@@ -55,7 +55,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 8. Otherwise, the bundled sample could overwrite a recovery record before the person can restore or discard it.
 9. It saves an editable `cases[].path` value in the in-memory and recoverable plan draft. It does not create, read, or export a case JSON document.
 10. The current form can author only the Role/Accessible-name locator shape. Showing failures for unsupported `label`, `css`, and `xpath` alternatives would be misleading. The editor therefore gives one localized Role message, while full shared-schema validation still checks saved case content.
-11. The form authors Role, an optional Accessible name, and required literal Text. The shared contract also supports a variable reference for text. M12.1 now authors plan-level variable definitions, but variable selection in this Step form remains deferred.
+11. The form authors Role, an optional Accessible name, and either literal Text or a selected Plan-variable reference. Apply stores the reference as `{ "var": "name" }` rather than embedding its resolved value.
 12. A dedicated Step page has one action-specific editing context. Keeping its locator and action-specific fields together makes the editable and read-only presentations easier to understand without introducing a second form-owner boundary.
 13. A Select option contract step must contain exactly one selection form. The mode presents one required literal field at a time and ensures the saved step has either `value` or `label`, never both.
 14. Assert text saves a literal `expected.default` and may add an `expected.locales` map through its dedicated Step page's Locales tab. A matching Plan Locale emphasizes that override; otherwise the default is emphasized. Interface language does not select the expected value.
@@ -83,5 +83,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Hard is the contract default, so omitting `soft` produces the smaller canonical representation without changing behaviour. Selecting Soft deliberately stores `soft: true`, which tells execution to record the failure and continue the case.
 37. Enabled is the schema default, so omitting `scrollIntoView` preserves the canonical behaviour without adding redundant portable data. Click, Type, Fill, and Select option Step pages expose the override; disabling it stores `scrollIntoView: false`.
 38. Removing a Wait is destructive and easy to invoke from a compact card. The static Bootstrap dialog makes the choice visible and requires an explicit confirmation, while Cancel preserves the list unchanged.
-39. Text, Number, and Boolean variables can have localized literal values of the same type. Environment variables store a default environment-variable name. Step fields cannot yet select or save a whole-field variable reference.
+39. Text, Number, and Boolean variables can have localized literal values of the same type. Environment variables store a default environment-variable name. The Type Step's Text field can select a Plan variable; other supported Step fields remain later work.
 40. An unambiguous rename updates matching Case and shared-Step references; removal is blocked and their paths are shown. Narrower definitions can shadow Plan variables, so ambiguous renames are blocked and removal can also be blocked by a same-named reference that resolves to a narrower definition.

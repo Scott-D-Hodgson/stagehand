@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
-import { updateCaseAssertionSoft, updateCaseInteractionScrollIntoView, updateCaseStepTimeout, updateCaseStepWaitList, type AccessibilitySettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft } from '../../../services/planDraftService';
+import { updateCaseAssertionSoft, updateCaseInteractionScrollIntoView, updateCaseStepTimeout, updateCaseStepWaitList, type AccessibilitySettingsDraft, type CaseDraft, type PlanBrowserSettingsDraft, type VariableDefinitionDraft } from '../../../services/planDraftService';
 import CaseDetails from '../../cases/details/CaseDetails.vue';
 import NavigateStepPage from '../action/pages/NavigateStepPage.vue';
 import ClickStepPage from '../action/pages/ClickStepPage.vue';
@@ -26,6 +26,7 @@ const props = defineProps<{
   planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
+  planVariables: Record<string, VariableDefinitionDraft>;
   planTimeout: unknown;
 }>();
 const emit = defineEmits<{
@@ -272,7 +273,7 @@ Inputs: A partial replacement for the selected Type step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateTypeStep(fields: { locator?: { name?: string; role: string }; text?: string }): void {
+function updateTypeStep(fields: { locator?: { name?: string; role: string }; text?: string | { var: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -579,7 +580,9 @@ function formatActionName(action: string | undefined): string {
     :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''"
     :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''"
     :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false"
-    :text="(selectedStep as { text?: string } | undefined)?.text ?? ''"
+    :text="(selectedStep as { text?: string | { var: string } } | undefined)?.text ?? ''"
+    :plan-locale="props.planLocale"
+    :variables="props.planVariables"
     :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined"
     @save="applyStepForm"
     @update:after="updateStepWaitList('after', $event)"

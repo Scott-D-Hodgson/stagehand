@@ -720,6 +720,8 @@ function cancelConfirmation(): void {
     :definition="selectedVariable"
     :editing="editing"
     :name="String(route.params.variableName)"
+    :plan="plan"
+    :case-drafts="caseDrafts"
     @update="changeSelectedVariable"
   />
   <CasePage
@@ -733,6 +735,7 @@ function cancelConfirmation(): void {
     :plan-accessibility="plan.defaults.accessibility"
     :plan-browser="plan.defaults.browser"
     :plan-locale="plan.defaults.locale"
+    :plan-variables="plan.variables ?? {}"
     :plan-timeout="plan.defaults.timeout"
     @move="moveReference"
     @remove="requestReferenceRemoval"
@@ -755,6 +758,7 @@ function cancelConfirmation(): void {
     :plan-accessibility="plan.defaults.accessibility"
     :plan-browser="plan.defaults.browser"
     :plan-locale="plan.defaults.locale"
+    :plan-variables="plan.variables ?? {}"
     :plan-timeout="plan.defaults.timeout"
     @update:steps="changeCaseSteps"
   />

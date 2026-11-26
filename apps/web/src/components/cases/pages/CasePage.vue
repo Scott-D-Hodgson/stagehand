@@ -1,6 +1,6 @@
 ﻿<script setup lang="ts">
 import { useTranslation } from 'i18next-vue';
-import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft } from '../../../services/planDraftService';
+import type { AccessibilitySettingsDraft, CaseBrowserSettingsDraft, CaseDraft, PlanBrowserSettingsDraft, VariableDefinitionDraft } from '../../../services/planDraftService';
 import StepReferences from '../../steps/StepReferences.vue';
 import CaseDetails from '../details/CaseDetails.vue';
 
@@ -13,6 +13,7 @@ const props = defineProps<{
   planAccessibility: AccessibilitySettingsDraft | undefined;
   planBrowser: PlanBrowserSettingsDraft | undefined;
   planLocale: string;
+  planVariables: Record<string, VariableDefinitionDraft>;
   planTimeout: unknown;
 }>();
 const emit = defineEmits<{
@@ -56,6 +57,7 @@ const { t } = useTranslation();
     :case-index="props.caseIndex"
     :editing="props.editing"
     :plan-locale="props.planLocale"
+    :plan-variables="props.planVariables"
     :selected-path="props.casePath"
     @remove:step="(path, index) => emit('remove:step', path, index)"
     @update:steps="(path, steps) => emit('update:steps', path, steps)"

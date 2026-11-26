@@ -3,7 +3,7 @@ import { computed, nextTick, provide, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import { moveCaseStep, updateCaseStepTimeout, type CaseDraft } from '../../services/planDraftService';
+import { moveCaseStep, updateCaseStepTimeout, type CaseDraft, type VariableDefinitionDraft } from '../../services/planDraftService';
 import { getInvalidCaseStepIndexes } from '../../services/validationService';
 import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
 import AssertHtmlStepDialog from './assert/dialogs/AssertHtmlStepDialog.vue';
@@ -36,6 +36,7 @@ const props = defineProps<{
   caseIndex: number;
   editing: boolean;
   planLocale: string;
+  planVariables?: Record<string, VariableDefinitionDraft>;
   selectedPath: string;
 }>();
 
@@ -93,6 +94,7 @@ const displayedSteps = computed(
 provide('stagehandStepSummary', computed(() => route.name === 'case'));
 provide('stagehandStepPage', computed(() => route.name === 'step'));
 provide('stagehandCaseIndex', props.caseIndex);
+provide('stagehandVariableContext', computed(() => ({ locale: props.planLocale, planVariables: props.planVariables ?? {}, caseDraft: selectedCase.value })));
 const editingStepIndex = ref<number | undefined>();
 const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
@@ -180,6 +182,7 @@ const selectOptionSelectionValidationMessage = computed(
 const typeRole = ref('');
 const typeName = ref('');
 const typeText = ref('');
+const typeTextReference = ref<{ var: string }>();
 const editingTypeIndex = ref<number | undefined>();
 const typeRoleBlurred = ref(false);
 const typeTextBlurred = ref(false);
@@ -203,7 +206,7 @@ Inputs: The Type dialog Text value.
 Output: A required-field message, when applicable.
 */
 const typeTextValidationMessage = computed(
-  () => typeText.value.trim().length === 0 ? t('editor.textRequired') : undefined
+  () => typeTextReference.value === undefined && typeText.value.trim().length === 0 ? t('editor.textRequired') : undefined
 );
 const assertTextRole = ref('');
 const assertTextName = ref('');
@@ -529,6 +532,7 @@ function addTypeStep(): void {
   typeRole.value = '';
   typeName.value = '';
   typeText.value = '';
+  typeTextReference.value = undefined;
   typeRoleBlurred.value = false;
   typeTextBlurred.value = false;
   typeDialogOpen.value = true;
@@ -549,7 +553,7 @@ function saveTypeStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = typeName.value.trim() ? { name: typeName.value.trim(), role: typeRole.value.trim() } : { role: typeRole.value.trim() };
-    const step = preserveEditedStepTimeout(editingTypeIndex.value, { action: 'type', locator, text: typeText.value });
+    const step = preserveEditedStepTimeout(editingTypeIndex.value, { action: 'type', locator, text: typeTextReference.value ?? typeText.value });
     const steps = editingTypeIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingTypeIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -566,6 +570,7 @@ function resetTypeDialog(): void {
   typeRole.value = '';
   typeName.value = '';
   typeText.value = '';
+  typeTextReference.value = undefined;
   typeRoleBlurred.value = false;
   typeTextBlurred.value = false;
 }
@@ -1204,7 +1209,9 @@ function editStep(index: number, step: unknown): void {
     editingTypeIndex.value = index;
     typeRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     typeName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    typeText.value = (step as { text?: string }).text ?? '';
+    const textValue = (step as { text?: string | { var: string } }).text;
+    typeTextReference.value = typeof textValue === 'object' && textValue !== null ? { ...textValue } : undefined;
+    typeText.value = typeof textValue === 'string' ? textValue : '';
     typeRoleBlurred.value = false;
     typeTextBlurred.value = false;
     typeDialogOpen.value = true;
@@ -1287,7 +1294,9 @@ function cloneStep(step: unknown): void {
     editingTypeIndex.value = undefined;
     typeRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     typeName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    typeText.value = (step as { text?: string }).text ?? '';
+    const textValue = (step as { text?: string | { var: string } }).text;
+    typeTextReference.value = typeof textValue === 'object' && textValue !== null ? { ...textValue } : undefined;
+    typeText.value = typeof textValue === 'string' ? textValue : '';
     typeRoleBlurred.value = false;
     typeTextBlurred.value = false;
     typeDialogOpen.value = true;
@@ -1562,6 +1571,7 @@ function openStep(index: number, event: MouseEvent): void {
       :role-validation-message="typeRoleValidationMessage"
       :role-validation-visible="typeRoleBlurred"
       :text="typeText"
+      :text-reference="typeTextReference?.var"
       :text-validation-message="typeTextValidationMessage"
       :text-validation-visible="typeTextBlurred"
       @blur:role="typeRoleBlurred = true"
@@ -1571,7 +1581,7 @@ function openStep(index: number, event: MouseEvent): void {
       @save="saveTypeStep"
       @update:name="typeName = $event"
       @update:role="typeRole = $event"
-      @update:text="typeText = $event"
+      @update:text="typeText = $event; typeTextReference = undefined"
       @validate="typeRoleBlurred = true; typeTextBlurred = true"
     />
     <FillStepDialog

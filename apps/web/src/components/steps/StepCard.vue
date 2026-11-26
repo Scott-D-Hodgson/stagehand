@@ -3,6 +3,7 @@ import { computed, inject, type ComputedRef } from 'vue';
 import { useTranslation } from 'i18next-vue';
 import IconOnlyButton from '../controls/IconOnlyButton.vue';
 import { stepActionIcons } from './step-icons';
+import StepWatermark from './StepWatermark.vue';
 
 const props = defineProps<{
   actionLabel: string;
@@ -44,7 +45,6 @@ const actionIcon = computed(
     [t('editor.type')]: stepActionIcons.type,
   })[props.actionLabel]
 );
-const backgroundIcons = Array.from({ length: 12 });
 
 </script>
 
@@ -55,17 +55,10 @@ const backgroundIcons = Array.from({ length: 12 });
     <div
       class="card-body position-relative pb-5"
     >
-      <div
+      <StepWatermark
         v-if="actionIcon"
-        class="step-card-pattern position-absolute top-0 start-0 w-100 h-100"
-        aria-hidden="true"
-      >
-        <i
-          v-for="(_, index) in backgroundIcons"
-          :key="index"
-          :class="actionIcon"
-        ></i>
-      </div>
+        :icon="actionIcon"
+      />
       <h4
         class="position-relative z-1 d-flex align-items-center justify-content-between gap-3"
       >
@@ -139,22 +132,6 @@ const backgroundIcons = Array.from({ length: 12 });
 </template>
 
 <style scoped>
-.step-card-pattern {
-  align-content: center;
-  color: var(--bs-secondary-color);
-  display: grid;
-  gap: 1rem;
-  grid-template-columns: repeat(6, minmax(0, 0.2fr));
-  opacity: 0.05;
-  pointer-events: none;
-  transform: rotate(-12deg) scale(1.50);
-}
-
-.step-card-pattern :deep(svg) {
-  font-size: 2.75rem;
-  justify-self: center;
-}
-
 :deep(.step-card-action-icon) {
   color: var(--bs-secondary-color);
   font-size: 1.25em;
