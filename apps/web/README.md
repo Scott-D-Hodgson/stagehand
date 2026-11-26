@@ -156,8 +156,12 @@ this repository.
   in recovery snapshots. Dedicated Variable pages author localized Text,
   Number, and Boolean values; their cards preview a matching Plan locale.
   The default form applies changes explicitly and gates unapplied navigation.
-  Variable-backed Step fields, reference-safe renaming/removal, data sets, and
-  shared Steps remain later M12 work.
+  Renaming updates existing matching references in Cases and shared Steps;
+  removal is blocked while matching references remain, including matches that
+  may resolve to a narrower variable. To avoid changing
+  resolution when narrower definitions exist, ambiguous renames are blocked
+  and their conflicting locations are shown. Variable-backed Step fields,
+  data sets, and shared Step authoring remain later M12 work.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes

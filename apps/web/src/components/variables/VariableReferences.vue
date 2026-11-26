@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { useTranslation } from 'i18next-vue';
-import type { PlanDraft, VariableDefinitionDraft } from '../../services/planDraftService';
+import type { CaseDraft, PlanDraft, VariableDefinitionDraft } from '../../services/planDraftService';
+import { findVariableReferences } from '../../services/variableReferenceService';
+import BundleIssuesModal from '../plans/dialogs/BundleIssuesModal.vue';
 import IconOnlyButton from '../controls/IconOnlyButton.vue';
 import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
 import VariableChooserDialog from './dialogs/VariableChooserDialog.vue';
@@ -11,6 +13,7 @@ import VariableDetails from './details/VariableDetails.vue';
 const props = defineProps<{
   editing: boolean;
   plan: PlanDraft;
+  caseDrafts: Record<string, CaseDraft>;
 }>();
 
 const emit = defineEmits<{
@@ -25,6 +28,7 @@ const removingName = ref<string>();
 const showDialog = ref(false);
 const showChooser = ref(false);
 const selectedKind = ref<VariableKind>();
+const removalIssues = ref<string[]>();
 
 /*
 Determines plan variables ordered for predictable display.
@@ -127,6 +131,11 @@ Inputs: A plan-variable name.
 Output: A pending destructive action.
 */
 function requestRemoval(name: string): void {
+  const references = findVariableReferences({ plan: props.plan, cases: props.caseDrafts }, name);
+  if (references.length > 0) {
+    removalIssues.value = references.map((reference) => `${reference.document}: ${reference.path}`);
+    return;
+  }
   removingName.value = name;
 }
 
@@ -281,6 +290,14 @@ function getVariableTypeIcons(definition: VariableDefinitionDraft): string[] {
       :title="t('editor.confirmationTitle')"
       @cancel="removingName = undefined"
       @confirm="removeVariable"
+    />
+    <BundleIssuesModal
+      v-if="removalIssues"
+      :close-label="t('editor.close')"
+      :issues="removalIssues"
+      :message="t('editor.variableRemovalBlocked')"
+      :title="t('editor.variableDependencyTitle')"
+      @close="removalIssues = undefined"
     />
   </section>
 </template>
