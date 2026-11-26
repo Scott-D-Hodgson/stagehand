@@ -15,6 +15,7 @@ const props = defineProps<{
   roleValidationMessage?: string;
   roleValidationVisible: boolean;
   text: string;
+  textReference?: string;
   textValidationMessage?: string;
   textValidationVisible: boolean;
 }>();
@@ -163,6 +164,7 @@ onBeforeUnmount(() => modal?.dispose());
           <input
             id="type-text"
             :value="props.text"
+            :placeholder="props.textReference ? `${t('editor.variable')}: ${props.textReference}` : undefined"
             class="form-control"
             :class="{ 'is-invalid': props.textValidationVisible && props.textValidationMessage !== undefined }"
             required

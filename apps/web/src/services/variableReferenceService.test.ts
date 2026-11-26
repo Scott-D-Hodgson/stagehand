@@ -1,8 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyEditorDraft } from './planDraftService';
-import { findVariableReferences, findVariableRenameConflicts, renameVariableReferences } from './variableReferenceService';
+import { findVariableReferences, findVariableRenameConflicts, findVariableStepUsages, renameVariableReferences } from './variableReferenceService';
 
 describe('plan variable reference protection', () => {
+  it('counts each matching Case step once and retains its navigation indexes', () => {
+    const bundle = createEmptyEditorDraft('sample');
+    bundle.plan.cases = [{ path: 'case.json' }];
+    bundle.plan.sharedSteps = { shared: [{ action: 'type', text: { var: 'input' } }] };
+    bundle.cases['case.json'] = { id: 'example', version: 1, steps: [{ action: 'assertText', expected: { default: { var: 'input' }, locales: { 'fr-CA': { var: 'input' } } } }, { action: 'type', text: { var: 'other' } }] };
+    expect(findVariableStepUsages(bundle, 'input')).toEqual([{ action: 'assertText', caseIndex: 0, caseName: 'example', stepIndex: 0 }]);
+    expect(findVariableStepUsages(bundle, 'missing')).toEqual([]);
+  });
+
   it('finds and independently rewrites case and shared-step references', () => {
     const bundle = createEmptyEditorDraft('sample');
     bundle.plan.sharedSteps = { shared: [{ action: 'type', text: { var: 'input' } }] };

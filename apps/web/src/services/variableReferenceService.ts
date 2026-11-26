@@ -5,6 +5,38 @@ export interface VariableReferenceLocation {
   path: string;
 }
 
+export interface VariableStepUsage {
+  caseIndex: number;
+  caseName: string;
+  stepIndex: number;
+  action: string;
+}
+
+/*
+Finds distinct Case steps containing a matching variable reference.
+---
+Inputs: A bundle and case-sensitive variable name.
+---
+Output: Ordered Case and Step locations, counted once per Step.
+*/
+export function findVariableStepUsages(bundle: EditorBundleDraft, name: string): VariableStepUsage[] {
+  const references = findVariableReferences(bundle, name);
+  return bundle.plan.cases.flatMap((reference, caseIndex) => {
+    const caseDraft = bundle.cases[reference.path];
+    if (caseDraft === undefined) {
+      return [];
+    }
+    return caseDraft.steps.flatMap((step, stepIndex) => {
+      const prefix = `/steps/${stepIndex}/`;
+      if (!references.some((item) => item.document === reference.path && item.path.startsWith(prefix))) {
+        return [];
+      }
+      const action = typeof step === 'object' && step !== null && 'action' in step && typeof step.action === 'string' ? step.action : '';
+      return [{ action, caseIndex, caseName: caseDraft.id, stepIndex }];
+    });
+  });
+}
+
 /*
 Finds exact variable-reference objects throughout the preserved bundle.
 ---

@@ -160,8 +160,15 @@ this repository.
   removal is blocked while matching references remain, including matches that
   may resolve to a narrower variable. To avoid changing
   resolution when narrower definitions exist, ambiguous renames are blocked
-  and their conflicting locations are shown. Variable-backed Step fields,
-  data sets, and shared Step authoring remain later M12 work.
+  and their conflicting locations are shown. The Type Step's Text field can
+  select an existing Plan variable instead of a literal; the stored reference
+  contains the variable name, not its resolved value. Its chooser displays
+  locale-aware Variable cards, and its Case card previews the selected value.
+  Plan Variable cards count distinct matching Case Steps and link to their
+  details on the Variable page. The count conservatively includes same-named
+  references shadowed by narrower definitions and excludes shared-step
+  definitions. Other variable-backed Step fields, data sets, and shared Step
+  authoring remain later M12 work.
 - View/Edit is temporary interface state: it is not saved in a plan or recovery
   record. It affects the settings shown in the current route. Case and Step
   cards remain read-only navigational summaries, while their parent routes
@@ -191,7 +198,7 @@ this repository.
   Their Overrides panels also author assertion behaviour: Hard omits the
   contract-default `soft` property, while Soft stores `soft: true`; View mode
   summarizes the selected behaviour.
-  Variable-backed text and values remain later M12 work.
+  Variable-backed values for other supported Step fields remain later M12 work.
   Each step-detail component owns its dedicated route-page fields;
   `StepReferences` coordinates ordered data, dialogs, and draft updates for
   Case-route cards. Add, Edit, Clone, Remove, and adjacent Promote/Demote

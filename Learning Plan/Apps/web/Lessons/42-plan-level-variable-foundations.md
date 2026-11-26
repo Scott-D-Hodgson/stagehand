@@ -21,10 +21,9 @@ It does not ask for, retain, or recover the value supplied by that environment
 variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
-A variable reference is a separate capability. A supported Step field will
-eventually use a whole-field object such as `{ "var": "userName" }`. The
-initial UI can author definitions but does not yet offer those Step-field
-references.
+A variable reference is a separate capability. The Type Step can select a
+Plan variable and save a whole-field object such as `{ "var": "userName" }`.
+Other supported Step fields still need their authoring controls.
 
 ## Preserve drafts without sharing them
 
@@ -42,12 +41,15 @@ after Apply, and leaving with unapplied edits requests confirmation. The
 Environment form continues to accept only an environment-variable name.
 
 This slice does not yet author data sets, shared Steps, Case- or Step-level
-definitions, or variable references. Imported Cases and shared Steps may
+definitions, or references in other Step fields. Imported Cases and shared Steps may
 already contain references. An unambiguous Plan-variable rename updates
 matching references, and removal is blocked with their document paths while
 matches remain. The check is conservative: a same-named reference may be
 reported even when a narrower definition shadows the Plan variable. A rename
-is also blocked if narrower definitions make its effect ambiguous.
+is also blocked if narrower definitions make its effect ambiguous. Variable
+cards count distinct matching Case Steps, and the Variable page links to them;
+these counts are conservative for shadowed names and exclude shared-step
+definitions.
 
 ## Try it
 
@@ -58,14 +60,15 @@ is also blocked if narrower definitions make its effect ambiguous.
    remain present.
 4. Add a locale value, change the Plan locale, and inspect the Variable card.
 5. Edit the default without applying it and try to leave the Variable page.
-6. Explain why the editor cannot yet offer a variable picker in a Type Step.
+6. Select the variable on a Type Step, apply it, and follow the matching Step
+   link from the Variable page.
 7. With a synthetic imported bundle that references a Plan variable, try its
    removal and inspect the paths shown before renaming it.
 
 ## You are ready when
 
 - You can distinguish an ordinary variable default, an environment-variable
-  name, and a future variable reference.
+  name, and a Type Step variable reference.
 - You can explain why preserving the scalar type matters.
 - You can identify the remaining M12.1 work without treating it as shipped.
 

@@ -4,16 +4,21 @@ import { useTranslation } from 'i18next-vue';
 import { useRouter } from 'vue-router';
 import LocaleOverrideDialog from '../../steps/assert/dialogs/LocaleOverrideDialog.vue';
 import IconOnlyButton from '../../controls/IconOnlyButton.vue';
-import type { VariableDefinitionDraft } from '../../../services/planDraftService';
+import type { CaseDraft, PlanDraft, VariableDefinitionDraft } from '../../../services/planDraftService';
+import { findVariableStepUsages } from '../../../services/variableReferenceService';
 import VariableDetails from '../details/VariableDetails.vue';
 import ConfirmationModal from '../../controls/dialogs/ConfirmationModal.vue';
 import type { VariableKind } from '../dialogs/VariableDialog.vue';
 import { showAppliedChanges } from '../../../modules/feedback/applyFeedback';
+import StepWatermark from '../../steps/StepWatermark.vue';
+import { stepActionIcons, type StepAction } from '../../steps/step-icons';
 
 const props = defineProps<{
   definition: VariableDefinitionDraft;
   editing: boolean;
   name: string;
+  plan: PlanDraft;
+  caseDrafts: Record<string, CaseDraft>;
 }>();
 
 const emit = defineEmits<{
@@ -117,6 +122,17 @@ Output: Ordered locale-value entries.
 */
 const localeValues = computed(
   () => Object.entries(props.definition.locales ?? {}).sort(([left], [right]) => left.localeCompare(right))
+);
+
+/*
+Finds distinct Case steps with a matching variable reference.
+---
+Inputs: The plan, its case drafts, and the variable name.
+---
+Output: Ordered Case and Step locations.
+*/
+const usages = computed(
+  () => findVariableStepUsages({ plan: props.plan, cases: props.caseDrafts }, props.name)
 );
 
 /*
@@ -388,6 +404,52 @@ function saveDefault(): void {
         </ul>
       </div>
     </div>
+    <section
+      class="mt-4"
+      aria-labelledby="variable-usages-heading"
+    >
+      <h2
+        id="variable-usages-heading"
+        class="h3"
+      >{{ t('editor.variableUsages') }}</h2>
+      <p
+        class="text-body-secondary"
+      >{{ t('editor.variableUsagesHelp') }}</p>
+      <p
+        v-if="usages.length === 0"
+        class="text-body-secondary"
+      >{{ t('editor.variableStepCount', { count: 0 }) }}</p>
+      <div
+        v-else
+        class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-3"
+      >
+        <div
+          v-for="usage in usages"
+          :key="`${usage.caseIndex}-${usage.stepIndex}`"
+          class="col"
+        >
+          <div
+            class="card h-100 bg-body-tertiary shadow-sm overflow-hidden"
+          >
+            <div
+              class="card-body position-relative"
+            >
+              <StepWatermark
+                v-if="Object.hasOwn(stepActionIcons, usage.action)"
+                :icon="stepActionIcons[usage.action as StepAction]"
+              />
+              <RouterLink
+                class="stretched-link text-decoration-none position-relative z-1"
+                :to="{ name: 'step', params: { cardIndex: usage.caseIndex, stepIndex: usage.stepIndex } }"
+              >{{ usage.stepIndex + 1 }}. {{ usage.action }}</RouterLink>
+              <p
+                class="mb-0 text-body-secondary position-relative z-1"
+              >{{ props.plan.id }} › {{ usage.caseName }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
     <RouterLink
       class="btn btn-outline-secondary mt-3"
       :to="{ name: 'plan' }"

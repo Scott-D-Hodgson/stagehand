@@ -19,15 +19,16 @@ authors this shared-contract shape:
 ```
 
 The target uses the same current locator form as Click: required Role and
-optional Accessible name. Type adds required literal Text. Role and Text have
+optional Accessible name. Type accepts a literal Text value or a Plan-variable
+reference. Role and Text have
 separate blur-gated messages, so leaving Text empty does not produce a Role
 message, and vice versa.
 
-The shared contract allows the `text` value to be a variable reference as well
-as a literal. The Plan route now begins M12.1 by authoring plan-level variable
-definitions, but this Step route does not yet offer variable selection. That
-field integration remains later M12 work. This is deliberate scope, not a
-limitation of the contract.
+The Type page's **Use variable?** switch replaces the literal field with
+selectable Plan-variable cards. The selected reference is stored as a whole
+field, for example `{ "var": "email" }`; it is not text interpolation. The
+cards preview the value for the Plan locale, while an environment reference
+shows its name rather than a protected value. Apply commits the choice.
 
 ## Reuse after repetition
 
@@ -48,14 +49,15 @@ a recovery snapshot cannot change the in-memory draft.
 
 Add a Type step for a textbox named `Email`, with literal text
 `author@example.com`. Blur each empty required field separately and identify its
-message. Save the valid step, clone it, change the cloned text, refresh the
-page, and restore the local recovery copy.
+message. Save the valid step, then choose a Plan variable on the Type page and
+apply it. Inspect the Case card, change the Plan locale, refresh the page, and
+restore the local recovery copy.
 
 ## You are ready when
 
 - You can identify the minimum valid Type-step fields in the current editor.
-- You can explain why variable-backed text is deferred even though the contract
-  supports it.
+- You can distinguish a literal Type value from a whole-field variable
+  reference and explain what Apply saves.
 - You know why each required field needs its own validation state.
 
 [← Previous: Click-step authoring](09-click-step-authoring.md) · [Course outline](../README.md) · [Next: Fill-step authoring →](11-fill-step-authoring.md)
