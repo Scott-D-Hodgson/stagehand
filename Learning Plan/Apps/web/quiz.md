@@ -40,7 +40,7 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Why does the editor omit `soft` for a Hard assertion and store it only for a Soft assertion?
 37. Why does the editor omit `scrollIntoView` when interaction scrolling is enabled, and which actions currently expose that override?
 38. Why does Wait removal require a confirmation dialog before changing a Before or After list?
-39. Which plan-variable types support localized literal values, and which Step field can currently select a Plan variable?
+39. Which plan-variable types support localized literal values, and which Step fields can currently select a Plan variable?
 40. What happens when a Plan variable with existing references is renamed or removed, and why might protection be conservative?
 
 ## Answer key
@@ -83,5 +83,5 @@ Use this quiz after completing the web editor course. Check answers against the 
 36. Hard is the contract default, so omitting `soft` produces the smaller canonical representation without changing behaviour. Selecting Soft deliberately stores `soft: true`, which tells execution to record the failure and continue the case.
 37. Enabled is the schema default, so omitting `scrollIntoView` preserves the canonical behaviour without adding redundant portable data. Click, Type, Fill, and Select option Step pages expose the override; disabling it stores `scrollIntoView: false`.
 38. Removing a Wait is destructive and easy to invoke from a compact card. The static Bootstrap dialog makes the choice visible and requires an explicit confirmation, while Cancel preserves the list unchanged.
-39. Text, Number, and Boolean variables can have localized literal values of the same type. Environment variables store a default environment-variable name. The Type Step's Text field can select a Plan variable; other supported Step fields remain later work.
+39. Text, Number, and Boolean variables can have localized literal values of the same type. Environment variables store a default environment-variable name. The Type Step's Text and Fill Step's Value fields can select a Plan variable; other supported Step fields remain later work.
 40. An unambiguous rename updates matching Case and shared-Step references; removal is blocked and their paths are shown. Narrower definitions can shadow Plan variables, so ambiguous renames are blocked and removal can also be blocked by a same-named reference that resolves to a narrower definition.

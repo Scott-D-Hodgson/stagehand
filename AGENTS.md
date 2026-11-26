@@ -8,7 +8,7 @@ Text, Number, Boolean, and environment-variable-name defaults in the web
 editor, preserving them in recovery snapshots. Text, Number, and Boolean
 variables also support locale-specific literal values. Existing matching
 references are protected during Plan-variable removal and ordinary renames;
-ambiguous renames are blocked. Type Step text can select a Plan variable;
+ambiguous renames are blocked. Type Step text and Fill Step value can select a Plan variable;
 variable authoring for other Step fields, data sets, and shared Steps remain
 later M12 work. The current web suite passed 87 tests, type-check, and build in
 the development container; the owner approved the latest visual presentation.

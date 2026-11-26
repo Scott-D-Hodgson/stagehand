@@ -19,10 +19,11 @@ authors this shared-contract shape:
 ```
 
 This looks similar to Type, but its meaning is different: Type enters text in
-sequence, while Fill supplies the field’s value. The current form requires a
-literal Value. The shared contract permits a variable reference too. Plan-level
-variable definitions are now being introduced in M12.1, but variable selection
-for this field and data-set authoring remain later M12 work.
+sequence, while Fill supplies the field’s value. Its Value can be a literal or
+a Plan-variable reference. The **Use variable?** switch opens the same
+locale-aware card chooser used by Type. Apply saves a whole-field reference
+such as `{ "var": "email" }`, rather than embedding the resolved value.
+Data-set authoring remains later M12 work.
 
 ## Shared locator fields
 
@@ -48,16 +49,17 @@ save must not keep Vue’s live reactive objects.
 
 Add a Fill step for a textbox named `Email` with Value
 `author@example.com`. Blur the empty Role and Value fields one at a time and
-compare their messages. Save, clone the card and change its Value, then refresh
-and restore the recovery copy. Finally, open Click and Type to confirm their
-shared locator fields still focus and validate correctly.
+compare their messages. Save, select a Plan variable on the Fill page, and
+apply it. Inspect the Case card's locale-aware preview, then clone the card,
+refresh, and restore the recovery copy. Finally, open Click and Type to confirm
+their shared locator fields still focus and validate correctly.
 
 ## You are ready when
 
 - You can explain the authoring difference between Type and Fill.
 - You can identify the common locator fields and the action-specific fields on
   each dedicated Step page.
-- You know why literal Value is current scope while variable references wait
-  for M12.
+- You can distinguish a literal Fill value from a Plan-variable reference and
+  explain when Apply changes the draft.
 
 [← Previous: Type-step authoring](10-type-step-authoring.md) · [Course outline](../README.md) · [Next: Select-option authoring →](12-select-option-authoring.md)

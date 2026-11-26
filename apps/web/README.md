@@ -160,10 +160,11 @@ this repository.
   removal is blocked while matching references remain, including matches that
   may resolve to a narrower variable. To avoid changing
   resolution when narrower definitions exist, ambiguous renames are blocked
-  and their conflicting locations are shown. The Type Step's Text field can
-  select an existing Plan variable instead of a literal; the stored reference
-  contains the variable name, not its resolved value. Its chooser displays
-  locale-aware Variable cards, and its Case card previews the selected value.
+  and their conflicting locations are shown. The Type Step's Text and Fill
+  Step's Value fields can select an existing Plan variable instead of a
+  literal; the stored reference contains the variable name, not its resolved
+  value. Their chooser displays
+  locale-aware Variable cards, and their Case cards preview the selected value.
   Plan Variable cards count distinct matching Case Steps and link to their
   details on the Variable page. The count conservatively includes same-named
   references shadowed by narrower definitions and excludes shared-step
@@ -182,7 +183,8 @@ this repository.
   HTTP/HTTPS URL rule;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
-  Text, and Fill uses it plus required literal Value. Select option uses the
+  Text or a Plan-variable reference, and Fill uses it plus a required literal
+  Value or Plan-variable reference. Select option uses the
   same locator plus a deliberate literal Value-or-Label mode, and saves exactly
   one of those fields. Their Overrides panels author the default-enabled
   `scrollIntoView` setting: enabled stays omitted from portable data while an
