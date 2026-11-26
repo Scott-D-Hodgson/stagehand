@@ -1,33 +1,31 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import StepCard from '../../StepCard.vue';
+import TypeStepDetails from './TypeStepDetails.vue';
 
 const props = defineProps<{ actionLabel: string; editing: boolean; index: number; invalid: boolean; step: unknown; stepCount: number; timeout: unknown }>();
 const emit = defineEmits<{ clone: []; edit: []; move: [direction: -1 | 1]; remove: []; 'update:timeout': [timeout: number | string] }>();
 
 /*
-Determines the locator and value summary for the fill step.
+Adapts the Fill value for the shared text-value preview.
 ---
-Inputs: The fill step locator and value.
+Inputs: The Fill step and its Value field.
 ---
-Output: A concise description of the configured fill action.
+Output: An equivalent preview retaining the step's variable scope.
 */
-const summary = computed(
-  () => {
-  const step = props.step as { locator?: { name?: string; role?: string }; value?: string };
-  const locator = step.locator;
-  const target = `${locator?.role ?? ''}${locator?.name ? `: ${locator.name}` : ''}`;
-  return `${target} → ${step.value ?? ''}`;
-  }
+const previewStep = computed(
+  () => typeof props.step === 'object' && props.step !== null
+    ? { ...props.step, text: (props.step as { value?: unknown }).value }
+    : props.step
 );
 </script>
 
 <template>
-  <StepCard
+  <TypeStepDetails
     :action-label="props.actionLabel"
     :editing="props.editing"
     :index="props.index"
     :invalid="props.invalid"
+    :step="previewStep"
     :step-count="props.stepCount"
     :timeout="props.timeout"
     @clone="emit('clone')"
@@ -35,9 +33,5 @@ const summary = computed(
     @move="emit('move', $event)"
     @remove="emit('remove')"
     @update:timeout="emit('update:timeout', $event)"
-  >
-    <p
-      class="mb-0 text-body-secondary text-break"
-    >{{ summary }}</p>
-  </StepCard>
+  />
 </template>

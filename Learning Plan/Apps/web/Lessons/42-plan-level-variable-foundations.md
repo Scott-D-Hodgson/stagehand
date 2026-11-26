@@ -21,7 +21,7 @@ It does not ask for, retain, or recover the value supplied by that environment
 variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
-A variable reference is a separate capability. The Type Step can select a
+A variable reference is a separate capability. Type and Fill Steps can select a
 Plan variable and save a whole-field object such as `{ "var": "userName" }`.
 Other supported Step fields still need their authoring controls.
 

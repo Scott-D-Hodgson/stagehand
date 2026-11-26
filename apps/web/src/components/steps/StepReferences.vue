@@ -125,6 +125,7 @@ const clickRoleValidationMessage = computed(
 const fillRole = ref('');
 const fillName = ref('');
 const fillValue = ref('');
+const fillValueReference = ref<{ var: string }>();
 const editingFillIndex = ref<number | undefined>();
 const fillRoleBlurred = ref(false);
 const fillValueBlurred = ref(false);
@@ -148,7 +149,7 @@ Inputs: The Fill dialog Value value.
 Output: A required-field message, when applicable.
 */
 const fillValueValidationMessage = computed(
-  () => fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined
+  () => fillValueReference.value === undefined && fillValue.value.trim().length === 0 ? t('editor.valueRequired') : undefined
 );
 const selectOptionRole = ref('');
 const selectOptionName = ref('');
@@ -1015,6 +1016,7 @@ function addFillStep(): void {
   fillRole.value = '';
   fillName.value = '';
   fillValue.value = '';
+  fillValueReference.value = undefined;
   fillRoleBlurred.value = false;
   fillValueBlurred.value = false;
   fillDialogOpen.value = true;
@@ -1035,7 +1037,7 @@ function saveFillStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = fillName.value.trim() ? { name: fillName.value.trim(), role: fillRole.value.trim() } : { role: fillRole.value.trim() };
-    const step = preserveEditedStepTimeout(editingFillIndex.value, { action: 'fill', locator, value: fillValue.value });
+    const step = preserveEditedStepTimeout(editingFillIndex.value, { action: 'fill', locator, value: fillValueReference.value ?? fillValue.value });
     const steps = editingFillIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingFillIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -1052,6 +1054,7 @@ function resetFillDialog(): void {
   fillRole.value = '';
   fillName.value = '';
   fillValue.value = '';
+  fillValueReference.value = undefined;
   fillRoleBlurred.value = false;
   fillValueBlurred.value = false;
 }
@@ -1221,7 +1224,9 @@ function editStep(index: number, step: unknown): void {
     editingFillIndex.value = index;
     fillRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     fillName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    fillValue.value = (step as { value?: string }).value ?? '';
+    const stepValue = (step as { value?: string | { var: string } }).value;
+    fillValueReference.value = typeof stepValue === 'object' && stepValue !== null ? { ...stepValue } : undefined;
+    fillValue.value = typeof stepValue === 'string' ? stepValue : '';
     fillRoleBlurred.value = false;
     fillValueBlurred.value = false;
     fillDialogOpen.value = true;
@@ -1306,7 +1311,9 @@ function cloneStep(step: unknown): void {
     editingFillIndex.value = undefined;
     fillRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     fillName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    fillValue.value = (step as { value?: string }).value ?? '';
+    const stepValue = (step as { value?: string | { var: string } }).value;
+    fillValueReference.value = typeof stepValue === 'object' && stepValue !== null ? { ...stepValue } : undefined;
+    fillValue.value = typeof stepValue === 'string' ? stepValue : '';
     fillRoleBlurred.value = false;
     fillValueBlurred.value = false;
     fillDialogOpen.value = true;
@@ -1591,6 +1598,7 @@ function openStep(index: number, event: MouseEvent): void {
       :role-validation-message="fillRoleValidationMessage"
       :role-validation-visible="fillRoleBlurred"
       :value="fillValue"
+      :value-reference="fillValueReference?.var"
       :value-validation-message="fillValueValidationMessage"
       :value-validation-visible="fillValueBlurred"
       @blur:role="fillRoleBlurred = true"
@@ -1600,7 +1608,7 @@ function openStep(index: number, event: MouseEvent): void {
       @save="saveFillStep"
       @update:name="fillName = $event"
       @update:role="fillRole = $event"
-      @update:value="fillValue = $event"
+      @update:value="fillValue = $event; fillValueReference = undefined"
       @validate="fillRoleBlurred = true; fillValueBlurred = true"
     />
     <SelectOptionStepDialog

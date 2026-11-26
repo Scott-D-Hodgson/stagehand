@@ -289,7 +289,7 @@ Inputs: A partial replacement for the selected Fill step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateFillStep(fields: { locator?: { name?: string; role: string }; value?: string }): void {
+function updateFillStep(fields: { locator?: { name?: string; role: string }; value?: string | { var: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -603,7 +603,9 @@ function formatActionName(action: string | undefined): string {
     :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''"
     :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false"
     :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined"
-    :value="(selectedStep as { value?: string } | undefined)?.value ?? ''"
+    :value="(selectedStep as { value?: string | { var: string } } | undefined)?.value ?? ''"
+    :plan-locale="props.planLocale"
+    :variables="props.planVariables"
     @save="applyStepForm"
     @update:after="updateStepWaitList('after', $event)"
     @update:before="updateStepWaitList('before', $event)"

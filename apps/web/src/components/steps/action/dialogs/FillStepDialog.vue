@@ -15,6 +15,7 @@ const props = defineProps<{
   roleValidationMessage?: string;
   roleValidationVisible: boolean;
   value: string;
+  valueReference?: string;
   valueValidationMessage?: string;
   valueValidationVisible: boolean;
 }>();
@@ -163,9 +164,10 @@ onBeforeUnmount(() => modal?.dispose());
           <input
             id="fill-value"
             :value="props.value"
+            :placeholder="props.valueReference ? `${t('editor.variable')}: ${props.valueReference}` : undefined"
             class="form-control"
             :class="{ 'is-invalid': props.valueValidationVisible && props.valueValidationMessage !== undefined }"
-            required
+            :required="!props.valueReference"
             @blur="reportValueBlur"
             @input="emit('update:value', ($event.target as HTMLInputElement).value)"
           />

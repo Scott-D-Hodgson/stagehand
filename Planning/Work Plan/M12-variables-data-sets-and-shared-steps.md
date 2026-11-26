@@ -31,9 +31,9 @@ Existing matching references in Cases and shared Steps are updated on an
 unambiguous Plan-variable rename; removal is blocked while matches remain.
 Narrower definitions conservatively block an ambiguous rename. The web tests,
 type-check, and build passed in the development container for this protection
-slice. The Type Step now authors Plan-variable references, and Variable pages
-list matching Case Steps. The current web suite passed 87 tests, type-check,
-and build; the owner approved the latest visual presentation. Other supported
+slice. Type and Fill Steps now author Plan-variable references, and Variable
+pages list matching Case Steps. The current web suite passed 87 tests, type-check,
+and build; the owner approved the Fill slice's visual presentation. Other supported
 Step fields and milestone-wide browser, recovery, conflict, and round-trip
 evidence remain open.
 

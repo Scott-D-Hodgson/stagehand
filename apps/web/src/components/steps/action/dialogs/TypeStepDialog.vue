@@ -167,7 +167,7 @@ onBeforeUnmount(() => modal?.dispose());
             :placeholder="props.textReference ? `${t('editor.variable')}: ${props.textReference}` : undefined"
             class="form-control"
             :class="{ 'is-invalid': props.textValidationVisible && props.textValidationMessage !== undefined }"
-            required
+            :required="!props.textReference"
             @blur="reportTextBlur"
             @input="emit('update:text', ($event.target as HTMLInputElement).value)"
           />
