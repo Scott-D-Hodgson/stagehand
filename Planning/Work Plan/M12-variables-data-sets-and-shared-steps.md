@@ -27,8 +27,12 @@ Deliver the relevant forms, synthetic examples, documentation, and verification 
 
 The current M12.1 work provides plan-variable defaults, dedicated Variable
 pages, and localized literal values for Text, Number, and Boolean variables.
-The owner reports all tests passing for the current slice. Step references,
-dependency protection, and milestone-wide round-trip evidence remain open.
+Existing matching references in Cases and shared Steps are updated on an
+unambiguous Plan-variable rename; removal is blocked while matches remain.
+Narrower definitions conservatively block an ambiguous rename. The web tests,
+type-check, and build passed in the development container for this protection
+slice; browser verification and milestone-wide recovery, conflict, and
+round-trip evidence remain open. Step-reference authoring is not yet provided.
 
 1. **Variables and protected references:** author plan-level variable
    definitions, their default localized literal values, and default

@@ -50,6 +50,7 @@ const emit = defineEmits<{
     @validate="emit('validate')"
   />
   <VariableReferences
+    :case-drafts="props.caseDrafts"
     :editing="props.editing"
     :plan="props.plan"
     @remove="emit('remove:plan-variable', $event)"

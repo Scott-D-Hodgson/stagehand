@@ -42,10 +42,12 @@ after Apply, and leaving with unapplied edits requests confirmation. The
 Environment form continues to accept only an environment-variable name.
 
 This slice does not yet author data sets, shared Steps, Case- or Step-level
-definitions, or variable references. Rename and
-removal dependency handling follow once references exist. The agreed policy is
-to update supported references on rename and block removal until dependent
-references are resolved.
+definitions, or variable references. Imported Cases and shared Steps may
+already contain references. An unambiguous Plan-variable rename updates
+matching references, and removal is blocked with their document paths while
+matches remain. The check is conservative: a same-named reference may be
+reported even when a narrower definition shadows the Plan variable. A rename
+is also blocked if narrower definitions make its effect ambiguous.
 
 ## Try it
 
@@ -57,6 +59,8 @@ references are resolved.
 4. Add a locale value, change the Plan locale, and inspect the Variable card.
 5. Edit the default without applying it and try to leave the Variable page.
 6. Explain why the editor cannot yet offer a variable picker in a Type Step.
+7. With a synthetic imported bundle that references a Plan variable, try its
+   removal and inspect the paths shown before renaming it.
 
 ## You are ready when
 

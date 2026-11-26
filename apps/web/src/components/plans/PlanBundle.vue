@@ -19,6 +19,7 @@ import BooleanVariablePage from '../variables/pages/BooleanVariablePage.vue';
 import EnvironmentVariablePage from '../variables/pages/EnvironmentVariablePage.vue';
 import NumberVariablePage from '../variables/pages/NumberVariablePage.vue';
 import TextVariablePage from '../variables/pages/TextVariablePage.vue';
+import { findVariableReferences, findVariableRenameConflicts, renameVariableReferences } from '../../services/variableReferenceService';
 
 const props = defineProps<{
   caseDrafts: Record<string, CaseDraft>;
@@ -200,6 +201,19 @@ Inputs: A name, definition, and optional prior variable name.
 Output: An immutable plan draft containing the saved variable.
 */
 function changePlanVariable(name: string, definition: VariableDefinitionDraft, previousName: string | undefined): void {
+  if (previousName !== undefined && previousName !== name) {
+    const bundle = { cases: props.caseDrafts, plan: props.plan };
+    const references = findVariableReferences(bundle, previousName);
+    const conflicts = references.length === 0 ? [] : findVariableRenameConflicts(bundle, previousName, name);
+    if (conflicts.length > 0) {
+      bundleIssues.value = { title: t('editor.variableDependencyTitle'), message: t('editor.variableRenameBlocked'), messages: conflicts.map((item) => `${item.document}: ${item.path}`) };
+      return;
+    }
+    const plan = savePlanVariable(props.plan, name, definition, previousName);
+    emit('update:case-drafts', renameVariableReferences(props.caseDrafts, previousName, name) as Record<string, CaseDraft>);
+    emit('update:plan', { ...plan, ...(plan.sharedSteps === undefined ? {} : { sharedSteps: renameVariableReferences(plan.sharedSteps, previousName, name) as Record<string, unknown[]> }) });
+    return;
+  }
   emit('update:plan', savePlanVariable(props.plan, name, definition, previousName));
 }
 
@@ -211,6 +225,9 @@ Inputs: A variable name selected for removal.
 Output: An immutable plan draft without that variable.
 */
 function removeVariable(name: string): void {
+  if (findVariableReferences({ cases: props.caseDrafts, plan: props.plan }, name).length > 0) {
+    return;
+  }
   emit('update:plan', removePlanVariable(props.plan, name));
 }
 
