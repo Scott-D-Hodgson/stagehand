@@ -257,6 +257,20 @@ function copyPlainValue(value: unknown): unknown {
 }
 
 /*
+Appends an independent copy of one selected Case Step.
+---
+Inputs: A Step list and the index of the Step to clone.
+---
+Output: A new list with a detached clone, or the original list for an invalid index.
+*/
+export function cloneCaseStep(steps: unknown[], index: number): unknown[] {
+  if (!Number.isInteger(index) || index < 0 || index >= steps.length) {
+    return steps;
+  }
+  return [...steps, copyPlainValue(steps[index])];
+}
+
+/*
 Copies browser defaults into independent plain editable data.
 ---
 Inputs: Plan-level browser settings from an editor draft.

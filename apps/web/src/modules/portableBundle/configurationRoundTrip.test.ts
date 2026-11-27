@@ -89,11 +89,13 @@ function createM11ConfigurationBundle(): EditorBundleDraft {
 }
 
 describe('M11 configuration portable-bundle preservation', () => {
-  it('retains Type and Fill variable references through recovery copying and ZIP export and import', async () => {
+  it('retains Type, Fill, and Select option variable references through recovery copying and ZIP export and import', async () => {
     const draft = createM11ConfigurationBundle();
     draft.plan.variables = { email: { default: { env: 'STAGEHAND_EMAIL' } } };
     draft.cases['cases/account.json']!.steps[2] = { action: 'type', locator: { role: 'textbox', name: 'Email' }, text: { var: 'email' } };
     draft.cases['cases/account.json']!.steps[3] = { action: 'fill', locator: { role: 'textbox', name: 'Name' }, value: { var: 'email' } };
+    draft.cases['cases/account.json']!.steps[4] = { action: 'selectOption', locator: { role: 'combobox', name: 'Country' }, value: { var: 'email' } };
+    draft.cases['cases/account.json']!.steps.push({ action: 'selectOption', locator: { role: 'combobox', name: 'Region' }, label: { var: 'email' } });
     const { copyEditorBundleDraft } = await import('../../services/planDraftService');
     const snapshot = copyEditorBundleDraft(draft);
     const exported = preparePortableBundleExport(snapshot);

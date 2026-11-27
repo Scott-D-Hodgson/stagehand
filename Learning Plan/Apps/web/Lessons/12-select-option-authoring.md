@@ -40,10 +40,10 @@ contains either `value` or `label`, never both. This is a useful authoring
 pattern: when a contract has mutually exclusive alternatives, make that choice
 explicit in the interface.
 
-The current selection is a literal. Plan-level variable definitions are being
-introduced in M12.1, but variable-backed selections and data-set authoring
-remain later M12 work rather than being represented as partial support in this
-form.
+Either selection mode can use a literal or a Plan-variable reference. The
+**Use variable?** switch presents the same locale-aware variable cards as Type
+and Fill; Apply stores `{ "var": "name" }` in the chosen field. Data-set
+authoring remains later M12 work.
 
 ## Shared target, separate selection
 
@@ -61,10 +61,12 @@ step without retaining live nested data and autosaving a Value-based step.
 ## Try it
 
 Add a Select option step for a combobox named `Province`. First choose By value
-and save `ON`; then clone the card, switch to By label, and save `Ontario`.
+and save `ON`; then confirm cloning the card, edit the clone, switch to By
+label, and save `Ontario`.
 Blur an empty selection field in each mode to compare the localized feedback.
-Refresh and restore the recovery copy, then inspect the cards to confirm each
-one presents the selection form it saved.
+Choose a Plan variable for each selection mode and apply each change. Refresh
+and restore the recovery copy, then inspect the cards to confirm each one
+presents the selection form it saved.
 
 ## You are ready when
 
@@ -72,6 +74,7 @@ one presents the selection form it saved.
   both.
 - You can identify why locator fields are shared while the selection controls
   remain action-specific.
-- You know why variable-backed selections remain later M12 work.
+- You can distinguish a literal selection from a Plan-variable reference in
+  either mode.
 
 [← Previous: Fill-step authoring](11-fill-step-authoring.md) · [Course outline](../README.md) · [Next: Assert-text authoring →](13-assert-text-authoring.md)

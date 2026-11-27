@@ -3,7 +3,7 @@ import { computed, nextTick, provide, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
 import { validateCase } from '@stagehand/plan-schema';
-import { moveCaseStep, updateCaseStepTimeout, type CaseDraft, type VariableDefinitionDraft } from '../../services/planDraftService';
+import { cloneCaseStep, moveCaseStep, updateCaseStepTimeout, type CaseDraft, type VariableDefinitionDraft } from '../../services/planDraftService';
 import { getInvalidCaseStepIndexes } from '../../services/validationService';
 import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
 import AssertHtmlStepDialog from './assert/dialogs/AssertHtmlStepDialog.vue';
@@ -96,6 +96,7 @@ provide('stagehandStepPage', computed(() => route.name === 'step'));
 provide('stagehandCaseIndex', props.caseIndex);
 provide('stagehandVariableContext', computed(() => ({ locale: props.planLocale, planVariables: props.planVariables ?? {}, caseDraft: selectedCase.value })));
 const editingStepIndex = ref<number | undefined>();
+const pendingStepClone = ref<number>();
 const navigateUrl = ref('');
 const navigateDialogOpen = ref(false);
 const clickDialogOpen = ref(false);
@@ -154,6 +155,7 @@ const fillValueValidationMessage = computed(
 const selectOptionRole = ref('');
 const selectOptionName = ref('');
 const selectOptionSelection = ref('');
+const selectOptionReference = ref<{ var: string }>();
 const selectOptionMode = ref<'label' | 'value'>('value');
 const editingSelectOptionIndex = ref<number | undefined>();
 const selectOptionRoleBlurred = ref(false);
@@ -178,7 +180,7 @@ Inputs: The selection value and active selection mode.
 Output: The required Value or Label message, when applicable.
 */
 const selectOptionSelectionValidationMessage = computed(
-  () => selectOptionSelection.value.trim().length === 0 ? selectOptionMode.value === 'value' ? t('editor.valueRequired') : t('editor.labelRequired') : undefined
+  () => selectOptionReference.value === undefined && selectOptionSelection.value.trim().length === 0 ? selectOptionMode.value === 'value' ? t('editor.valueRequired') : t('editor.labelRequired') : undefined
 );
 const typeRole = ref('');
 const typeName = ref('');
@@ -1071,6 +1073,7 @@ function addSelectOptionStep(): void {
   selectOptionRole.value = '';
   selectOptionName.value = '';
   selectOptionSelection.value = '';
+  selectOptionReference.value = undefined;
   selectOptionMode.value = 'value';
   selectOptionRoleBlurred.value = false;
   selectOptionSelectionBlurred.value = false;
@@ -1092,7 +1095,8 @@ function saveSelectOptionStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = selectOptionName.value.trim() ? { name: selectOptionName.value.trim(), role: selectOptionRole.value.trim() } : { role: selectOptionRole.value.trim() };
-    const selection = selectOptionMode.value === 'value' ? { value: selectOptionSelection.value } : { label: selectOptionSelection.value };
+    const selectedValue = selectOptionReference.value ?? selectOptionSelection.value;
+    const selection = selectOptionMode.value === 'value' ? { value: selectedValue } : { label: selectedValue };
     const step = preserveEditedStepTimeout(editingSelectOptionIndex.value, { action: 'selectOption', locator, ...selection });
     const steps = editingSelectOptionIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingSelectOptionIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
@@ -1110,6 +1114,7 @@ function resetSelectOptionDialog(): void {
   selectOptionRole.value = '';
   selectOptionName.value = '';
   selectOptionSelection.value = '';
+  selectOptionReference.value = undefined;
   selectOptionMode.value = 'value';
   selectOptionRoleBlurred.value = false;
   selectOptionSelectionBlurred.value = false;
@@ -1237,7 +1242,9 @@ function editStep(index: number, step: unknown): void {
     selectOptionRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     selectOptionName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
     selectOptionMode.value = (step as { value?: string }).value === undefined ? 'label' : 'value';
-    selectOptionSelection.value = (step as { label?: string; value?: string }).value ?? (step as { label?: string }).label ?? '';
+    const optionValue = (step as { value?: string | { var: string }; label?: string | { var: string } }).value ?? (step as { label?: string | { var: string } }).label;
+    selectOptionReference.value = typeof optionValue === 'object' && optionValue !== null ? { ...optionValue } : undefined;
+    selectOptionSelection.value = typeof optionValue === 'string' ? optionValue : '';
     selectOptionRoleBlurred.value = false;
     selectOptionSelectionBlurred.value = false;
     selectOptionDialogOpen.value = true;
@@ -1247,93 +1254,28 @@ function editStep(index: number, step: unknown): void {
 }
 
 /*
-Opens a new-step editor prefilled from a supported case step.
+Requests confirmation before cloning a selected case step.
 ---
-Inputs: A raw step value to clone.
+Inputs: The index of the selected case step.
 ---
-Output: A visible new-step editor with carried-forward values.
+Output: A pending clone confirmation.
 */
-function cloneStep(step: unknown): void {
-  if ((step as { action?: string }).action === 'assertValue') {
-    editingAssertValueIndex.value = undefined;
-    assertValueRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    assertValueName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertValueExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
-    assertValueLocaleOverrides.value = readExpectedLocaleOverrides(step);
-    assertValueRoleBlurred.value = false;
-    assertValueExpectedBlurred.value = false;
-    assertValueDialogOpen.value = true;
-    return;
+function requestStepClone(index: number): void {
+  pendingStepClone.value = index;
+}
+
+/*
+Appends an independent copy of the confirmed case step.
+---
+Inputs: The pending index and current case steps.
+---
+Output: A cloned step in the case draft.
+*/
+function confirmStepClone(): void {
+  if (pendingStepClone.value !== undefined && selectedCase.value !== undefined && props.selectedPath) {
+    emit('update:steps', props.selectedPath, cloneCaseStep(selectedCase.value.steps, pendingStepClone.value));
   }
-  if ((step as { action?: string }).action === 'assertHtml') {
-    editingAssertHtmlIndex.value = undefined;
-    assertHtmlRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    assertHtmlName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertHtmlExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
-    assertHtmlLocaleOverrides.value = readExpectedLocaleOverrides(step);
-    assertHtmlRoleBlurred.value = false;
-    assertHtmlExpectedBlurred.value = false;
-    assertHtmlDialogOpen.value = true;
-    return;
-  }
-  if ((step as { action?: string }).action === 'assertText') {
-    editingAssertTextIndex.value = undefined;
-    assertTextRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    assertTextName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertTextExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
-    assertTextLocaleOverrides.value = readExpectedLocaleOverrides(step);
-    assertTextRoleBlurred.value = false;
-    assertTextExpectedBlurred.value = false;
-    assertTextDialogOpen.value = true;
-    return;
-  }
-  if ((step as { action?: string }).action === 'click') {
-    editingClickIndex.value = undefined;
-    clickRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    clickName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    clickRoleBlurred.value = false;
-    clickDialogOpen.value = true;
-    return;
-  }
-  if ((step as { action?: string }).action === 'type') {
-    editingTypeIndex.value = undefined;
-    typeRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    typeName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    const textValue = (step as { text?: string | { var: string } }).text;
-    typeTextReference.value = typeof textValue === 'object' && textValue !== null ? { ...textValue } : undefined;
-    typeText.value = typeof textValue === 'string' ? textValue : '';
-    typeRoleBlurred.value = false;
-    typeTextBlurred.value = false;
-    typeDialogOpen.value = true;
-    return;
-  }
-  if ((step as { action?: string }).action === 'fill') {
-    editingFillIndex.value = undefined;
-    fillRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    fillName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    const stepValue = (step as { value?: string | { var: string } }).value;
-    fillValueReference.value = typeof stepValue === 'object' && stepValue !== null ? { ...stepValue } : undefined;
-    fillValue.value = typeof stepValue === 'string' ? stepValue : '';
-    fillRoleBlurred.value = false;
-    fillValueBlurred.value = false;
-    fillDialogOpen.value = true;
-    return;
-  }
-  if ((step as { action?: string }).action === 'selectOption') {
-    editingSelectOptionIndex.value = undefined;
-    selectOptionRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
-    selectOptionName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    selectOptionMode.value = (step as { value?: string }).value === undefined ? 'label' : 'value';
-    selectOptionSelection.value = (step as { label?: string; value?: string }).value ?? (step as { label?: string }).label ?? '';
-    selectOptionRoleBlurred.value = false;
-    selectOptionSelectionBlurred.value = false;
-    selectOptionDialogOpen.value = true;
-    return;
-  }
-  editingStepIndex.value = undefined;
-  navigateUrl.value = (step as { url?: string }).url ?? '';
-  navigateUrlBlurred.value = false;
-  navigateDialogOpen.value = true;
+  pendingStepClone.value = undefined;
 }
 
 /*
@@ -1536,7 +1478,7 @@ function openStep(index: number, event: MouseEvent): void {
             :step-count="selectedCase.steps.length"
             :timeout="typeof item.step === 'object' && item.step !== null ? (item.step as { timeout?: unknown }).timeout : undefined"
             @add-locale-override="addLocaleOverride(item.index)"
-            @clone="cloneStep(item.step)"
+            @clone="requestStepClone(item.index)"
             @edit="editStep(item.index, item.step)"
             @edit-locale-override="editLocaleOverride(item.index, $event)"
             @move="moveStep(item.index, $event)"
@@ -1618,6 +1560,7 @@ function openStep(index: number, event: MouseEvent): void {
       :role-validation-message="selectOptionRoleValidationMessage"
       :role-validation-visible="selectOptionRoleBlurred"
       :selection="selectOptionSelection"
+      :selection-reference="selectOptionReference?.var"
       :selection-mode="selectOptionMode"
       :selection-validation-message="selectOptionSelectionValidationMessage"
       :selection-validation-visible="selectOptionSelectionBlurred"
@@ -1628,7 +1571,7 @@ function openStep(index: number, event: MouseEvent): void {
       @save="saveSelectOptionStep"
       @update:name="selectOptionName = $event"
       @update:role="selectOptionRole = $event"
-      @update:selection="selectOptionSelection = $event"
+      @update:selection="selectOptionSelection = $event; selectOptionReference = undefined"
       @update:selection-mode="selectOptionMode = $event"
       @validate="selectOptionRoleBlurred = true; selectOptionSelectionBlurred = true"
     />
@@ -1707,6 +1650,16 @@ function openStep(index: number, event: MouseEvent): void {
       v-if="stepChooserOpen"
       @choose="chooseStep"
       @close="stepChooserOpen = false"
+    />
+    <ConfirmationModal
+      v-if="pendingStepClone !== undefined && selectedCase?.steps[pendingStepClone] !== undefined"
+      :cancel-label="t('editor.no')"
+      :confirm-label="t('editor.yes')"
+      confirm-style="primary"
+      :message="t('editor.cloneStepConfirmation', { number: pendingStepClone + 1, type: getStepActionLabel(selectedCase.steps[pendingStepClone]) })"
+      :title="t('editor.confirmationTitle')"
+      @cancel="pendingStepClone = undefined"
+      @confirm="confirmStepClone"
     />
     <ConfirmationModal
       v-if="pendingStepRemoval !== undefined"
