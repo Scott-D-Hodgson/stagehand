@@ -35,9 +35,9 @@ function validateNavigationUrls(input: unknown): ValidationIssue[] {
     }
     const path = `/steps/${stepIndex}/url`;
     try {
-      const url = new URL(step.url);
+      const url = new URL(`${step.protocol}${step.url}`);
       if (
-        !/^https?:\/\//i.test(step.url) ||
+        /^(?:\/|\.{1,2}(?:\/|$))/.test(step.url) || /\s/.test(step.url) || /^[a-z][a-z0-9+.-]*:\/\//i.test(step.url) ||
         (url.protocol !== "http:" && url.protocol !== "https:") ||
         url.hostname.length === 0
       ) {
@@ -47,7 +47,7 @@ function validateNavigationUrls(input: unknown): ValidationIssue[] {
       issues.push({
         path,
         keyword: "invalidNavigationUrl",
-        message: "Navigation URL must be an absolute HTTP or HTTPS URL with a host.",
+        message: "Navigation address must have a valid host and must not include a protocol.",
       });
     }
   }
@@ -96,6 +96,12 @@ function validateCaseStepVariables(input: unknown): ValidationIssue[] {
   for (const [stepIndex, step] of input.steps.entries()) {
     if (isRecord(step)) {
       issues.push(...validateVariables(step.variables, `/steps/${stepIndex}/variables`));
+      if (step.action === "navigate" && isRecord(step.url) && typeof step.url.var === "string" && isRecord(step.variables)) {
+        const definition = step.variables[step.url.var];
+        if (isRecord(definition) && (typeof definition.default === "boolean" || typeof definition.default === "number")) {
+          issues.push({ path: `/steps/${stepIndex}/url`, keyword: "invalidNavigationVariable", message: "Navigation variables must be text or environment variables." });
+        }
+      }
     }
   }
   return issues;

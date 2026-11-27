@@ -247,7 +247,7 @@ test("scans after dispatch but not during session creation", async () => {
   const { run, session } = await createSession({ isClosed() { return false; }, async goto() { return null; } }, { accessibility: { enabled: true } });
   try {
     assert.equal(analyze.mock.callCount(), 0);
-    await session.executeSteps("synthetic-case", [{ action: "navigate", url: "https://example.test/form" }]);
+    await session.executeSteps("synthetic-case", [{ action: "navigate", protocol: "https://", url: "example.test/form" }]);
     assert.equal(analyze.mock.callCount(), 1);
     await session.scanAccessibility();
     assert.equal(analyze.mock.callCount(), 2);

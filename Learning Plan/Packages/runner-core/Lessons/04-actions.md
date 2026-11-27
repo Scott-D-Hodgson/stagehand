@@ -5,7 +5,7 @@
 [← Previous: waits](03-waits.md) · [Course outline](../README.md) · [Next: assertions →](05-assertions.md)
 
 
-The current actions are `navigate`, `click`, `type`, `fill`, and `selectOption`. Navigation requires an absolute HTTP/HTTPS URL. Typing enters characters sequentially; filling sets a field directly. Option selection chooses exactly one value or visible label.
+The current actions are `navigate`, `click`, `type`, `fill`, and `selectOption`. A Navigate step stores its `http://` or `https://` protocol separately from its address. Preparation resolves a text or environment-variable address and checks that the combined URL has a host; dispatch joins the protocol and address. Typing enters characters sequentially; filling sets a field directly. Option selection chooses exactly one value or visible label.
 
 Interactions share their timeout between locator resolution and the browser operation. Scrolling is enabled by default. With `scrollIntoView: false`, an off-screen target fails instead of being moved automatically.
 

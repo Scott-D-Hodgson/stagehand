@@ -8,7 +8,7 @@ import VariableDetails from '../../../variables/details/VariableDetails.vue';
 import VariableWatermark from '../../../variables/controls/VariableWatermark.vue';
 import type { VariableDefinitionDraft } from '../../../../services/planDraftService';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; inheritedTimeout: number; kind: 'type' | 'fill' | 'selectOption'; name: string; planLocale: string; role: string; scrollIntoView: boolean; selectionMode?: 'value' | 'label'; text: string | { var: string }; timeout: unknown; variables: Record<string, VariableDefinitionDraft> }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; inheritedTimeout: number; kind: 'type' | 'fill' | 'selectOption' | 'navigate'; name: string; planLocale: string; protocol?: 'http://' | 'https://'; role: string; scrollIntoView: boolean; selectionMode?: 'value' | 'label'; text: string | { var: string }; timeout: unknown; variables: Record<string, VariableDefinitionDraft> }>();
 const emit = defineEmits<{
   'update:after': [items: unknown[]];
   'update:before': [items: unknown[]];
@@ -16,6 +16,7 @@ const emit = defineEmits<{
   'update:scroll-into-view': [enabled: boolean];
   'update:selection-mode': [mode: 'value' | 'label'];
   'update:text': [text: string | { var: string }];
+  'update:protocol': [protocol: 'http://' | 'https://'];
   'update:timeout': [timeout: number | string];
   save: [];
 }>();
@@ -29,9 +30,11 @@ const textSource = ref<'text' | 'variable'>(typeof props.text === 'object' ? 'va
 const roleWasBlurred = ref(false);
 const textWasBlurred = ref(false);
 const showOtherVariables = ref(false);
+const protocol = ref(props.protocol ?? 'https://');
 
 watch(() => props.role, (value) => { role.value = value; });
 watch(() => props.name, (value) => { name.value = value; });
+watch(() => props.protocol, (value) => { protocol.value = value ?? 'https://'; });
 watch(() => props.text, (value) => {
   if (typeof value === 'string') {
     text.value = value;
@@ -50,18 +53,37 @@ Inputs: The selected source, local value, and available variable names.
 Output: Whether the Type text value is valid.
 */
 const textValid = computed(
-  () => textSource.value === 'text' ? text.value.trim().length > 0 : Object.hasOwn(props.variables, variable.value)
+  () => textSource.value === 'variable' ? Object.hasOwn(props.variables, variable.value)
+    : props.kind === 'navigate' ? isValidNavigateUrl(text.value) : text.value.trim().length > 0
 );
+
+/*
+Checks whether a literal Navigate URL is an absolute HTTP or HTTPS address.
+---
+Inputs: A raw URL string.
+---
+Output: Whether it has a supported protocol and hostname.
+*/
+function isValidNavigateUrl(value: string): boolean {
+  try {
+    const parsed = new URL(`${protocol.value}${value}`);
+    return !/^(?:\/|\.{1,2}(?:\/|$))/.test(value) && !/\s/.test(value) && !/^[a-z][a-z0-9+.-]*:\/\//i.test(value) && parsed.hostname !== '';
+  } catch {
+    return false;
+  }
+}
 
 /*
 Lists the available Plan variables in name order.
 ---
-Inputs: Plan-level variable definitions.
+Inputs: Plan-level variable definitions and the step type.
 ---
-Output: Alphabetically ordered variable entries.
+Output: Alphabetically ordered compatible variable entries.
 */
 const variableEntries = computed(
-  () => Object.entries(props.variables).sort(([left], [right]) => left.localeCompare(right))
+  () => Object.entries(props.variables)
+    .filter(([, definition]) => props.kind !== 'navigate' || (typeof definition.default !== 'boolean' && typeof definition.default !== 'number'))
+    .sort(([left], [right]) => left.localeCompare(right))
 );
 
 /*
@@ -145,8 +167,13 @@ Inputs: The current locator and Text field values.
 Output: A synchronized local step followed by an Apply request.
 */
 function applyDefault(): void {
-  updateLocator();
+  if (props.kind !== 'navigate') {
+    updateLocator();
+  }
   updateText();
+  if (props.kind === 'navigate') {
+    emit('update:protocol', protocol.value);
+  }
   emit('save');
 }
 
@@ -154,7 +181,7 @@ function applyDefault(): void {
 
 <template>
   <section
-    :aria-label="t(props.kind === 'fill' ? 'editor.fill' : props.kind === 'selectOption' ? 'editor.selectOption' : 'editor.type')"
+    :aria-label="t(props.kind === 'navigate' ? 'editor.navigate' : props.kind === 'fill' ? 'editor.fill' : props.kind === 'selectOption' ? 'editor.selectOption' : 'editor.type')"
   >
     <ul
       class="nav nav-pills my-3"
@@ -208,10 +235,27 @@ function applyDefault(): void {
             v-if="selectedTab === 'default'"
           >
             <label
+              v-if="props.kind === 'navigate'"
+              class="form-label"
+              :for="`navigate-protocol-${props.index}`"
+            >{{ t('editor.protocol') }}</label>
+            <select
+              v-if="props.kind === 'navigate'"
+              :id="`navigate-protocol-${props.index}`"
+              v-model="protocol"
+              class="form-select mb-3"
+              @change="emit('update:protocol', protocol)"
+            >
+              <option value="https://">https://</option>
+              <option value="http://">http://</option>
+            </select>
+            <label
+              v-if="props.kind !== 'navigate'"
               class="form-label"
               :for="`type-role-${props.index}`"
             >Role</label>
             <input
+              v-if="props.kind !== 'navigate'"
               :id="`type-role-${props.index}`"
               v-model="role"
               :class="['form-control', { 'is-invalid': roleWasBlurred && role.trim() === '' }]"
@@ -220,14 +264,16 @@ function applyDefault(): void {
               @input="updateLocator"
             />
             <div
-              v-if="roleWasBlurred && role.trim() === ''"
+              v-if="props.kind !== 'navigate' && roleWasBlurred && role.trim() === ''"
               class="invalid-feedback d-block"
             >{{ t('editor.roleRequired') }}</div>
             <label
+              v-if="props.kind !== 'navigate'"
               class="form-label mt-3"
               :for="`type-name-${props.index}`"
             >Accessible name</label>
             <input
+              v-if="props.kind !== 'navigate'"
               :id="`type-name-${props.index}`"
               v-model="name"
               class="form-control"
@@ -278,7 +324,7 @@ function applyDefault(): void {
               v-if="textSource === 'text'"
               class="form-label mt-3"
               :for="`type-text-${props.index}`"
-            >{{ t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</label>
+            >{{ t(props.kind === 'navigate' ? 'editor.navigateUrl' : props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</label>
             <input
               v-if="textSource === 'text'"
               :id="`type-text-${props.index}`"
@@ -357,11 +403,11 @@ function applyDefault(): void {
             <div
               v-if="textWasBlurred && !textValid"
               class="invalid-feedback d-block"
-            >{{ textSource === 'text' ? t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.labelRequired' : props.kind === 'type' ? 'editor.textRequired' : 'editor.valueRequired') : t('editor.variableRequired') }}</div>
+            >{{ textSource === 'text' ? t(props.kind === 'navigate' ? 'editor.navigateUrlInvalid' : props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.labelRequired' : props.kind === 'type' ? 'editor.textRequired' : 'editor.valueRequired') : t('editor.variableRequired') }}</div>
             <button
               class="btn btn-primary mt-3"
               type="button"
-              :disabled="role.trim() === '' || !textValid"
+              :disabled="(props.kind !== 'navigate' && role.trim() === '') || !textValid"
               @click="applyDefault"
             >{{ t('editor.apply') }}</button>
           </section>
@@ -375,6 +421,7 @@ function applyDefault(): void {
               @update:timeout="emit('update:timeout', $event)"
             />
             <ScrollIntoViewOption
+              v-if="props.kind !== 'navigate'"
               :editing="true"
               :id-prefix="`type-${props.index}`"
               :scroll-into-view="props.scrollIntoView"
@@ -389,17 +436,26 @@ function applyDefault(): void {
           </section>
         </template>
         <dl v-else-if="selectedTab === 'default'" class="mb-0">
-          <dt>Role</dt>
-          <dd>{{ props.role }}</dd>
-          <dt>{{ t('editor.accessibleName') }}</dt>
-          <dd><template v-if="props.name">{{ props.name }}</template><template v-else>&mdash;</template></dd>
-          <dt>{{ t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</dt>
-          <dd class="mb-0 text-break">{{ typeof props.text === 'string' ? props.text : `${t('editor.variable')}: ${props.text.var}` }}</dd>
+          <template
+            v-if="props.kind !== 'navigate'"
+          >
+            <dt>Role</dt>
+            <dd>{{ props.role }}</dd>
+            <dt>{{ t('editor.accessibleName') }}</dt>
+            <dd><template v-if="props.name">{{ props.name }}</template><template v-else>&mdash;</template></dd>
+          </template>
+          <dt>{{ t(props.kind === 'navigate' ? 'editor.navigateUrl' : props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</dt>
+          <dd class="mb-0 text-break">{{ props.kind === 'navigate' ? props.protocol : '' }}{{ typeof props.text === 'string' ? props.text : `${t('editor.variable')}: ${props.text.var}` }}</dd>
         </dl>
         <dl v-else-if="selectedTab === 'overrides'" class="mb-0">
           <dt>{{ t('editor.stepTimeout') }}</dt>
           <dd>{{ props.timeout ?? t('editor.inherited') }}</dd>
-          <ScrollIntoViewOption :editing="false" :id-prefix="`type-${props.index}`" :scroll-into-view="props.scrollIntoView" />
+          <ScrollIntoViewOption
+            v-if="props.kind !== 'navigate'"
+            :editing="false"
+            :id-prefix="`type-${props.index}`"
+            :scroll-into-view="props.scrollIntoView"
+          />
         </dl>
         <WaitReferences v-else :after="props.after" :before="props.before" :editing="props.editing" @update:after="emit('update:after', $event)" @update:before="emit('update:before', $event)" />
       </div>

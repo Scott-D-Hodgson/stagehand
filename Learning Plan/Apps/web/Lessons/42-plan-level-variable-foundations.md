@@ -21,10 +21,19 @@ It does not ask for, retain, or recover the value supplied by that environment
 variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
-A variable reference is a separate capability. Type, Fill, and Select option
+A variable reference is a separate capability. Navigate, Type, Fill, and Select option
 Steps can select a Plan variable and save a whole-field object such as
 `{ "var": "userName" }`.
 Other supported Step fields still need their authoring controls.
+
+Navigate stores a `protocol` of `https://` or `http://` separately from its
+`url` address. The selector defaults to HTTPS. Enter an address such as
+`example.test/sign-in` without a protocol, or choose a Text or environment
+Plan variable containing that address. Boolean and Number variables are not
+offered. Bundle validation checks known variable definitions, and preparation
+checks the resolved type and address before execution. The runner joins the
+protocol and resolved address; environment values are supplied to preparation,
+not stored by the editor. An address still needs a valid host.
 
 ## Preserve drafts without sharing them
 
@@ -65,12 +74,17 @@ definitions.
    link from the Variable page.
 7. With a synthetic imported bundle that references a Plan variable, try its
    removal and inspect the paths shown before renaming it.
+8. Add a Navigate step, choose HTTP and then HTTPS, and select a Text variable
+   whose value is `example.test`. Confirm Number and Boolean variables are not
+   offered. Apply, revisit the Step card, and check recovery and ZIP export.
 
 ## You are ready when
 
 - You can distinguish an ordinary variable default, an environment-variable
   name, and a Type Step variable reference.
 - You can explain why preserving the scalar type matters.
+- You can explain how Navigate combines a protocol and address, and why its
+  variable choices differ from Type and Fill.
 - You can identify the remaining M12.1 work without treating it as shipped.
 
 [Previous: Web editor source organization](41-web-editor-source-organization.md) · [Course outline](../README.md) · [Next: Skill check](../quiz.md)

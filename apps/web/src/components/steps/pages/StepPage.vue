@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
@@ -33,6 +33,17 @@ const emit = defineEmits<{
   'update:steps': [path: string, steps: unknown[]];
 }>();
 const route = useRoute();
+
+/*
+Reads the name of the current route.
+---
+Inputs: The active router location.
+---
+Output: The active route name.
+*/
+const routeName = computed(
+  () => route.name
+);
 const router = useRouter();
 const { t } = useTranslation();
 
@@ -228,7 +239,7 @@ Inputs: A replacement URL string.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateNavigateUrl(url: string): void {
+function updateNavigateUrl(url: string | { var: string }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -238,16 +249,19 @@ function updateNavigateUrl(url: string): void {
 }
 
 /*
-Saves a Navigate URL directly from its local panel.
+Updates the protocol of the selected Navigate step.
 ---
-Inputs: A valid absolute HTTP or HTTPS URL.
+Inputs: The selected HTTP protocol.
 ---
-Output: One persisted replacement step list.
+Output: An updated local step draft.
 */
-function saveNavigateUrl(url: string): void {
-  updateNavigateUrl(url);
-  emit('update:steps', props.casePath, copyStepValues(formSteps.value) as unknown[]);
-  showAppliedChanges();
+function updateNavigateProtocol(protocol: 'http://' | 'https://'): void {
+  if (typeof selectedStep.value !== 'object' || selectedStep.value === null) {
+    return;
+  }
+  const steps = [...formSteps.value];
+  steps[stepIndex.value] = { ...selectedStep.value, protocol };
+  formSteps.value = steps;
 }
 
 /*
@@ -534,26 +548,30 @@ function formatActionName(action: string | undefined): string {
 
 <template>
   <h1
-    v-if="route.name === 'step'"
+    v-if="routeName === 'step'"
     class="h2"
   >{{ stepIndex + 1 }}. {{ formatActionName((selectedStep as { action?: string } | undefined)?.action) }}</h1>
   <NavigateStepPage
-    v-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'navigate'"
+    v-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'navigate'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
     :index="stepIndex"
     :inherited-timeout="effectiveCaseTimeout"
-    :save-url="saveNavigateUrl"
+    :plan-locale="props.planLocale"
+    :protocol="(selectedStep as { protocol?: 'http://' | 'https://' } | undefined)?.protocol ?? 'https://'"
     :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined"
-    :url="(selectedStep as { url?: string } | undefined)?.url ?? ''"
+    :url="(selectedStep as { url?: string | { var: string } } | undefined)?.url ?? ''"
+    :variables="props.planVariables"
+    @save="applyStepForm"
     @update:after="updateStepWaitList('after', $event)"
     @update:before="updateStepWaitList('before', $event)"
     @update:timeout="updateTimeout"
+    @update:protocol="updateNavigateProtocol"
     @update:url="updateNavigateUrl"
   />
   <ClickStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'click'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'click'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -571,7 +589,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <TypeStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'type'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'type'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -593,7 +611,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <FillStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'fill'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'fill'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -615,7 +633,7 @@ function formatActionName(action: string | undefined): string {
     @update:value="updateFillStep({ value: $event })"
   />
   <SelectOptionStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'selectOption'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'selectOption'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -638,7 +656,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <AssertTextStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertText'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertText'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -662,7 +680,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <AssertHtmlStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertHtml'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertHtml'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -686,7 +704,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <AssertValueStepPage
-    v-else-if="route.name === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertValue'"
+    v-else-if="routeName === 'step' && (selectedStep as { action?: string } | undefined)?.action === 'assertValue'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :associated-label="(selectedStep as { associatedLabel?: { default?: string } } | undefined)?.associatedLabel"
     :associated-label-overrides="Object.entries((selectedStep as { associatedLabel?: { locales?: Record<string, string> } } | undefined)?.associatedLabel?.locales ?? {}).map(([locale, value]) => ({ locale, value }))"
@@ -716,7 +734,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="updateTimeout"
   />
   <WaitPage
-    v-else-if="route.name === 'wait'"
+    v-else-if="routeName === 'wait'"
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
@@ -777,7 +795,7 @@ function formatActionName(action: string | undefined): string {
     @update:timeout="() => undefined"
   />
   <div
-    v-if="route.name === 'step'"
+    v-if="routeName === 'step'"
     class="mt-4"
   >
     <RouterLink

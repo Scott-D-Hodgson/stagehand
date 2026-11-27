@@ -162,15 +162,14 @@ test("rejects unsupported actions and missing action-specific fields", () => {
   }
 });
 
-test("requires navigation URLs to be absolute HTTP or HTTPS URLs", () => {
+test("requires a protocol and a valid navigation address", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   for (const url of [
-    "https://example.com/sign-in",
-    "http://localhost:3000/sign-in",
-    "HTTPS://example.com/sign-in",
+    "example.com/sign-in",
+    "localhost:3000/sign-in",
   ]) {
     assert.deepEqual(
-      validateCase({ ...exampleCase, steps: [{ action: "navigate", url }] }),
+      validateCase({ ...exampleCase, steps: [{ action: "navigate", protocol: "https://", url }] }),
       { valid: true },
     );
   }
@@ -185,7 +184,7 @@ test("requires navigation URLs to be absolute HTTP or HTTPS URLs", () => {
   ]) {
     const result = validateCase({
       ...exampleCase,
-      steps: [{ action: "navigate", url }],
+      steps: [{ action: "navigate", protocol: "https://", url }],
     });
     assert.equal(result.valid, false, `Expected ${url} to be rejected.`);
     assert.ok(
@@ -199,7 +198,7 @@ test("requires navigation URLs to be absolute HTTP or HTTPS URLs", () => {
   }
   const missingHost = validateCase({
     ...exampleCase,
-    steps: [{ action: "navigate", url: "https://" }],
+    steps: [{ action: "navigate", protocol: "https://", url: "https://" }],
   });
   assert.ok(
     missingHost.issues.some(
@@ -247,7 +246,7 @@ test("accepts before and after wait lists on navigation and assertion steps", ()
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const waitList = [{ delay: 10 }];
   const steps = [
-    { action: "navigate", url: "https://example.test", before: waitList, after: waitList },
+    { action: "navigate", protocol: "https://", url: "example.test", before: waitList, after: waitList },
     { action: "assertText", locator: { role: "heading" }, expected: { default: "Welcome" }, before: waitList, after: waitList },
     { action: "assertHtml", locator: { role: "main" }, expected: { default: "<h1>Welcome</h1>" }, before: waitList, after: waitList },
     { action: "assertValue", locator: { role: "textbox" }, expected: { default: "tester@example.test" }, before: waitList, after: waitList },
@@ -425,13 +424,13 @@ test("expands shared-step calls in authored order with caller and inner-step ide
       version: 1,
       id: "checkout",
       steps: [
-        { action: "navigate", url: "https://example.test/start" },
+        { action: "navigate", protocol: "https://", url: "example.test/start" },
         { action: "sharedSteps", id: "sign-in" },
         { action: "click", locator: { css: "#continue" } },
       ],
     },
     sharedSteps: { "sign-in": [
-        { action: "navigate", url: "https://example.test/sign-in" },
+        { action: "navigate", protocol: "https://", url: "example.test/sign-in" },
         { action: "type", locator: { css: "#email" }, text: { var: "email" } },
       ],
     },
@@ -760,19 +759,19 @@ test("prepares supported variable references without mutating the source step", 
 
 test("prepares navigation, selection, and assertion reference fields", () => {
   const planVariables = {
-    baseUrl: { default: "https://example.invalid" },
+    baseUrl: { default: "example.invalid" },
     region: { default: 3 },
     expected: { default: true, locales: { "fr-CA": false } },
     label: { default: "Email address" },
   };
   assert.deepEqual(prepareCaseStep({
-    step: { action: "navigate", url: { var: "baseUrl" } },
+    step: { action: "navigate", protocol: "https://", url: { var: "baseUrl" } },
     stepIndex: 0,
     locale: "fr-CA",
     planVariables,
   }), {
     prepared: true,
-    step: { action: "navigate", url: "https://example.invalid" },
+    step: { action: "navigate", protocol: "https://", url: "example.invalid" },
   });
   assert.deepEqual(prepareCaseStep({
     step: { action: "selectOption", locator: { label: "Region" }, value: { var: "region" } },
@@ -827,7 +826,7 @@ test("prepares every case step before runner integration", () => {
       id: "prepared-case",
       variables: { email: { default: "case@example.invalid" } },
       steps: [
-        { action: "navigate", url: { var: "baseUrl" } },
+        { action: "navigate", protocol: "https://", url: { var: "baseUrl" } },
         {
           action: "fill",
           locator: { label: "Email" },
@@ -837,13 +836,13 @@ test("prepares every case step before runner integration", () => {
       ],
     },
     locale: "en-CA",
-    planVariables: { baseUrl: { default: "https://example.invalid" } },
+    planVariables: { baseUrl: { default: "example.invalid" } },
   });
   assert.equal(result.prepared, true);
   if (!result.prepared) {
     return;
   }
-  assert.equal(result.case.steps[0].url, "https://example.invalid");
+  assert.equal(result.case.steps[0].url, "example.invalid");
   assert.equal(result.case.steps[1].value, "step@example.invalid");
 });
 
@@ -896,10 +895,10 @@ test("reports the first unresolved reference and revalidates prepared values", (
     case: {
       version: 1,
       id: "invalid-url",
-      steps: [{ action: "navigate", url: { var: "baseUrl" } }],
+      steps: [{ action: "navigate", protocol: "https://", url: { var: "baseUrl" } }],
     },
     locale: "en-CA",
-    planVariables: { baseUrl: { default: "not-a-url" } },
+    planVariables: { baseUrl: { default: "invalid host" } },
   });
   assert.equal(invalidUrl.prepared, false);
   if (invalidUrl.prepared) {
@@ -912,7 +911,7 @@ test("reports the first unresolved reference and revalidates prepared values", (
 test("accepts variable references in agreed action and assertion fields", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const steps = [
-    { action: "navigate", url: { var: "baseUrl" } },
+    { action: "navigate", protocol: "https://", url: { var: "baseUrl" } },
     { action: "type", locator: { label: "Email" }, text: { var: "email" } },
     { action: "fill", locator: { label: "Password" }, value: { var: "password" } },
     { action: "selectOption", locator: { label: "Region" }, value: { var: "region" } },
@@ -953,7 +952,7 @@ test("rejects malformed variable references in supported fields", () => {
 test("rejects variable references outside agreed fields and deprecated navigation completion", () => {
   const exampleCase = readFixture("../examples/cases/sign-in.json");
   const invalidSteps = [
-    { action: "navigate", url: "https://example.invalid", waitUntil: "networkidle" },
+    { action: "navigate", protocol: "https://", url: "example.invalid", waitUntil: "networkidle" },
     { action: "click", locator: { role: { var: "buttonRole" } } },
     { action: "type", locator: { label: "Email" }, text: "email", timeout: { var: "timeout" } },
     { action: "fill", locator: { label: "Email" }, value: "email", scrollIntoView: { var: "scroll" } },

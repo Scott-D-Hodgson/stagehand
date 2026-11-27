@@ -45,7 +45,7 @@ Here are the main Draft 2020-12 words you will meet in Stagehand:
 | `allOf` | The value must satisfy every listed group of rules. | A waitable Step combines shared timeout/wait rules with its own action- or assertion-specific rules. |
 | `additionalProperties: false` or `unevaluatedProperties: false` | Unrecognised fields are rejected. | A misspelling such as `timout` does not silently do nothing. This is especially important for test settings that affect browser behaviour. |
 
-These structural rules express product meaning that is safe to check from the JSON alone: a case has ordered steps, a `click` needs a locator, and a shared-step call needs its stable ID. Some meaning needs more than structural rules. `plan-schema` also runs semantic checks in TypeScript for rules such as valid locale tags, supported time zones, canonical duplicate locale keys, and absolute HTTP/HTTPS navigation URLs.
+These structural rules express product meaning that is safe to check from the JSON alone: a case has ordered steps, a `click` needs a locator, and a shared-step call needs its stable ID. Some meaning needs more than structural rules. `plan-schema` also runs semantic checks in TypeScript for rules such as valid locale tags, supported time zones, canonical duplicate locale keys, and a valid host when a Navigate protocol and address are combined.
 
 The contract still does not read a file, find a browser element, or prove a test will succeed. Those jobs belong to other packages: `plan-engine` handles files and `runner-core` handles browser execution.
 

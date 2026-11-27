@@ -18,6 +18,7 @@ export interface SoftAssertionFailure {
 
 export interface NavigateStep {
   action: "navigate";
+  protocol: "http://" | "https://";
   url: string;
   timeout?: number;
   before?: readonly WaitDefinition[];

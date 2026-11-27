@@ -31,10 +31,14 @@ Existing matching references in Cases and shared Steps are updated on an
 unambiguous Plan-variable rename; removal is blocked while matches remain.
 Narrower definitions conservatively block an ambiguous rename. The web tests,
 type-check, and build passed in the development container for this protection
-slice. Type, Fill, and Select option Steps now author Plan-variable references,
-and Variable pages list matching Case Steps. Step cloning now requires
+slice. Navigate, Type, Fill, and Select option Steps now author Plan-variable
+references, and Variable pages list matching Case Steps. Navigate accepts Text
+and environment variables and stores its HTTP or HTTPS protocol separately
+from the address; Boolean and Number variables cannot be used there. Step cloning now requires
 confirmation and copies complete Step data. The current web suite passed 88
-tests, type-check, and build; the owner approved the latest presentation. Other supported
+tests, type-check, and build; schema, runner-core, and plan-engine checks also
+passed for the Navigate contract update, and the owner reported that all tests
+look good. Other supported
 Step fields and milestone-wide browser, recovery, conflict, and round-trip
 evidence remain open.
 

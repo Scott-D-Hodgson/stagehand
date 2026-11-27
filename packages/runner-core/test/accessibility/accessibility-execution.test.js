@@ -20,7 +20,7 @@ async function setup(settings = { accessibility: { enabled: true } }) {
   return { run, session: await run.createCaseSession(), page, locator, events, analyze };
 }
 
-const navigate = { action: "navigate", url: "https://example.test/form" };
+const navigate = { action: "navigate", protocol: "https://", url: "example.test/form" };
 const assertion = { action: "assertText", locator: { css: "input" }, expected: { default: "Expected" } };
 
 test("awaits one scan after each step and its after waits, then deduplicates findings", async () => {

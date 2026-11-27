@@ -199,7 +199,7 @@ test("records a browser action failure and continues to an independent case", as
   const outcome = await executePlanRun({
     locale: "en-CA",
     cases: [
-      { case: { version: 1, id: "cleanup-after-operation", steps: [{ action: "navigate", url: "https://example.test" }] } },
+      { case: { version: 1, id: "cleanup-after-operation", steps: [{ action: "navigate", protocol: "https://", url: "example.test" }] } },
       { case: caseFile("later") },
     ],
   });
@@ -242,7 +242,7 @@ test("marks an expired active case as an error after cleanup and continues later
     locale: "en-CA",
     clock,
     cases: [
-      { case: { version: 1, id: "expired", steps: [{ action: "navigate", url: "https://example.test/slow" }] } },
+      { case: { version: 1, id: "expired", steps: [{ action: "navigate", protocol: "https://", url: "example.test/slow" }] } },
       { case: caseFile("later") },
     ],
   });
@@ -276,8 +276,8 @@ test("configured accessibility findings fail a case without stopping later steps
         version: 1,
         id: "accessibility",
         steps: [
-          { action: "navigate", url: "https://example.test/first" },
-          { action: "navigate", url: "https://example.test/second" },
+          { action: "navigate", protocol: "https://", url: "example.test/first" },
+          { action: "navigate", protocol: "https://", url: "example.test/second" },
         ],
       },
     }],
@@ -294,7 +294,7 @@ test("records an axe scan execution error with the accessibility diagnostic code
   const outcome = await executePlanRun({
     locale: "en-CA",
     runSettings: { accessibility: { enabled: true } },
-    cases: [{ case: { version: 1, id: "accessibility", steps: [{ action: "navigate", url: "https://example.test/form" }] } }],
+    cases: [{ case: { version: 1, id: "accessibility", steps: [{ action: "navigate", protocol: "https://", url: "example.test/form" }] } }],
   });
   assert.equal(outcome.cases[0].outcome.status, "error");
   assert.deepEqual(outcome.cases[0].diagnostics, [{

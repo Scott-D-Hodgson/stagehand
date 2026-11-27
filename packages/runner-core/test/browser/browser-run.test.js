@@ -118,8 +118,8 @@ test("applies the case timeout before the plan timeout and honours a step overri
   const run = await startBrowserRun({ timeout: 5000 });
   const session = await run.createCaseSession({ timeout: 1000 });
   await session.executeSteps("timeout-case", [
-    { action: "navigate", url: "https://example.test/inherited" },
-    { action: "navigate", url: "https://example.test/overridden", timeout: 250 },
+    { action: "navigate", protocol: "https://", url: "example.test/inherited" },
+    { action: "navigate", protocol: "https://", url: "example.test/overridden", timeout: 250 },
   ]);
   assert.deepEqual(capturedTimeouts, [
     { url: "https://example.test/inherited", timeout: 1000, waitUntil: "domcontentloaded" },

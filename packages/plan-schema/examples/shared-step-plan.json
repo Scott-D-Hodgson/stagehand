@@ -5,7 +5,8 @@
     "sign-in": [
         {
           "action": "navigate",
-          "url": "https://example.test/sign-in"
+          "protocol": "https://",
+          "url": "example.test/sign-in"
         }
     ]
   },

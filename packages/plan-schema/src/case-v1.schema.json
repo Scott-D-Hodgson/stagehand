@@ -215,15 +215,15 @@
         { "$ref": "#/$defs/waitableStep" },
         {
           "type": "object",
-          "required": ["action", "url"],
+          "required": ["action", "protocol", "url"],
           "properties": {
             "action": { "const": "navigate" },
+            "protocol": { "enum": ["http://", "https://"] },
             "url": {
               "oneOf": [
                 {
                   "type": "string",
-                  "minLength": 1,
-                  "pattern": "^[Hh][Tt][Tt][Pp][Ss]?://"
+                  "minLength": 1
                 },
                 { "$ref": "#/$defs/variableReference" }
               ]

@@ -122,12 +122,12 @@ describe('plan draft', () => {
   it('copies plan variables and shared steps into an independent recovery snapshot', () => {
     const draft = createBundledEditorDraft();
     draft.plan.variables = { email: { default: 'author@example.com' } };
-    draft.plan.sharedSteps = { signIn: [{ action: 'navigate', url: 'https://example.com' }] };
+    draft.plan.sharedSteps = { signIn: [{ action: 'navigate', protocol: 'https://', url: 'example.com' }] };
     const snapshot = copyEditorBundleDraft(draft);
     snapshot.plan.variables!.email!.default = 'changed@example.com';
-    (snapshot.plan.sharedSteps!.signIn![0] as { url: string }).url = 'https://changed.example.com';
+    (snapshot.plan.sharedSteps!.signIn![0] as { url: string }).url = 'changed.example.com';
     expect(draft.plan.variables!.email!.default).toBe('author@example.com');
-    expect((draft.plan.sharedSteps!.signIn![0] as { url: string }).url).toBe('https://example.com');
+    expect((draft.plan.sharedSteps!.signIn![0] as { url: string }).url).toBe('example.com');
   });
 
   it('copies plan defaults and case browser overrides into an independent recovery snapshot', () => {
@@ -231,10 +231,10 @@ describe('plan draft', () => {
   });
 
   it('moves a case step without changing the source list', () => {
-    const steps = [{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }];
-    expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
+    const steps = [{ action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'click', locator: { role: 'button' } }];
+    expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', protocol: 'https://', url: 'example.com' }]);
     expect(moveCaseStep(steps, 0, 2)).toEqual(steps);
-    expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+    expect(steps).toEqual([{ action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'click', locator: { role: 'button' } }]);
   });
 
   it('clones a complete step independently, including nested references and settings', () => {
@@ -254,11 +254,11 @@ describe('plan draft', () => {
   });
 
   it('updates and clears a case step timeout without changing the source list', () => {
-    const steps = [{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }];
+    const steps = [{ action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'click', locator: { role: 'button' } }];
     const withTimeout = updateCaseStepTimeout(steps, 0, 5_000);
-    expect(withTimeout).toEqual([{ action: 'navigate', url: 'https://example.com', timeout: 5_000 }, { action: 'click', locator: { role: 'button' } }]);
+    expect(withTimeout).toEqual([{ action: 'navigate', protocol: 'https://', url: 'example.com', timeout: 5_000 }, { action: 'click', locator: { role: 'button' } }]);
     expect(updateCaseStepTimeout(withTimeout, 0, '')).toEqual(steps);
-    expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+    expect(steps).toEqual([{ action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'click', locator: { role: 'button' } }]);
   });
 
   it('updates assertion soft behaviour without storing the hard default', () => {
@@ -266,7 +266,7 @@ describe('plan draft', () => {
       { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } },
       { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' }, soft: true },
       { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
-      { action: 'navigate', url: 'https://example.com' },
+      { action: 'navigate', protocol: 'https://', url: 'example.com' },
     ];
     const softText = updateCaseAssertionSoft(steps, 0, true);
     const hardHtml = updateCaseAssertionSoft(softText, 1, false);
@@ -274,19 +274,19 @@ describe('plan draft', () => {
       { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' }, soft: true },
       { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' } },
       { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
-      { action: 'navigate', url: 'https://example.com' },
+      { action: 'navigate', protocol: 'https://', url: 'example.com' },
     ]);
     expect(updateCaseAssertionSoft(hardHtml, 3, true)).toEqual(hardHtml);
     expect(steps).toEqual([
       { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } },
       { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'heading' }, soft: true },
       { action: 'assertValue', expected: { default: 'author@example.com' }, locator: { role: 'textbox' }, soft: true },
-      { action: 'navigate', url: 'https://example.com' },
+      { action: 'navigate', protocol: 'https://', url: 'example.com' },
     ]);
   });
 
   it('updates interaction scrolling without storing the enabled default', () => {
-    const steps = [{ action: 'click', locator: { role: 'button' } }, { action: 'fill', locator: { role: 'textbox' }, value: 'Name' }, { action: 'selectOption', label: 'Canada', locator: { role: 'combobox' } }, { action: 'type', locator: { role: 'textbox' }, text: 'Name' }, { action: 'navigate', url: 'https://example.com' }];
+    const steps = [{ action: 'click', locator: { role: 'button' } }, { action: 'fill', locator: { role: 'textbox' }, value: 'Name' }, { action: 'selectOption', label: 'Canada', locator: { role: 'combobox' } }, { action: 'type', locator: { role: 'textbox' }, text: 'Name' }, { action: 'navigate', protocol: 'https://', url: 'example.com' }];
     const disabled = updateCaseInteractionScrollIntoView(steps, 1, false);
     expect(disabled[1]).toEqual({ action: 'fill', locator: { role: 'textbox' }, scrollIntoView: false, value: 'Name' });
     expect(updateCaseInteractionScrollIntoView(disabled, 1, true)).toEqual(steps);
@@ -295,7 +295,7 @@ describe('plan draft', () => {
   });
 
   it('updates and clears a wait list on every waitable step without changing its source data', () => {
-    const steps = [{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }];
+    const steps = [{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }];
     const before = [{ timeout: 2_000, waitFor: { name: 'Continue', role: 'button' } }];
     const updated = updateCaseStepWaitList(steps, 0, 'before', before);
     expect(updated).toEqual([{ action: 'click', after: [{ delay: 20 }], before, locator: { role: 'button' } }, ...steps.slice(1)]);
@@ -305,7 +305,7 @@ describe('plan draft', () => {
     for (const index of [1, 2, 3, 4]) {
       expect(updateCaseStepWaitList(steps, index, 'after', [{ delay: 10 }])[index]).toMatchObject({ after: [{ delay: 10 }] });
     }
-    expect(steps).toEqual([{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }]);
+    expect(steps).toEqual([{ action: 'click', after: [{ delay: 20 }], locator: { role: 'button' } }, { action: 'navigate', protocol: 'https://', url: 'example.com' }, { action: 'assertText', expected: { default: 'Welcome' }, locator: { role: 'heading' } }, { action: 'assertHtml', expected: { default: '<h1>Welcome</h1>' }, locator: { role: 'main' } }, { action: 'assertValue', expected: { default: 'tester@example.test' }, locator: { role: 'textbox' } }]);
   });
 
   it('moves a case reference without changing the source draft', () => {

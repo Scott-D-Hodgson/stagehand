@@ -47,10 +47,11 @@ authoring remains later M12 work.
 
 ## Shared target, separate selection
 
-Select option uses the same constrained locator shape as Click, Type, Fill, Assert text, Assert HTML, and Assert value because
-each action needs the same required Role and optional Accessible name target.
-The selection mode and its required field remain owned by the Select option
-dialog because they describe this action alone.
+Select option uses the same constrained locator shape as Click, Type, Fill,
+Assert text, Assert HTML, and Assert value: required Role and optional
+Accessible name. Its dedicated page shares the text-or-variable form with Type
+and Fill, while retaining its own Value-or-Label choice. The creation and edit
+dialog also keeps that selection mode specific to Select option.
 
 ## Data and recovery
 

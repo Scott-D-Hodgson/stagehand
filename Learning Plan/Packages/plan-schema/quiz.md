@@ -23,7 +23,7 @@ Use the package source and tests when needed. Answer in your own words.
 2. `$defs` stores reusable schema rules inside one contract; `$ref` uses one of those rules elsewhere. This keeps repeated rules such as locators consistent.
 3. `version` and `id` are metadata; `defaults` holds options; `variables` holds plan inputs; `sharedSteps` holds reuse; `cases` holds ordered case paths.
 4. They are contributed by cases through `dataSets`; there is no current `plan.dataSets` property. Plan variables are broad defaults, while a selected data set is chosen for one case.
-5. Ajv applies the JSON Schema structure rules. Stagehand then applies semantic rules, such as valid locale tags or absolute HTTP/HTTPS navigation URLs.
+5. Ajv applies the JSON Schema structure rules. Stagehand then applies semantic rules, such as valid locale tags or a valid host for a combined Navigate protocol and address.
 6. A filesystem link can redirect a real path; only filesystem-aware canonical resolution can check the target.
 7. Examples include one case per plan reference, unique case IDs, plan-wide unique data-set names, and known default data-set names.
 8. String, number, and boolean. A definition's locale values must have the same type as its default.

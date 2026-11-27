@@ -1,5 +1,6 @@
 import { validateCase } from "./case.js";
 import { validatePlan } from "./plan.js";
+import { isRecord } from "../json.js";
 import type { ValidationIssue, ValidationResult } from "./types.js";
 
 interface ValidatedCaseDataSets {
@@ -8,6 +9,43 @@ interface ValidatedCaseDataSets {
 
 interface ValidatedPlanSharedSteps {
   sharedSteps?: Record<string, unknown>;
+}
+
+/*
+Checks navigation variable types across the scopes available to a case.
+---
+Inputs: A plan, a case, its location, and available data sets.
+---
+Output: Issues for resolved Boolean or numeric navigation variables.
+*/
+function validateNavigationVariableTypes(plan: unknown, caseFile: unknown, caseIndex: number, availableDataSets: unknown[]): ValidationIssue[] {
+  if (!isRecord(plan) || !isRecord(caseFile) || !Array.isArray(caseFile.steps)) {
+    return [];
+  }
+  const issues: ValidationIssue[] = [];
+  const alternatives = [undefined, ...availableDataSets];
+  for (const [index, caseStep] of caseFile.steps.entries()) {
+    const shared = isRecord(caseStep) && caseStep.action === "sharedSteps" && typeof caseStep.id === "string" && isRecord(plan.sharedSteps)
+      ? plan.sharedSteps[caseStep.id]
+      : undefined;
+    const steps = Array.isArray(shared) ? shared : [caseStep];
+    for (const step of steps) {
+      if (!isRecord(step) || step.action !== "navigate" || !isRecord(step.url) || typeof step.url.var !== "string") {
+        continue;
+      }
+      const name = step.url.var;
+      for (const dataSet of alternatives) {
+        const scopes = [step.variables, dataSet, isRecord(caseFile.dataSets) ? caseFile.dataSets.default : undefined, caseFile.variables, plan.variables];
+        const scope = scopes.find((value) => isRecord(value) && Object.hasOwn(value, name));
+        const definition = isRecord(scope) ? scope[name] : undefined;
+        if (isRecord(definition) && (typeof definition.default === "boolean" || typeof definition.default === "number")) {
+          issues.push({ path: `/caseFiles/${caseIndex}/steps/${index}${Array.isArray(shared) ? "" : "/url"}`, keyword: "invalidNavigationVariable", message: "Navigation variables must be text or environment variables." });
+          break;
+        }
+      }
+    }
+  }
+  return issues;
 }
 
 /*
@@ -42,6 +80,9 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
   const dataSetNames = new Map<string, number>();
   const sharedStepIds = new Set(Object.keys(plan.sharedSteps ?? {}));
   const validatedCases: Array<{ caseIndex: number; dataSets: ValidatedCaseDataSets }> = [];
+  const availableDataSets = parsedCases.flatMap((caseFile) => isRecord(caseFile) && isRecord(caseFile.dataSets)
+    ? Object.entries(caseFile.dataSets).filter(([name]) => name !== "default").map(([, values]) => values)
+    : []);
   for (const [caseIndex, caseFile] of parsedCases.entries()) {
     const caseResult = validateCase(caseFile);
     if (!caseResult.valid) {
@@ -63,6 +104,7 @@ export function validatePlanBundle(input: unknown, parsedCases: readonly unknown
     }
     caseIds.set(caseId, caseIndex);
     validatedCases.push({ caseIndex, dataSets: caseFile as ValidatedCaseDataSets });
+    issues.push(...validateNavigationVariableTypes(input, caseFile, caseIndex, availableDataSets));
     const steps = (caseFile as { steps: Array<unknown> }).steps;
     for (const [stepIndex, step] of steps.entries()) {
       if (

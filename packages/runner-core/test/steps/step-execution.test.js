@@ -54,7 +54,7 @@ test("dispatches navigate and click steps in order with click waits", async () =
   };
   const { run, session } = await createSession(page);
   await session.executeSteps("sign-in", [
-    { action: "navigate", url: "https://example.com/sign-in" },
+    { action: "navigate", protocol: "https://", url: "example.com/sign-in" },
     {
       action: "click",
       locator: { css: "#continue" },
@@ -91,7 +91,8 @@ test("dispatches navigation waits before and after navigation", async () => {
   const { run, session } = await createSession(page);
   await session.executeSteps("sign-in", [{
     action: "navigate",
-    url: "https://example.com/sign-in",
+    protocol: "https://",
+    url: "example.com/sign-in",
     before: [{ delay: 100 }],
     after: [{ waitForState: "networkidle" }],
   }]);
@@ -672,9 +673,9 @@ test("stops at the first failed step and reports its case and index", async () =
   const { run, session } = await createSession(page);
   await assert.rejects(
     session.executeSteps("sign-in", [
-      { action: "navigate", url: "https://example.com/sign-in" },
+      { action: "navigate", protocol: "https://", url: "example.com/sign-in" },
       { action: "click", locator: { css: "#continue" } },
-      { action: "navigate", url: "https://example.com/next" },
+      { action: "navigate", protocol: "https://", url: "example.com/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -773,7 +774,7 @@ test("stops on a hard assertText mismatch with case and step context", async () 
         locator: { css: "h1" },
         expected: { default: "Sign in" },
       },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -816,7 +817,7 @@ test("returns a soft assertText mismatch and continues to later steps", async ()
       expected: { default: "Sign in" },
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -892,7 +893,7 @@ test("returns a soft assertText locator failure and continues to later steps", a
       timeout: 1,
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -931,7 +932,7 @@ test("returns a soft assertText ambiguous-locator failure and continues to later
       expected: { default: "Sign in" },
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -968,7 +969,7 @@ test("returns a soft assertText text-read timeout and continues to later steps",
       expected: { default: "Sign in" },
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -1007,7 +1008,7 @@ test("does not continue after an unsafe assertText error marked soft", async () 
         expected: { default: "Sign in" },
         soft: true,
       },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -1104,7 +1105,7 @@ test("stops on a hard assertHtml mismatch with case and step context", async () 
   await assert.rejects(
     session.executeSteps("sign-in", [
       { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" } },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -1147,7 +1148,7 @@ test("returns a soft assertHtml mismatch and continues to later steps", async ()
       expected: { default: "<h1>Sign in</h1>" },
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -1187,7 +1188,7 @@ test("returns a soft assertHtml locator failure and continues to later steps", a
       timeout: 1,
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -1221,7 +1222,7 @@ test("returns a soft assertHtml ambiguous-locator failure and continues to later
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
     { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -1254,7 +1255,7 @@ test("returns a soft assertHtml HTML-read timeout and continues to later steps",
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
     { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -1289,7 +1290,7 @@ test("does not continue after an unsafe assertHtml error marked soft", async () 
   await assert.rejects(
     session.executeSteps("sign-in", [
       { action: "assertHtml", locator: { css: "main" }, expected: { default: "<h1>Sign in</h1>" }, soft: true },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -1386,7 +1387,7 @@ test("stops on a hard assertValue mismatch with case and step context", async ()
   await assert.rejects(
     session.executeSteps("sign-in", [
       { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" } },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -1429,7 +1430,7 @@ test("returns a soft assertValue mismatch and continues to later steps", async (
       expected: { default: "Sign in" },
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -1469,7 +1470,7 @@ test("returns a soft assertValue locator failure and continues to later steps", 
       timeout: 1,
       soft: true,
     },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.deepEqual(softFailures, [
@@ -1503,7 +1504,7 @@ test("returns a soft assertValue ambiguous-locator failure and continues to late
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
     { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -1536,7 +1537,7 @@ test("returns a soft assertValue value-read timeout and continues to later steps
   const { run, session } = await createSession(page);
   const softFailures = await session.executeSteps("sign-in", [
     { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
-    { action: "navigate", url: "https://example.test/next" },
+    { action: "navigate", protocol: "https://", url: "example.test/next" },
   ]);
   assert.equal(navigated, true);
   assert.equal(softFailures.length, 1);
@@ -1571,7 +1572,7 @@ test("does not continue after an unsafe assertValue error marked soft", async ()
   await assert.rejects(
     session.executeSteps("sign-in", [
       { action: "assertValue", locator: { css: "#field" }, expected: { default: "Sign in" }, soft: true },
-      { action: "navigate", url: "https://example.test/next" },
+      { action: "navigate", protocol: "https://", url: "example.test/next" },
     ]),
     (error) =>
       error instanceof StepExecutionError &&
@@ -1612,7 +1613,7 @@ for (const [name, labels, actual, expectedCount] of [
           expected: { default: "tester@example.invalid" },
           associatedLabel: { default: "Email", locales: { "fr-ca": "Courriel" } },
         },
-        { action: "navigate", url: "https://example.test/next" },
+        { action: "navigate", protocol: "https://", url: "example.test/next" },
       ]);
       assert.equal(navigated, true);
       assert.equal(failures.length, expectedCount);
@@ -1674,7 +1675,7 @@ for (const unsafe of [false, true]) {
     try {
       const execution = session.executeSteps("profile", [
         { action: "assertValue", locator: { css: "input" }, expected: { default: "value" }, associatedLabel: { default: "Label" } },
-        { action: "navigate", url: "https://example.test/next" },
+        { action: "navigate", protocol: "https://", url: "example.test/next" },
       ]);
       if (unsafe) {
         await assert.rejects(execution, (failure) => failure instanceof StepExecutionError && failure.cause === error);
