@@ -161,8 +161,8 @@ this repository.
   may resolve to a narrower variable. To avoid changing
   resolution when narrower definitions exist, ambiguous renames are blocked
   and their conflicting locations are shown. The Type Step's Text and Fill
-  Step's Value fields can select an existing Plan variable instead of a
-  literal; the stored reference contains the variable name, not its resolved
+  Step's Value and Select option's Value or Label fields can select an existing
+  Plan variable instead of a literal; the stored reference contains the variable name, not its resolved
   value. Their chooser displays
   locale-aware Variable cards, and their Case cards preview the selected value.
   Plan Variable cards count distinct matching Case Steps and link to their
@@ -184,9 +184,9 @@ this repository.
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
   Text or a Plan-variable reference, and Fill uses it plus a required literal
-  Value or Plan-variable reference. Select option uses the
-  same locator plus a deliberate literal Value-or-Label mode, and saves exactly
-  one of those fields. Their Overrides panels author the default-enabled
+  Value or Plan-variable reference. Select option uses the same locator plus a
+  Value-or-Label mode, with either a literal or Plan-variable reference, and
+  saves exactly one of those fields. Their Overrides panels author the default-enabled
   `scrollIntoView` setting: enabled stays omitted from portable data while an
   explicit disablement writes `false`. Assert text uses that locator and one literal default
   Expected text value. Assert text, Assert HTML, and Assert value have dedicated
@@ -203,8 +203,9 @@ this repository.
   Variable-backed values for other supported Step fields remain later M12 work.
   Each step-detail component owns its dedicated route-page fields;
   `StepReferences` coordinates ordered data, dialogs, and draft updates for
-  Case-route cards. Add, Edit, Clone, Remove, and adjacent Promote/Demote
-  controls preserve
+  Case-route cards. Clone asks for confirmation, then appends a complete,
+  independent copy of the selected Step. Add, Edit, Clone, Remove, and
+  adjacent Promote/Demote controls preserve
   recovery and confirmation behaviour. Reordered step and reference cards
   animate into their new positions; the first and last cards disable the
   unavailable direction. The shared case validator identifies invalid authored

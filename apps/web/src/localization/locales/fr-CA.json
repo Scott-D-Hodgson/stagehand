@@ -224,6 +224,7 @@
     "edit": "Modifier",
     "editMode": "Modifier",
     "clone": "Cloner",
+    "cloneStepConfirmation": "Voulez-vous cloner l’étape {{number}}. {{type}}?",
     "duplicateCaseReference": "Une référence de cas avec ce chemin existe déjà.",
     "removeCaseReferenceConfirmation": "Supprimer cette référence de cas?",
     "removeStepConfirmation": "Supprimer cette étape?",

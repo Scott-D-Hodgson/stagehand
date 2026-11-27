@@ -8,12 +8,13 @@ import VariableDetails from '../../../variables/details/VariableDetails.vue';
 import VariableWatermark from '../../../variables/controls/VariableWatermark.vue';
 import type { VariableDefinitionDraft } from '../../../../services/planDraftService';
 
-const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; inheritedTimeout: number; kind: 'type' | 'fill'; name: string; planLocale: string; role: string; scrollIntoView: boolean; text: string | { var: string }; timeout: unknown; variables: Record<string, VariableDefinitionDraft> }>();
+const props = defineProps<{ after: unknown[]; before: unknown[]; editing: boolean; index: number; inheritedTimeout: number; kind: 'type' | 'fill' | 'selectOption'; name: string; planLocale: string; role: string; scrollIntoView: boolean; selectionMode?: 'value' | 'label'; text: string | { var: string }; timeout: unknown; variables: Record<string, VariableDefinitionDraft> }>();
 const emit = defineEmits<{
   'update:after': [items: unknown[]];
   'update:before': [items: unknown[]];
   'update:locator': [locator: { name?: string; role: string }];
   'update:scroll-into-view': [enabled: boolean];
+  'update:selection-mode': [mode: 'value' | 'label'];
   'update:text': [text: string | { var: string }];
   'update:timeout': [timeout: number | string];
   save: [];
@@ -153,7 +154,7 @@ function applyDefault(): void {
 
 <template>
   <section
-    :aria-label="props.kind === 'fill' ? t('editor.fill') : t('editor.type')"
+    :aria-label="t(props.kind === 'fill' ? 'editor.fill' : props.kind === 'selectOption' ? 'editor.selectOption' : 'editor.type')"
   >
     <ul
       class="nav nav-pills my-3"
@@ -232,6 +233,32 @@ function applyDefault(): void {
               class="form-control"
               @input="updateLocator"
             />
+            <fieldset
+              v-if="props.kind === 'selectOption'"
+              class="mt-3"
+            >
+              <legend
+                class="fs-6"
+              >{{ t('editor.selectOptionBy') }}</legend>
+              <div
+                v-for="mode in (['value', 'label'] as const)"
+                :key="mode"
+                class="form-check form-check-inline"
+              >
+                <input
+                  :id="`select-mode-${mode}-${props.index}`"
+                  class="form-check-input"
+                  type="radio"
+                  :name="`select-mode-${props.index}`"
+                  :checked="props.selectionMode === mode"
+                  @change="emit('update:selection-mode', mode)"
+                />
+                <label
+                  class="form-check-label"
+                  :for="`select-mode-${mode}-${props.index}`"
+                >{{ t(mode === 'value' ? 'editor.byValue' : 'editor.byLabel') }}</label>
+              </div>
+            </fieldset>
             <div
               class="form-check form-switch mt-3"
             >
@@ -251,7 +278,7 @@ function applyDefault(): void {
               v-if="textSource === 'text'"
               class="form-label mt-3"
               :for="`type-text-${props.index}`"
-            >{{ props.kind === 'fill' ? t('editor.value') : t('editor.text') }}</label>
+            >{{ t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</label>
             <input
               v-if="textSource === 'text'"
               :id="`type-text-${props.index}`"
@@ -330,7 +357,7 @@ function applyDefault(): void {
             <div
               v-if="textWasBlurred && !textValid"
               class="invalid-feedback d-block"
-            >{{ textSource === 'text' ? t(props.kind === 'fill' ? 'editor.valueRequired' : 'editor.textRequired') : t('editor.variableRequired') }}</div>
+            >{{ textSource === 'text' ? t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.labelRequired' : props.kind === 'type' ? 'editor.textRequired' : 'editor.valueRequired') : t('editor.variableRequired') }}</div>
             <button
               class="btn btn-primary mt-3"
               type="button"
@@ -366,7 +393,7 @@ function applyDefault(): void {
           <dd>{{ props.role }}</dd>
           <dt>{{ t('editor.accessibleName') }}</dt>
           <dd><template v-if="props.name">{{ props.name }}</template><template v-else>&mdash;</template></dd>
-          <dt>{{ props.kind === 'fill' ? t('editor.value') : t('editor.text') }}</dt>
+          <dt>{{ t(props.kind === 'selectOption' && props.selectionMode === 'label' ? 'editor.label' : props.kind === 'type' ? 'editor.text' : 'editor.value') }}</dt>
           <dd class="mb-0 text-break">{{ typeof props.text === 'string' ? props.text : `${t('editor.variable')}: ${props.text.var}` }}</dd>
         </dl>
         <dl v-else-if="selectedTab === 'overrides'" class="mb-0">

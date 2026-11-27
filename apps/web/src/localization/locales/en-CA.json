@@ -225,6 +225,7 @@
     "edit": "Edit",
     "editMode": "Edit",
     "clone": "Clone",
+    "cloneStepConfirmation": "You would like to clone step {{number}}. {{type}}?",
     "duplicateCaseReference": "A case reference with this path already exists.",
     "removeCaseReferenceConfirmation": "Remove this case reference?",
     "removeStepConfirmation": "Remove this step?",

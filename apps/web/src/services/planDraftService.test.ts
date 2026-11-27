@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { addCaseReference, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, removePlanVariable, savePlanVariable, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseInteractionScrollIntoView, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './planDraftService';
+import { addCaseReference, cloneCaseStep, copyEditorBundleDraft, copyPlanDraft, createBundledEditorDraft, createBundledPlanDraft, createEmptyEditorDraft, moveCaseReference, moveCaseStep, removeCaseReference, removePlanVariable, savePlanVariable, updateCaseAccessibilitySettings, updateCaseAssertionSoft, updateCaseBrowserSettings, updateCaseInteractionScrollIntoView, updateCaseReference, updateCaseStepTimeout, updateCaseStepWaitList, updateCaseTimeout, updatePlanAccessibilitySettings, updatePlanBrowserSettings, updatePlanLocale, updatePlanTimeout } from './planDraftService';
 
 describe('plan draft', () => {
   it('creates a fresh bundled plan with its case reference', () => {
@@ -235,6 +235,22 @@ describe('plan draft', () => {
     expect(moveCaseStep(steps, 1, 0)).toEqual([{ action: 'click', locator: { role: 'button' } }, { action: 'navigate', url: 'https://example.com' }]);
     expect(moveCaseStep(steps, 0, 2)).toEqual(steps);
     expect(steps).toEqual([{ action: 'navigate', url: 'https://example.com' }, { action: 'click', locator: { role: 'button' } }]);
+  });
+
+  it('clones a complete step independently, including nested references and settings', () => {
+    const step = { action: 'assertValue', locator: { role: 'textbox' }, expected: { default: { var: 'input' }, locales: { 'fr-CA': 'bonjour' } }, associatedLabel: { default: 'Name' }, before: [{ delay: 250 }], after: [{ waitForState: 'load' }], timeout: 5000, soft: true };
+    const steps = [step];
+    const cloned = cloneCaseStep(steps, 0);
+    expect(cloned).toEqual([step, step]);
+    const copied = cloned[1] as typeof step;
+    copied.expected.default.var = 'changed';
+    copied.expected.locales['fr-CA'] = 'changé';
+    copied.before[0]!.delay = 100;
+    expect(step.expected.default.var).toBe('input');
+    expect(step.expected.locales['fr-CA']).toBe('bonjour');
+    expect(step.before[0]!.delay).toBe(250);
+    expect(cloneCaseStep(steps, -1)).toBe(steps);
+    expect(cloneCaseStep(steps, 1)).toBe(steps);
   });
 
   it('updates and clears a case step timeout without changing the source list', () => {

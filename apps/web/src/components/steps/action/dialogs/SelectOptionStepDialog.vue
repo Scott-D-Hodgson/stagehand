@@ -17,6 +17,7 @@ const props = defineProps<{
   roleValidationMessage?: string;
   roleValidationVisible: boolean;
   selection: string;
+  selectionReference?: string;
   selectionMode: SelectionMode;
   selectionValidationMessage?: string;
   selectionValidationVisible: boolean;
@@ -206,9 +207,10 @@ onBeforeUnmount(() => modal?.dispose());
           <input
             id="select-option-selection"
             :value="props.selection"
+            :placeholder="props.selectionReference ? `${t('editor.variable')}: ${props.selectionReference}` : undefined"
             class="form-control"
             :class="{ 'is-invalid': props.selectionValidationVisible && props.selectionValidationMessage !== undefined }"
-            required
+            :required="!props.selectionReference"
             @blur="reportSelectionBlur"
             @input="emit('update:selection', ($event.target as HTMLInputElement).value)"
           />

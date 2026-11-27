@@ -305,12 +305,12 @@ Inputs: A partial replacement for the selected Select option step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateSelectOptionStep(fields: { label?: string; locator?: { name?: string; role: string }; value?: string }): void {
+function updateSelectOptionStep(fields: { label?: string | { var: string }; locator?: { name?: string; role: string }; value?: string | { var: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
   const steps = [...formSteps.value];
-  const current = selectedStep.value as { label?: string; value?: string };
+  const current = selectedStep.value as { label?: string | { var: string }; value?: string | { var: string } };
   const next = { ...current, ...fields };
   if (fields.label !== undefined) {
     delete next.value;
@@ -621,12 +621,14 @@ function formatActionName(action: string | undefined): string {
     :editing="props.editing"
     :index="stepIndex"
     :inherited-timeout="effectiveCaseTimeout"
-    :label="(selectedStep as { label?: string } | undefined)?.label"
+    :label="(selectedStep as { label?: string | { var: string } } | undefined)?.label"
     :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''"
     :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''"
     :scroll-into-view="(selectedStep as { scrollIntoView?: unknown } | undefined)?.scrollIntoView !== false"
     :timeout="typeof selectedStep === 'object' && selectedStep !== null ? (selectedStep as { timeout?: unknown }).timeout : undefined"
-    :value="(selectedStep as { value?: string } | undefined)?.value"
+    :value="(selectedStep as { value?: string | { var: string } } | undefined)?.value"
+    :plan-locale="props.planLocale"
+    :variables="props.planVariables"
     @save="applyStepForm"
     @update:after="updateStepWaitList('after', $event)"
     @update:before="updateStepWaitList('before', $event)"

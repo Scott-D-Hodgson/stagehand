@@ -50,8 +50,9 @@ use the visible × and Cancel controls, and Bootstrap’s normal Escape handling
 
 ## Try it
 
-Add a Click step with Role `button` and Accessible name `Continue`. Clone it,
-change the name, and remove the original after confirmation. Then open a new
+Add a Click step with Role `button` and Accessible name `Continue`. Confirm
+cloning it, edit the clone to change the name, and remove the original after
+confirmation. Then open a new
 Click dialog, leave Role empty, blur it, and observe the one focused message.
 Finally, cancel it with the × and with Cancel, then click the backdrop and
 confirm that the dialog remains open.
