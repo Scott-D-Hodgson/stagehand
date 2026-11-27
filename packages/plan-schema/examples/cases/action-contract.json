@@ -11,7 +11,8 @@
   "steps": [
     {
       "action": "navigate",
-      "url": "http://localhost:3000/sign-in"
+      "protocol": "http://",
+      "url": "localhost:3000/sign-in"
     },
     {
       "action": "click",

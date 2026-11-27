@@ -98,6 +98,8 @@ provide('stagehandVariableContext', computed(() => ({ locale: props.planLocale, 
 const editingStepIndex = ref<number | undefined>();
 const pendingStepClone = ref<number>();
 const navigateUrl = ref('');
+const navigateProtocol = ref<'http://' | 'https://'>('https://');
+const navigateUrlReference = ref<{ var: string }>();
 const navigateDialogOpen = ref(false);
 const clickDialogOpen = ref(false);
 const assertTextDialogOpen = ref(false);
@@ -324,8 +326,8 @@ const navigateValidationIssues = computed(
       return [];
     }
     const steps = editingStepIndex.value === undefined
-      ? [...selectedCase.value.steps, { action: 'navigate', url: navigateUrl.value }]
-      : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), url: navigateUrl.value } : step);
+      ? [...selectedCase.value.steps, { action: 'navigate', protocol: navigateProtocol.value, url: navigateUrlReference.value ?? navigateUrl.value }]
+      : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), protocol: navigateProtocol.value, url: navigateUrlReference.value ?? navigateUrl.value } : step);
     const validation = validateCase({ ...selectedCase.value, steps });
     return validation.valid ? [] : validation.issues.filter((issue) => issue.path === `/steps/${editingStepIndex.value === undefined ? steps.length - 1 : editingStepIndex.value}/url`);
   }
@@ -383,7 +385,9 @@ Output: A new raw Navigate step retained in the case draft.
 */
 function addNavigateStep(): void {
   editingStepIndex.value = undefined;
+  navigateProtocol.value = 'https://';
   navigateUrl.value = '';
+  navigateUrlReference.value = undefined;
   navigateUrlBlurred.value = false;
   navigateDialogOpen.value = true;
 }
@@ -437,7 +441,10 @@ Output: A visible editing dialog.
 */
 function editNavigateStep(index: number, step: unknown): void {
   editingStepIndex.value = index;
-  navigateUrl.value = (step as { url?: string }).url ?? '';
+  navigateProtocol.value = (step as { protocol?: string }).protocol === 'http://' ? 'http://' : 'https://';
+  const url = (step as { url?: string | { var: string } }).url;
+  navigateUrlReference.value = typeof url === 'object' && url !== null ? { ...url } : undefined;
+  navigateUrl.value = typeof url === 'string' ? url : '';
   navigateUrlBlurred.value = false;
   navigateDialogOpen.value = true;
 }
@@ -456,8 +463,8 @@ function saveNavigateStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const steps = editingStepIndex.value === undefined
-      ? [...selectedCase.value.steps, { action: 'navigate', url: navigateUrl.value }]
-      : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), url: navigateUrl.value } : step);
+      ? [...selectedCase.value.steps, { action: 'navigate', protocol: navigateProtocol.value, url: navigateUrlReference.value ?? navigateUrl.value }]
+      : selectedCase.value.steps.map((step, index) => index === editingStepIndex.value ? { ...(step as Record<string, unknown>), protocol: navigateProtocol.value, url: navigateUrlReference.value ?? navigateUrl.value } : step);
     emit('update:steps', props.selectedPath, steps);
   }
   editingStepIndex.value = undefined;
@@ -471,7 +478,9 @@ Inputs: A Reset action in the Navigate dialog.
 Output: A blank URL and hidden validation feedback.
 */
 function resetNavigateDialog(): void {
+  navigateProtocol.value = 'https://';
   navigateUrl.value = '';
+  navigateUrlReference.value = undefined;
   navigateUrlBlurred.value = false;
 }
 
@@ -1492,13 +1501,16 @@ function openStep(index: number, event: MouseEvent): void {
     <NavigateStepDialog
       v-if="navigateDialogOpen"
       :url="navigateUrl"
+      :protocol="navigateProtocol"
+      :url-reference="navigateUrlReference?.var"
       :validation-issues="navigateValidationIssues"
       :validation-visible="navigateUrlBlurred"
       @blur="navigateUrlBlurred = true"
       @close="navigateDialogOpen = false"
       @reset="resetNavigateDialog"
       @save="saveNavigateStep"
-      @update:url="navigateUrl = $event"
+      @update:url="navigateUrl = $event; navigateUrlReference = undefined"
+      @update:protocol="navigateProtocol = $event"
     />
     <ClickStepDialog
       v-if="clickDialogOpen"

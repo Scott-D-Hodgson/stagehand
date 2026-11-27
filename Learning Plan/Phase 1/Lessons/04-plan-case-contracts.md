@@ -5,7 +5,7 @@
 [← Previous: development environment](03-development-environment.md) · [Phase outline](../README.md) · [Next: result contracts →](05-result-contracts.md)
 
 
-Plans describe run-wide defaults and referenced cases. Cases describe settings, reusable inputs, and ordered steps. JSON Schema defines their v1 shapes, while semantic checks handle meaningful rules such as valid locales and absolute navigation URLs.
+Plans describe run-wide defaults and referenced cases. Cases describe settings, reusable inputs, and ordered steps. JSON Schema defines their v1 shapes, while semantic checks handle meaningful rules such as valid locales and a valid host when a Navigate protocol and address are combined.
 
 Version numbers allow deliberate compatibility decisions. During M5, the v1 artifacts continue evolving until a milestone release makes a new versioning decision.
 

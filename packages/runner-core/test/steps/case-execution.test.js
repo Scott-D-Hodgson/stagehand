@@ -39,11 +39,11 @@ test("prepares ordinary case variables before dispatching case steps", async () 
         version: 1,
         id: "sign-in",
         variables: {
-          address: { default: "https://default.example.test", locales: { "fr-CA": "https://bonjour.example.test" } },
+          address: { default: "default.example.test", locales: { "fr-CA": "bonjour.example.test" } },
           attempts: { default: 3 },
         },
         steps: [
-          { action: "navigate", url: { var: "address" } },
+          { action: "navigate", protocol: "https://", url: { var: "address" } },
           { action: "type", locator: { css: "#attempts" }, text: { var: "attempts" } },
         ],
       },
@@ -155,9 +155,9 @@ test("expands and dispatches shared steps using the calling case data set", asyn
         id: "checkout",
         dataSets: { default: {} },
         steps: [
-          { action: "navigate", url: "https://example.test/start" },
+          { action: "navigate", protocol: "https://", url: "example.test/start" },
           { action: "sharedSteps", id: "sign-in" },
-          { action: "navigate", url: "https://example.test/complete" },
+          { action: "navigate", protocol: "https://", url: "example.test/complete" },
         ],
       },
       dataSets: [{ name: "canada", variables: { email: { default: "canada@example.test", locales: { "fr-CA": "canada-fr@example.test" } } } }],
@@ -186,7 +186,7 @@ test("retains shared-step identity when an expanded step fails", async () => {
           id: "checkout",
           steps: [{ action: "sharedSteps", id: "sign-in" }],
         },
-        sharedSteps: { "sign-in": [{ action: "navigate", url: "https://example.test/sign-in" }] },
+        sharedSteps: { "sign-in": [{ action: "navigate", protocol: "https://", url: "example.test/sign-in" }] },
       }),
       (error) => error instanceof StepExecutionError
         && error.caseId === "checkout"
@@ -318,7 +318,7 @@ test("stops before dispatch when ordinary case preparation fails", async () => {
           version: 1,
           id: "sign-in",
           steps: [
-            { action: "navigate", url: "https://example.test/start" },
+            { action: "navigate", protocol: "https://", url: "example.test/start" },
             { action: "type", locator: { css: "#email" }, text: { var: "missing" } },
           ],
         },

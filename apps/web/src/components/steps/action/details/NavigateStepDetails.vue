@@ -1,28 +1,33 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import StepCard from '../../StepCard.vue';
+import TypeStepDetails from './TypeStepDetails.vue';
 
 const props = defineProps<{ actionLabel: string; editing: boolean; index: number; invalid: boolean; step: unknown; stepCount: number; timeout: unknown }>();
 const emit = defineEmits<{ clone: []; edit: []; move: [direction: -1 | 1]; remove: []; 'update:timeout': [timeout: number | string] }>();
 
 /*
-Determines the navigation URL to display for this step.
+Adapts a Navigate URL for the shared variable-aware card preview.
 ---
-Inputs: The navigation step value.
+Inputs: The Navigate step and its URL.
 ---
-Output: The configured URL, or an empty string when unavailable.
+Output: An equivalent preview retaining the step's variable scope.
 */
-const url = computed(
-  () => (props.step as { url?: string }).url ?? ''
+const previewStep = computed(
+  () => typeof props.step === 'object' && props.step !== null
+    ? { ...props.step, text: (props.step as { url?: unknown }).url }
+    : props.step
 );
 </script>
 
 <template>
-  <StepCard
+  <TypeStepDetails
     :action-label="props.actionLabel"
     :editing="props.editing"
+    :hide-target="true"
     :index="props.index"
     :invalid="props.invalid"
+    :prefix="(props.step as { protocol?: string })?.protocol"
+    :step="previewStep"
     :step-count="props.stepCount"
     :timeout="props.timeout"
     @clone="emit('clone')"
@@ -30,9 +35,5 @@ const url = computed(
     @move="emit('move', $event)"
     @remove="emit('remove')"
     @update:timeout="emit('update:timeout', $event)"
-  >
-    <p
-      class="mb-0 text-body-secondary text-break"
-    >{{ url }}</p>
-  </StepCard>
+  />
 </template>

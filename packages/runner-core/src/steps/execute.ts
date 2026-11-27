@@ -90,7 +90,7 @@ export async function executeCaseSteps(options: {
       switch (step.action) {
         case "navigate":
           await executeWaitList(options.page, step.before ?? []);
-          await executeNavigation(options.page, step.url, {
+          await executeNavigation(options.page, `${step.protocol}${step.url}`, {
             timeout: step.timeout ?? options.defaultTimeout,
           });
           await executeWaitList(options.page, step.after ?? []);

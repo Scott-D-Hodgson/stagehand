@@ -5,7 +5,7 @@ import { resolveVariable, type VariableDefinition } from '@stagehand/plan-schema
 import type { CaseDraft, VariableDefinitionDraft } from '../../../../services/planDraftService';
 import StepCard from '../../StepCard.vue';
 
-const props = defineProps<{ actionLabel: string; editing: boolean; index: number; invalid: boolean; selectionLabel?: string; step: unknown; stepCount: number; timeout: unknown }>();
+const props = defineProps<{ actionLabel: string; editing: boolean; hideTarget?: boolean; index: number; invalid: boolean; prefix?: string; selectionLabel?: string; step: unknown; stepCount: number; timeout: unknown }>();
 const emit = defineEmits<{ clone: []; edit: []; move: [direction: -1 | 1]; remove: []; 'update:timeout': [timeout: number | string] }>();
 const { t } = useTranslation();
 const variableContext = inject<ComputedRef<{ locale: string; planVariables: Record<string, VariableDefinitionDraft>; caseDraft: CaseDraft | undefined }>>('stagehandVariableContext');
@@ -74,10 +74,11 @@ const preview = computed(
     <p
       class="mb-0 text-break"
     ><span
+      v-if="!props.hideTarget"
       class="text-body-secondary"
     >{{ summary }} → {{ props.selectionLabel ? `${props.selectionLabel}: ` : '' }}</span><span
       class="text-primary fw-bold"
-    >{{ preview.value }}</span><span
+    >{{ props.prefix }}{{ preview.value }}</span><span
       :class="['badge', 'rounded-pill', 'bg-body-secondary', 'border', 'ms-2', 'text-body', { invisible: !preview.locale }]"
     >{{ preview.locale }}</span><span
       v-if="preview.name"

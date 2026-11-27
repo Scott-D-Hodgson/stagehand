@@ -10,7 +10,7 @@
 
 **Ajv** is a JavaScript library that reads JSON Schema rules and turns them into a validator function. In Stagehand, it checks the plan or case against its v1 schema: required fields, allowed properties, types, recognised step shapes, and other structure rules. Think of Ajv as the rule-reader, not as the source of Stagehand's product decisions.
 
-Stagehand then adds checks that are clearer in code, such as valid locale tags, supported time zones, canonical duplicate locale keys, and absolute HTTP/HTTPS navigation URLs. These are called **semantic checks**: they check meaning that goes beyond basic JSON shape.
+Stagehand then adds checks that are clearer in code, such as valid locale tags, supported time zones, canonical duplicate locale keys, and a valid host when a Navigate protocol is combined with its address. Bundle validation can check known navigation variable types across scopes; preparation checks the resolved value. These are called **semantic checks**: they check meaning that goes beyond basic JSON shape.
 
 ```mermaid
 flowchart LR

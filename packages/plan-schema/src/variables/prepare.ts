@@ -13,7 +13,7 @@ import type {
 
 type PreparedValueResult =
   | { prepared: true; value: unknown; protectedValues?: string[] }
-  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
+  | { prepared: false; path: string; reason: "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 /*
 Checks whether a value is a whole-field variable reference.
@@ -69,6 +69,9 @@ function prepareTextValue(options: {
   });
   if (!result.resolved) {
     return { prepared: false, path: options.path, reason: result.reason, message: result.message };
+  }
+  if (options.preparation.step.action === "navigate" && options.path.endsWith("/url") && typeof result.value !== "string" && !isProtectedVariableValue(result.value)) {
+    return { prepared: false, path: options.path, reason: "invalidPreparedCase", message: "Navigation variables must resolve to text or an environment variable." };
   }
   if (isProtectedVariableValue(result.value)) {
     if (options.preparation.environment !== undefined) {

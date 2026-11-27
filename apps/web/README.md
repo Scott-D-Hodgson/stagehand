@@ -160,10 +160,12 @@ this repository.
   removal is blocked while matching references remain, including matches that
   may resolve to a narrower variable. To avoid changing
   resolution when narrower definitions exist, ambiguous renames are blocked
-  and their conflicting locations are shown. The Type Step's Text and Fill
-  Step's Value and Select option's Value or Label fields can select an existing
-  Plan variable instead of a literal; the stored reference contains the variable name, not its resolved
-  value. Their chooser displays
+  and their conflicting locations are shown. The Navigate Step's URL, Type
+  Step's Text, Fill Step's Value, and Select option's Value or Label fields
+  can select an existing Plan variable instead of a literal; the stored
+  reference contains the variable name, not its resolved value. Navigate offers
+  only Text and environment variables; the other fields also accept Number and
+  Boolean variables. Their chooser displays
   locale-aware Variable cards, and their Case cards preview the selected value.
   Plan Variable cards count distinct matching Case Steps and link to their
   details on the Variable page. The count conservatively includes same-named
@@ -179,8 +181,9 @@ this repository.
 - Navigate, Click, Type, Fill, Select option, Assert text, Assert HTML, and
   Assert value have dedicated Step routes whose fields switch between editable
   controls and read-only summaries. Case-route cards appear as
-  numbered Bootstrap summaries. Navigate validates the shared absolute
-  HTTP/HTTPS URL rule;
+  numbered Bootstrap summaries. Navigate combines a separate HTTP/HTTPS
+  protocol with an address that contains a host. A variable's effective
+  address is checked when prepared for execution;
   Click has a constrained Role/Accessible-name locator form, with Role required
   and Accessible name optional. Type uses that locator form plus required literal
   Text or a Plan-variable reference, and Fill uses it plus a required literal

@@ -11,7 +11,7 @@ describe('validateEditorPlan', () => {
   })
 
   it('returns each invalid case-step index once', () => {
-    expect(getInvalidCaseStepIndexes({ id: 'sample', steps: [{ action: 'navigate' }, { action: 'navigate', url: 'https://example.com' }], version: 1 })).toEqual([0]);
+    expect(getInvalidCaseStepIndexes({ id: 'sample', steps: [{ action: 'navigate' }, { action: 'navigate', protocol: 'https://', url: 'example.com' }], version: 1 })).toEqual([0]);
   });
 
 });

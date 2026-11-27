@@ -32,6 +32,9 @@ flowchart TD
 ## Try it
 
 Open `case-v1.schema.json`. Compare a Navigate Step and an Assert text Step.
+Navigate requires a `protocol` of `http://` or `https://` and a separate `url`
+address or variable reference. The schema checks the protocol's shape; semantic
+and preparation checks handle the address and resolved variable type.
 Identify their shared `waitableStep` rules and the unique rules for navigation
 and expected text.
 

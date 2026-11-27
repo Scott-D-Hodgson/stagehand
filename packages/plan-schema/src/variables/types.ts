@@ -67,7 +67,7 @@ export interface PrepareCaseStepOptions {
 
 export type PrepareCaseStepResult =
   | { prepared: true; step: Record<string, unknown>; protectedValues?: string[] }
-  | { prepared: false; path: string; reason: "invalidLocale" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
+  | { prepared: false; path: string; reason: "invalidLocale" | "invalidPreparedCase" | "missingVariable" | "unresolvedProtectedValue"; message: string; environmentVariable?: string };
 
 export interface PrepareCaseOptions {
   case: Readonly<Record<string, unknown>>;

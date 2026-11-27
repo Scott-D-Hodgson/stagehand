@@ -10,7 +10,9 @@ interface BootstrapModal {
 }
 
 const props = defineProps<{
+  protocol: 'http://' | 'https://';
   url: string;
+  urlReference?: string;
   validationIssues: ValidationIssue[];
   validationVisible: boolean;
 }>();
@@ -21,6 +23,7 @@ const emit = defineEmits<{
   reset: [];
   save: [];
   'update:url': [url: string];
+  'update:protocol': [protocol: 'http://' | 'https://'];
 }>();
 
 const { t } = useTranslation();
@@ -126,16 +129,29 @@ onBeforeUnmount(() => modal?.dispose());
         >
           <label
             class="form-label"
+            for="navigate-protocol"
+          >{{ t('editor.protocol') }}</label>
+          <select
+            id="navigate-protocol"
+            class="form-select mb-3"
+            :value="props.protocol"
+            @change="emit('update:protocol', ($event.target as HTMLSelectElement).value as 'http://' | 'https://')"
+          >
+            <option value="https://">https://</option>
+            <option value="http://">http://</option>
+          </select>
+          <label
+            class="form-label"
             for="navigate-url"
           >{{ t('editor.navigateUrl') }}</label>
           <input
             id="navigate-url"
             ref="urlInput"
             :value="props.url"
+            :placeholder="props.urlReference ? `${t('editor.variable')}: ${props.urlReference}` : 'example.com'"
             class="form-control"
             :class="{ 'is-invalid': props.validationVisible && props.validationIssues.length > 0 }"
-            placeholder="https://example.com"
-            required
+            :required="!props.urlReference"
             @blur="reportUrlBlur"
             @input="emit('update:url', ($event.target as HTMLInputElement).value)"
           />
@@ -146,10 +162,7 @@ onBeforeUnmount(() => modal?.dispose());
             v-if="props.validationVisible"
             class="invalid-feedback d-block"
           >
-            <div
-              v-for="issue in props.validationIssues"
-              :key="issue.path + issue.message"
-            >{{ issue.message }}</div>
+            {{ t('editor.navigateUrlInvalid') }}
           </div>
         </div>
         <div
