@@ -22,7 +22,7 @@ test("walks a synthetic plan from file loading through a validated result", asyn
   await writeFile(join(directory, "cases", "home.json"), JSON.stringify({
     version: 1,
     id: "home",
-    steps: [{ action: "navigate", url: "https://example.test/home" }],
+    steps: [{ action: "navigate", protocol: "https://", url: "example.test/home" }],
   }), "utf8");
   const visited = [];
   let browserClosed = false;
