@@ -282,6 +282,7 @@ const assertHtmlExpectedValidationMessage = computed(
 const assertValueRole = ref('');
 const assertValueName = ref('');
 const assertValueExpected = ref('');
+const assertValueExpectedReference = ref<{ var: string }>();
 const assertValueLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertValueIndex = ref<number | undefined>();
 const assertValueRoleBlurred = ref(false);
@@ -306,7 +307,7 @@ Inputs: The Assert value dialog expected-value value.
 Output: A required-field message, when applicable.
 */
 const assertValueExpectedValidationMessage = computed(
-  () => assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined
+  () => assertValueExpectedReference.value === undefined && assertValueExpected.value.trim().length === 0 ? t('editor.expectedValueRequired') : undefined
 );
 const stepKeys = new WeakMap<object, number>();
 let nextStepKey = 0;
@@ -926,7 +927,7 @@ Output: Its default variable name when no literal locale override applies.
 function getExpectedVariableName(step: unknown): string | undefined {
   const assertion = step as { action?: string; expected?: { default?: unknown } };
   const value = assertion.expected?.default;
-  if (!['assertText', 'assertHtml'].includes(assertion.action ?? '') || getConfiguredLocaleOverride(step) !== undefined || typeof value !== 'object' || value === null || !('var' in value) || typeof value.var !== 'string') {
+  if (!['assertText', 'assertHtml', 'assertValue'].includes(assertion.action ?? '') || getConfiguredLocaleOverride(step) !== undefined || typeof value !== 'object' || value === null || !('var' in value) || typeof value.var !== 'string') {
     return undefined;
   }
   return value.var;
@@ -1027,6 +1028,7 @@ function addAssertValueStep(): void {
   assertValueRole.value = '';
   assertValueName.value = '';
   assertValueExpected.value = '';
+  assertValueExpectedReference.value = undefined;
   assertValueLocaleOverrides.value = [];
   assertValueRoleBlurred.value = false;
   assertValueExpectedBlurred.value = false;
@@ -1048,9 +1050,11 @@ function saveAssertValueStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = assertValueName.value.trim() ? { name: assertValueName.value.trim(), role: assertValueRole.value.trim() } : { role: assertValueRole.value.trim() };
-    const locales = Object.fromEntries(assertValueLocaleOverrides.value.map((override) => [override.locale, override.value]));
-    const expected = Object.keys(locales).length === 0 ? { default: assertValueExpected.value } : { default: assertValueExpected.value, locales };
-    const step = preserveEditedStepTimeout(editingAssertValueIndex.value, { action: 'assertValue', expected, locator });
+    const existing = editingAssertValueIndex.value === undefined ? undefined : selectedCase.value.steps[editingAssertValueIndex.value];
+    const previousLocales = (existing as { expected?: { locales?: Record<string, unknown> } } | undefined)?.expected?.locales ?? {};
+    const locales = { ...previousLocales, ...Object.fromEntries(assertValueLocaleOverrides.value.map((override) => [override.locale, override.value])) };
+    const expected = Object.keys(locales).length === 0 ? { default: assertValueExpectedReference.value ?? assertValueExpected.value } : { default: assertValueExpectedReference.value ?? assertValueExpected.value, locales };
+    const step = { ...(typeof existing === 'object' && existing !== null ? existing : {}), action: 'assertValue', expected, locator };
     const steps = editingAssertValueIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertValueIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -1067,6 +1071,7 @@ function resetAssertValueDialog(): void {
   assertValueRole.value = '';
   assertValueName.value = '';
   assertValueExpected.value = '';
+  assertValueExpectedReference.value = undefined;
   assertValueLocaleOverrides.value = [];
   assertValueRoleBlurred.value = false;
   assertValueExpectedBlurred.value = false;
@@ -1242,7 +1247,9 @@ function editStep(index: number, step: unknown): void {
     editingAssertValueIndex.value = index;
     assertValueRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     assertValueName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertValueExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    const expected = (step as { expected?: { default?: string | { var: string } } }).expected?.default;
+    assertValueExpectedReference.value = typeof expected === 'object' && expected !== null ? { ...expected } : undefined;
+    assertValueExpected.value = typeof expected === 'string' ? expected : '';
     assertValueLocaleOverrides.value = readExpectedLocaleOverrides(step);
     assertValueRoleBlurred.value = false;
     assertValueExpectedBlurred.value = false;
@@ -1706,6 +1713,7 @@ function openStep(index: number, event: MouseEvent): void {
     <AssertValueStepDialog
       v-if="assertValueDialogOpen"
       :expected="assertValueExpected"
+      :expected-reference="assertValueExpectedReference?.var"
       :expected-validation-message="assertValueExpectedValidationMessage"
       :expected-validation-visible="assertValueExpectedBlurred"
       :name="assertValueName"
@@ -1717,7 +1725,7 @@ function openStep(index: number, event: MouseEvent): void {
       @close="assertValueDialogOpen = false"
       @reset="resetAssertValueDialog"
       @save="saveAssertValueStep"
-      @update:expected="assertValueExpected = $event"
+      @update:expected="assertValueExpected = $event; assertValueExpectedReference = undefined"
       @update:name="assertValueName = $event"
       @update:role="assertValueRole = $event"
       @validate="assertValueRoleBlurred = true; assertValueExpectedBlurred = true"

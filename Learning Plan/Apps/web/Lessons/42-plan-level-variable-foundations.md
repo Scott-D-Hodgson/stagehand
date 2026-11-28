@@ -22,8 +22,9 @@ variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
 A variable reference is a separate capability. Navigate, Type, Fill, and Select
-option Steps, and the default Assert Text and Assert HTML expectations, can select a Plan
-variable and save a whole-field object such as `{ "var": "userName" }`.
+option Steps, and the default Assert Text, Assert HTML, and Assert Value
+expectations, can select a Plan variable and save a whole-field object such as
+`{ "var": "userName" }`.
 Other supported Step fields still need their authoring controls.
 
 Navigate stores a `protocol` of `https://` or `http://` separately from its
@@ -81,6 +82,8 @@ definitions.
    locale override and compare the Case card when each value is active.
 10. Repeat with Assert HTML, then edit and clone the step to inspect reference
     preservation.
+11. Repeat with Assert Value and confirm its associated-label settings remain
+    intact when the step is edited or cloned.
 
 ## You are ready when
 

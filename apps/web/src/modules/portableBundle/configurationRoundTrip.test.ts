@@ -100,6 +100,7 @@ describe('M11 configuration portable-bundle preservation', () => {
     draft.cases['cases/account.json']!.steps.push({ action: 'selectOption', locator: { role: 'combobox', name: 'Region' }, label: { var: 'email' } });
     draft.cases['cases/account.json']!.steps.push({ action: 'assertText', locator: { role: 'heading' }, expected: { default: { var: 'email' }, locales: { 'fr-CA': 'Bienvenue' } } });
     draft.cases['cases/account.json']!.steps.push({ action: 'assertHtml', locator: { role: 'main' }, expected: { default: { var: 'email' }, locales: { 'fr-CA': '<p>Bienvenue</p>' } }, before: [{ delay: 100 }] });
+    draft.cases['cases/account.json']!.steps.push({ action: 'assertValue', locator: { role: 'textbox' }, expected: { default: { var: 'email' }, locales: { 'fr-CA': 'valeur' } }, associatedLabel: { default: 'Email' }, after: [{ delay: 100 }] });
     const { copyEditorBundleDraft } = await import('../../services/planDraftService');
     const snapshot = copyEditorBundleDraft(draft);
     const exported = preparePortableBundleExport(snapshot);

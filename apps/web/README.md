@@ -162,7 +162,7 @@ this repository.
   resolution when narrower definitions exist, ambiguous renames are blocked
   and their conflicting locations are shown. The Navigate Step's URL, Type
   Step's Text, Fill Step's Value, Select option's Value or Label, and Assert
-  Text and Assert HTML default expectations can select an existing Plan
+  Text, Assert HTML, and Assert Value default expectations can select an existing Plan
   variable instead of a literal; the stored
   reference contains the variable name, not its resolved value. Navigate offers
   only Text and environment variables; the other fields also accept Number and
@@ -201,7 +201,7 @@ this repository.
   by emphasizing its matching override, or the default when no override
   matches. Assert HTML uses the same locator, a literal or Plan-variable default
   Expected HTML value, and multiline literal base and override fields. Assert value uses the same
-  locator and literal default and override Expected values; its optional
+  locator and a literal or Plan-variable default Expected value, with literal overrides; its optional
   associated-label check is an optional always-soft assertion with its own
   default and localized expected values.
   Their Overrides panels also author assertion behaviour: Hard omits the

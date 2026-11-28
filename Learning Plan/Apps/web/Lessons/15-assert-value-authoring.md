@@ -20,20 +20,21 @@ current editor authors this shared-contract shape:
 }
 ```
 
-## A literal default value
+## A literal or variable default value
 
 The dialog requires Role and Expected value, while Accessible name remains
-optional. Each field’s feedback is independently blur-gated. The form saves a
-literal `expected.default` value, like the other current assertion forms.
-The early M11 workflow adds optional localized expected values; [Lesson
-21](21-localized-assert-value.md) covers that dedicated Step-page flow.
+optional. Each field’s feedback is independently blur-gated. The creation
+dialog saves a literal `expected.default`; the Step page can replace it with a
+Plan-variable reference. Apply saves the reference, and the Case card previews
+its locale-aware value and identifies the variable. Literal assertion locale
+overrides take precedence when they match. [Lesson 21](21-localized-assert-value.md)
+covers the Step-page locale flow.
 
 ## The associated-label boundary
 
-The shared contract supports an optional associated-label check for an Assert
-value step. The current editor deliberately does not author it. That check has
-its own expected value and conditional UI, so its placement and behaviour need
-a focused decision rather than being folded into this basic assertion slice.
+The editor also authors the optional always-soft associated-label check on its
+own Step-page tab, with a separate default and literal locale overrides.
+Variable references for this check remain future work.
 
 ## Shared target and recovery
 
@@ -47,15 +48,16 @@ copying and IndexedDB autosave.
 
 Add an Assert value step for a textbox named `Email`, with Expected value
 `author@example.com`. Blur the empty Role and Expected value fields separately,
-then save, edit, clone, and remove the card. Refresh and restore the recovery
-copy. Confirm that no associated-label controls are presented in this slice.
+then save and select a Plan variable on the Step page. Apply, check the Case
+card, and add a matching literal locale override. Configure the associated-label
+check, edit and clone the step, then refresh and restore the recovery copy.
 
 ## You are ready when
 
 - You can distinguish a control’s expected value from its Accessible name.
 - You know why this form saves `expected.default` and can add optional locale
   overrides outside the base dialog.
-- You can identify the optional associated-label check as deferred work rather
-  than a missing saved field.
+- You can distinguish the optional associated-label check from the expected
+  value and identify its variable-reference support as remaining work.
 
 [← Previous: Assert-HTML authoring](14-assert-html-authoring.md) · [Course outline](../README.md) · [Next: Localized Assert-value expectations →](21-localized-assert-value.md)
