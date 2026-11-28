@@ -22,7 +22,7 @@ variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
 A variable reference is a separate capability. Navigate, Type, Fill, and Select
-option Steps, and the default Assert Text expectation, can select a Plan
+option Steps, and the default Assert Text and Assert HTML expectations, can select a Plan
 variable and save a whole-field object such as `{ "var": "userName" }`.
 Other supported Step fields still need their authoring controls.
 
@@ -79,6 +79,8 @@ definitions.
    offered. Apply, revisit the Step card, and check recovery and ZIP export.
 9. Select a variable for an Assert Text default expectation. Add a literal
    locale override and compare the Case card when each value is active.
+10. Repeat with Assert HTML, then edit and clone the step to inspect reference
+    preservation.
 
 ## You are ready when
 

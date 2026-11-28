@@ -3,7 +3,7 @@ import LocalizedAssertionStepDetails from './LocalizedAssertionStepDetails.vue';
 
 interface LocaleOverride { active: boolean; locale: string; value: string }
 
-const props = defineProps<{ actionLabel: string; editing: boolean; effectiveLocale: string; effectiveValue: string; hasLocaleOverride: boolean; index: number; invalid: boolean; localeOverrides: LocaleOverride[]; step: unknown; stepCount: number; timeout: unknown }>();
+const props = defineProps<{ actionLabel: string; editing: boolean; effectiveLocale: string; effectiveValue: string; hasLocaleOverride: boolean; index: number; invalid: boolean; localeOverrides: LocaleOverride[]; step: unknown; stepCount: number; timeout: unknown; variableName?: string }>();
 const emit = defineEmits<{ 'add-locale-override': []; 'edit-locale-override': [override: LocaleOverride]; 'remove-locale-override': [override: LocaleOverride]; clone: []; edit: []; move: [direction: -1 | 1]; remove: []; 'update:timeout': [timeout: number | string] }>();
 </script>
 

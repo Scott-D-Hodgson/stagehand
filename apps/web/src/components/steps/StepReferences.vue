@@ -252,6 +252,7 @@ const pendingLocaleOverrideRemoval = ref<{ locale: string; stepIndex: number }>(
 const assertHtmlRole = ref('');
 const assertHtmlName = ref('');
 const assertHtmlExpected = ref('');
+const assertHtmlExpectedReference = ref<{ var: string }>();
 const assertHtmlLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertHtmlIndex = ref<number | undefined>();
 const assertHtmlRoleBlurred = ref(false);
@@ -276,7 +277,7 @@ Inputs: The Assert HTML dialog expected-HTML value.
 Output: A required-field message, when applicable.
 */
 const assertHtmlExpectedValidationMessage = computed(
-  () => assertHtmlExpected.value.trim().length === 0 ? t('editor.expectedHtmlRequired') : undefined
+  () => assertHtmlExpectedReference.value === undefined && assertHtmlExpected.value.trim().length === 0 ? t('editor.expectedHtmlRequired') : undefined
 );
 const assertValueRole = ref('');
 const assertValueName = ref('');
@@ -916,7 +917,7 @@ function getExpectedDefaultValue(step: unknown): string {
 }
 
 /*
-Identifies the variable supplying the active Assert Text expectation.
+Identifies the variable supplying the active assertion expectation.
 ---
 Inputs: An assertion step and the configured Plan locale.
 ---
@@ -925,7 +926,7 @@ Output: Its default variable name when no literal locale override applies.
 function getExpectedVariableName(step: unknown): string | undefined {
   const assertion = step as { action?: string; expected?: { default?: unknown } };
   const value = assertion.expected?.default;
-  if (assertion.action !== 'assertText' || getConfiguredLocaleOverride(step) !== undefined || typeof value !== 'object' || value === null || !('var' in value) || typeof value.var !== 'string') {
+  if (!['assertText', 'assertHtml'].includes(assertion.action ?? '') || getConfiguredLocaleOverride(step) !== undefined || typeof value !== 'object' || value === null || !('var' in value) || typeof value.var !== 'string') {
     return undefined;
   }
   return value.var;
@@ -965,6 +966,7 @@ function addAssertHtmlStep(): void {
   assertHtmlRole.value = '';
   assertHtmlName.value = '';
   assertHtmlExpected.value = '';
+  assertHtmlExpectedReference.value = undefined;
   assertHtmlLocaleOverrides.value = [];
   assertHtmlRoleBlurred.value = false;
   assertHtmlExpectedBlurred.value = false;
@@ -986,9 +988,11 @@ function saveAssertHtmlStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = assertHtmlName.value.trim() ? { name: assertHtmlName.value.trim(), role: assertHtmlRole.value.trim() } : { role: assertHtmlRole.value.trim() };
-    const locales = Object.fromEntries(assertHtmlLocaleOverrides.value.map((override) => [override.locale, override.value]));
-    const expected = Object.keys(locales).length === 0 ? { default: assertHtmlExpected.value } : { default: assertHtmlExpected.value, locales };
-    const step = preserveEditedStepTimeout(editingAssertHtmlIndex.value, { action: 'assertHtml', expected, locator });
+    const existing = editingAssertHtmlIndex.value === undefined ? undefined : selectedCase.value.steps[editingAssertHtmlIndex.value];
+    const previousLocales = (existing as { expected?: { locales?: Record<string, unknown> } } | undefined)?.expected?.locales ?? {};
+    const locales = { ...previousLocales, ...Object.fromEntries(assertHtmlLocaleOverrides.value.map((override) => [override.locale, override.value])) };
+    const expected = Object.keys(locales).length === 0 ? { default: assertHtmlExpectedReference.value ?? assertHtmlExpected.value } : { default: assertHtmlExpectedReference.value ?? assertHtmlExpected.value, locales };
+    const step = { ...(typeof existing === 'object' && existing !== null ? existing : {}), action: 'assertHtml', expected, locator };
     const steps = editingAssertHtmlIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertHtmlIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -1005,6 +1009,7 @@ function resetAssertHtmlDialog(): void {
   assertHtmlRole.value = '';
   assertHtmlName.value = '';
   assertHtmlExpected.value = '';
+  assertHtmlExpectedReference.value = undefined;
   assertHtmlLocaleOverrides.value = [];
   assertHtmlRoleBlurred.value = false;
   assertHtmlExpectedBlurred.value = false;
@@ -1248,7 +1253,9 @@ function editStep(index: number, step: unknown): void {
     editingAssertHtmlIndex.value = index;
     assertHtmlRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     assertHtmlName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertHtmlExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    const expected = (step as { expected?: { default?: string | { var: string } } }).expected?.default;
+    assertHtmlExpectedReference.value = typeof expected === 'object' && expected !== null ? { ...expected } : undefined;
+    assertHtmlExpected.value = typeof expected === 'string' ? expected : '';
     assertHtmlLocaleOverrides.value = readExpectedLocaleOverrides(step);
     assertHtmlRoleBlurred.value = false;
     assertHtmlExpectedBlurred.value = false;
@@ -1679,6 +1686,7 @@ function openStep(index: number, event: MouseEvent): void {
     <AssertHtmlStepDialog
       v-if="assertHtmlDialogOpen"
       :expected="assertHtmlExpected"
+      :expected-reference="assertHtmlExpectedReference?.var"
       :expected-validation-message="assertHtmlExpectedValidationMessage"
       :expected-validation-visible="assertHtmlExpectedBlurred"
       :name="assertHtmlName"
@@ -1690,7 +1698,7 @@ function openStep(index: number, event: MouseEvent): void {
       @close="assertHtmlDialogOpen = false"
       @reset="resetAssertHtmlDialog"
       @save="saveAssertHtmlStep"
-      @update:expected="assertHtmlExpected = $event"
+      @update:expected="assertHtmlExpected = $event; assertHtmlExpectedReference = undefined"
       @update:name="assertHtmlName = $event"
       @update:role="assertHtmlRole = $event"
       @validate="assertHtmlRoleBlurred = true; assertHtmlExpectedBlurred = true"

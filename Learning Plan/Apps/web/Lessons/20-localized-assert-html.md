@@ -16,11 +16,12 @@ HTML value.
 
 ## Multiline HTML values
 
-The Assert HTML card's Locale overrides panel is intentionally separate from
-the base-step dialog. Its alphabetically sorted list supports Add, Edit, and
-confirmed removal. Both the base expected value and an override value use a
-multiline field, because HTML commonly contains markup across several lines.
-Required Locale and Expected HTML feedback appears after blur or Save.
+The Assert HTML Step page's Locales tab is separate from its Default settings.
+The list supports Add, Edit, and confirmed removal. Literal base and override
+values use multiline fields, because HTML commonly contains markup across
+several lines. Required Locale and Expected HTML feedback appears after blur or
+Save. The default can instead reference a Plan variable; individual locale
+overrides are currently literal values.
 
 ## Configured-value preview
 
@@ -28,8 +29,8 @@ Each card emphasizes the exact value selected by the Plan Locale. When a
 matching override exists, that HTML value is primary-coloured and identified by
 a locale pill; otherwise the default is emphasized. The default-state pill
 keeps its space while invisible, so changing the configured locale does not
-shift the cards below it. In the expanded list, the matching override has a
-primary border.
+shift the cards below it. If a variable supplies the active default, the card
+also identifies that variable.
 
 ## Try it
 
