@@ -161,12 +161,16 @@ this repository.
   may resolve to a narrower variable. To avoid changing
   resolution when narrower definitions exist, ambiguous renames are blocked
   and their conflicting locations are shown. The Navigate Step's URL, Type
-  Step's Text, Fill Step's Value, and Select option's Value or Label fields
-  can select an existing Plan variable instead of a literal; the stored
+  Step's Text, Fill Step's Value, Select option's Value or Label, and Assert
+  Text's default expectation can select an existing Plan variable instead of a
+  literal; the stored
   reference contains the variable name, not its resolved value. Navigate offers
   only Text and environment variables; the other fields also accept Number and
   Boolean variables. Their chooser displays
   locale-aware Variable cards, and their Case cards preview the selected value.
+  Assert Text's literal locale override takes precedence when it matches; the
+  card identifies the variable when the default reference is active. Individual
+  assertion locale overrides cannot yet be authored as variable references.
   Plan Variable cards count distinct matching Case Steps and link to their
   details on the Variable page. The count conservatively includes same-named
   references shadowed by narrower definitions and excludes shared-step

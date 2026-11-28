@@ -90,7 +90,7 @@ function createM11ConfigurationBundle(): EditorBundleDraft {
 }
 
 describe('M11 configuration portable-bundle preservation', () => {
-  it('retains Navigate, Type, Fill, and Select option variable references through recovery copying and ZIP export and import', async () => {
+  it('retains action and Assert Text variable references through recovery copying and ZIP export and import', async () => {
     const draft = createM11ConfigurationBundle();
     draft.plan.variables = { email: { default: { env: 'STAGEHAND_EMAIL' } } };
     draft.cases['cases/account.json']!.steps[0] = { action: 'navigate', protocol: 'https://', url: { var: 'email' }, before: [{ delay: 250 }], after: [{ waitForState: 'networkidle' }] };
@@ -98,6 +98,7 @@ describe('M11 configuration portable-bundle preservation', () => {
     draft.cases['cases/account.json']!.steps[3] = { action: 'fill', locator: { role: 'textbox', name: 'Name' }, value: { var: 'email' } };
     draft.cases['cases/account.json']!.steps[4] = { action: 'selectOption', locator: { role: 'combobox', name: 'Country' }, value: { var: 'email' } };
     draft.cases['cases/account.json']!.steps.push({ action: 'selectOption', locator: { role: 'combobox', name: 'Region' }, label: { var: 'email' } });
+    draft.cases['cases/account.json']!.steps.push({ action: 'assertText', locator: { role: 'heading' }, expected: { default: { var: 'email' }, locales: { 'fr-CA': 'Bienvenue' } } });
     const { copyEditorBundleDraft } = await import('../../services/planDraftService');
     const snapshot = copyEditorBundleDraft(draft);
     const exported = preparePortableBundleExport(snapshot);

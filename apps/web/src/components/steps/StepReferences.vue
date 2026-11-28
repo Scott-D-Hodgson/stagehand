@@ -2,7 +2,7 @@
 import { computed, nextTick, provide, ref, toRaw, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useTranslation } from 'i18next-vue';
-import { validateCase } from '@stagehand/plan-schema';
+import { resolveVariable, validateCase, type VariableDefinition } from '@stagehand/plan-schema';
 import { cloneCaseStep, moveCaseStep, updateCaseStepTimeout, type CaseDraft, type VariableDefinitionDraft } from '../../services/planDraftService';
 import { getInvalidCaseStepIndexes } from '../../services/validationService';
 import ConfirmationModal from '../controls/dialogs/ConfirmationModal.vue';
@@ -216,6 +216,7 @@ const typeTextValidationMessage = computed(
 const assertTextRole = ref('');
 const assertTextName = ref('');
 const assertTextExpected = ref('');
+const assertTextExpectedReference = ref<{ var: string }>();
 const assertTextLocaleOverrides = ref<LocaleOverride[]>([]);
 const editingAssertTextIndex = ref<number | undefined>();
 const assertTextRoleBlurred = ref(false);
@@ -240,7 +241,7 @@ Inputs: The Assert text dialog expected-text value.
 Output: A required-field message, when applicable.
 */
 const assertTextExpectedValidationMessage = computed(
-  () => assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined
+  () => assertTextExpectedReference.value === undefined && assertTextExpected.value.trim().length === 0 ? t('editor.expectedTextRequired') : undefined
 );
 const localeOverrideDialogOpen = ref(false);
 const localeOverrideLocale = ref('');
@@ -599,6 +600,7 @@ function addAssertTextStep(): void {
   assertTextRole.value = '';
   assertTextName.value = '';
   assertTextExpected.value = '';
+  assertTextExpectedReference.value = undefined;
   assertTextLocaleOverrides.value = [];
   assertTextRoleBlurred.value = false;
   assertTextExpectedBlurred.value = false;
@@ -620,9 +622,11 @@ function saveAssertTextStep(): void {
   }
   if (selectedCase.value !== undefined && props.selectedPath) {
     const locator = assertTextName.value.trim() ? { name: assertTextName.value.trim(), role: assertTextRole.value.trim() } : { role: assertTextRole.value.trim() };
-    const locales = Object.fromEntries(assertTextLocaleOverrides.value.map((override) => [override.locale, override.value]));
-    const expected = Object.keys(locales).length === 0 ? { default: assertTextExpected.value } : { default: assertTextExpected.value, locales };
-    const step = preserveEditedStepTimeout(editingAssertTextIndex.value, { action: 'assertText', expected, locator });
+    const existing = editingAssertTextIndex.value === undefined ? undefined : selectedCase.value.steps[editingAssertTextIndex.value];
+    const previousLocales = (existing as { expected?: { locales?: Record<string, unknown> } } | undefined)?.expected?.locales ?? {};
+    const locales = { ...previousLocales, ...Object.fromEntries(assertTextLocaleOverrides.value.map((override) => [override.locale, override.value])) };
+    const expected = Object.keys(locales).length === 0 ? { default: assertTextExpectedReference.value ?? assertTextExpected.value } : { default: assertTextExpectedReference.value ?? assertTextExpected.value, locales };
+    const step = { ...(typeof existing === 'object' && existing !== null ? existing : {}), action: 'assertText', expected, locator };
     const steps = editingAssertTextIndex.value === undefined ? [...selectedCase.value.steps, step] : selectedCase.value.steps.map((candidate, index) => index === editingAssertTextIndex.value ? step : candidate);
     emit('update:steps', props.selectedPath, steps);
   }
@@ -639,6 +643,7 @@ function resetAssertTextDialog(): void {
   assertTextRole.value = '';
   assertTextName.value = '';
   assertTextExpected.value = '';
+  assertTextExpectedReference.value = undefined;
   assertTextLocaleOverrides.value = [];
   assertTextRoleBlurred.value = false;
   assertTextExpectedBlurred.value = false;
@@ -898,7 +903,54 @@ Inputs: A raw Assert text step.
 Output: The authored default expected text.
 */
 function getExpectedDefaultValue(step: unknown): string {
-  return (step as { expected?: { default?: string } }).expected?.default ?? '';
+  const value = (step as { expected?: { default?: string | { var: string } } }).expected?.default;
+  if (typeof value !== 'object' || value === null) {
+    return value ?? '';
+  }
+  const caseData = selectedCase.value as (CaseDraft & { variables?: Record<string, VariableDefinition>; dataSets?: { default?: Record<string, VariableDefinition> } }) | undefined;
+  const result = resolveVariable({ name: value.var, locale: props.planLocale, planVariables: props.planVariables as Record<string, VariableDefinition> | undefined, caseVariables: caseData?.variables, dataSetVariables: caseData?.dataSets?.default, stepVariables: (step as { variables?: Record<string, VariableDefinition> }).variables });
+  if (!result.resolved) {
+    return t('editor.variableUnavailable', { name: value.var });
+  }
+  return typeof result.value === 'object' ? `$${result.value.env}` : String(result.value);
+}
+
+/*
+Identifies the variable supplying the active Assert Text expectation.
+---
+Inputs: An assertion step and the configured Plan locale.
+---
+Output: Its default variable name when no literal locale override applies.
+*/
+function getExpectedVariableName(step: unknown): string | undefined {
+  const assertion = step as { action?: string; expected?: { default?: unknown } };
+  const value = assertion.expected?.default;
+  if (assertion.action !== 'assertText' || getConfiguredLocaleOverride(step) !== undefined || typeof value !== 'object' || value === null || !('var' in value) || typeof value.var !== 'string') {
+    return undefined;
+  }
+  return value.var;
+}
+
+/*
+Finds the active locale of an assertion's default variable.
+---
+Inputs: A raw assertion step and the current variable scopes.
+---
+Output: The matching variable locale, if one applies.
+*/
+function getExpectedVariableLocale(step: unknown): string | undefined {
+  const value = (step as { expected?: { default?: string | { var: string } }; variables?: Record<string, VariableDefinition> }).expected?.default;
+  if (typeof value !== 'object' || value === null) {
+    return undefined;
+  }
+  const caseData = selectedCase.value as (CaseDraft & { variables?: Record<string, VariableDefinition>; dataSets?: { default?: Record<string, VariableDefinition> } }) | undefined;
+  const stepVariables = (step as { variables?: Record<string, VariableDefinition> }).variables;
+  const result = resolveVariable({ name: value.var, locale: props.planLocale, planVariables: props.planVariables as Record<string, VariableDefinition> | undefined, caseVariables: caseData?.variables, dataSetVariables: caseData?.dataSets?.default, stepVariables });
+  if (!result.resolved) {
+    return undefined;
+  }
+  const definition = result.source === 'step' ? stepVariables?.[value.var] : result.source === 'dataSet' ? caseData?.dataSets?.default?.[value.var] : result.source === 'case' ? caseData?.variables?.[value.var] : props.planVariables?.[value.var];
+  return Object.keys(definition?.locales ?? {}).find((locale) => getCanonicalLocale(locale) === getCanonicalLocale(props.planLocale));
 }
 
 /*
@@ -1207,7 +1259,9 @@ function editStep(index: number, step: unknown): void {
     editingAssertTextIndex.value = index;
     assertTextRole.value = (step as { locator?: { role?: string } }).locator?.role ?? '';
     assertTextName.value = (step as { locator?: { name?: string } }).locator?.name ?? '';
-    assertTextExpected.value = (step as { expected?: { default?: string } }).expected?.default ?? '';
+    const expected = (step as { expected?: { default?: string | { var: string } } }).expected?.default;
+    assertTextExpectedReference.value = typeof expected === 'object' && expected !== null ? { ...expected } : undefined;
+    assertTextExpected.value = typeof expected === 'string' ? expected : '';
     assertTextLocaleOverrides.value = readExpectedLocaleOverrides(step);
     assertTextRoleBlurred.value = false;
     assertTextExpectedBlurred.value = false;
@@ -1477,12 +1531,13 @@ function openStep(index: number, event: MouseEvent): void {
             :is="getStepDetailComponent(item.step)"
             :action-label="getStepActionLabel(item.step)"
             :editing="editing"
-            :effective-locale="getConfiguredLocaleOverride(item.step)?.locale ?? props.planLocale"
+            :effective-locale="getConfiguredLocaleOverride(item.step)?.locale ?? getExpectedVariableLocale(item.step) ?? props.planLocale"
             :effective-value="getConfiguredLocaleOverride(item.step)?.value ?? getExpectedDefaultValue(item.step)"
-            :has-locale-override="getConfiguredLocaleOverride(item.step) !== undefined"
+            :has-locale-override="getConfiguredLocaleOverride(item.step) !== undefined || getExpectedVariableLocale(item.step) !== undefined"
             :index="item.index"
             :invalid="invalidStepIndexes.includes(item.index)"
             :locale-overrides="getLocaleOverrideItems(item.step)"
+            :variable-name="getExpectedVariableName(item.step)"
             :step="item.step"
             :step-count="selectedCase.steps.length"
             :timeout="typeof item.step === 'object' && item.step !== null ? (item.step as { timeout?: unknown }).timeout : undefined"
@@ -1590,6 +1645,7 @@ function openStep(index: number, event: MouseEvent): void {
     <AssertTextStepDialog
       v-if="assertTextDialogOpen"
       :expected="assertTextExpected"
+      :expected-reference="assertTextExpectedReference?.var"
       :expected-validation-message="assertTextExpectedValidationMessage"
       :expected-validation-visible="assertTextExpectedBlurred"
       :name="assertTextName"
@@ -1601,7 +1657,7 @@ function openStep(index: number, event: MouseEvent): void {
       @close="assertTextDialogOpen = false"
       @reset="resetAssertTextDialog"
       @save="saveAssertTextStep"
-      @update:expected="assertTextExpected = $event"
+      @update:expected="assertTextExpected = $event; assertTextExpectedReference = undefined"
       @update:name="assertTextName = $event"
       @update:role="assertTextRole = $event"
       @validate="assertTextRoleBlurred = true; assertTextExpectedBlurred = true"

@@ -21,9 +21,9 @@ It does not ask for, retain, or recover the value supplied by that environment
 variable. This keeps the browser editor on the safe side of the protected-value
 boundary.
 
-A variable reference is a separate capability. Navigate, Type, Fill, and Select option
-Steps can select a Plan variable and save a whole-field object such as
-`{ "var": "userName" }`.
+A variable reference is a separate capability. Navigate, Type, Fill, and Select
+option Steps, and the default Assert Text expectation, can select a Plan
+variable and save a whole-field object such as `{ "var": "userName" }`.
 Other supported Step fields still need their authoring controls.
 
 Navigate stores a `protocol` of `https://` or `http://` separately from its
@@ -77,6 +77,8 @@ definitions.
 8. Add a Navigate step, choose HTTP and then HTTPS, and select a Text variable
    whose value is `example.test`. Confirm Number and Boolean variables are not
    offered. Apply, revisit the Step card, and check recovery and ZIP export.
+9. Select a variable for an Assert Text default expectation. Add a literal
+   locale override and compare the Case card when each value is active.
 
 ## You are ready when
 
