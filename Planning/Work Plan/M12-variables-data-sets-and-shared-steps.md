@@ -47,8 +47,11 @@ suite passed 88 tests, type-check, and build for this slice; the owner accepted
 the card presentation. The Assert HTML default now uses the same variable
 chooser and locale-aware card preview, preserving the reference when edited or
 cloned. The web suite passed 88 tests, type-check, and build for this slice;
-the owner accepted the result. Variable authoring for Assert Value, associated
-labels, and individual assertion locale overrides remains open.
+the owner accepted the result. Assert Value's default expectation now follows
+the same pattern while retaining associated-label settings; its web suite
+passed 88 tests, type-check, and build, and the owner accepted the result.
+Variable authoring for associated labels and individual assertion locale
+overrides remains open.
 
 1. **Variables and protected references:** author plan-level variable
    definitions, their default localized literal values, and default
