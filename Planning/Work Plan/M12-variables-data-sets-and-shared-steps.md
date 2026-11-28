@@ -44,8 +44,11 @@ evidence remain open. The Assert Text default expectation now supports a
 Plan-variable reference with a locale-aware Case-card preview; assertion
 locale overrides remain literal in the editor. The development-container web
 suite passed 88 tests, type-check, and build for this slice; the owner accepted
-the card presentation. Variable authoring for Assert HTML, Assert Value,
-associated labels, and individual assertion locale overrides remains open.
+the card presentation. The Assert HTML default now uses the same variable
+chooser and locale-aware card preview, preserving the reference when edited or
+cloned. The web suite passed 88 tests, type-check, and build for this slice;
+the owner accepted the result. Variable authoring for Assert Value, associated
+labels, and individual assertion locale overrides remains open.
 
 1. **Variables and protected references:** author plan-level variable
    definitions, their default localized literal values, and default

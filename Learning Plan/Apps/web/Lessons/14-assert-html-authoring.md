@@ -28,6 +28,12 @@ HTML rather than visible text. The dialog therefore uses a multiline Expected
 HTML field, which makes markup easier to enter and review without changing the
 stored contract.
 
+On the Step page, **Use variable?** can replace the literal default with a
+Plan-variable reference. The Case card previews the locale-aware value and
+identifies the variable while that default is active. A matching literal
+assertion locale override takes precedence. Individual locale overrides are
+still authored as literals.
+
 Role and Expected HTML are required and independently blur-gated; Accessible
 name remains optional. The early M11 workflow adds optional localized expected
 values; [Lesson 20](20-localized-assert-html.md) covers that dedicated Step-page flow.
@@ -45,8 +51,9 @@ IndexedDB autosave.
 
 Add an Assert HTML step for a heading named `Welcome`, with Expected HTML
 `<strong>Welcome</strong>`. Blur an empty Role and Expected HTML field
-independently to compare their feedback. Save, edit the markup, clone the card,
-remove one copy, then refresh and restore the recovery record.
+independently to compare their feedback. Save, select a Plan variable on the
+Step page, and apply it. Check the Case card, add a literal locale override,
+then edit and clone the step. Refresh and restore the recovery record.
 
 ## You are ready when
 
@@ -54,6 +61,8 @@ remove one copy, then refresh and restore the recovery record.
   visible-text comparison.
 - You know why both forms save `expected.default` despite using different
   input controls.
+- You can distinguish a literal HTML default from a Plan-variable reference
+  and explain when a locale override takes precedence.
 - You know that localized Assert-HTML expectations are covered by the early M11
   workflow in [Lesson 20](20-localized-assert-html.md).
 

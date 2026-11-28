@@ -162,13 +162,13 @@ this repository.
   resolution when narrower definitions exist, ambiguous renames are blocked
   and their conflicting locations are shown. The Navigate Step's URL, Type
   Step's Text, Fill Step's Value, Select option's Value or Label, and Assert
-  Text's default expectation can select an existing Plan variable instead of a
-  literal; the stored
+  Text and Assert HTML default expectations can select an existing Plan
+  variable instead of a literal; the stored
   reference contains the variable name, not its resolved value. Navigate offers
   only Text and environment variables; the other fields also accept Number and
   Boolean variables. Their chooser displays
   locale-aware Variable cards, and their Case cards preview the selected value.
-  Assert Text's literal locale override takes precedence when it matches; the
+  An assertion's literal locale override takes precedence when it matches; the
   card identifies the variable when the default reference is active. Individual
   assertion locale overrides cannot yet be authored as variable references.
   Plan Variable cards count distinct matching Case Steps and link to their
@@ -195,12 +195,12 @@ this repository.
   Value-or-Label mode, with either a literal or Plan-variable reference, and
   saves exactly one of those fields. Their Overrides panels author the default-enabled
   `scrollIntoView` setting: enabled stays omitted from portable data while an
-  explicit disablement writes `false`. Assert text uses that locator and one literal default
-  Expected text value. Assert text, Assert HTML, and Assert value have dedicated
+  explicit disablement writes `false`. Assert text uses that locator and a literal
+  or Plan-variable default Expected text value. Assert text, Assert HTML, and Assert value have dedicated
   Step-page Locales tabs using the catalogue. They preview the configured Plan Locale
   by emphasizing its matching override, or the default when no override
-  matches. Assert HTML uses the same locator, a literal default Expected HTML
-  value, and multiline base and override fields. Assert value uses the same
+  matches. Assert HTML uses the same locator, a literal or Plan-variable default
+  Expected HTML value, and multiline literal base and override fields. Assert value uses the same
   locator and literal default and override Expected values; its optional
   associated-label check is an optional always-soft assertion with its own
   default and localized expected values.
