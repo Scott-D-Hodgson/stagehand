@@ -99,6 +99,7 @@ const effectiveCaseTimeout = computed(
 );
 type LocalizedAssertionAction = 'assertHtml' | 'assertText' | 'assertValue';
 type LocalizedExpectedTarget = 'associatedLabel' | 'expected';
+type LocalizedExpectation = { default: string | { var: string }; locales?: Record<string, string> };
 
 interface LocaleDialogState {
   action: LocalizedAssertionAction;
@@ -343,7 +344,7 @@ Inputs: A partial replacement for the selected Assert text step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateAssertTextStep(fields: { expected?: { default: string; locales?: Record<string, string> }; locator?: { name?: string; role: string } }): void {
+function updateAssertTextStep(fields: { expected?: LocalizedExpectation; locator?: { name?: string; role: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -359,7 +360,7 @@ Inputs: A partial replacement for the selected Assert HTML step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateAssertHtmlStep(fields: { expected?: { default: string; locales?: Record<string, string> }; locator?: { name?: string; role: string } }): void {
+function updateAssertHtmlStep(fields: { expected?: LocalizedExpectation; locator?: { name?: string; role: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -375,7 +376,7 @@ Inputs: A partial replacement for the selected Assert value step.
 ---
 Output: A replacement step list for the selected case.
 */
-function updateAssertValueStep(fields: { associatedLabel?: { default: string; locales?: Record<string, string> } | undefined; expected?: { default: string; locales?: Record<string, string> }; locator?: { name?: string; role: string } }): void {
+function updateAssertValueStep(fields: { associatedLabel?: LocalizedExpectation | undefined; expected?: LocalizedExpectation; locator?: { name?: string; role: string } }): void {
   if (selectedCase.value === undefined || typeof selectedStep.value !== 'object' || selectedStep.value === null) {
     return;
   }
@@ -395,16 +396,16 @@ Inputs: The current selected step.
 ---
 Output: A complete expected-value structure safe to update.
 */
-function getLocalizedExpected(target: LocalizedExpectedTarget = 'expected'): { default: string; locales?: Record<string, string> } {
+function getLocalizedExpected(target: LocalizedExpectedTarget = 'expected'): LocalizedExpectation {
   if (typeof selectedStep.value !== 'object' || selectedStep.value === null || !(target in selectedStep.value)) {
     return { default: '' };
   }
   const expected = (selectedStep.value as { associatedLabel?: unknown; expected?: unknown })[target];
-  if (typeof expected !== 'object' || expected === null || !('default' in expected) || typeof expected.default !== 'string') {
+  if (typeof expected !== 'object' || expected === null || !('default' in expected) || (typeof expected.default !== 'string' && (typeof expected.default !== 'object' || expected.default === null || !('var' in expected.default) || typeof expected.default.var !== 'string'))) {
     return { default: '' };
   }
   const locales = 'locales' in expected && typeof expected.locales === 'object' && expected.locales !== null ? expected.locales as Record<string, string> : undefined;
-  return { default: expected.default, locales };
+  return { default: typeof expected.default === 'string' ? expected.default : { var: expected.default.var as string }, locales };
 }
 
 /*
@@ -414,7 +415,7 @@ Inputs: The assertion action and its replacement expected-value structure.
 ---
 Output: A replacement selected assertion step.
 */
-function updateLocalizedExpected(action: LocalizedAssertionAction, target: LocalizedExpectedTarget, expected: { default: string; locales?: Record<string, string> }): void {
+function updateLocalizedExpected(action: LocalizedAssertionAction, target: LocalizedExpectedTarget, expected: LocalizedExpectation): void {
   if (action === 'assertValue' && target === 'associatedLabel') {
     updateAssertValueStep({ associatedLabel: expected });
     return;
@@ -660,10 +661,12 @@ function formatActionName(action: string | undefined): string {
     :after="Array.isArray((selectedStep as { after?: unknown[] } | undefined)?.after) ? (selectedStep as { after: unknown[] }).after : []"
     :before="Array.isArray((selectedStep as { before?: unknown[] } | undefined)?.before) ? (selectedStep as { before: unknown[] }).before : []"
     :editing="props.editing"
-    :expected="(selectedStep as { expected?: { default?: string } } | undefined)?.expected?.default ?? ''"
+    :expected="(selectedStep as { expected?: { default?: string | { var: string } } } | undefined)?.expected?.default ?? ''"
     :index="stepIndex"
     :inherited-timeout="effectiveCaseTimeout"
     :name="(selectedStep as { locator?: { name?: string } } | undefined)?.locator?.name ?? ''"
+    :plan-locale="props.planLocale"
+    :variables="props.planVariables"
     :overrides="Object.entries((selectedStep as { expected?: { locales?: Record<string, string> } } | undefined)?.expected?.locales ?? {}).map(([locale, value]) => ({ locale, value }))"
     :role="(selectedStep as { locator?: { role?: string } } | undefined)?.locator?.role ?? ''"
     :soft="(selectedStep as { soft?: unknown } | undefined)?.soft === true"

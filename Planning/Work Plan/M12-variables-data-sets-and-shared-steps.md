@@ -40,7 +40,12 @@ tests, type-check, and build; schema, runner-core, and plan-engine checks also
 passed for the Navigate contract update, and the owner reported that all tests
 look good. Other supported
 Step fields and milestone-wide browser, recovery, conflict, and round-trip
-evidence remain open.
+evidence remain open. The Assert Text default expectation now supports a
+Plan-variable reference with a locale-aware Case-card preview; assertion
+locale overrides remain literal in the editor. The development-container web
+suite passed 88 tests, type-check, and build for this slice; the owner accepted
+the card presentation. Variable authoring for Assert HTML, Assert Value,
+associated labels, and individual assertion locale overrides remains open.
 
 1. **Variables and protected references:** author plan-level variable
    definitions, their default localized literal values, and default

@@ -18,6 +18,7 @@ const props = defineProps<{
   step: unknown;
   stepCount: number;
   timeout: unknown;
+  variableName?: string;
 }>();
 const emit = defineEmits<{
   'add-locale-override': [];
@@ -105,6 +106,10 @@ const target = computed(
         <span class="text-body-secondary">{{ target }} → </span>
         <span class="text-primary fw-bold">{{ props.effectiveValue }}</span>
         <span :class="['badge', 'rounded-pill', 'bg-body-secondary', 'border', 'ms-2', 'text-body', { invisible: !props.hasLocaleOverride }]">{{ props.effectiveLocale }}</span>
+        <span
+          v-if="props.variableName"
+          class="text-body-secondary"
+        > ({{ t('editor.variable') }}: {{ props.variableName }})</span>
       </p>
     </section>
     <section v-else :id="`step-locale-overrides-panel-${props.index}`" role="tabpanel" :aria-labelledby="`step-locale-overrides-tab-${props.index}`">

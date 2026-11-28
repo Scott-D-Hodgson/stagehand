@@ -11,6 +11,7 @@ interface BootstrapModal {
 
 const props = defineProps<{
   expected: string;
+  expectedReference?: string;
   expectedValidationMessage?: string;
   expectedValidationVisible: boolean;
   name: string;
@@ -163,9 +164,10 @@ onBeforeUnmount(() => modal?.dispose());
           <input
             id="assert-text-expected"
             :value="props.expected"
+            :placeholder="props.expectedReference ? `${t('editor.variable')}: ${props.expectedReference}` : undefined"
             class="form-control"
             :class="{ 'is-invalid': props.expectedValidationVisible && props.expectedValidationMessage !== undefined }"
-            required
+            :required="!props.expectedReference"
             @blur="reportExpectedBlur"
             @input="emit('update:expected', ($event.target as HTMLInputElement).value)"
           />

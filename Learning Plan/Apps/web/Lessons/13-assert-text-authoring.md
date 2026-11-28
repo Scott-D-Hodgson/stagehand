@@ -27,10 +27,17 @@ optional. Each required field shows its localized feedback only after its own
 blur or an attempted save. This keeps the first view calm while still making
 an incomplete assertion clear before it reaches the case draft.
 
-The current form writes one literal `expected.default` value. The contract can
-also represent locale-specific expected values, but those belong to M11 with
-the related browser and run configuration work. The dialog must not imply that
-localized assertion behaviour is already authorable.
+The creation dialog writes a literal `expected.default` value. On the Step
+page, **Use variable?** switches the default expectation between a literal and
+a Plan-variable reference such as `{ "var": "welcome" }`. Select a variable
+card and choose Apply to save it. The reference names the variable; it does not
+copy the variable's value into the assertion.
+
+The Locales tab supports literal expectation overrides. A matching assertion
+override takes precedence over the default, including a default variable. When
+the variable supplies the active value, the Case card shows its locale-aware
+value and variable name. Individual assertion locale overrides cannot yet be
+authored as variable references.
 
 ## Reuse and recovery
 
@@ -47,15 +54,17 @@ autosave, preventing reactive state from crossing the storage boundary.
 
 Add an Assert text step for a heading named `Welcome`, with Expected text
 `Welcome`. Blur each empty required field separately to observe its feedback.
-Save the step, edit its expected text, clone it, then remove one card. Refresh
-and restore the recovery copy to confirm the default expected value remains.
+Save the step, select a Plan variable on its Step page, and apply it. Change
+the Plan locale and inspect the Case card. Add a literal assertion override
+for that locale and confirm it takes precedence. Edit the step, clone it, then
+refresh and restore to check that the default reference remains.
 
 ## You are ready when
 
 - You can identify the difference between the target’s Accessible name and its
   expected visible text.
 - You know why the form saves `expected.default` rather than a raw text field.
-- You can distinguish the literal default expected value from the early M11
+- You can distinguish a literal default, a default variable reference, and the
   locale-override workflow described in Lesson 19.
 
 [← Previous: Select-option authoring](12-select-option-authoring.md) · [Course outline](../README.md) · [Next: Assert-HTML authoring →](14-assert-html-authoring.md)
